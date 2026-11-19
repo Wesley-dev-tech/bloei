@@ -516,13 +516,18 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
   bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s-4));
   z-index: 40;
   display: flex;
+  /* BESLISSING 704: er kunnen er twee tegelijk staan - de vaste melding van een nieuwe versie onderaan, een gewone melding erboven. */
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
   justify-content: center;
   padding: 0 var(--s-5);
   pointer-events: none;
 }
 /* Op een breed scherm: compact, onderaan in het midden van het inhoudsvlak (rechts van de zijbalk) */
 @media (min-width: 960px) {
-  .strokenhouder { left: calc(var(--rail-width) + var(--safe-left)); bottom: calc(var(--safe-bottom) + var(--s-6)); }
+  /* dezelfde zijmarge als #scherm (layout.css), zodat een vaste melding precies onder de kaarten uitlijnt */
+  .strokenhouder { left: calc(var(--rail-width) + var(--safe-left)); bottom: calc(var(--safe-bottom) + var(--s-6)); padding-inline: max(var(--marge-desktop), var(--safe-right)); }
   body:has(.schil[data-nav="uit"]) .strokenhouder { left: 0; }
 }
 .strook {
@@ -542,6 +547,19 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
   font-size: var(--fs-small);
   animation: blad-op var(--dur) var(--ease);
 }
+/* BESLISSING 704: de vaste melding van een nieuwe versie is even breed als de kaarten erboven en lijnt links en rechts met hen uit, op
+   elk formaat: op een telefoon de schermbreedte min de marge, op een tablet 720 min de marge, op een desktop de volle inhoudsbreedte
+   (1120). Ze houdt haar ronde hoeken. Een gewone melding erboven blijft smal en gecentreerd, zoals elke melding. */
+.strook--vast { max-width: calc(var(--content-max) - var(--s-5) * 2); }
+@media (min-width: 720px) and (max-width: 959.98px) { .strook--vast { max-width: calc(var(--content-max-tablet) - var(--s-5) * 2); } }
+@media (min-width: 960px) { .strook--vast { max-width: var(--content-max-breed); } }
+/* Op een smalle telefoon (onder 420 px) moet de zin van de updatebalk naast de knop op EEN regel passen: iets minder zijruimte en een
+   haartje kleiner. Een tweede regel zou de balk dubbel zo hoog maken, vlak boven de tabbalk. */
+@media (max-width: 419.98px) {
+  .strook--vast { padding-inline: var(--s-4); }
+  .strook--vast .strook__tekst { font-size: calc(var(--fs-small) * 0.9); }
+}
+
 .strook__actie {
   min-height: var(--tap-min);
   padding: 0 var(--s-2);
@@ -611,6 +629,16 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
 .watnieuw--meer .watnieuw__lijst { margin-bottom: var(--s-2); }
 .watnieuw__versie { margin: 0; }
 .watnieuw__versie .watnieuw__datum { letter-spacing: 0; text-transform: none; }
+/* BESLISSING 703: het blad "Wat is er nieuw" houdt altijd dezelfde rustige vorm: het kader rekt niet mee met de lijst. De titel met het kruisje
+   en de knop Sluiten blijven staan, alleen de punten schuiven. Dat geldt overal: na een update met een of meer versies, en in de geschiedenis
+   vanuit Over, die met de jaren blijft groeien. De hoogte is in dvh, zodat ze op elke telefoon en op de desktop dezelfde verhouding houdt. */
+.watnieuw__blad > .dialoog { overflow: hidden; }
+.watnieuw__blad .dialoog__inhoud { max-height: 46dvh; overflow-y: auto; overscroll-behavior: contain; }
+@media (min-width: 960px), (min-width: 720px) and (min-height: 500.02px) { .watnieuw__blad .dialoog__inhoud { max-height: 50dvh; } }
+/* De knop Sluiten is de enige actie van dit blad: ze hoeft de volle breedte niet (zoals de knop van de demobalk, demo.css). Ze staat
+   gecentreerd en neemt altijd 60% van de breedte van het blad: op een telefoon en op een breed scherm dus dezelfde verhouding, geen vaste
+   maat die op het ene scherm fors en op het andere klein oogt. De ondergrens houdt haar leesbaar op een heel smalle telefoon. */
+.watnieuw__blad .dialoog__acties > .knop { width: 60%; min-width: min(100%, 9rem); max-width: 100%; align-self: center; }
 
 /* ---------- Logo (§2) ---------- */
 .logo {

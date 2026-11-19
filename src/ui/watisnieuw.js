@@ -14,7 +14,7 @@ import { begripTegel } from './iconenkaart.js';
 import { t } from '../teksten.js';
 import { opmaakDatum } from '../kern/datum.js';
 import { leesInstelling, zetInstelling, isStartKlaar } from '../data/instellingen.js';
-import { wijzigingenSinds, nieuwsteWijziging } from '../data/wijzigingen.js';
+import { WIJZIGINGEN, wijzigingenSinds } from '../data/wijzigingen.js';
 import { DEMO } from '../kern/demo.js';
 import { version as appVersie } from '../../package.json';
 
@@ -35,7 +35,8 @@ const puntenLijst = (wijziging) =>
   );
 
 // Het blad voor een lijst van versies (nieuwste eerst). Een lege lijst: null (er valt niets te tonen).
-export function maakWatIsNieuwBlad(lijst) {
+// titel: standaard "Nieuw in Bloei <nieuwste versie>"; de geschiedenis vanuit Over draagt gewoon "Wat is er nieuw".
+export function maakWatIsNieuwBlad(lijst, titel) {
   const wijzigingen = (Array.isArray(lijst) ? lijst : [lijst]).filter(Boolean);
   if (!wijzigingen.length) return null;
   const meerdere = wijzigingen.length > 1;
@@ -49,7 +50,7 @@ export function maakWatIsNieuwBlad(lijst) {
     puntenLijst(w),
   ]);
   const b = blad({
-    titel: t('watnieuw.titel', { versie: wijzigingen[0].versie }),
+    titel: titel ?? t('watnieuw.titel', { versie: wijzigingen[0].versie }),
     familie: 'algemeen',
     inhoud: h('div', { class: ['stapel', 'watnieuw', meerdere && 'watnieuw--meer'] }, ...blokken),
     acties: [knop(t('algemeen.sluiten'), { soort: 'primair', breed: true, opKlik: () => b.sluit() })],
@@ -58,10 +59,11 @@ export function maakWatIsNieuwBlad(lijst) {
   return b;
 }
 
-// Opent het blad. Zonder lijst: alles sinds 'sinds' tot de versie die nu draait; de ingang bij Over geeft niets mee en toont dan
-// de nieuwste lijst. Geeft false als er niets te tonen valt.
+// Opent het blad. Met een lijst: precies die versies (de start geeft door wat er sinds de vorige keer bij kwam).
+// Zonder lijst: de hele geschiedenis, nieuwste versie eerst - zo kan de gebruiker vanuit Over terugkijken naar wat er vroeger veranderde.
+// Geeft false als er niets te tonen valt.
 export function openWatIsNieuw(lijst) {
-  const b = maakWatIsNieuwBlad(lijst ?? wijzigingenSinds(null, appVersie) ?? nieuwsteWijziging());
+  const b = maakWatIsNieuwBlad(lijst ?? WIJZIGINGEN, lijst ? null : t('watnieuw.knop'));
   if (!b) return false;
   b.open();
   return true;

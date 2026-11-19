@@ -18,7 +18,7 @@ import { opmaakKg, opmaakLiter, opmaakMl, opmaakVerschil } from '../kern/getal.j
 import { ICOON } from './iconenkaart.js';
 
 const MAALTIJDICOON = { ontbijt: 'mug-saucer', tussendoortje: 'apple-whole', middagmaal: 'bowl-food', vieruurtje: 'cookie-bite', avondmaal: 'utensils', latesnack: 'moon' };
-const DRANKICOON = { water: 'glass-water', thee: 'mug-hot', koffie: 'mug-saucer', sap: 'lemon', frisdrank: 'bottle-water', anders: 'glass-water' };
+const DRANKICOON = { water: 'eigen/kan-water', thee: 'mug-hot', koffie: 'mug-saucer', sap: 'lemon', frisdrank: 'bottle-water', anders: 'glass-water' };
 const SOORTEN = ['water', 'thee', 'koffie', 'sap', 'frisdrank', 'anders'];
 
 const STREEP = '-';

@@ -46,7 +46,7 @@ export const ICOON = {
   algemeen: { naam: 'sliders', familie: 'neutraal', stijl: 'solid' }, // het tabblad Algemeen (route #/meer) en de kop "Jouw instellingen"
   // de onderdelen van de dag
   eten: { naam: 'utensils', familie: 'maaltijd', stijl: 'solid' },
-  drinken: { naam: 'glass-water', familie: 'drank', stijl: 'solid' }, // ook het dagdoel en de dranktegel water
+  drinken: { naam: 'glass-water', familie: 'drank', stijl: 'solid' }, // ook het dagdoel en de dranktegel "Glas water" (de kan heeft haar eigen tekening, BESLISSING 702)
   supplementen: { naam: 'capsules', familie: 'gezondheid', stijl: 'solid' },
   spuit: { naam: 'syringe', familie: 'gezondheid', stijl: 'solid' }, // de geplande beurt van een periodiek supplement (BESLISSING 251)
   stemming: { naam: 'face-smile', familie: 'neutraal', stijl: 'regular', rond: true }, // de kop van Stemming en energie; de stap zelf: STEMMING_STAP
@@ -88,7 +88,7 @@ export const ICOON = {
 // De vijf stappen van de stemming: het gezichtje (regular) in de stapkleur --mood-n op een ronde tegel in --mood-n-soft (HUISSTIJL §5.2).
 export const STEMMING_STAP = ['face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'];
 
-// Welke begrippen een icoon delen, bewust: de huisstijl zelf (koffie en ontbijt delen mug-saucer, "Kan water" en "Glas water" glass-water; die staan
+// Welke begrippen een icoon delen, bewust: de huisstijl zelf (koffie en ontbijt delen mug-saucer; de dranken staan
 // in beeld.js), vergrendeling en pincode zijn één begrip, en het potlood is zowel de notitie als de actie bewerken.
 export const UITZONDERINGEN = [
   ['vergrendeling', 'pincode'], // lock: één begrip

@@ -3,7 +3,7 @@
 // vóór de app iets tekent (main.js roept dit als eerste aan: nog geen slot, geen gegevens, geen invoer, dus nooit midden in het gebruik).
 // Valkuilen:
 // - herlaadlus: een vlag in sessionStorage. Staat ze er al en wacht er nog altijd een worker, dan probeert Bloei het niet opnieuw en
-//   start de app gewoon (de melding "Herladen" van registratie.js verschijnt dan zoals altijd). Zonder wachtende worker gaat de vlag weg.
+//   start de app gewoon (de melding "Updaten" van registratie.js verschijnt dan zoals altijd). Zonder wachtende worker gaat de vlag weg.
 // - meerdere vensters: de wachtende worker antwoordt zelf (sw.js) of hij wisselt. Is er nog een ander venster van Bloei open, dan
 //   zegt hij nee: dat venster mag niet midden in het gebruik herladen; hier start de app dan gewoon en blijft de melding.
 // - offline of geen service worker: geen wachtende worker, dus niets te doen en geen wachttijd.

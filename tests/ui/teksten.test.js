@@ -44,8 +44,13 @@ describe('teksten', () => {
     for (const [sleutel, tekst] of ALLES) expect(tekst.trim(), sleutel).not.toBe('');
   });
 
+  // BESLISSING 704: één uitzondering, op vraag van de eigenaar: de balk die vraagt om te updaten. Verder blijft de regel gelden.
+  const UITROEP_MAG = ['algemeen.nieuweVersie'];
   it('heeft geen uitroeptekens', () => {
-    for (const [sleutel, tekst] of ALLES) expect(tekst, sleutel).not.toContain('!');
+    for (const [sleutel, tekst] of ALLES) {
+      if (UITROEP_MAG.includes(sleutel)) continue;
+      expect(tekst, sleutel).not.toContain('!');
+    }
   });
 
   it('heeft geen emoji', () => {

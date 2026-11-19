@@ -8,6 +8,16 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.2.2',
+    datum: '2026-11-19',
+    tijd: '23:05',
+    punten: [
+      { begrip: 'drinken', tekst: 'Kan water heeft een eigen kan als icoon, zodat je ze niet meer verwart met Glas water.' },
+      { begrip: 'uitleg', tekst: 'Bij Over kijk je nu terug naar alles wat er in vorige versies veranderde.' },
+      { begrip: 'herinneringen', tekst: 'De melding van een nieuwe versie blijft staan tot je op Updaten tikt.' },
+    ],
+  },
+  {
     versie: '0.2.1',
     datum: '2026-11-19',
     tijd: '22:30',

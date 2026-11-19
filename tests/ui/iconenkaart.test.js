@@ -8,7 +8,8 @@ import { ICOON, STEMMING_STAP, UITZONDERINGEN } from '../../src/ui/iconenkaart.j
 import { MAALTIJDICOON, DRANKICOON } from '../../src/ui/beeld.js';
 
 const FAMILIES = ['maaltijd', 'drank', 'gezondheid', 'dag', 'dagboek', 'gewicht', 'delen', 'neutraal'];
-const bestaat = (naam, stijl = 'solid') => ICOONNAMEN.includes(`${stijl}/${naam}`);
+// Een naam met een map erin ('eigen/kan-water') wijst zelf de stijl aan; anders geldt de meegegeven stijl.
+const bestaat = (naam, stijl = 'solid') => ICOONNAMEN.includes(naam.includes('/') ? naam : `${stijl}/${naam}`);
 
 describe('iconenkaart', () => {
   it('elk begrip verwijst naar een bestaand icoon, met een familie uit de huisstijl', () => {

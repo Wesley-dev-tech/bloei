@@ -704,14 +704,16 @@ export function strookElement(tekst, actie) {
   );
 }
 
-// strook(tekst, { actie: { label, opKlik }, duur = 3000 }): duur 0 laat ze staan tot er een nieuwe komt.
+// strook(tekst, { actie: { label, opKlik }, duur = 3000, vast = false }): duur 0 laat ze staan tot er een nieuwe komt.
+// vast (BESLISSING 704): de strook blijft staan tot haar eigen knop getikt wordt. Ze verdwijnt niet vanzelf en een gewone strook
+// ("Weggehaald", "Bewaard") schuift erboven in plaats van haar te vervangen. Alleen de melding van een nieuwe versie gebruikt dit:
+// die mag niet verdwijnen zonder dat de update gebeurd is. Een tweede vaste strook vervangt de vorige, zodat er er nooit twee staan.
 export function strook(tekst, opties = {}) {
-  const { actie, duur = 3000 } = opties;
+  const { actie, duur = 3000, vast = false } = opties;
   if (!stroken) {
     stroken = h('div', { class: 'strokenhouder', role: 'status', 'aria-live': 'polite' });
     document.body.append(stroken);
   }
-  clearTimeout(strookTimer);
   const el = strookElement(
     tekst,
     actie && {
@@ -722,8 +724,17 @@ export function strook(tekst, opties = {}) {
       },
     },
   );
-  stroken.replaceChildren(el);
+  if (vast) {
+    el.classList.add('strook--vast');
+    stroken.querySelector('.strook--vast')?.remove();
+    stroken.append(el); // onderaan: een gewone melding komt erboven
+    return el;
+  }
+  clearTimeout(strookTimer);
+  stroken.querySelector('.strook:not(.strook--vast)')?.remove();
+  stroken.prepend(el);
   if (duur > 0) strookTimer = setTimeout(() => el.remove(), duur);
+  return el;
 }
 
 // ------------------------------------------------------------------ bladerkop en lege toestand (§6)

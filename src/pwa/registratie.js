@@ -3,11 +3,14 @@ import { strook } from '../ui/componenten.js';
 import { t } from '../teksten.js';
 import { swScriptUrl } from '../kern/trusted-types.js';
 
+// BESLISSING 704: de melding van een nieuwe versie blijft staan tot de gebruiker op Updaten tikt. Ze gaat niet vanzelf weg, ze
+// verdwijnt niet achter een volgende melding, en er is geen manier om ze weg te klikken: de update is het enige wat haar sluit.
 function meldNieuweVersie(wachtend) {
   strook(t('algemeen.nieuweVersie'), {
     duur: 0,
+    vast: true,
     actie: {
-      label: t('algemeen.herladen'),
+      label: t('algemeen.updaten'),
       opKlik: () => wachtend.postMessage('nu-wisselen'),
     },
   });
@@ -15,7 +18,7 @@ function meldNieuweVersie(wachtend) {
 
 // R6-11: de browser kijkt alleen bij een navigatie of er een nieuwe sw.js is. Een geïnstalleerde iPhone-app die dagen in het geheugen
 // blijft, zou een nieuwe versie dan pas bij een koude start merken. Daarom: bij terugkeer naar de app (zichtbaar) hoogstens één keer
-// per uur registratie.update(). Dat installeert een nieuwe versie alleen; ze wacht dan en de melding "Herladen" verschijnt
+// per uur registratie.update(). Dat installeert een nieuwe versie alleen; ze wacht dan en de melding "Updaten" verschijnt
 // (updatefound hieronder). Overnemen gebeurt nooit midden in het gebruik: pas na een tik op Herladen of bij de volgende start (opstart.js).
 export const UPDATE_INTERVAL_MS = 60 * 60 * 1000;
 export function updateBijTerugkeer(registratie, { doc = document, nu = () => Date.now(), interval = UPDATE_INTERVAL_MS } = {}) {

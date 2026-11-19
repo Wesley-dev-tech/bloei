@@ -1515,8 +1515,9 @@ export const TEKSTEN = {
 
   algemeen: {
     slaOver: 'Ga naar de inhoud',
-    nieuweVersie: 'Er is een nieuwe versie.',
-    herladen: 'Herladen',
+    // Het enige uitroepteken in de app, op vraag van de eigenaar (BESLISSING 704). De toonregel (PLAN §3.5, tests/ui/teksten.test.js) geldt voor al de rest.
+    nieuweVersie: 'Tik op Updaten voor de nieuwste Bloei!',
+    updaten: 'Updaten',
     ja: 'Ja',
     nee: 'Nee',
     ongedaan: 'Ongedaan maken',

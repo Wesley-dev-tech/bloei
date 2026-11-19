@@ -80,7 +80,7 @@ self.addEventListener('fetch', (event) => {
 self.addEventListener('message', (event) => {
   if (event.data === 'nu-wisselen') self.skipWaiting();
   // BESLISSING 405: een venster dat net opstart (pwa/opstart.js) vraagt of deze wachtende versie nu overneemt. Alleen als dat het
-  // enige venster van Bloei is: een ander open venster mag niet midden in het gebruik herladen (daar blijft de melding "Herladen").
+  // enige venster van Bloei is: een ander open venster mag niet midden in het gebruik herladen (daar blijft de melding "Updaten").
   else if (event.data?.type === OPSTART_BERICHT) {
     event.waitUntil(
       (async () => {

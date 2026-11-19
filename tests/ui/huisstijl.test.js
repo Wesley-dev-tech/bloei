@@ -52,8 +52,9 @@ describe('huisstijl', () => {
       regular: ['heart', 'bell', 'face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'],
     };
     // BESLISSING 606: een eigen bestand, op vraag van de eigenaar: het teken voor Face ID; de gratis iconenset heeft er geen.
+    // BESLISSING 702: en een kan water, om dezelfde reden: de set heeft geen kan, en "Kan water" en "Glas water" mogen niet hetzelfde icoon dragen.
     expect(readdirSync(join(src, 'iconen')).sort()).toEqual(['eigen', 'regular', 'solid']);
-    expect(readdirSync(join(src, 'iconen', 'eigen')).sort()).toEqual(['face-id.svg']);
+    expect(readdirSync(join(src, 'iconen', 'eigen')).sort()).toEqual(['face-id.svg', 'kan-water.svg']);
     for (const [stijl, namen] of Object.entries(verwacht)) {
       const aanwezig = readdirSync(join(src, 'iconen', stijl)).map((f) => f.replace(/\.svg$/, '')).sort();
       expect(aanwezig).toEqual([...namen].sort());
