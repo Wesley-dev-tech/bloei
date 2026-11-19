@@ -1,0 +1,95 @@
+/* De supplementenlijst als bestand (BESLISSING 696): de knoppenrij en de dialoog (src/ui/supplementenlijst-bestand.js).
+   Alleen wat boven de bestaande klassen nodig is: de knoppen zijn gewone .knop, de dialoog is de gewone .dialoog met .dialoog__acties (de gedeelde
+   knoppenrij van componenten.css: gecentreerd, even breed, de zachte tint), de melding is de gewone strook. */
+
+/* ---------- De knoppenrij (BESLISSING 707: de knoppen in verhouding met de pagina) ----------
+   Twee knoppen die een groep vormen (BESLISSING 544, CLAUDE.md "Opmaak die vastligt"): gecentreerd en even breed (een raster van gelijke kolommen in een
+   houder zo breed als de breedste knop), niet breder dan hun tekst met de binnenruimte. Past de rij niet naast elkaar (de smalste telefoon), dan staan
+   ze onder elkaar, even breed en gecentreerd, niet over de volle breedte. */
+.lijstbestand { container-type: inline-size; width: 100%; }
+.lijstbestand__knoppen {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  gap: var(--s-2);
+  width: fit-content;
+  max-width: 100%;
+  margin-inline: auto;
+}
+.lijstbestand__knoppen > .knop { width: 100%; min-width: 0; justify-content: center; }
+
+/* Stand A (de standaard): de kleinste knopmaat die de app al gebruikt met een tikvlak van 44 px, die van de knoppen onderaan het supplementblad
+   (BESLISSING 519): 44 px hoog, op de telefoon de kleine letter (14 px), vanaf 720 px de gewone knopletter (15 px), zoals daar. Binnenruimte
+   16 px opzij, die van een kleine knop (.knop--klein). De zachte tint van het tabblad (.knop--secundair), want ze vormen een groep. */
+.lijstbestand:not(.lijstbestand--tekst):not(.is-leeg) .lijstbestand__knoppen > .knop {
+  height: 44px;
+  min-height: 44px;
+  padding-inline: var(--s-4);
+  font-size: var(--fs-small);
+}
+@media (min-width: 720px) {
+  .lijstbestand:not(.lijstbestand--tekst):not(.is-leeg) .lijstbestand__knoppen > .knop { font-size: var(--knop-fs); }
+}
+
+/* Desktop (vanaf 960 px): in verhouding met de brede kaart, een vaste minimale breedte van 10.5 rem per knop (even breed, gecentreerd); hoogte en letter zijn
+   al die van de gewone knop (44 px, 15 px). Telefoon en tablet blijven zoals ze waren. */
+@media (min-width: 960px) {
+  .lijstbestand:not(.lijstbestand--tekst):not(.is-leeg) .lijstbestand__knoppen > .knop { min-width: 10.5rem; }
+}
+
+/* Stand B (KNOPSTAND = 'tekst' in supplementenlijst-bestand.js): twee tekstknoppen zoals "Eerste supplement toevoegen" (zelfde hoogte, letter,
+   kleur en binnenruimte), naast elkaar met een dunne scheiding in het midden van de tussenruimte. */
+.lijstbestand--tekst:not(.is-leeg) .lijstbestand__knoppen > .knop {
+  position: relative;
+  height: var(--knop-h);
+  min-height: var(--knop-h);
+  padding-inline: var(--s-3);
+  border-color: transparent;
+  background: transparent;
+  box-shadow: none;
+  color: var(--c-accent-text);
+  font-size: var(--knop-fs);
+}
+.lijstbestand--tekst:not(.is-leeg) .lijstbestand__knoppen > .knop + .knop::before {
+  content: '';
+  position: absolute;
+  top: 30%;
+  bottom: 30%;
+  left: calc(var(--s-2) / -2 - .5px);
+  width: 1px;
+  background: var(--c-line);
+}
+
+/* Onder elkaar als de twee met hun tussenruimte niet in de kaart passen (gemeten op de telefoon: stand A twee keer 130 px en 8 px ertussen is
+   269 px, stand B 266 px). De kaart is op 360 px breed 280 px binnenin (past), op 320 px 240 px (onder elkaar). Dan valt de scheiding van
+   stand B weg. */
+@container (max-width: 16.9rem) {
+  .lijstbestand__knoppen { grid-auto-flow: row; }
+  .lijstbestand--tekst:not(.is-leeg) .lijstbestand__knoppen > .knop + .knop::before { content: none; }
+}
+
+/* Lege lijst: een tekstknop onder "Eerste supplement toevoegen" (BESLISSING 707), met de tussenruimte die de app tussen twee tekstknoppen onder
+   elkaar gebruikt (8 px, zoals op het slotscherm) in plaats van de 16 px tussen de delen van de lege toestand. */
+.leeg > .lijstbestand.is-leeg { margin-top: calc(var(--s-2) - var(--s-4)); }
+
+/* ---------- De dialoog ----------
+   De vraag en de twee keuzes met hun telling vooraf staan als drie gewone alinea's onder elkaar, met de gewone tussenruimte van het blad (12 px, de gap
+   van .dialoog__blad) en zonder de extra marge onder een alinea; de naam van de keuze staat vet in de gewone tekstkleur voor haar zin. */
+.lijstbestand__dialoog .dialoog__tekst { margin: 0; }
+.lijstbestand__dialoog .lijstbestand__keuzes { display: grid; gap: var(--s-3); }
+.lijstbestand__dialoog .lijstbestand__keuzenaam { font-weight: 500; color: var(--c-text); }
+/* Op een telefoon staat elke pop-up iets boven het midden: 8dvh extra ruimte onderaan, zodat het schermtoetsenbord een invoerveld minder snel bedekt
+   (telefoon.css, BESLISSING 421). Deze dialoog heeft geen invoerveld. Op een lage zichtbare hoogte (320 x 480: 38 px) was die ruimte net wat de keuze
+   tekortkwam om zonder scrollen in beeld te staan; daar valt ze weg en staat de dialoog in het midden. Hoger blijft alles zoals bij de andere pop-ups. */
+@media (max-width: 719.98px) and (max-height: 519.98px) {
+  dialog.dialoog.lijstbestand__dialoog:not(.dialoog--statisch):not(.dialoog--venster):not(#slot *) {
+    inset: calc(var(--safe-top) + var(--s-4)) calc(env(safe-area-inset-right, 0px) + var(--s-4)) calc(var(--safe-bottom) + var(--s-4)) calc(env(safe-area-inset-left, 0px) + var(--s-4));
+    max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - var(--s-4) * 2);
+  }
+  /* De keuze zonder aantallen (707) is een regel langer: op 320 x 480 kwam ze 24 px tekort (gemeten in Chrome en WebKit). Alleen op zo'n lage
+     telefoon, zoals de pop-up van een medaille daar (scherm-algemeen.css): 16 px binnenruimte boven en onder het blad, 8 px tussen de delen,
+     geen extra marge boven de knoppen en 8 px tussen de twee keuzes. Zo blijft er 16 px speling. */
+  dialog.dialoog.lijstbestand__dialoog:not(#slot *) .dialoog__blad { gap: var(--s-2); padding-block: var(--s-4); }
+  dialog.dialoog.lijstbestand__dialoog .dialoog__acties { margin-top: 0; }
+  dialog.dialoog.lijstbestand__dialoog .lijstbestand__keuzes { gap: var(--s-2); }
+}

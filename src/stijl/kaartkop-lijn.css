@@ -1,0 +1,26 @@
+/* kaartkop-lijn: zie BESLISSING 273. Alleen de bouwer van deze taak schrijft in dit bestand.
+   Eén regel voor elke kaart met een titelkop: kop, s-2 (8 px), dunne lijn (de lijn van Supplementen), s-3 (12 px), inhoud (BESLISSING 281).
+   Vier klassen in de selector, zodat de koppen van de schermen (margin-bottom s-2/s-3) er niet tegenin gaan.
+   Uitzondering: Deze week op Supplementen (.weekkaart--supp) is één regel met de dagen rechts: geen lijn. */
+.kaart.kaart:not(:is(.weekkaart--supp, .momentkaart, .beurtkaart, .laterkaart)) > .kaartkop.kaartkop {
+  box-sizing: content-box;
+  min-height: var(--tile-size);
+  padding-bottom: var(--s-2);
+  margin-bottom: var(--s-3);
+  border-bottom: var(--lijn);
+}
+/* BESLISSING 281: overal dezelfde ruimte rond de lijn, zoals op Vandaag: s-2 (8 px) tussen titel en lijn, s-3 (12 px) tussen lijn en eerste inhoud.
+   De kop heeft overal min-height tile-size en de kaart padding s-6, zodat de tegel op elke kaart even ver onder de kaartrand staat. Het eerste element na de kop heeft geen eigen bovenmarge.
+   Geen --kl meer: de ruimte hangt niet meer af van de kaart. */
+/* "Mijn supplementen" (Supplementen) is een kolom met gap s-4 tussen kop en tabel; de gap wordt van de marge afgetrokken, zodat er 12 px onder de lijn staat. */
+.kaart.kaart.overzichtkaart.overzichtkaart > .kaartkop.kaartkop.kaartkop { margin-bottom: calc(var(--s-3) - var(--s-4)); }
+/* De momentkaarten van Supplementen (.momentkaart, .beurtkaart, .laterkaart) hadden hun lijn al (BESLISSING 218, 16/16): ook zij volgen nu 8/12. */
+.kaart.kaart:is(.momentkaart, .beurtkaart, .laterkaart) > .momentkop.momentkop {
+  padding-bottom: var(--s-2);
+  margin-bottom: var(--s-3);
+}
+/* Supplementen op Vandaag had de lijn al als bovenrand van de eerste rij: die vervalt, anders staan er twee lijnen. */
+.vandaag .suppkaart .momentkant { border-top: 0; }
+/* Vandaag, kaart Drinken: de kop is een link; hij vult de breedte en staat op dezelfde plek als de andere koppen. */
+.kaart.kaart > a.kaartkop.kaartkop { display: flex; align-self: stretch; min-height: var(--tap-min); }
+.kaart.kaart > a.kaartkop.kaartkop + .drinkkaart__rij { margin-top: 0; }

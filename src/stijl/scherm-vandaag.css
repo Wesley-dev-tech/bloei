@@ -1,0 +1,334 @@
+/* scherm-vandaag: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool. */
+
+/* Kaart Kalender: het zichtbare icoon (niet de tegel) begint op de linkerrand van "MA". De tegel is hier transparant en schuift
+   met zijn binnenmarge ((tegelmaat - icoonmaat) / 2) naar links; aan de rechterkant even ver terug, zodat "KALENDER" meeschuift
+   en zijn gewone afstand tot het icoon houdt. */
+.kalkaart .kaartkop > .tegel {
+  --kal-tegelrand: calc((var(--tile-size) - 18px) / 2);
+  background: transparent;
+  margin-left: calc(var(--kal-tegelrand) * -1);
+  margin-right: calc(var(--kal-tegelrand) * -1);
+}
+
+/* Elke kaart op Vandaag: s-2 tussen titel en lijn, s-3 tussen lijn en eerste inhoud (BESLISSING 273 gaf de ruimte door --kl, soms maar 4 tot 6 px).
+   Zes klassen in de selector, zodat dit boven kaartkop-lijn.css uitkomt zonder dat bestand te wijzigen. */
+.vandaag .kaart.kaart:not(:is(.weekkaart--supp, .momentkaart, .beurtkaart, .laterkaart)) > .kaartkop.kaartkop {
+  padding-bottom: var(--s-2);
+  margin-bottom: var(--s-3);
+}
+/* De Kalender werd door de ruimte onder de kop 12 px hoger; 4 px daarvan haalt de legenda weer in, zodat de rijen van Eten niet extra uitrekken. */
+.vandaag .kalkaart > .kalkaart__legenda { margin-top: var(--s-1); }
+/* Kalender: de blader-knoppen (44 px) maakten de kop 4 px hoger dan die van Eten; ze steken nu 2 px boven en onder uit, zodat tegel en lijn op dezelfde y staan. */
+.vandaag .kalkaart > .kaartkop .kaartkop__eind { margin-block: -2px; }
+/* Kalender naast Eten (vanaf 720 px), smalle kaart: de maand met de pijlen staat op een eigen regel binnen de kop, maar ONDER de lijn (niet erboven),
+   zodat de lijn op dezelfde y ligt als die van Eten (tegel 40 + s-2). De lijn is hier een ::before op de eerste regel in plaats van de onderrand van de kop. */
+@media (min-width: 720px) {
+  @container kalkaart (max-width: 384px) { /* dezelfde grens als in schermen.css */
+    .vandaag .kaart.kaart.kalkaart > .kaartkop.kaartkop.kaartkop { position: relative; border-bottom: 0; row-gap: calc(var(--s-2) + 1px); }
+    .vandaag .kaart.kaart.kalkaart > .kaartkop.kaartkop.kaartkop::before { content: ''; position: absolute; left: 0; right: 0; top: calc(var(--tile-size) + var(--s-2)); border-top: var(--lijn); }
+    .vandaag .kalkaart > .kaartkop .kaartkop__eind { margin-block: 0 -12px; }
+  }
+}
+/* Drinken: de kop begon 16 px hoger dan die van de andere kaarten (margin-top -16 uit schermen.css); nu staan tegel en lijn op dezelfde y.
+   De 16 px zijn uit de dranktegels gehaald (padding-bottom 4 -> 0 en gap 4 -> 2, per rij 8 px), zodat Drinken even hoog blijft. */
+.vandaag .kaart.kaart > a.kaartkop.drinkkaart__label { margin-top: 0; }
+@media (min-width: 720px) {
+  .vandaag .drinkkaart .drankrij .drankknop { padding-bottom: 0; gap: 2px; }
+}
+/* Drinken: de ruimte onder de lijn zit op het eerste element na de kop, niet op de kop. De kop is hier een link (a.kaartkop). */
+.vandaag .kaart.kaart:not(:is(.weekkaart--supp, .momentkaart, .beurtkaart, .laterkaart)) > a.kaartkop.kaartkop { margin-bottom: 0; }
+.vandaag .kaart.kaart > a.kaartkop.kaartkop + .drinkkaart__rij { margin-top: var(--s-3); }
+/* De extra ruimte boven de rij is er elders uit: de dranktegels hebben geen marge meer boven (4 px per rij, 2 rijen = 8 px), zodat Drinken even hoog blijft als voorheen.
+   De bovenkant van de tegels valt zo ook samen met de bovenkant van het glas. */
+@media (min-width: 720px) {
+  .vandaag .drinkkaart .drankrij .drankknop { padding-top: 0; }
+}
+/* Kalender (BESLISSING 291): geen kadertje meer om vandaag. Vandaag = het cijfer in een gevulde ronde stip (zoals in de maandkalender van het Dagboek),
+   de gekozen dag = een dunne ring van dezelfde maat. De cirkel is een ::before op het cijfer zelf, gecentreerd op het cijfer, dus het cijfer verspringt niet. */
+.vandaag .kalkaart .kalender__dag.is-vandaag,
+.vandaag .kalkaart .kalender__dag.is-gekozen { box-shadow: none; background: transparent; }
+.vandaag .kalkaart .kalender__dag.is-vandaag .kalender__nr,
+.vandaag .kalkaart .kalender__dag.is-gekozen .kalender__nr { isolation: isolate; }
+.vandaag .kalkaart .kalender__dag.is-vandaag .kalender__nr::before,
+.vandaag .kalkaart .kalender__dag.is-gekozen .kalender__nr::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border-radius: var(--r-pill);
+  z-index: -1;
+  pointer-events: none;
+}
+.vandaag .kalkaart .kalender__dag.is-gekozen .kalender__nr::before { box-shadow: inset 0 0 0 1px var(--knop-bg); }
+/* Het cijfer van vandaag iets kleiner, met dezelfde regelhoogte als de andere cijfers (1,2 x tot 720 px, daarna 1 x): het middelpunt verspringt niet. */
+.vandaag .kalkaart .kalender__dag.is-vandaag .kalender__nr { color: var(--knop-fg); font-weight: 600; font-size: 0.8125rem; line-height: calc(1.2 * var(--fs-body)); }
+/* De tekens (stemmingsbolletje, spuitje) in alle cellen 2 px lager, zodat de stip ruimte houdt; ze blijven onderling op één lijn. */
+.vandaag .kalkaart .kalender__tekens { top: calc(50% + 5px); }
+@media (min-width: 720px) {
+  .vandaag .kalkaart .kalender__dag.is-vandaag .kalender__nr { line-height: var(--fs-body); }
+}
+.vandaag .kalkaart .kalender__dag.is-vandaag .kalender__nr::before { background: var(--knop-bg); box-shadow: none; }
+/* BESLISSING 294: geen stemming in de kalender. Onder het cijfer staan plekken van 16 x 16 px op één lijn (alle cellen op dezelfde y), exact gecentreerd onder het cijfer:
+   één teken (het salie bolletje bij alle supplementen genomen, of het spuitje/pilletje van een geplande beurt) midden eronder, twee tekens als paar samen gecentreerd. */
+.vandaag .kalkaart .kalender__tekens { gap: 4px; height: 16px; justify-content: center; }
+@media (min-width: 720px) { .vandaag .kalkaart .kalender__tekens { top: calc(50% + 4px); } } /* 1 px lager: het bolletje (10 px) houdt minstens 2 px vrij van de stip van vandaag */
+.vandaag .kalkaart .kalender__plek { flex: none; display: flex; align-items: center; justify-content: center; width: 16px; height: 16px; }
+.vandaag .kalkaart .kalender__plek--bol { width: 10px; } /* even breed als het bolletje, zodat een paar met het spuitje zichtbaar gecentreerd staat */
+.vandaag .kalkaart .kalender__klaar { flex: none; display: block; width: 10px; height: 10px; border-radius: var(--r-pill); background: var(--c-health); }
+.vandaag .kalkaart__legenda .kalender__klaar--legenda { width: var(--s-3); height: var(--s-3); margin-inline: 2px; } /* BESLISSING 466: in een vak van 16 px, even breed als het spuitje: de teksten van de legenda beginnen op dezelfde x */
+/* In een smalle kaart (rond 1280 px) past "alle supplementen genomen" met "geplande spuit" niet op één regel: dan staat het tweede teken onder het eerste, op dezelfde linkerlijn. */
+.vandaag .kalkaart__legenda { flex-wrap: wrap; column-gap: var(--s-4); row-gap: var(--s-2); } /* BESLISSING 466: onder elkaar met var(--s-2) ertussen, naast elkaar met var(--s-4) */
+/* BESLISSING 296: de vier vakken van de motivator zijn puur informatief; geen indrukeffect, geen handje. */
+.motiv__vak.motiv__vak--info, .motiv__vak.motiv__vak--info:active { cursor: default; transform: none; }
+.motiv__vak.motiv__vak--info:active .motiv__tegel { transform: none; }
+
+/* ---------- BESLISSING 308: responsive op telefoon en iPad ---------- */
+/* Een kaart in een raster mag smaller zijn dan zijn inhoud: anders duwt een lange supplementnaam (de Spuit) de kaart en het vinkvak buiten het scherm (1100 tot 1400 px). */
+.vandaag .kaart, .vandaag__rij1 > *, .vandaag__rij2 > *, .vandaag__rij3 > * { min-width: 0; }
+.vandaag .momentrij__naam { min-width: 0; max-width: 100%; }
+.vandaag .suppkaart .momentkant, .vandaag .suppkaart .momentrij { min-width: 0; max-width: 100%; }
+/* Een maaltijd die opengaat scrolt zichtbaar tussen de vaste kop en de tabbalk: de knoppen onderaan (Opslaan, Verwijderen) lagen op 390 x 844 en op een iPad achter de tabbalk. */
+.vandaag .maaltijden .maaltijd { scroll-margin-block: calc(var(--s-12) * 2) calc(var(--tabbar-h) + var(--safe-bottom) + var(--s-4)); }
+/* Een rij Eten is 43 px hoog (tegel 40 px): het tikvlak krijgt 1 px extra boven en onder, zodat het 45 px wordt zonder dat de kaart groeit. */
+.vandaag .maaltijden .maaltijd > button.rij { position: relative; }
+.vandaag .maaltijden .maaltijd > button.rij::after { content: ''; position: absolute; left: 0; right: 0; top: -2px; bottom: -2px; }
+/* iPad staand en liggend met zijbalk onder 1100 px (744 tot 1099): Eten naast de Kalender (twee kolommen van 330 tot 380 px, zoals op het brede scherm).
+   Eén kolom van 680 px gaf een kalender met cellen van 91 px breed en een Eten met veel lege ruimte. Drinken en Supplementen blijven onder elkaar over de volle breedte:
+   in een halve kolom worden de zes dranktegels 41 px breed en rekken de rijen van Supplementen uit (geprobeerd en teruggedraaid). */
+@media (min-width: 720px) and (max-width: 1099.98px) {
+  .vandaag__rij3 { grid-template-columns: minmax(0, 1fr) minmax(330px, 1fr); } /* de kalender is minstens 330 px breed: zeven cellen van minstens 40 px */
+}
+/* De dranktegels naast het glas (960 tot 1439 px) staan in het blok "Drinken" onderaan dit bestand. */
+/* iPad liggend met zijbalk (1100 tot 1439 px): Drinken en Eten nemen 3 delen, Supplementen en Kalender 2: de kalender krijgt cellen van minstens 40 px
+   en "Genomen om 8.36 uur" past op één regel. Vanaf 1440 px blijft de verdeling 2 : 1 die de eigenaar goedkeurde. */
+@media (min-width: 1100px) and (max-width: 1439.98px) {
+  .vandaag__rij2, .vandaag__rij3 { grid-template-columns: minmax(0, 3fr) minmax(330px, 2fr); }
+  /* "Iets anders" past in een dranktegel van 3 per rij niet altijd op één regel: de namen blijven op één regel en steken desnoods een paar pixel in de tussenruimte. */
+  .vandaag .drankknop__naam { white-space: nowrap; }
+}
+/* "Naar het Dagboek" blijft op één regel (in de smalle kalender brak het af en stond het pijltje ver van de tekst). */
+.vandaag .kalkaart__link { white-space: nowrap; position: relative; }
+.vandaag .kalkaart__link::after { content: ''; position: absolute; left: 0; right: 0; top: -10px; bottom: -10px; } /* tikvlak 44 px bij een link van 24 px */
+/* Een lange supplementnaam (of spuit) breekt af op een spatie en staat op twee regels in plaats van met puntjes afgekapt te worden. */
+.vandaag .suppkaart .momentrij__naam { white-space: normal; overflow: visible; text-overflow: clip; overflow-wrap: break-word; line-height: 1.25; }
+/* Tikdoelen van minstens 44 px: de weekstippen en de medailles zijn klein getekend; hun tikvlak is een onzichtbare laag van 44 x 44 px eromheen. */
+.vandaag .voortgang a.week__link, .vandaag .voortgang a.medaille-hover { position: relative; }
+.vandaag .voortgang a.week__link::after, .vandaag .voortgang a.medaille-hover::after {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: calc(var(--tap-min) - var(--s-1));
+  height: calc(var(--tap-min) - var(--s-1));
+  transform: translate(-50%, -50%);
+}
+/* In een smalle motivator (een kaart van rond 350 px op een iPad liggend) passen vier namen van 14 px niet naast elkaar: ze worden iets kleiner. */
+@container motiv (max-width: 440px) {
+  .voortgang .motiv__naam { font-size: var(--fs-label); letter-spacing: 0; }
+}
+/* iPad liggend met zijbalk, nog onder 1100 px (1024 en 1080): de twee kaarten van de eerste rij zijn dan 340 px breed en "Supplementen" botst tegen "Stemming".
+   De motivator krijgt meer breedte (en iets minder binnenruimte) en de begroeting de kleinere titel, zodat hij niet onder de knoppen loopt. De twee kaarten blijven naast elkaar en even hoog. */
+@media (min-width: 960px) and (max-width: 1099.98px) {
+  .vandaag__rij1 > .voortgang { padding-inline: var(--s-3); } /* een kaart van 340 px: de vier namen krijgen 8 px meer ruimte */
+  .vandaag__rij2 .drinkkaart { --glas-h: 124px; } /* zoals vanaf 1100 px: het glas van 170 px rekte de twee rijen dranktegels 100 px uit elkaar */
+  .vandaag__begroeting .t-hero, .vandaag__begroeting .begroeting__titel { font-size: calc(var(--fs-hero) * 1.1); }
+}
+/* Tussen 960 en 1023 px (een iPad in gesplitste weergave) is Stemming en energie te smal voor vijf tikvlakken van 44 px: de twee kaarten staan onder elkaar. */
+@media (min-width: 960px) and (max-width: 1023.98px) {
+  .vandaag__rij1 { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* ---------- Telefoon met weinig zichtbare hoogte: Drinken ---------- */
+/* BESLISSING 608: onder 500 px zichtbare hoogte is het glas (200 px) de hoogste maat van het blok "Vandaag" met het glas en Laatste weghalen; het blok past dan niet met 12 px marge
+   tussen de kop en het kaartje van de rondleiding. Het glas wordt kleiner (de breedte volgt uit zijn verhouding, dus de vorm blijft); daarna bepaalt de kolom met de cijfers de hoogte: het cijfer (0,8 x) en de zin "Je dagdoel is gehaald" worden iets kleiner (de zin ook zonder eigen witruimte erboven), Laatste weghalen en de balk blijven zoals ze zijn. */
+@media (max-width: 719.98px) and (max-height: 499.98px) {
+  .vandaag .drinkkaart.drinkkaart { --glas-h: 150px; }
+  .vandaag .drinkkaart .cijfer-groot { font-size: calc(var(--fs-hero) * .8); }
+  .vandaag .drinkkaart .drinkkaart__gehaald { font-size: var(--fs-body); margin-top: 0; }
+}
+
+/* ---------- iPad liggend en smalle laptop (960 tot 1439 px): Drinken ---------- */
+/* Linkerhelft: het glas (130 px hoog) en de cijfers vormen één blok, de cijfers verticaal op het glas gecentreerd; daaronder de balk en "Laatst gedronken" over de volle breedte van de helft
+   (de etiketten met uur en hoeveelheid zijn dan breed genoeg en worden nooit afgekapt). De stand van Drinken staat met `display: contents` in het raster van de kern. */
+@media (min-width: 960px) and (max-width: 1439.98px) {
+  .vandaag .drinkkaart.drinkkaart { --glas-h: 130px; }
+  /* De kolom van het glas heeft een vaste breedte (zoals op de telefoon): het glas is hier steeds --glas-h plus de 10 px van max-height hoog (gemeten 140 px op 960 tot 1439 px, bij 0, 4 en 13 dranken), breedte x 120 / 196. Met een automatische kolom maakt WebKit de kolom niet meer smaller als het glas krimpt. */
+  .vandaag .drinkkaart { --glas-b: calc((var(--glas-h) + 10px) * 120 / 196); }
+  .vandaag .drinkkaart .drinkkaart__acties { margin-top: var(--s-2); }
+  .vandaag .drinkkaart .drinkkaart__kern {
+    display: grid;
+    grid-template-columns: var(--glas-b) minmax(0, 1fr);
+    grid-template-rows: minmax(0, 1fr) auto auto auto minmax(0, 1fr) auto auto;
+    gap: 0 var(--s-4);
+    align-items: start;
+    align-content: start;
+  }
+  .vandaag .drinkkaart .cijfer-groot { font-size: calc(var(--fs-hero) * .72); white-space: nowrap; }
+  .vandaag .drinkkaart .cijfer-groot__eenheid { font-size: var(--fs-body); }
+  .vandaag .drinkkaart .drinkkaart__gehaald { font-size: var(--fs-body); }
+  .vandaag .drinkkaart .drinkkaart__stand { display: contents; }
+  .vandaag .drinkkaart__kern > .watervulling { grid-column: 1; grid-row: 1 / 6; align-self: center; height: 100%; min-height: var(--glas-h); max-height: calc(var(--glas-h) + 10px); contain: none; flex: none; }
+  .vandaag .drinkkaart__stand > .cijfer-groot { grid-column: 2; grid-row: 2; margin: 0; }
+  .vandaag .drinkkaart__stand > .cijfer-groot + .t-klein { grid-column: 2; grid-row: 3; margin: var(--s-1) 0 0; }
+  .vandaag .drinkkaart__stand > .drinkkaart__gehaald { grid-column: 2; grid-row: 4; margin: var(--s-1) 0 0; }
+  .vandaag .drinkkaart__stand > .drinkbaan { grid-column: 1 / -1; grid-row: 6; margin: var(--s-4) 0 0; }
+  .vandaag .drinkkaart__stand > .laatst { grid-column: 1 / -1; grid-row: 7; margin-top: var(--s-4); }
+  .vandaag .drinkkaart .laatst__chips { grid-template-columns: minmax(0, max-content); }
+  /* Twee etiketten (zoals vanaf 1100 px): met drie werd de linkerhelft 40 px hoger dan de zes tegels rechts kunnen vullen. */
+  .vandaag .drinkkaart .laatst__chip:nth-child(n+3) { display: none; }
+  /* Rechterhelft: de zes tegels beginnen direct onder het kopje "Dranken" en vullen de kolom; de ruimte tussen de twee rijen is de enige die meegroeit. */
+  .vandaag .drinkkaart .drankrij { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-template-rows: none; grid-auto-rows: auto; align-content: space-between; row-gap: var(--s-3); column-gap: var(--s-6); }
+  .vandaag .drinkkaart .drankrij > .drankknop { align-self: start; }
+  .vandaag .drinkkaart.drinkkaart { container: drink / inline-size; }
+}
+
+/* Drinken over een brede kaart (binnenbreedte vanaf 640 px: de kaart staat onder Supplementen, of er is geen Supplementen): links een compact blok (glas en cijfers naast elkaar, balk, twee etiketten naast elkaar),
+   "Laatste weghalen" rechts van het kopje "Vandaag"; rechts de zes dranktegels in 3 kolommen x 2 rijen op de breedte van hun inhoud (geen uitgespreid raster), direct onder het kopje "Dranken".
+   Beide helften eindigen op dezelfde lijn; de kaart is zo hoog als haar inhoud. */
+@media (min-width: 960px) and (max-width: 1439.98px) {
+  @container drink (min-width: 640px) {
+    .vandaag .drinkkaart .drinkkaart__rij { grid-template-columns: minmax(0, 1fr) auto; }
+    .vandaag .drinkkaart .drinkkaart__links { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-rows: auto 1fr; align-content: stretch; }
+    .vandaag .drinkkaart .drinkkaart__links > .label { grid-column: 1; grid-row: 1; }
+    .vandaag .drinkkaart .drinkkaart__links > .drinkkaart__acties { grid-column: 2; grid-row: 1; margin: -8px 0 -7px; align-self: start; }
+    .vandaag .drinkkaart .drinkkaart__links > .drinkkaart__kern { grid-column: 1 / -1; grid-row: 2; }
+    .vandaag .drinkkaart.drinkkaart { --glas-h: 140px; }
+    .vandaag .drinkkaart .cijfer-groot { font-size: calc(var(--fs-hero) * 1.1); }
+    .vandaag .drinkkaart .cijfer-groot__eenheid { font-size: var(--fs-h2); }
+    .vandaag .drinkkaart .drinkkaart__gehaald { font-size: var(--fs-h2); }
+    .vandaag .drinkkaart .laatst__chips { display: flex; flex-wrap: wrap; }
+    .vandaag .drinkkaart .drankrij { grid-template-columns: repeat(3, clamp(96px, 13cqw, 120px)); column-gap: var(--s-3); }
+    .vandaag .drinkkaart .drankrij .drankknop { --tile-size-groot: 64px; gap: 4px; }
+  }
+  /* Nog breder (binnenbreedte vanaf 900 px): "Laatst gedronken" staat rechts van de cijfers (twee etiketten onder elkaar), zodat de linkerhelft niet leeg loopt;
+     de dranktegels zijn dan weer van de gewone maat (56 px), zodat de twee helften even hoog blijven. */
+  @container drink (min-width: 900px) {
+    .vandaag .drinkkaart .drinkkaart__kern { grid-template-columns: var(--glas-b) auto minmax(0, 1fr); column-gap: var(--s-6); }
+    .vandaag .drinkkaart .drinkkaart__stand > .laatst { grid-column: 3; grid-row: 1 / 6; align-self: center; margin-top: 0; padding-left: var(--s-6); }
+    .vandaag .drinkkaart .laatst__chips { display: grid; grid-template-columns: minmax(0, max-content); }
+    .vandaag .drinkkaart .drankrij .drankknop { --tile-size-groot: calc(var(--tile-size) * 7 / 5); gap: 2px; }
+  }
+}
+
+/* ---------- De begroeting (960 tot 1439 px) ---------- */
+/* De lettermaat sprong hier: schermen.css zet de titel op 1,5 x hero (vanaf 960), 1,7 x (vanaf 1280) en, tussen 1100 en 1439 px, 0,72 x hero bij een venster van hoogstens 860 px hoog
+   (regel "Vandaag op een laag scherm") of 1,7 x hero daarboven (twee regels van ± 150 px hoog op 1366 x 1024); scherm-vandaag.css zette ze op 960 tot 1099 px op 1,1 x hero.
+   Die regels worden hier voor 960 tot 1439 px vervangen door één maat die met de breedte van de koprij meegroeit: breedte van de rij x 6,3 % min 21 px, tussen 21 en 44 px.
+   Zo past "Goeienamiddag, " plus een naam van 20 tekens op één regel naast het beeldmerk en de knoppen Uitleg en Delen; een nog langere naam breekt netjes na de komma. */
+@media (min-width: 960px) and (max-width: 1439.98px) {
+  .vandaag .vandaag__begroeting { container: begroet / inline-size; }
+  .vandaag .vandaag__begroeting .begroeting__titel,
+  .vandaag .vandaag__begroeting .t-hero { font-size: clamp(19px, calc(6.3cqw - 25px), 44px); line-height: 1.1; } /* BESLISSING 594 tot 596: de knoppen Rondleiding en Delen zijn elk 8rem breed (samen 56 px meer dan voorheen): de maat rekent daarmee */
+}
+/* Op 960 tot 1099 px is de titel maar 264 tot 330 px breed: de ruimte tussen beeldmerk, titel en knoppen is daar 16 px in plaats van 32 px, zodat een naam van 20 tekens op één regel past. */
+@media (min-width: 960px) and (max-width: 1099.98px) {
+  .vandaag .vandaag__begroeting { --begroet-gap: var(--s-4); }
+}
+
+/* ---------- De begroeting (1440 px en breder; BESLISSING 341: altijd één regel) ---------- */
+/* De lettermaat hing hier af van de vensterhoogte (schermen.css: 1,7 x hero vanaf 1280 px, 1,9 x vanaf 1600 px, 0,72 x hero bij een venster van hoogstens 860 px hoog) en brak op 1440 x 900
+   over twee tot vier regels. Nu is de maat het kleinste van twee getallen: de grote maat van nu (--begroet-max, ongewijzigd) en de maat waarbij de hele begroeting net op één regel naast
+   het beeldmerk en de knoppen past: (breedte van de koprij - 384 px) / (aantal tekens x 0,46 em). 432 px is de vaste ruimte rond de titel (was 384 tot BESLISSING 594): beeldmerk 72, knoppen Rondleiding en Delen 2 x 144 (8rem),
+   twee tussenruimtes van 32 en 8 px tussen de knoppen. 0,46 em is de gemiddelde breedte van één teken in Cormorant Garamond (gemeten: 0,43 voor gewone namen, iets meer voor een naam met brede letters).
+   Het aantal tekens (groet, spatie en naam) zet vandaag.js in --begroet-tekens op de kop; zonder die waarde geldt 21 (een korte naam). Zo blijft de maat op 1690 x 1230 met een korte naam gelijk
+   en krimpt ze vloeiend bij een langere naam of een smaller venster. Ondergrens 24 px: een nog langere naam breekt dan netjes na de komma. Dood vanaf 1440 px: de maten op regel 371-374 en 619 van schermen.css. */
+@media (min-width: 1440px) {
+  .vandaag .vandaag__begroeting { container: begroet / inline-size; --begroet-max: calc(var(--fs-hero) * 1.7); }
+  .vandaag .vandaag__begroeting .begroeting__titel,
+  .vandaag .vandaag__begroeting .t-hero { font-size: max(24px, min(var(--begroet-max), calc((100cqw - 432px) / (var(--begroet-tekens, 21) * 0.45)))); line-height: 1.05; }
+}
+@media (min-width: 1600px) {
+  .vandaag .vandaag__begroeting { --begroet-max: calc(var(--fs-hero) * 1.9); }
+}
+/* Een laag venster (hoogstens 860 px hoog): de kleinere maat van nu blijft de bovengrens. */
+@media (min-width: 1440px) and (max-height: 860px) {
+  .vandaag .vandaag__begroeting { --begroet-max: calc(var(--fs-hero) * .72); }
+}
+
+/* ---------- Stemming en energie naast de motivator (1024 tot 1439 px) ---------- */
+/* De kaart is even hoog als de motivator en had tussen de twee blokken en onder het laatste ± 41 tot 49 px lucht (schermen.css verdeelt de rest met space-between):
+   de keuzes krijgen een iets grotere maat (gezichtjes 58 px, blaadjes tot 58 px hoog), de tussenruimtes blijven daarna onder 32 px. */
+@media (min-width: 1024px) and (max-width: 1599.98px) {
+  .vandaag .vc--stemming .stemming__inhoud { --gevoel-tegel: 64px; }
+  .vandaag .vc--stemming .stemming__inhoud .energie--kiezer { --lh: 64px; }
+  .vandaag .vc--stemming .stemming__inhoud .gevoel__optie, .vandaag .vc--stemming .stemming__inhoud .energie__tik { min-height: 100px; }
+}
+
+/* BESLISSING 355 en 356: de kaart Drinken op Vandaag volgt het tabblad Drinken: "Laatste weghalen" in de tekstkleur van Drinken, en bij een gehaald dagdoel glas en balk in de drinkkleur (--drank-gehaald). */
+.vandaag .drinkkaart .drinkkaart__acties .knop--tekst { color: var(--c-water-text); }
+.vandaag .drinkkaart .watervulling.is-gehaald .watervulling__vlak, .vandaag .drinkkaart .watervulling.is-gehaald .watervulling__golf path { fill: var(--drank-gehaald); }
+.vandaag .drinkkaart .watervulling.is-gehaald .watervulling__rand { stroke: var(--drank-gehaald); }
+.vandaag .drinkkaart .drinkbaan.is-gehaald .drinkbaan__vulling { background: var(--drank-gehaald); }
+.vandaag .drinkkaart .watervulling:not(.is-gehaald) .watervulling__vlak, .vandaag .drinkkaart .watervulling:not(.is-gehaald) .watervulling__golf path { fill: var(--drank-onderweg); }
+.vandaag .drinkkaart .watervulling:not(.is-gehaald) .watervulling__rand { stroke: var(--drank-onderweg); }
+.vandaag .drinkkaart .drinkbaan:not(.is-gehaald) .drinkbaan__vulling { background: var(--drank-onderweg); }
+.vandaag .drinkkaart .drinkbaan { background: var(--c-water-soft); }
+.vandaag .drinkkaart .laatst__chip .icoon { color: var(--tile-drink-fg); }
+/* De etiketten onder "Laatst gedronken" ("12:44 · 150 ml") in een zachte tint van Drinken (de zachte drinkkleur, zoals de icoontegel), met de gewone tekstkleur. */
+.vandaag .drinkkaart .laatst__chip { background: var(--c-water-soft); }
+
+/* Tikdoel van minstens 44 x 44 px (BESLISSING 182) voor de weekdagen in "Deze week": het element zelf is groter (24 x 40), de ruimte die het inneemt blijft gelijk
+   (opvulling met een even grote negatieve marge), dus er verschuift niets. */
+.vandaag .voortgang a.week__link { box-sizing: content-box; padding: 2px 10px; margin: -2px -10px; }
+
+/* BESLISSING 418: terwijl een maaltijd in de kaart Eten openstaat (de kaart wordt veel hoger), rekt de kaart Kalender daarnaast niet mee uit.
+   Ze houdt haar eigen hoogte; zijn alle maaltijden dicht, dan staan de twee kaarten onderaan gelijk (de kalender vult dan de rij). */
+@media (min-width: 720px) { /* eerder is de rij geen raster: de kaarten staan dan onder elkaar */
+  .vandaag__rij3:has(.maaltijd.is-open) > .kalkaart { align-self: start; }
+}
+/* BESLISSING 510, hoofdscherm op een telefoon: "Laatste weghalen" staat onder de voortgangsbalk, in de kolom naast het glas, met wat lucht ertussen (stond
+   gecentreerd onder het glas en de cijfers). Het glas en de cijfers worden daarvoor rasteritems van hetzelfde raster als de knop (kern: display: contents). */
+@media (max-width: 719.98px) {
+  /* De kolom van het glas heeft een vaste breedte: de breedte van het glas zelf (hoogte x 120 / 196, de hoogte is --glas-h of 200 px, zoals in componenten.css).
+     Met een automatische kolom haalt de motor de breedte uit de aspect-ratio van het glas, en WebKit maakt die kolom daarna nooit meer smaller:
+     werd het glas kleiner (gemeten: van 390 x 844 naar 390 x 480, glas 92 px, kolom bleef 122 px), dan bleef er een lege strook tussen het glas en de cijfers. */
+  .vandaag .drinkkaart { --glas-b: calc(var(--glas-h, 200px) * 120 / 196); }
+  .vandaag .drinkkaart .drinkkaart__links.drinkkaart__links { display: grid; grid-template-columns: var(--glas-b) minmax(0, 1fr); grid-template-rows: auto 1fr auto; column-gap: var(--s-6); row-gap: 0; align-items: center; }
+  .vandaag .drinkkaart .drinkkaart__links > .label { grid-column: 1 / -1; grid-row: 1; }
+  .vandaag .drinkkaart .drinkkaart__links > .drinkkaart__kern { display: contents; }
+  .vandaag .drinkkaart .drinkkaart__kern > .watervulling { grid-column: 1; grid-row: 2 / span 2; width: var(--glas-b); }
+  .vandaag .drinkkaart .drinkkaart__kern > .drinkkaart__stand { grid-column: 2; grid-row: 2; align-self: end; }
+  .vandaag .drinkkaart .drinkkaart__links > .drinkkaart__acties { grid-column: 2; grid-row: 3; align-self: start; justify-content: flex-start; margin-top: var(--s-2); }
+  .vandaag .drinkkaart .drinkkaart__links > .drinkkaart__acties .knop--tekst { align-self: flex-start; margin-left: calc(var(--s-3) * -1); }
+}
+
+/* BESLISSING 610 en 612: op de telefoon (smaller dan 720 px) meer ruimte op het hoofdscherm, alleen toegevoegd tussen de blokken:
+   5 px erbij boven het label "Deze week" (medailles) en 4 px erbij tussen het blok met het glas en het label "Dranken". */
+@media (max-width: 719.98px) {
+  @container motiv (max-width: 599px) {
+    .vandaag .voortgang .motiv__weekvak > .label { margin-top: calc(var(--s-5) + 5px); }
+  }
+  .vandaag .drinkkaart .drinkkaart__rij { row-gap: calc(var(--s-4) + 4px); }
+}
+
+/* BESLISSING 679: op de telefoon (smaller dan 720 px) staat de begroeting met de naam op één regel. Hetzelfde principe als vanaf 960 px: de maat is het kleinste van
+   de gewone maat op de telefoon (clamp(1.9rem, 10.5vw, 2.9rem), zoals in schermen.css) en de maat waarbij de hele begroeting net in de breedte van de kolom past. Die breedte in em (groet rechtop, naam cursief) meet vandaag.js
+   zodra de letters geladen zijn (--begroet-em); daarvoor geldt het aantal tekens x 0,48 em (de breedste gewone naam, gemeten: 0,47). 2 % reserve voor de afronding.
+   Ondergrens 28 px: een nog langere naam valt dan op een tweede regel (na de komma, de naam wordt nooit afgekapt). De kop is hier display: contents, dus de
+   container is het tekstblok zelf. De datum en de ruimte tot de kaart blijven zoals ze zijn; een kleinere letter maakt het blok alleen lager. */
+@media (max-width: 719.98px) {
+  .vandaag .begroeting__tekst { container: begroet-tel / inline-size; }
+  .vandaag .begroeting__titel.t-hero { font-size: max(28px, min(clamp(1.9rem, 10.5vw, 2.9rem), calc(100cqw / (var(--begroet-em, calc(var(--begroet-tekens, 21) * .48)) * 1.02)))); }
+}
+/* BESLISSING 679, ook op een tablet en een liggende telefoon (720 tot 959 px): hetzelfde principe. De kop is hier een rij (logo, titel, Rondleiding en Delen), de titel krijgt wat overblijft:
+   de breedte van de kop min 411 px (logo 89, Rondleiding 138, Delen 128, twee tussenruimtes van 24 en een van 8). De maat is het kleinste van de gewone maat (--fs-hero) en de maat waarbij de hele begroeting
+   (--begroet-em, door vandaag.js gemeten) op een regel in die breedte past, met 2 % reserve; ondergrens 28 px, daaronder twee regels (na de komma), nooit afgekapt. Vanaf 960 px blijft de maat van BESLISSING 594 tot 596. */
+@media (min-width: 720px) and (max-width: 959.98px) {
+  .vandaag .vandaag__begroeting { container: begroet-tab / inline-size; }
+  .vandaag .begroeting__titel.t-hero { font-size: max(28px, min(var(--fs-hero), calc((100cqw - 411px) / (var(--begroet-em, calc(var(--begroet-tekens, 21) * .48)) * 1.02)))); }
+}
+/* BESLISSING 697: op een tablet en een liggende telefoon (720 tot 959 px) staat de eerste regel van de begroeting op de grondlijn van het woord "bloei", voor elke lettermaat en
+   in beide motoren, uit de opmaak zelf en zonder verschuiving per maat: de koprij lijnt zijn onderdelen uit op de grondlijn (align-items: baseline). Het logo moest daarvoor een
+   grondlijn krijgen: zijn bloemetje stond als eerste onderdeel in de flexbox van het logo en gaf (zonder grondlijn) zijn onderrand door. Het bloemetje staat nu los (absolute plaats, in het
+   midden van het logo, op dezelfde plek als voorheen) en het woord krijgt de ruimte ernaast (1,1 + 0,4 = 1,5 x de logomaat), zodat de grondlijn van het logo die van het woord is.
+   Bij een lange naam (twee regels) staat de EERSTE regel op de lijn van het logo; de tweede loopt eronder door. De knoppen Rondleiding en Delen staan met hun tekst op diezelfde grondlijn
+   (hun midden valt zo samen met dat van het bloemetje); zonder deze twee regels onderaan bleven ze verticaal gecentreerd op de rij, 18 px onder de groet (translate van BESLISSING 595 vervalt dan). */
+@media (min-width: 720px) and (max-width: 959.98px) {
+  .vandaag .vandaag__begroeting { align-items: baseline; }
+  .vandaag .vandaag__begroeting .vandaag__logo .logo { position: relative; padding-left: calc(var(--logo-t) * 1.5); }
+  .vandaag .vandaag__begroeting .vandaag__logo .logo__merk { position: absolute; left: 0; top: 50%; translate: 0 -50%; }
+  .vandaag .vandaag__begroeting .begroeting__uitleg, .vandaag .vandaag__begroeting .knop.begroeting__delen { align-self: baseline; translate: none; }
+}

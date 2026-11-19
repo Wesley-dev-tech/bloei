@@ -1,0 +1,219 @@
+/* scherm-drinken: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool. */
+/* Elke selector begint met .drinken, zodat het hoofdscherm en het Dagboek (die .drankrij, .drankknop, .soortblok en .drank__weg delen) niet veranderen. */
+
+/* ---------- "Vandaag gedronken": compacte rijen in kolommen (BESLISSING 264, opmerking van de eigenaar) ---------- */
+/* De rijen staan in kolommen over de volle breedte van de kaart, gevuld per rij van links naar rechts. Het vak loopt aan elke kant één
+   binnenmarge buiten de kaartinhoud; elke cel geeft die marge terug, zodat de eerste tegel op de linker binnenrand staat en het kruisje
+   van de laatste kolom op de rechter. Dunne lijnen: een verticale tussen de kolommen, een horizontale (op de breedte van de inhoud) boven elke rij behalve de eerste. */
+.drinken .drinken__soorten { --cel: var(--s-4); display: grid; gap: 0; margin-inline: calc(var(--cel) * -1); }
+.drinken .soortblok { position: relative; min-width: 0; display: flex; flex-direction: row; align-items: center; gap: var(--s-3); min-height: 56px; padding: var(--s-1) var(--cel); border: 0; border-radius: 0; box-sizing: border-box; }
+.drinken .soortblok .tegel { flex: none; width: 36px; height: 36px; }
+/* De vorm van de tekst hangt af van de kolombreedte, nooit van het blok zelf: bij brede kolommen staan naam en hoeveelheid op één regel, bij smalle kolommen
+   (4 of meer naast elkaar, of 3 naast elkaar onder een kolombreedte van ± 300 px) staan in álle blokken de naam boven en de hoeveelheid eronder. */
+.drinken .soortblok__tekst { flex: 1; min-width: 0; display: flex; align-items: baseline; flex-wrap: nowrap; column-gap: var(--s-2); row-gap: 0; }
+.drinken .soortblok__naam, .drinken .soortblok__hoeveel { margin: 0; line-height: 1.3; }
+.drinken .soortblok__naam { font-weight: 500; min-width: 0; white-space: nowrap; }
+.drinken .soortblok__hoeveel { color: var(--c-text-muted); font-size: var(--fs-small); white-space: nowrap; }
+.drinken .soortblok .drank__weg { flex: none; width: var(--tap-min); height: var(--tap-min); margin: 0 calc((var(--tap-min) - 16px) / -2) 0 0; color: var(--c-text-muted); }
+/* Het vak knipt af wat buiten zijn rand valt (de lijnen van de schaduwen aan de linker- en bovenkant). Het kruisje van de laatste kolom staat tegen de rechterrand, dus zijn
+   focusring (2 px afstand + 2 px lijn) had daar geen ruimte. Het vak heeft daarom rechts en onderaan 6 px binnenruimte, die een negatieve marge (rechts -16 -6, onder -6) terugneemt:
+   het raster, de rijen en de lijnen staan op dezelfde plek en links en boven knipt het vak op dezelfde rand als voorheen; alleen de ring krijgt ruimte. Rechts en eronder steekt niets uit. */
+/* Indeling: een raster van 60 kolommen, zodat elke rij tot de rechterrand gevuld is, wat het aantal soorten ook is. Elk blok krijgt een aantal kolommen
+   (span); de lijnen komen van schaduwen die buiten het raster vallen: de verticale lijn links van elk blok en de horizontale lijn boven elk blok, en wat
+   buiten het raster valt (de linkerrand van het eerste blok van een rij en de bovenrand van de eerste rij) wordt afgeknipt. Zo staan de lijnen overal gelijk. */
+.drinken .drinken__verloopkaart { container-type: inline-size; }
+.drinken .drinken__soorten { grid-template-columns: repeat(60, minmax(0, 1fr)); overflow: clip; padding: 0 6px 6px 0; margin-right: -22px; margin-bottom: -6px; }
+.drinken .soortblok { grid-column: span 60; box-shadow: -1px 0 0 var(--c-line); }
+.drinken .soortblok::before { content: ''; position: absolute; top: -1px; left: var(--cel); right: var(--cel); border-top: var(--lijn); }
+.drinken .drinken__soorten > .drinken__nog-niets { grid-column: 1 / -1; margin: 0 var(--cel); }
+/* De kolombreedtes: de kaart (c) is de inhoudsbreedte; het raster is c + 2 x --cel breed. Een kolom is minstens ± 220 px breed. */
+@container (min-width: 568px) {
+  .drinken .drinken__soorten[data-n="2"] > .soortblok, .drinken .drinken__soorten[data-n="3"] > .soortblok, .drinken .drinken__soorten[data-n="4"] > .soortblok,
+  .drinken .drinken__soorten[data-n="5"] > .soortblok, .drinken .drinken__soorten[data-n="6"] > .soortblok { grid-column: span 30; }
+  .drinken .drinken__soorten[data-n="3"] > .soortblok:nth-child(3), .drinken .drinken__soorten[data-n="5"] > .soortblok:nth-child(5) { grid-column: span 60; }
+}
+@container (min-width: 628px) {
+  .drinken .drinken__soorten[data-n="3"] > .soortblok, .drinken .drinken__soorten[data-n="3"] > .soortblok:nth-child(3), .drinken .drinken__soorten[data-n="6"] > .soortblok { grid-column: span 20; }
+  .drinken .drinken__soorten[data-n="5"] > .soortblok:nth-child(-n+3) { grid-column: span 20; }
+  .drinken .drinken__soorten[data-n="5"] > .soortblok:nth-child(n+4) { grid-column: span 30; }
+}
+@container (min-width: 848px) {
+  .drinken .drinken__soorten[data-n="4"] > .soortblok { grid-column: span 15; }
+}
+@container (min-width: 1068px) {
+  .drinken .drinken__soorten[data-n="5"] > .soortblok:nth-child(n) { grid-column: span 12; }
+}
+@container (min-width: 1288px) {
+  .drinken .drinken__soorten[data-n="6"] > .soortblok { grid-column: span 10; }
+}
+/* De tekstvorm per indeling: twee regels (naam boven, hoeveelheid eronder) waar de kolom smal is. */
+@container (max-width: 567px) { .drinken .soortblok__tekst { flex-wrap: wrap; } }
+@container (min-width: 628px) and (max-width: 867px) {
+  .drinken .drinken__soorten:is([data-n="3"], [data-n="5"], [data-n="6"]) .soortblok__tekst { flex-direction: column; align-items: flex-start; }
+}
+@container (min-width: 848px) { .drinken .drinken__soorten[data-n="4"] .soortblok__tekst { flex-direction: column; align-items: flex-start; } }
+@container (min-width: 1068px) { .drinken .drinken__soorten[data-n="5"] .soortblok__tekst { flex-direction: column; align-items: flex-start; } }
+@container (min-width: 1288px) { .drinken .drinken__soorten[data-n="6"] .soortblok__tekst { flex-direction: column; align-items: flex-start; } }
+
+/* BESLISSING 281: op een telefoon breekt de week ("9 - 15 november") over twee regels en de kop wordt 42 px; 1 px marge boven en onder houdt hem op 40 px, zodat de tegel op dezelfde afstand van de kaartrand staat als op de andere kaarten. */
+.drinken .weekkaart--drinken > .kaartkop .kaartkop__eind { margin-block: -1px; }
+
+/* BESLISSINGEN 438 en 445: terugbladeren in de weekkaart. Vegen alleen horizontaal (verticaal scrollt de pagina gewoon). In de kop één rij: de pijl, de periode
+   ("16 - 22 november") in een vaste breedte, gecentreerd, zodat de pijlen niet verspringen bij een langere periode, en de pijl. De pijlen zijn de icoonknop
+   van de kalender op Vandaag (48 px tikvlak, kleur --c-accent = de familie van het tabblad); hun negatieve marge houdt de kop op de hoogte van de tegel. */
+.drinken .drinken__week { container: drinkweek / inline-size; touch-action: pan-y; }
+.drinken .weekkaart--drinken .drinken__weekbladeren { display: flex; align-items: center; gap: var(--s-1); }
+.drinken .weekkaart--drinken .drinken__weekpijl { margin-block: calc((var(--tile-size) - var(--knop-h)) / 2); }
+.drinken .weekkaart--drinken .drinken__weekperiode { width: 16rem; } /* BESLISSINGEN 459 en 476: label datumkop met jaartal; past "28 DECEMBER 2026 - 3 JANUARI 2027" (± 247 px) */
+.drinken .weekkaart--drinken .drinken__periodedeel { white-space: nowrap; }
+/* Een smalle kaart (telefoon): de titel houdt de eerste regel, de pijlen met de periode staan eronder over de volle breedte, de periode gecentreerd ertussen. */
+@container drinkweek (width < 480px) {
+  .drinken .weekkaart--drinken > .kaartkop { flex-wrap: wrap; }
+  .drinken .weekkaart--drinken .drinken__weekbladeren { flex: 1 0 100%; justify-content: space-between; }
+  .drinken .weekkaart--drinken .drinken__weekperiode { flex: 1; width: auto; }
+  /* geen extra ruimte tussen pijl en periode: het tikvlak van de pijl heeft al 14 px lucht rond het icoon; zo past "28 SEPTEMBER - 4 OKTOBER" op 360 px */
+  .drinken .weekkaart--drinken .drinken__weekbladeren { gap: 0; }
+}
+/* BESLISSING 476: op een telefoon past een periode met jaartal over een maand- of jaargrens niet altijd op één regel tussen de pijlen: ze breekt dan na het streepje,
+   en de hoogte van twee regels is er altijd, zodat de kaart niet verspringt tussen weken. De tekst blijft verticaal gecentreerd. */
+@container drinkweek (width < 400px) {
+  /* Een raster zette elk deel op een eigen rij: de periode stond ook op 430 px over twee regels. Nu staan de delen naast elkaar en breken ze alleen als het echt niet past
+     (vlak na het streepje); op 360 px en breder past "16 - 22 november 2026" op één regel. */
+  .drinken .weekkaart--drinken .drinken__weekperiode { display: flex; flex-wrap: wrap; align-content: center; justify-content: center; column-gap: .3em; min-height: calc(2 * 1.3em); white-space: normal; text-align: center; }
+}
+/* "Vandaag gedronken": de eerste regel tekst heeft ± 2 px ruimte boven zich; de 2 px gaan eraf onder de lijn, zodat het lege vlak onder de kop (tegel, 8 + 1 + 12 px, tekst) niet boven 32 px komt. */
+.drinken .drinken__verloopkaart > .kaartkop + * { margin-top: -2px; }
+/* "Je week in cijfers": het eerste cijferblok heeft ± 4 px ruimte boven zijn label (de tegel is hoger dan de tekst); die 4 px gaan eraf onder de lijn, om dezelfde reden. */
+.drinken .drinken__cijferkaart > .kaartkop + * { margin-top: -7px; }
+/* BESLISSING 349: naast de weekkaart (vanaf 1100 px) staan de onderdelen van "Je week in cijfers" niet meer dicht op elkaar met een strook onderaan. Er blijft geen gereserveerde
+   hoogte meer over voor de legenda; elke tussenruimte is minstens s-4 en wat de kaart ernaast extra hoog maakt, wordt in drie gelijke delen verdeeld: tussen de twee rijen cijfers,
+   tussen "Meest gedronken" en de balk, en tussen de balk en de legenda. De 12 px onder de lijn van de kaartkop (BESLISSING 281) blijft. */
+@media (min-width: 1100px) {
+  /* BESLISSING 354: alle zichtbare tussenruimtes zijn gelijk, gemeten tussen de inkt (niet tussen de regelvakken): kaartkoplijn, rij 1, rij 2, scheidingslijn, kopje, balk, legenda.
+     De kaart is een raster met zeven rijen en `space-between`: de hoogte van de kaart (gelijk aan "Deze week") wordt in zes gelijke delen verdeeld. Elk blok neemt met een negatieve
+     marge de lege halve regelhoogte van zijn tekst terug (--ink-*), zodat de verdeelde ruimte de zichtbare ruimte is. De 12 px onder de kaartkoplijn (BESLISSING 281) volgt hier die gelijke waarde. */
+  .drinken .kaart.kaart.drinken__cijferkaart { --ink-rij-boven: 3.5px; --ink-rij-onder: 1px; --ink-kopje-boven: 3.7px; --ink-kopje-onder: 2.8px; --ink-legenda-boven: 5px; --ink-legenda-onder: 3px; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-4); align-content: space-between; row-gap: var(--s-3); }
+  .drinken .kaart.kaart.drinken__cijferkaart:has(.drinken__meestleeg) { --ink-rij-boven: 3px; --ink-rij-onder: 4.2px; --ink-legenda-boven: 1.3px; --ink-legenda-onder: 0px; } /* zonder dranken staan er streepjes en geen eenheden: de inkt ligt iets anders */
+  .drinken .kaart.kaart.drinken__cijferkaart > .kaartkop.kaartkop { grid-column: 1 / -1; margin-bottom: 0; }
+  .drinken .drinken__cijferkaart .drinken__kern, .drinken .drinken__cijferkaart .drinken__meest, .drinken .drinken__cijferkaart .verdeling__vak { display: contents; }
+  .drinken .drinken__cijferkaart .drinken__kern > .kerncijfer { margin-block: calc(var(--ink-rij-boven) * -1) calc(var(--ink-rij-onder) * -1); }
+  .drinken .drinken__cijferkaart .drinken__kern::after { content: ''; grid-column: 1 / -1; border-top: var(--lijn); }
+  .drinken .drinken__cijferkaart .drinken__meest > .label { grid-column: 1 / -1; margin-block: calc(var(--ink-kopje-boven) * -1) calc(var(--ink-kopje-onder) * -1); }
+  .drinken .drinken__cijferkaart .verdeling { grid-column: 1 / -1; }
+  .drinken .drinken__cijferkaart .verdeling__legenda, .drinken .drinken__cijferkaart .drinken__meestleeg { grid-column: 1 / -1; min-height: 0; margin-block: calc(var(--ink-legenda-boven) * -1) calc(var(--ink-legenda-onder) * -1); }
+}
+
+/* ---------- iPad staand (720 tot 959 px, BESLISSING 308) ---------- */
+/* Eén kolom van ± 700 px. Een proef met "Vandaag" naast "Voeg toe" (twee kolommen van ± 340 px) gaf een cijferblok dat te smal is naast het glas ("3,45" boven "liter",
+   een zin over twee regels) en een "Voeg toe" dat 90 px hoger werd dan "Vandaag" leek te willen: het glas moest dan smal worden en liet leeg vlak boven en onder. Daarom
+   blijven alle kaarten hier onder elkaar; ze zijn breed genoeg voor glas, cijfer en eenheid, en de zes dranktegels op één rij. */
+
+/* Tot 1100 px (ook de iPad liggend op 1024 en 1080, met de zijbalk) zijn de kaarten van de week en van de cijfers te smal om naast elkaar te staan: de labels breken over
+   twee regels ("GEMIDDELD PER DAG", "van 7 dagen") en de weekkaart krijgt een leeg vlak van 88 px. Ze staan dan onder elkaar over de volle breedte, de zeven staven worden
+   ruime tikdoelen en het kopje past op één regel. */
+@media (min-width: 720px) and (max-width: 1099.98px) {
+  .drinken .drinken__raster > .drinken__weetjes, .drinken .drinken__raster > .drinken__lijst,
+  .drinken .drinken__raster > .drinken__week, .drinken .drinken__raster > .drinken__cijfers,
+  .drinken .drinken__raster > .drinkhoofd, .drinken .drinken__raster > .drinken__andere { grid-column: 1 / -1; }
+  /* Over de volle breedte past de legenda van "Meest gedronken" op één regel: de gereserveerde hoogte van drie regels liet een leeg vlak van ± 40 px. */
+  .drinken .verdeling__legenda, .drinken .drinken__meestleeg { min-height: 0; }
+}
+
+/* Met zijbalk (1100 tot 1399 px, een iPad liggend) is de kaart "Je week in cijfers" ernaast hoger dan de weekkaart: de staven groeien mee (minstens 212 px, BESLISSING 554) in plaats van
+   een leeg vlak van 36 tot 55 px onder de datums. Vanaf 1400 px is de hoogte 240 px (554). */
+@media (min-width: 1100px) and (max-width: 1399.98px) {
+  .drinken .weekkaart.weekkaart--drinken .weekstaven { flex: 1 1 auto; height: auto; min-height: 212px; } /* BESLISSING 554: met de kleinere cijfers (26 px) blijft er minder inhoud over in Je week in cijfers; 212 in plaats van 240 px houdt het lege vlak rond de scheidingslijn onder 48 px (BESLISSING 354) */
+  /* BESLISSING 476: met het jaartal past de periode niet meer op de regel van de titel; in een kaart van 400 tot 450 px breed (een iPad van 1150 tot 1250 px) staan de pijlen met de
+     periode op een eigen regel en is de weekkaart 399 px hoog. "Je week in cijfers" ernaast rekt dan zo ver mee dat het lege vlak rond de scheidingslijn boven de 48 px uitkomt
+     (BESLISSING 354). De staven houden daar 218 px in plaats van 240: de kaarten eindigen gelijk en dat vlak blijft onder de 48 px. */
+  @container drinkweek (400px <= width < 450px) { .drinken .weekkaart.weekkaart--drinken .weekstaven { min-height: 200px; } } /* idem, was 218 px */
+}
+
+/* BESLISSING 554: vanaf 1400 px staan de staven op 240 in plaats van 256 px (schermen.css), om dezelfde reden: met kleinere cijfers is er in Je week in cijfers
+   anders te veel rest om te verdelen en komt het lege vlak boven 48 px. */
+@media (min-width: 1400px) { .drinken .weekkaart.weekkaart--drinken .weekstaven { height: 240px; } }
+
+/* ---------- Goed om te weten ---------- */
+/* Vier even brede kolommen: drie weetjes en als vierde de link naar de instellingen, in dezelfde vorm (tegel links, tekst ernaast). Eén kolom op een
+   telefoon, 2 x 2 op een middelbare breedte, vier naast elkaar als alle teksten op één regel passen. */
+.drinken .drinken__weetjes { container-type: inline-size; }
+.drinken .drinken__weetjesrij { grid-template-columns: minmax(0, 1fr); gap: var(--s-3) var(--s-6); }
+/* Dezelfde breekpunten als "Goed om te weten" op Gewicht: 4 kolommen vanaf 1600 px, 2 x 2 van 600 tot 1599 px, onder elkaar op een telefoon. */
+@media (min-width: 600px) { .drinken .drinken__weetjesrij { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1600px) { .drinken .drinken__weetjesrij { grid-template-columns: repeat(3, minmax(0, 1fr)) max-content; column-gap: var(--s-4); } .drinken .weetje__tekst { white-space: nowrap; } .drinken .weetje--link { width: auto; } }
+/* Tegel en eerste regel tekst op één lijn (de tegel is 40 px, de regel 20 px). */
+#scherm .drinken .drinken__weetjes.kaart { padding-bottom: var(--s-3); } /* #scherm .kaart zet de marge op s-6; de ondermarge van deze kaart is gelijk aan de ruimte boven de rij (de 12 px onder de lijn, BESLISSING 281) */
+.drinken .drinken__weetjesrij { padding-top: 0; margin-top: -0.5px; } /* een halve px terug: de tegel is hoger dan de tekst en het lege vlak onder de kop mag niet boven 32 px komen; een hele px haalt de 12 px onder de lijn net onder de tolerantie */
+.drinken .weetje--link { position: relative; width: 100%; text-align: left; cursor: pointer; touch-action: manipulation; }
+.drinken .weetje--link::after { content: ''; position: absolute; inset: -4px 0; } /* tikvlak van 48 px hoog, zonder de rij hoger te maken */
+.drinken .weetje--link .weetje__tekst { color: var(--c-accent-text); font-size: var(--fs-small); }
+
+/* ---------- Bovenste rij: laag en gevuld ---------- */
+/* Vandaag: een klein glas links, de cijfers ernaast over de resterende breedte, het blok verticaal gecentreerd op het glas. */
+.drinken.drinken { --glas-h: 140px; }
+/* Het glas is minstens --glas-h hoog en rekt mee als de kaart ernaast hoger is (3 x 2 tegels op een smaller scherm), zodat er geen leeg vlak komt. */
+.drinken .drinkhoofd__rij { flex: 1 1 auto; align-items: center; }
+.drinken .drinkhoofd__rij > .watervulling { height: 100%; min-height: var(--glas-h); align-self: stretch; contain: size; flex: none; }
+.drinken .drinkhoofd__stand { align-self: center; justify-content: center; }
+.drinken .drinkhoofd .drinkbaan { margin-top: var(--s-3); }
+.drinken .drinkhoofd .cijfer-groot { font-size: var(--fs-hero); }
+/* Voeg toe: zes even brede knoptegels over de volle binnenbreedte (3 x 2 als de kaart te smal is), met een vaste kleine tussenruimte. */
+.drinken .drinken__andere { container-type: inline-size; }
+.drinken .drinken__andere .drankrij { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); flex: 0 0 auto; align-content: start; }
+.drinken .drinken__andere .drankknop { background: var(--drank-vlak); border-radius: var(--r-md); min-height: 0; padding: var(--s-2) var(--s-1); gap: var(--s-1); }
+.drinken .drinken__andere .drankknop:disabled { opacity: .5; }
+/* BESLISSING 356: is het dagdoel gehaald, dan blijven glas en balk in de drinkkleur (een vollere tint, --drank-gehaald); de zin, het volle glas en het blaadje blijven het teken van "gehaald". De gedeelde regels staan in componenten.css (.watervulling.is-gehaald) en schermen.css (.drinkbaan.is-gehaald). */
+.drinken .watervulling.is-gehaald .watervulling__vlak, .drinken .watervulling.is-gehaald .watervulling__golf path { fill: var(--drank-gehaald); }
+.drinken .watervulling.is-gehaald .watervulling__rand { stroke: var(--drank-gehaald); }
+.drinken .drinkbaan.is-gehaald .drinkbaan__vulling { background: var(--drank-gehaald); }
+.drinken .watervulling:not(.is-gehaald) .watervulling__vlak, .drinken .watervulling:not(.is-gehaald) .watervulling__golf path { fill: var(--drank-onderweg); }
+.drinken .watervulling:not(.is-gehaald) .watervulling__rand { stroke: var(--drank-onderweg); }
+.drinken .drinkbaan:not(.is-gehaald) .drinkbaan__vulling { background: var(--drank-onderweg); }
+.drinken .drinkbaan { background: var(--c-water-soft); } /* de lege rest van de balk was roze (het zachte accent): nu de zachte drinkkleur */
+/* BESLISSING 355: "Laatste weghalen" in de tekstkleur van Drinken (hover onderstreept, uitgeschakeld gedempt door de gedeelde regel, focusring in dezelfde kleur). */
+.drinken .drinken__laatste .knop--tekst { color: var(--c-water-text); }
+.drinken .drinken__laatste .knop--tekst:focus-visible { outline-color: var(--c-water-text); }
+@container (min-width: 520px) { .drinken .drinken__andere .drankrij { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+.drinken .drinken__laatste { margin-top: var(--s-2); padding-top: 0; border-top: 0; }
+.drinken .drinken__laatste .knop { margin-right: calc(var(--s-3) * -1); }
+@container (max-width: 519px) {
+  .drinken .drinken__laatste { margin-top: var(--s-3); }
+  .drinken .drinken__laatste .knop { margin-right: 0; margin-left: calc(var(--s-3) * -1); }
+}
+
+/* Tikdoel van minstens 44 px hoog (BESLISSING 182) voor "Dagdoel en groottes aanpassen": de link is 4 px hoger dan de rij, de ruimte die ze inneemt blijft gelijk. */
+.drinken .weetje.weetje--link.weetje--link.weetje--link { min-height: max(44px, var(--tile-size)); padding-block: max(0px, calc((44px - var(--tile-size)) / 2)); margin-block: min(0px, calc((var(--tile-size) - 44px) / 2)); }
+
+/* BESLISSING 475: rechts in de kop van "Je week in cijfers" staat een periode ("deze week", "vorige week" of een bereik): de labelvorm, met de tokens van .label
+   (het teken komt uit drinken.js zonder klasse). Past het niet naast de titel, dan breekt het rechts uitgelijnd onder de titel; de titel krimpt nooit. */
+.drinken .drinken__cijferkaart { container: cijferkaart / inline-size; }
+.drinken .drinken__cijferkaart > .kaartkop { flex-wrap: nowrap; } /* BESLISSING 480: altijd één regel */
+/* BESLISSING 480: van de drie vormen staat er één: vol ("26 oktober - 1 november 2026"), kort ("26 okt - 1 nov 2026") of kortst ("26 okt - 1 nov"). */
+.drinken .drinken__aanduiding--kort, .drinken .drinken__aanduiding--kortst { display: none; }
+@container cijferkaart (width < 520px) { .drinken .drinken__aanduiding--vol { display: none; } .drinken .drinken__aanduiding--kort { display: inline; } }
+@container cijferkaart (width < 440px) { .drinken .drinken__aanduiding--kort { display: none; } .drinken .drinken__aanduiding--kortst { display: inline; } }
+/* Op een smalle telefoon (binnenmaat van de kaart onder 300 px, bv. 360 px breed) staan titel en periode iets krapper gespatieerd (zelfde lettermaat), zodat ze naast elkaar passen.
+   Op 320 px past het ook zo niet: daar valt het icoon weg (BESLISSING 488, hieronder); breken onder de titel blijft alleen de laatste uitweg op nog smallere schermen. */
+@container cijferkaart (width < 300px) { .drinken .drinken__cijferkaart > .kaartkop { column-gap: var(--s-2); } .drinken .drinken__cijferkaart > .kaartkop.kaartkop :is(.kaartkop__label, .kaartkop__eind) { letter-spacing: 0.02em; } }
+/* BESLISSING 488: op de smalste telefoons (binnenmaat onder 270 px: 320 en 340 px breed) valt het icoontegeltje vóór de titel weg, zodat titel en periode op één regel
+   staan ("DEZE WEEK", "VORIGE WEEK", "26 OKT - 1 NOV"); vanaf 360 px blijft het staan. De kop houdt zijn hoogte (min-height van .kaartkop). */
+@container cijferkaart (width < 270px) { .drinken .drinken__cijferkaart > .kaartkop > .tegel { display: none; } }
+@container cijferkaart (width < 260px) { .drinken .drinken__cijferkaart > .kaartkop { flex-wrap: wrap; row-gap: 0; } }
+.drinken .drinken__cijferkaart > .kaartkop .kaartkop__label { flex: 1 0 auto; }
+.drinken .drinken__cijferkaart > .kaartkop .kaartkop__eind { margin-left: auto; font-family: var(--font-ui); font-weight: 500; font-size: var(--fs-label); line-height: 1.3; letter-spacing: var(--ls-label); text-transform: uppercase; color: var(--c-text-muted); white-space: nowrap; }
+/* BESLISSING 495: het voorbeeld van de drinkweek in Instellingen Drinken (weekkaart.js, voorbeeldPeriode) toont rechts in de kop alleen de periode, in labelvorm, op één regel.
+   Van de drie vormen staat er één, naar de breedte van het voorbeeld (de container drinkvoorbeeld uit scherm-algemeen.css), zodat ook de langste week past en de kop
+   niet van hoogte verandert. Gemeten nodig (tegel, tussenruimtes, titel en periode): vol "28 december 2026 - 3 januari 2027" 404 px bij een rem van 16 px en 446 px
+   bij 18 px; kort "28 dec 2026 - 3 jan 2027" 326 en 359 px (20,4 rem); kortst "28 dec - 3 jan" 246 en 269 px. De grenzen staan deels in rem, zodat ze meegroeien
+   met een grotere lettergrootte. Onder 270 px valt de periode weg (scherm-algemeen.css). */
+.weekkaart__periode { white-space: nowrap; }
+.weekkaart__periode--kort, .weekkaart__periode--kortst { display: none; }
+@container drinkvoorbeeld (width < 450px) or (width < 25.25rem) { .weekkaart__periode--vol { display: none; } .weekkaart__periode--kort { display: inline; } }
+@container drinkvoorbeeld (width < 20.5rem) { .weekkaart__periode--kort { display: none; } .weekkaart__periode--kortst { display: inline; } }
+/* BESLISSING 550, 551, 553 en 554: de weekstaven van Drinken en van het voorbeeld bij Instellingen Drinken zijn fijner (hoogstens 20 px breed) en de
+   cijfers van Je week in cijfers een maat kleiner, op elk formaat (telefoon, tablet en desktop). Alleen op de telefoon is het vak ook lager; op tablet
+   en desktop volgt de hoogte de kaart ernaast, zodat beide kaarten gelijk eindigen. */
+.drinkvoorbeeld .weekkaart.weekkaart--drinken .weekstaaf__balk,
+.drinken .weekkaart.weekkaart--drinken .weekstaaf__balk { width: 38%; max-width: 20px; border-radius: var(--r-pill) var(--r-pill) 2px 2px; }
+.drinken .drinken__kern .kerncijfer__getal { font-size: calc(var(--fs-h1) * .8125); }
+@media (max-width: 719px) { .drinken .weekkaart.weekkaart--drinken .weekstaven { height: 196px; } }

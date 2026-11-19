@@ -1,0 +1,34 @@
+# Bloei-herinneringen. Voor je uitrolt: vervang de plaatshouder `jouw-project.vercel.app` bij TOEGELATEN_ORIGIN en VAPID_ONDERWERP (zie worker/README.md). KV-id en VAPID_PUBLIEK zijn al ingevuld.
+name = "bloei-herinneringen"
+main = "src/index.js"
+compatibility_date = "2025-01-01"
+# Eén adres: <naam>.<subdomein>.workers.dev. Geen Version/Preview URLs (<versie>-<naam>.<subdomein>.workers.dev): die
+# zijn publiek en draaien ook OUDE versies van de Worker, met dezelfde opslag. Zo blijft een herstelde fout ook echt hersteld.
+workers_dev = true
+preview_urls = false
+
+[triggers]
+# Elke minuut (BESLISSING 713; tot 18 november elk kwartier). Een gewijzigde cron kan tot 15 minuten nodig hebben voor hij overal
+# loopt, en tot dan kunnen runs wegvallen; elke "wrangler deploy" zet de crons opnieuw. Zie worker/README.md, Uitrollen.
+crons = ["* * * * *"]
+
+# Geen logboek van verzoeken bij Cloudflare (Workers Logs) en geen Logpush: de dienst schrijft zelf ook niets weg.
+[observability]
+enabled = false
+
+[[kv_namespaces]]
+binding = "ABONNEMENTEN"
+id = "7edda87d2e794486a029d0c2e3221970"
+
+[vars]
+# De origin van de app op Vercel (het productieadres), zonder pad en zonder slash op het einde. De waarde hieronder is
+# een plaatshouder: vervang ze door je eigen adres. Precies één origin: de preview-adressen die Vercel per commit maakt,
+# worden bewust niet toegelaten (zie README.md).
+TOEGELATEN_ORIGIN = "https://bloei-app.vercel.app"
+VAPID_PUBLIEK = "BEfS00E_68glCxJxj32O-ZglKBsMORbQK1pIoWS7r95nssBL7OXiEUPxZP4GfKXexQTsXNPbsVCXcQ7zBd3TWUE"
+# Een contactadres voor de pushdiensten: "mailto:" met een e-mailadres, of het https-adres van de app (bv. hetzelfde als
+# TOEGELATEN_ORIGIN). Met het https-adres staat er geen e-mailadres in de repo; een e-mailadres hier laat de tests falen.
+VAPID_ONDERWERP = "https://bloei-app.vercel.app"
+# Hoeveel toestellen er hoogstens een abonnement hebben (een nieuw abonnement daarboven krijgt 429). Een persoonlijke app heeft er weinig.
+MAX_ABONNEMENTEN = "10"
+# VAPID_PRIVE is een secret: zet het met "npx wrangler secret put VAPID_PRIVE", nooit in dit bestand.

@@ -1,0 +1,406 @@
+/* ============================================================
+   Schil en responsive layout (spoor C, HUISSTIJL §7 en §9; BESLISSING 135 vervangt "inhoud max 720").
+   Breekpunten, voor iedereen (ook voor de schermen van spoor B):
+     telefoon  < 720 px     tabbalk onderaan, inhoud 100% breed met schermmarge 20, max --content-max (560)
+     tablet    720-959 px   tabbalk onderaan, inhoud gecentreerd, max 720 breed
+     desktop   >= 960 px    zijbalk links (--rail-width, 248), geen tabbalk; het inhoudsvlak is max 1120
+                            breed (--content-max * 2), gecentreerd in de ruimte rechts van de zijbalk,
+                            marges 32 px (960-1279) en 48 px (>= 1280)
+     breed     >= 1280 px   marges 48 px en basislettergrootte 112,5 % (960-1279: 106,25 %); vlak nog 1120
+     extra breed >= 1600 px inhoudsvlak max 1320 (--content-max-extra), nog steeds gecentreerd, marge 48 px
+   #scherm blijft één blok (het inhoudsvlak); schermen maken daarbinnen zelf hun CSS-rasters, bv.
+   @media (min-width: 960px) { .mijn-scherm { display: grid; grid-template-columns: 1fr 1fr; gap: var(--s-6); } }
+   Tekst schaalt mee: de --fs-*-tokens zijn rem, dus de basislettergrootte van html volstaat.
+   (stijl.html importeert dit bestand niet en blijft dus op 100 %.)
+   Dit bestand komt na basis.css en componenten.css en overschrijft hun voorlopige schilregels.
+   Safe-areas: env(safe-area-inset-*) boven, onder en opzij.
+   ============================================================ */
+
+:root {
+  --safe-left: env(safe-area-inset-left, 0px);
+  --safe-right: env(safe-area-inset-right, 0px);
+  --content-max-breed: calc(var(--content-max) * 2);   /* inhoudsbreedte op desktop: 1120 px */
+  --content-max-extra: calc(var(--content-max) * 2 + var(--rail-width) - var(--s-12));   /* 1320 px vanaf 1600 */
+  --content-max-tablet: 720px;
+  --marge-desktop: var(--s-8);                          /* 32 px; 48 px vanaf 1280 */
+}
+
+/* Wat verborgen is, is ook echt weg (de klassen van de componenten zetten zelf display). */
+#tabbalk[hidden], #zijbalk[hidden] { display: none; }
+
+.schil { min-height: 100dvh; }
+
+/* ---------- Telefoon en tablet ---------- */
+#zijbalk { display: none; }
+
+#scherm {
+  display: block;
+  width: 100%;
+  max-width: var(--content-max);
+  margin: 0 auto;
+  padding-top: calc(var(--s-6) + var(--safe-top));
+  padding-right: max(var(--s-5), var(--safe-right));
+  padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s-8));
+  padding-left: max(var(--s-5), var(--safe-left));
+}
+.schil[data-nav="uit"] #scherm { padding-bottom: calc(var(--s-8) + var(--safe-bottom)); }
+
+#tabbalk {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  z-index: 20;
+  padding-left: max(var(--safe-left), calc((100% - var(--content-max)) / 2));
+  padding-right: max(var(--safe-right), calc((100% - var(--content-max)) / 2));
+}
+
+/* Smalle telefoon (BESLISSING 308 en 325): "Supplementen" is 66,6 px breed in de lettermaat van alle tabs (11 px) en past niet in een tab van 60 px
+   (360 px breed, zes tabs); kleiner dan 10,5 px is onleesbaar en past ook nog niet. Tot 440 px krijgt daarom elke tab de breedte van zijn label plus een
+   gelijk deel van de overgebleven ruimte (flex 1 1 auto): alle labels hebben dezelfde lettermaat, staan op één regel, binnen hun eigen tab en raken hun buren
+   niet, en elke tab blijft minstens 48 px breed (tikdoel). Vanaf 440 px zijn de tabs gelijk van breedte (geen label is er breder dan 72 px). */
+@media (max-width: 439.98px) {
+  #tabbalk .tabbalk__item { flex: 1 1 auto; min-width: var(--tap-min); padding-inline: var(--s-1); }
+  #tabbalk .tabbalk__label { white-space: nowrap; }
+}
+/* BESLISSING 504: de balk onderaan is een zwevend, afgerond vlak dat niet van rand tot rand loopt. Het element zelf houdt zijn plaats en maat (niets in de
+   indeling verschuift); zijn achtergrond is doorzichtig en het zichtbare vlak is een afgeronde vorm erbinnen (::before). De tabs staan binnen dat vlak.
+   Op een telefoon is de ruimte links en rechts zo groot als past: zes labels op één regel vragen ongeveer 346 px. */
+#tabbalk { --tb-inzet: var(--s-3); background: transparent; border-top: 0; isolation: isolate; pointer-events: none; }
+#tabbalk > * { pointer-events: auto; }
+/* de tabs (en het vlak van de actieve tab) blijven binnen het afgeronde vlak: 2 px lucht boven en onder; een tab blijft 48 px hoog (tikdoel) */
+#tabbalk .tabbalk__item { position: relative; margin-top: 2px; margin-bottom: calc(2px + max(0px, 6px - var(--safe-bottom))); }
+/* Icoon en label staan samen verticaal in het midden van het vlak, met evenveel ruimte erboven als eronder: het bolletje van de actieve tab telt niet mee in
+   die verdeling en staat los onder het label. */
+#tabbalk .tabbalk__item::after { position: absolute; left: 50%; bottom: 1px; margin-left: calc(var(--stip) / -2); }
+#tabbalk::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: max(var(--safe-bottom), 6px); left: var(--tb-inzet); right: var(--tb-inzet); border-radius: var(--r-lg); background: var(--c-surface); border: var(--lijn); box-shadow: var(--shadow-float); }
+@media (max-width: 719.98px) { #tabbalk { --tb-pad: clamp(5px, calc((100vw - 346px) / 2), 20px); --tb-inzet: calc(var(--tb-pad) - 4px); padding-inline: var(--tb-pad); } }
+/* BESLISSING 505: de actieve tab heeft geen eigen achtergrondvlak; haar icoon licht op (iets groter met een zachte schaduw, zoals de iconen bij aanwijzen).
+   Het bolletje eronder en de heldere tekst blijven. */
+#tabbalk .tabbalk__item[aria-current="page"] { background: transparent; }
+#tabbalk .tabbalk__item .navicoon { transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease); }
+#tabbalk .tabbalk__item[aria-current="page"] .navicoon { transform: scale(1.15); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); }
+@media (prefers-reduced-motion: reduce) { #tabbalk .tabbalk__item .navicoon { transition: none; } }
+
+/* ---------- Tablet: iets breder ---------- */
+@media (min-width: 720px) {
+  #scherm { max-width: var(--content-max-tablet); }
+}
+
+/* ---------- Desktop: zijbalk links ---------- */
+@media (min-width: 960px) {
+  html { font-size: 106.25%; }
+
+  .schil {
+    display: grid;
+    grid-template-columns: calc(var(--rail-width) + var(--safe-left)) minmax(0, 1fr);
+    align-items: start;
+  }
+  .schil[data-nav="uit"] { grid-template-columns: minmax(0, 1fr); }
+
+  #tabbalk { display: none; }
+  #tabbalk[hidden] { display: none; }
+
+  #zijbalk {
+    display: flex;
+    position: sticky;
+    top: 0;
+    height: 100dvh;
+    min-height: 0;
+    box-sizing: border-box;
+    padding-top: calc(var(--s-8) + var(--safe-top));
+    padding-bottom: calc(var(--s-8) + var(--safe-bottom));
+    padding-left: calc(var(--s-4) + var(--safe-left));
+    width: calc(var(--rail-width) + var(--safe-left));
+    overflow-y: auto;
+  }
+  #zijbalk[hidden] { display: none; }
+
+  /* De marges zitten in de padding; het inhoudsvlak zelf is max 1120 breed en staat gecentreerd. */
+  #scherm {
+    max-width: calc(var(--content-max-breed) + 2 * var(--marge-desktop));
+    padding-top: calc(var(--s-8) + var(--safe-top));   /* 32: de schermtitel staat op de hoogte van het logo in de zijbalk */
+    padding-right: max(var(--marge-desktop), var(--safe-right));
+    padding-bottom: calc(var(--s-10) + var(--safe-bottom));
+    padding-left: var(--marge-desktop);
+  }
+}
+
+@media (min-width: 1280px) {
+  :root { --marge-desktop: var(--s-12); }   /* 48 px */
+  html { font-size: 112.5%; }
+}
+
+@media (min-width: 1600px) {
+  :root { --content-max-breed: var(--content-max-extra); }
+}
+
+/* ---------- Installatiestrook (src/pwa/installatie.js) ---------- */
+.installatiestrook__tekst { color: var(--c-text-muted); margin-bottom: var(--s-4); }
+.installatiestrook__acties { display: flex; justify-content: flex-end; gap: var(--s-2); flex-wrap: wrap; }
+
+/* ---------- Schermwissel en navigatie (BESLISSING 148) ---------- */
+/* Een nieuw scherm komt zacht op: alleen opacity, 200 ms. De schil, zijbalk en tabbalk bewegen niet mee.
+   app.js zet .is-binnen bij een echte routewissel en haalt het weg na animationend.
+   Bij prefers-reduced-motion zet basis.css alle animaties uit. */
+#scherm.is-binnen { animation: scherm-in 200ms var(--ease) backwards; }
+
+/* Hover- en drukstand en tikvlak (min. 48 px) voor elk item; de actieve markering vervaagt over
+   (kleur-, achtergrond- en stipovergangen staan al in componenten.css). */
+#tabbalk .tabbalk__item { min-height: var(--tap-min); }
+#tabbalk .tabbalk__item .icoon { transition: color var(--dur) var(--ease), transform var(--dur) var(--ease); }
+#tabbalk .tabbalk__item:active .icoon { transform: scale(.92); }
+#zijbalk .zijbalk__item:active { transform: scale(.98); }
+@media (hover: hover) {
+  /* Hover in het menu: A's gedeelde regel ("uitlichten via het icoon" in componenten.css) laat alleen het icoon reageren. */
+  /* Rijen in een instelscherm (ook Vergrendeling en Uitleg): alleen de icoontegel komt licht omhoog, met een zachte schaduw eronder (BESLISSING 190). */
+  .instelscherm .rij:hover .tegel { transform: translateY(-2px); box-shadow: var(--shadow-card); }
+}
+#zijbalk .zijbalk__item { transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease), transform var(--dur-fast) var(--ease); }
+/* Het item Delen onderaan de zijbalk (BESLISSING 374): het icoon in de volle lavendel van zijn tabblad, zoals de zes andere in hun familie. */
+#zijbalk .zijbalk__item[data-kleur="delen"] .navicoon--delen { color: var(--c-share-licht); }
+
+/* Het icoon van de actieve tab bloeit één keer kort op zodra de tab actief wordt. */
+@keyframes tab-bloei { 0% { transform: scale(.85); } 60% { transform: scale(1.14); } 100% { transform: scale(1); } }
+#tabbalk .tabbalk__item[aria-current="page"] .icoon,
+#zijbalk .zijbalk__item[aria-current="page"] .icoon { animation: tab-bloei 420ms var(--ease) 1; }
+
+/* Het logo-svg's mengen hun blaadjes met multiply. In de svg stond dat als style-attribuut; onder de
+   Content-Security-Policy (zonder 'unsafe-inline') staat het als klasse (zie vite.config.js). */
+.mengen { mix-blend-mode: multiply; }
+
+/* ============================================================
+   Instelscherm: één vaste opbouw voor alle instellingenschermen (BESLISSING 164).
+   Gebruik, per scherm (de structuur verandert niet):
+     schermkop({ titel, acties: [terugKnop] }), dan
+     <div class="instelscherm">
+       <div class="instel__lijst"> kaart(kaartkop(...), rij({ tegel, titel, tekst, eind: bediening }), ...) [meer kaarten = groepen] </div>
+       <aside class="instel__voorbeeld"> kaart(kaartkop({ label: "Zo ziet het eruit" }), levend voorbeeld) </aside>
+     </div>
+   .instelscherm is zelf één kaart; de kaarten daarin verliezen hun kaartuiterlijk en blijven kaartkop plus inhoud. Meer
+   kaarten links zijn groepen, gescheiden door hun kaartkop (een labelregel). De bediening staat in `eind` rechts op één
+   lijn; rijen zijn minstens 64 px met een lijn ertussen. Vanaf 960 px staan lijst en voorbeeld naast elkaar (3 op 2): de
+   twee kaartkoppen staan op dezelfde hoogte en het voorbeeld (op een zachte ondergrond) is bovenaan uitgelijnd, nooit
+   verticaal gecentreerd. Eronder: lijst, een lijn, dan het voorbeeld (`instel__voorbeeld--optioneel` laat het onder 720
+   px weg). Niets in een voorbeeld mag zelf centreren of rekken; het begint gewoon onder de kaartkop.
+   ============================================================ */
+.instelscherm {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: var(--s-6);
+  align-items: stretch;
+  padding: var(--s-6);
+  background: var(--c-surface);
+  border-radius: var(--r-md);
+  box-shadow: var(--shadow-card);
+}
+.instelscherm > * { min-width: 0; }
+.instel__lijst, .instel__voorbeeld { display: flex; flex-direction: column; }
+
+/* De kaarten binnenin zijn geen blokken meer. */
+.instelscherm .kaart { padding: 0; background: none; box-shadow: none; border-radius: 0; height: auto; }
+.instel__lijst > .kaart, .instel__voorbeeld > .kaart { display: flex; flex-direction: column; flex: none; }
+.instel__lijst > .kaart + .kaart { margin-top: var(--s-6); }
+
+/* Beide kaartkoppen: dezelfde hoogte en dezelfde afstand tot wat eronder komt. */
+.instelscherm .kaartkop { min-height: var(--tile-size); margin-bottom: var(--s-4); }
+.instelscherm .kaart > .kaartkop + * { margin-top: 0; }
+.instel__lijst .kaartkop + .rij { padding-top: 0; }
+.instel__lijst > .kaart > .rij:last-child { padding-bottom: 0; }
+
+/* Rijen: gelijke hoogte, lijn ertussen, de bediening rechts op één lijn. */
+.instel__lijst .rij { min-height: 64px; padding: var(--s-3) 0; }
+.instel__lijst .rij__eind {
+  align-self: center;
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  padding-top: 0;
+  font-size: var(--fs-body);
+  color: var(--c-text);
+}
+.instel__lijst .rij__sub { -webkit-line-clamp: 3; line-clamp: 3; }
+.instel__lijst .rij .knop { height: var(--knop-klein-h); min-height: var(--knop-klein-h); min-width: 0; padding: 0 var(--s-4); font-size: var(--knop-klein-fs); }
+.instel__lijst .rij > .schakelaar { flex: 1; min-width: 0; padding: 0; }
+
+/* Het voorbeeld: een eigen zachte ondergrond, bovenaan uitgelijnd. Onder 960 px staat het onder een lijn. */
+.instel__voorbeeld { border-top: var(--lijn); padding-top: var(--s-6); }
+.instel__voorbeeld > .kaart { gap: 0; }
+
+@media (max-width: 719px) {
+  .instelscherm { padding: var(--s-5); gap: var(--s-5); }
+  .instel__voorbeeld { padding-top: var(--s-5); }
+}
+@media (min-width: 960px) {
+  .instelscherm { grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: var(--s-8); }
+  .instel__lijst { padding-top: var(--s-5); }
+  .instel__voorbeeld {
+    border-top: 0;
+    padding: var(--s-5);
+    background: var(--c-surface-soft);
+    border-radius: var(--r-md);
+  }
+}
+
+/* ---------- Instelscherm vult het venster (BESLISSING 167/168) ----------
+   Vanaf 960 px reikt de kaart tot onderaan het venster (met een maximum), en beide delen zijn gevuld met inhoud:
+   links bovenaan de rijen en onderaan vastgezet het blok .instel__weetjes ("Goed om te weten"), rechts een
+   voorbeeld in .instel__groei dat meegroeit. Onder 960 px volgt alles elkaar gewoon op.
+     <div class="instel__lijst">
+       kaart(kaartkop, rij, rij, ...)
+       <div class="instel__weetjes"> <p class="label">Goed om te weten</p> rij({ tegel, titel }) ... [knop soort 'tekst' in eind] </div>
+     </div>
+     <aside class="instel__voorbeeld"> kaart(kaartkop, <div class="instel__groei"> het voorbeeld </div> [tweede, kleiner blok]) </aside>
+   Het voorbeeld in .instel__groei krijgt flex: 1 en schaalt tot zijn eigen maximum. */
+.instel__weetjes { display: flex; flex-direction: column; margin-top: var(--s-6); padding-top: var(--s-5); border-top: var(--lijn); }
+.instel__weetjes > .label { margin-bottom: var(--s-2); }
+.instel__weetjes > .rij { min-height: 64px; padding: var(--s-3) 0; }
+.instel__weetjes > .rij + .rij { border-top: 0; }
+.instel__groei { display: flex; flex-direction: column; min-height: 0; }
+
+@media (min-width: 960px) {
+  .instel__weetjes { flex: 0 0 auto; }
+  .instel__voorbeeld > .kaart { flex: 1 1 auto; min-height: 0; }
+  .instel__groei { flex: 1 1 auto; }
+  .instel__groei > * { flex: 1 1 auto; }
+}
+
+/* Is er na de rijen nog ruimte, dan vult "Goed om te weten" die: de rijen krijgen elk meer lucht, met een lijn ertussen. */
+@media (min-width: 960px) {
+  .instel__weetjes > .rij + .rij { border-top: var(--lijn); }
+}
+
+/* ---------- Rustige lettergroottes voor alle instellingenschermen ----------
+   Op desktop (basis 18 px): rijtitel ongeveer 16 px, hint ongeveer 14 px, de waarde van een stapper ongeveer 18 px in
+   Jost 500 met lijncijfers van gelijke breedte en een vaste breedte (zodat - en + in elke rij onder elkaar staan),
+   knoppen van 40 px (48 px op een telefoon), rijen van ongeveer 56 px. Alles afgeleid uit de --fs-tokens. */
+.instelscherm .stapper__waarde {
+  width: calc(var(--s-10) * 2);
+  min-width: 0;
+  padding: 0;
+  font-family: var(--font-ui);
+  font-weight: 500;
+  font-size: var(--fs-body);
+  font-variant-numeric: tabular-nums lining-nums;
+}
+.instelscherm .stapper__knop { width: var(--tap-min); height: var(--tap-min); font-size: var(--fs-body); }
+.instelscherm .stapper { gap: var(--s-1); }
+
+@media (min-width: 960px) {
+  .instelscherm .rij__titel { font-size: calc(var(--fs-body) * .9); }
+  .instelscherm .rij__sub, .instelscherm .t-klein { font-size: calc(var(--fs-small) * .9); }
+  .instelscherm .stapper__knop { width: var(--s-10); height: var(--s-10); }
+  .instelscherm .instel { min-height: 56px; padding: var(--s-2) 0; }
+  .instel__lijst .rij { min-height: 56px; padding: var(--s-2) 0; }
+  .instel__weetjes .rij__titel { font-size: calc(var(--fs-small) * .95); }
+}
+@media (max-width: 719px) {
+  .instelscherm .stapper__waarde { width: calc(var(--s-12) + var(--s-3)); }
+  .instelscherm .stapper { gap: 0; }
+}
+
+/* "Goed om te weten": de rijen houden hun gewone hoogte en staan onderaan vast; de rest van de ruimte gaat naar het voorbeeld. */
+@media (min-width: 960px) {
+  .instel__lijst > .instel__weetjes { flex: 0 0 auto; margin-top: auto; }
+  .instel__weetjes > .rij { flex: 0 0 auto; max-height: none; min-height: 56px; }
+}
+
+/* Een kaart die netjes eindigt is beter dan een kaart met een gat: de kaart is zo hoog als haar inhoud (het voorbeeld rekt mee). */
+
+/* Eén binnenruimte (BESLISSING 231 tot 233): op desktop gaf `#scherm .kaart` (schermen.css) elke kaart in het instelscherm nog eens 24 px
+   padding en een ronde hoek bovenop de ruimte van het scherm en van het voorbeeld, zodat links en rechts te veel wit en geen gelijke
+   boven- en onderlijn hadden. Hier staat de ID-specificiteit ertegenover. Boven- en onderkant van beide delen staan s-5 binnen het vlak. */
+#scherm .instelscherm .kaart { padding: 0; border-radius: 0; }
+@media (min-width: 960px) {
+  .instel__lijst { padding-bottom: var(--s-5); }
+}
+/* Drinken: de week in het voorbeeld houdt zijn eigen hoogte. */
+/* De week krimpt pas als het glas en de dranken niet meer verder kunnen (het glas heeft een krimpfactor van 1000, de week van 1: het glas neemt eerst het tekort), en dan alleen via de staven tot 96 px;
+   zo loopt de grafiek nooit uit de kaart. Is er genoeg ruimte, dan is alles precies zoals voorheen (staven 150 px). */
+.drinkvoorbeeld .instel__voorbeeldinhoud > .drinkvoorbeeld__week { flex: 0 1 auto; min-height: 0; display: flex; flex-direction: column; }
+.drinkvoorbeeld .instel__voorbeeldinhoud > .drinkvoorbeeld__glasrij { flex-shrink: 1000; } /* het glas neemt een tekort bijna helemaal op; de week krijgt pas iets als het glas op zijn minimum staat */
+.drinkvoorbeeld .drinkvoorbeeld__week > .weekkaart { flex: 1 1 auto; min-height: 0; }
+/* Profiel: het voorbeeld vult de breedte van zijn vlak (vier vakken naast elkaar) en verdeelt zijn ruimte tot de onderlijn van links. */
+@media (min-width: 720px) {
+  .profielvoorbeeld .instel__voorbeeldinhoud { align-items: stretch; justify-content: space-between; }
+  .profielvoorbeeld__vakken { grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); padding: var(--s-4) var(--s-2); }
+}
+
+/* ---------- Vaste kop op telefoon en tablet (BESLISSING 171) ----------
+   De schermkop blijft bovenaan staan tijdens het scrollen: achtergrond van de pagina, binnen de veilige zone (de kop begint
+   onder de inkeping), boven de inhoud (z 15) maar onder de tabbalk (20), een open blad en het slot. Een fijne lijn komt zodra
+   er gescrold is (app.js zet .is-gescrold op <html>). De kop zelf (titel, knoppen) is van componenten.css. */
+@media (max-width: 959px) {
+  .schermkop {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: var(--c-bg);
+    margin-top: calc(var(--safe-top) * -1);
+    padding-top: var(--safe-top);
+    margin-left: calc(max(var(--s-5), var(--safe-left)) * -1);
+    margin-right: calc(max(var(--s-5), var(--safe-right)) * -1);
+    padding-left: max(var(--s-5), var(--safe-left));
+    padding-right: max(var(--s-5), var(--safe-right));
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur) var(--ease);
+  }
+  .is-gescrold .schermkop { border-bottom-color: var(--c-line); }
+}
+
+/* Een wrapper die alleen de schermkop bevat (Drinken en Supplementen) laat de kop ook echt vast staan: zonder eigen vak is de hele pagina zijn bereik. */
+@media (max-width: 959px) {
+  .drinken__kop { display: contents; }
+}
+
+.instelscherm .rij .tegel { transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur) var(--ease); }
+#zijbalk .zijbalk__item .icoon { transition: transform var(--dur-fast) var(--ease); }
+
+/* Drinken: de week in het voorbeeld heeft staven van bescheiden hoogte, zodat er geen leeg vlak onder "Deze week" valt; het glas neemt de rest. */
+.drinkvoorbeeld .weekkaart.weekkaart--drinken .weekstaven { height: auto; flex: 1 1 150px; min-height: 96px; }
+
+/* Algemeen: de laatst behaalde medaille staat links uitgelijnd met haar buren; Over vult zijn kaart zonder gat (de knop onderaan). */
+.meer__medailleplek .medaille-bijschrift { text-align: left; }
+@media (min-width: 720px) {
+  .meer__raster > .over { display: flex; flex-direction: column; gap: var(--s-6); }
+  .meer__raster > .over > * { margin-bottom: 0; }
+  .meer__raster > .over > .knop { margin-top: auto; align-self: flex-start; }
+}
+
+/* Telefoon: Streefgewicht zet zijn bediening onder de titel (anders loopt "Nog niet gezet" over de titel), de weetjes zijn gewone tekst en het
+   profielvoorbeeld vult zijn breedte. */
+.instel__weetjes .rij__titel { font-weight: 400; }
+@media (max-width: 719px) {
+  .instel__lijst .rij:has(.streefbediening) { flex-wrap: wrap; }
+  .instel__lijst .rij:has(.streefbediening) .rij__tekst { flex: 1 1 calc(100% - var(--tile-size) - var(--s-4)); }
+  .instel__lijst .rij:has(.streefbediening) .rij__eind { flex: 1 1 100%; justify-content: space-between; }
+  .instel__lijst .streefbediening { width: 100%; justify-content: space-between; }
+  .profielvoorbeeld .instel__voorbeeldinhoud { align-items: stretch; }
+}
+
+/* Gewicht, het voorbeeld in de lege toestand: de grafiek krimpt mee als de kaart (de hoogte van de linkerkolom) krapper is dan haar inhoud; op 1690 px liep ze 4 px
+   onder de kaart uit. De grafiek houdt minstens 96 px. Is er genoeg ruimte, dan verandert er niets. */
+.gewvoorbeeld .instel__voorbeeldinhoud > .gewvoorbeeld__grafiekhouder { min-height: 0; }
+.gewvoorbeeld__grafiekhouder > .gewvoorbeeld__grafiek { flex: 0 1 auto; min-height: 96px; }
+/* BESLISSING 507 (herzien): de balk bovenaan blijft staan bij het scrollen, loopt over de VOLLE breedte en heeft een fijn lijntje eronder (geen zwevend vlak zoals
+   de balk onderaan). Achtergrond in de kleur van de pagina, zodat de inhoud er netjes onder wegschuift; het stuk boven de balk (de inkeping) is mee gevuld.
+   (1) Elk scherm met een schermkop (die plakte al bovenaan tot 959 px): het lijntje staat er nu altijd, niet pas na het scrollen. */
+@media (max-width: 959px) {
+  .schermkop { border-bottom-color: var(--c-line); }
+  .schermkop::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--safe-top, 0px); background: var(--c-bg); }
+  /* (2) Het Dagboek heeft een eigen kop (titel, knoppen en Dag/Week/Maand): die krijgt dezelfde vaste balk. */
+  .dagboek > .dagboek__kop { position: sticky; top: var(--safe-top, 0px); z-index: 15; margin-left: calc(max(var(--s-5), var(--safe-left, 0px)) * -1); margin-right: calc(max(var(--s-5), var(--safe-right, 0px)) * -1); padding: var(--s-2) max(var(--s-5), var(--safe-right, 0px)) var(--s-3) max(var(--s-5), var(--safe-left, 0px)); background: var(--c-bg); border-bottom: 1px solid var(--c-line); }
+  .dagboek > .dagboek__kop::before { content: ""; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--safe-top, 0px); background: var(--c-bg); }
+}
+/* (3) Het hoofdscherm op een telefoon: het logo en de twee ronde knoppen vormen samen die balk. De begroeting-kop lost op in de kolom van het scherm (display: contents),
+   zodat het logo en de knoppen over de hele pagina kunnen blijven plakken; de knoppen schuiven met een negatieve marge in de rij van het logo. Het vlak van de balk
+   hangt aan het logo (::before) en loopt tot de randen van het scherm en tot boven de inkeping. De groet zelf scrolt gewoon mee. */
+@media (max-width: 719px) {
+  .vandaag > .vandaag__begroeting { display: contents; }
+  .vandaag > .vandaag__begroeting > .vandaag__logo { order: -4; position: sticky; top: calc(var(--safe-top, 0px) + var(--s-2)); z-index: 15; isolation: isolate; }
+  .vandaag > .vandaag__begroeting > .vandaag__logo::before { content: ""; position: absolute; z-index: -1; top: calc((var(--safe-top, 0px) + var(--s-2)) * -1); bottom: calc(var(--s-2) * -1); left: calc(max(var(--s-5), var(--safe-left, 0px)) * -1); right: calc(max(var(--s-5), var(--safe-right, 0px)) * -1); background: var(--c-bg); border-bottom: 1px solid var(--c-line); pointer-events: none; }
+  .vandaag > .vandaag__begroeting > .knop.begroeting__delen { position: sticky; top: calc(var(--safe-top, 0px) + var(--s-2)); z-index: 16; align-self: flex-end; margin-top: calc(-48px - var(--s-4)); margin-left: 0; }
+  .vandaag > .vandaag__begroeting > .knop.begroeting__uitleg { order: -3; margin-right: 42px; }
+  .vandaag > .vandaag__begroeting > .knop.begroeting__delen:last-child { order: -2; margin-right: -6px; }
+  .vandaag > .vandaag__begroeting > .begroeting__tekst { order: -1; margin-top: var(--s-3); margin-bottom: var(--s-3); }
+}

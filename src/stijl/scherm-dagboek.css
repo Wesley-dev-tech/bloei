@@ -1,0 +1,33 @@
+/* scherm-dagboek: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool. */
+
+/* BESLISSING 308: de rij van vandaag in het weekschema heeft drie regels (dag, label "vandaag", geplande spuit) en raakte boven- en onderrand; ze krijgt een eigen binnenruimte. */
+.wk__compact { padding-block: var(--s-2); }
+
+/* Toegankelijkheid (BESLISSING 330): de dagrij is de ene tabstop van haar dag; haar focusring ligt binnen de rij, zodat de houder hem nergens afsnijdt. */
+.wk__rij:focus-visible, .wk__compact:focus-visible { outline: var(--focus); outline-offset: -2px; }
+
+/* BESLISSING 308, Dagboek · Week op een iPad (720 tot 1399 px): vijf kaarten in drie kolommen lieten rechtsonder een gat. Een raster van zes kolommen vult elke rij:
+   drie kaarten van twee kolommen, daaronder twee van drie (bij vier kaarten loopt de laatste over de hele rij). Vanaf 1400 px blijven het vijf kaarten naast elkaar. */
+@media (min-width: 720px) and (max-width: 1399.98px) {
+  .wk__samenvatting { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .wk__samenvatting > .wk__skaart.wk__skaart { grid-column: span 2; }
+  .wk__samenvatting > .wk__skaart.wk__skaart:nth-child(4):nth-last-child(2), .wk__samenvatting > .wk__skaart.wk__skaart:nth-child(5):last-child { grid-column: span 3; }
+  .wk__samenvatting > .wk__skaart.wk__skaart:nth-child(4):last-child { grid-column: 1 / -1; }
+}
+/* BESLISSINGEN 499 en 501, Dagboek · Week op een telefoon: de laatste tegel (Gewicht) loopt over de volle breedte (vijf tegels in twee kolommen). Ze heeft daar twee
+   gelijke helften onder de kop: links de weging van deze week, rechts het verschil met de vorige weging. Elders (tegel op gewone breedte) is het tweede blok verborgen. */
+.wk__sextra { display: none; }
+@media (max-width: 719.98px) {
+  .wk__samenvatting > .wk__skaart--gewicht.wk__skaart:last-child:nth-child(odd) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-3); row-gap: var(--s-2); }
+  .wk__samenvatting > .wk__skaart--gewicht.wk__skaart:last-child:nth-child(odd) > .wk__skop { grid-column: 1 / -1; }
+  .wk__samenvatting > .wk__skaart--gewicht.wk__skaart:last-child:nth-child(odd) > .wk__swaarde { grid-column: 1; grid-row: 2; }
+  .wk__samenvatting > .wk__skaart--gewicht.wk__skaart:last-child:nth-child(odd) > .wk__sub { grid-column: 1; grid-row: 3; }
+  .wk__samenvatting > .wk__skaart--gewicht.wk__skaart:last-child:nth-child(odd) > .wk__sextra { display: flex; flex-direction: column; gap: var(--s-2); grid-column: 2; grid-row: 2 / span 2; min-width: 0; }
+}
+/* BESLISSING 508, Dagboek op een telefoon: de knoppen Dag, Week en Maand zijn zichtbaar 38 px hoog in plaats van 48, in verhouding met de rest van de pagina.
+   Het tikvlak blijft 48 px: een doorzichtige rand van 5 px met de vulling alleen binnen die rand (background-clip); de rij schuift 5 px naar buiten zodat de knoppen
+   nog op de randen van de inhoud uitlijnen en de kop niet hoger is dan de zichtbare knoppen vragen. */
+@media (max-width: 719.98px) {
+  .dagboek__kop > .dagboek__segment { gap: 0; margin: -5px; width: calc(100% + 10px); }
+  .dagboek__kop > .dagboek__segment .segment__deel { border: 5px solid transparent; background-clip: padding-box; font-size: var(--fs-small); }
+}

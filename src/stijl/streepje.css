@@ -1,0 +1,12 @@
+/* Het korte streepje staat overal recht (BESLISSING 460).
+   In Cormorant Garamond is het koppelteken (U+002D) van nature schuin getekend. Voor dat ene teken laden we daarom een eigen,
+   piepklein lettertype (public/fonts/streepje-*.woff, 0,6 kB per stuk, gemaakt door scripts/maak-streepjesfonts.mjs) met één glyph: dezelfde
+   rechthoek als het oude streepje, maar horizontaal, met dezelfde vooruitgang, lengte, dikte en hoogte als dat van Cormorant in dat gewicht
+   en die stijl, en dezelfde regelmaten (hhea 924 / -287). Er verschuift dus niets, ook de breedte van het teken blijft gelijk.
+   Elke regel hieronder heeft DEZELFDE familienaam, gewicht en stijl als een regel in tokens.css en komt LATER, met unicode-range U+002D:
+   voor dat teken wint dus deze regel, voor elk ander teken blijft het Cormorant. De bestanden staan in public/ en niet in src/: een
+   klein bestand in src/ zet de bundelaar als data: in de css, en de CSP (font-src: alleen 'self') laat dat niet toe. Ze komen van het eigen
+   origin en zitten als woff in de precache van de service worker. Dit bestand komt in main.js vlak na tokens.css. */
+@font-face { font-family: "Cormorant Garamond"; src: url("/fonts/streepje-500.woff") format("woff"); font-weight: 500; font-style: normal; font-display: block; unicode-range: U+002D; }
+@font-face { font-family: "Cormorant Garamond"; src: url("/fonts/streepje-600.woff") format("woff"); font-weight: 600; font-style: normal; font-display: block; unicode-range: U+002D; }
+@font-face { font-family: "Cormorant Garamond"; src: url("/fonts/streepje-500-italic.woff") format("woff"); font-weight: 500; font-style: italic; font-display: block; unicode-range: U+002D; }

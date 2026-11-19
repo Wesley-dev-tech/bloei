@@ -1,0 +1,259 @@
+/* scherm-dagboek-maand: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool.
+   Dit bestand laadt na schermen.css: bij gelijke specificiteit winnen deze regels. */
+
+/* ---------- Indeling: cijfers bovenaan, daaronder de kalender links en rechts het paneel van de dag met "Gepland deze maand" ---------- */
+.maand__kolommen { display: flex; flex-direction: column; gap: var(--s-4); }
+.maand__dag { display: flex; flex-direction: column; min-width: 0; }
+.maand__dag > .maand__paneel { flex: 1; }
+.maand__teken--notitie { color: var(--tile-neutral-fg); display: inline-flex; }
+/* Op een telefoon: kalender, paneel, geplande beurten en als laatste de cijfers in twee kolommen */
+.maand__cijferkaart { order: 3; }
+@media (min-width: 960px) {
+  /* BESLISSING 666: de kalender en de dagkaart zijn twee even brede kolommen (de dagkaart eindigt op de rechterrand van de cijferkaart erboven) */
+  .maand__kolommen { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); grid-template-areas: "cijfers cijfers" "kal dag" "gep gep"; grid-template-rows: auto auto auto; gap: var(--s-4); align-items: stretch; }
+  .maand__cijferkaart { order: 0; grid-area: cijfers; }
+  .maand__kalkaart { grid-area: kal; align-self: start; }
+  /* Het paneel past zich aan de kalender aan: zijn inhoud telt niet mee voor de hoogte van de rij, hij is even hoog als de kalender */
+  .maand__dag { grid-area: dag; contain: size; min-height: 0; }
+  .maand__paneel { min-height: 0; overflow: hidden; }
+  .maand__paneelinhoud { flex: 1; min-height: 0; overflow-y: auto; scrollbar-width: thin; display: flex; flex-direction: column; justify-content: space-between; }
+  .maand__paneelinhoud > * { flex: none; }
+  /* De focusring van wat in het paneel staat (bv. "Afvinken") valt buiten de rand van de inhoud en werd door overflow afgesneden: 4 px binnenmarge links, rechts en onder met even grote negatieve buitenmarge geeft hem ruimte zonder dat de inhoud verschuift. De vervaging onderaan schuift 4 px mee. */
+  .maand__paneel .maand__paneelinhoud { padding: 0 4px 4px; margin: 0 -4px -4px; scroll-padding: 4px; } /* geen ruimte bovenaan: de eerste regel staat vast tegen de kaartkop (12 px, BESLISSING 281); scroll-padding: ook een knop die door de focus in beeld scrolt houdt ruimte voor zijn ring */
+  .maand__paneel .maand__paneelinhoud.kan-scrollen { -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 36px), transparent calc(100% - 4px)); mask-image: linear-gradient(to bottom, black calc(100% - 36px), transparent calc(100% - 4px)); }
+  .maand__gepkaart { grid-area: gep; }
+}
+
+/* ---------- De kalender: een gewone kaart met vierkante vakjes (BESLISSING 666) ---------- */
+/* De kaart is een container: de vakjes rekenen hun hoogte uit de breedte van de kalender (100cqw is de binnenbreedte van de kaart). */
+.kaart.maand__kalkaart { display: flex; flex-direction: column; margin: 0; padding: var(--s-5); background: var(--c-surface); box-shadow: var(--shadow-card); border-radius: var(--r-lg); container-type: inline-size; container-name: maandkal; }
+/* Een vaste grootte (BESLISSING 272): de kalender reserveert altijd zes weken. Elke rij is zo hoog als een vakje breed is (zeven kolommen en zes
+   tussenruimtes in de breedte van de kalender), dus elk vakje is vierkant; in een maand van vier of vijf weken blijven de laatste rijen leeg,
+   zoals de lege plaatsen in de eerste week. De kaart verspringt nooit bij bladeren of klikken.
+   De ene uitzondering: een tikvlak is minstens 44 px hoog (BESLISSING 524). Op telefoons smaller dan 390 px zijn de vakjes smaller dan 44 px
+   (34,9 px op 320, 40,6 px op 360) en dus 44 px hoog. */
+.maand { position: relative; gap: var(--s-4); }
+/* "Naar deze maand" zweeft naast de maandnaam in de bladerkop en neemt zelf geen hoogte in */
+.maand .dag__naarvandaag { position: absolute; top: 0; right: calc(var(--tap-min, 48px) + var(--s-3)); margin: 0; height: 44px; display: flex; align-items: center; }
+.maand .dag__naarvandaag .knop { height: 32px; min-height: 32px; }
+@media (max-width: 719px) {
+  .maand .dag__naarvandaag { right: auto; left: 0; top: 24px; width: 100%; height: 20px; justify-content: center; pointer-events: none; }
+  .maand .dag__naarvandaag .knop { height: 20px; min-height: 20px; padding: 0 var(--s-2); font-size: var(--fs-label); pointer-events: auto; }
+}
+.maand .dag__naarvandaag.is-stil { visibility: hidden; }
+/* BESLISSING 372: de regel met "Delen" heeft in de maand dezelfde afstand boven en onder als in de week en de dag (daar is de tussenruimte van het scherm 24 px, hier 16 px) */
+@media (min-width: 960px) { .maand > .week__delen { margin-block: var(--s-2); } }
+.mk { --mk-kolomtus: var(--s-1); --mk-rij: max(44px, calc((100cqw - 6 * var(--mk-kolomtus)) / 7)); flex: none; justify-content: flex-start; gap: var(--s-1); height: calc(24px + 6 * var(--mk-rij) + 6 * var(--s-1)); }
+.mk__week { column-gap: var(--mk-kolomtus); }
+.mk__kop { flex: none; height: 24px; }
+.mk__week:not(.mk__kop) { flex: none; height: var(--mk-rij); min-height: 0; max-height: none; }
+@media (max-width: 719px) { .mk { --mk-kolomtus: 2px; } } /* op de telefoon 2 px tussen de kolommen (schermen.css) */
+.mk .mk__dag.is-vandaag:not(.is-gekozen) { box-shadow: inset 0 0 0 1px var(--c-accent); }
+/* BESLISSING 555: is er een andere dag gekozen, dan is vandaag niet meer omkaderd; het gekleurde bolletje achter het cijfer van vandaag blijft */
+.mk:has(.mk__dag.is-gekozen:not(.is-vandaag)) .mk__dag.is-vandaag { box-shadow: none; }
+@media (max-width: 719px) {
+  .kaart.maand__kalkaart { padding: var(--s-3); border-radius: var(--r-md); }
+}
+
+/* De legenda: precies twee paren, elk teken direct gevolgd door zijn woord */
+.maand__legenda { margin: var(--s-2) 0 0; padding: var(--s-2) 0 0; gap: var(--s-2) var(--s-6); }
+@media (max-width: 719px) { .maand__legenda { margin-left: 0; margin-right: 0; } }
+/* BESLISSING 666 en 272: de kalender is in elke maand even hoog, ook als de legenda een, twee of drie paren heeft. Elke regel is 22 px (het spuitje) en de
+   legenda houdt plaats voor het grootste aantal regels dat bij die breedte kan voorkomen (alle supplementen genomen, geplande spuit, gepland):
+   alle drie op een regel vanaf 599 px binnenbreedte, anders twee regels, en onder 271 px (telefoon van 320 px) drie. */
+.maand__legitem { height: 22px; }
+.maand__legenda { box-sizing: border-box; align-content: flex-start; min-height: calc(var(--s-2) + 1px + 22px); }
+@container maandkal (max-width: 598.98px) { .maand__legenda { min-height: calc(var(--s-2) + 1px + 2 * 22px + var(--s-2)); } }
+@container maandkal (max-width: 270.98px) { .maand__legenda { min-height: calc(var(--s-2) + 1px + 3 * 22px + 2 * var(--s-2)); } }
+
+/* ---------- Het overzicht van de maand: gelijke kolommen, per begrip tegel, label, cijfer en onderregel op vaste lijnen ---------- */
+.kaart.maand__cijferkaart { padding: var(--s-4) var(--s-5); }
+/* Een strak raster: gelijke kolommen met een dunne lijn ertussen, elk blok gecentreerd en op drie vaste lijnen: tegel met label eronder, één groot cijfer of woord,
+   één onderregel. Geen hover. */
+.maand__overzicht { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+.maand__kc { min-width: 0; padding: 0 var(--s-2); display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--s-1); border-left: var(--lijn); }
+.maand__kc:nth-child(2n+1) { border-left: 0; }
+.maand__kc:nth-child(n+3) { margin-top: var(--s-2); padding-top: var(--s-2); border-top: var(--lijn); }
+.maand__kc > .tegel { margin-bottom: var(--s-1); }
+.maand__kclabel { align-self: stretch; margin: 0; height: 16px; font-size: var(--fs-label); line-height: 16px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--c-text-muted); white-space: nowrap; overflow: hidden; }
+.maand__kcwaarde { align-self: stretch; margin: 0; display: flex; justify-content: center; align-items: baseline; gap: var(--s-1); height: 36px; font-family: var(--font-display); font-weight: 500; font-size: 1.75rem; line-height: 36px; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
+.maand__kcwaarde--teken { align-items: center; }
+.maand__kcwaarde .gevoelicoon { display: flex; align-items: center; justify-content: center; align-self: center; margin: 0; line-height: 0; }
+.maand__kcwaarde .gevoelicoon .icoon { width: 30px; height: 30px; display: block; }
+.maand__kceenheid { font-family: var(--font-ui); font-weight: 400; font-size: var(--fs-small); color: var(--c-text-muted); }
+.maand__kcsub { align-self: stretch; margin: 0; height: 18px; font-size: 0.8125rem; line-height: 18px; color: var(--c-text-muted); white-space: nowrap; }
+/* Het aantal kolommen volgt de breedte van de kaart zelf: twee op een telefoon, vier op een middelgroot scherm, acht als alle labels op één regel passen */
+.kaart.maand__cijferkaart { container-type: inline-size; container-name: overzicht; }
+@container overzicht (min-width: 560px) {
+  .maand__overzicht { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  .maand__kc:nth-child(2n+1) { border-left: var(--lijn); }
+  .maand__kc:nth-child(4n+1) { border-left: 0; }
+  .maand__kc:nth-child(n+3) { margin-top: 0; padding-top: 0; border-top: 0; }
+  .maand__kc:nth-child(n+5) { margin-top: var(--s-2); padding-top: var(--s-2); border-top: var(--lijn); }
+}
+@container overzicht (min-width: 1240px) {
+  .maand__overzicht { grid-template-columns: repeat(8, minmax(0, 1fr)); }
+  .maand__kc:nth-child(4n+1) { border-left: var(--lijn); }
+  .maand__kc:nth-child(8n+1) { border-left: 0; }
+  .maand__kc:nth-child(n+5) { margin-top: 0; padding-top: 0; border-top: 0; }
+}
+
+/* ---------- Het paneel van de gekozen dag: altijd dezelfde onderdelen, ruimte verdeeld tussen de blokken ---------- */
+.maand__paneel { display: flex; flex-direction: column; }
+.maand__paneelinhoud > .rij { min-height: 0; border-top: 1px solid var(--c-line); }
+.maand__paneel > .knop { flex: none; }
+/* Compact, op vaste regelhoogtes: elk onderdeel één regel van 28 px, Eten met de maaltijden in twee kolommen, Drinken met een baan, Notitie als één afgekapte regel */
+.kaart.maand__paneel { padding: var(--s-6) var(--s-5); }
+.maand__paneel .maand__blok { padding: var(--s-2) 0; }
+.maand__paneel .maand__blokkop { height: 28px; }
+.maand__paneel .maand__bloktitel, .maand__paneel .maand__blokwaarde { line-height: 28px; }
+.maand__paneel .maand__bloktitel { flex: 0 1 auto; min-width: 0; }
+.maand__paneel .maand__blokwaarde { margin-left: auto; padding-left: var(--s-2); white-space: nowrap; }
+.maand__paneel .maand__momenten { flex: 1; min-width: 0; margin: 0 0 0 var(--s-2); gap: var(--s-1); flex-wrap: nowrap; overflow: hidden; }
+.maand__paneel .maand__moment { padding: 0 var(--s-2); line-height: 22px; white-space: nowrap; }
+.maand__paneel .maand__notitie { display: block; flex: 1 1 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -webkit-line-clamp: unset; }
+.maand__paneel .maand__maaltijden { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--s-4); margin: var(--s-1) 0 0; }
+.maand__paneel .maand__maaltijd { display: flex; align-items: center; gap: var(--s-2); height: 22px; min-width: 0; }
+.maand__paneel .maand__maaltijdnaam { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
+.maand__paneel .maand__baan { margin-top: var(--s-1); height: 10px; }
+.maand__paneel .maand__waarde { margin-top: var(--s-1); }
+.maand__paneel .maand__waarden { padding-bottom: 0; }
+.maand__paneel > .knop { margin-top: var(--s-4); }
+.maand__paneelinhoud > .rij { padding: var(--s-2) 0; }
+/* Een smal paneel (rond 1280 px): de maaltijden zonder uur en bij Supplementen alleen het icoon (de naam blijft voor schermlezers), zodat niets wordt afgekapt.
+   BESLISSING 666: naast de kalender (vanaf 1100 px, BESLISSING 692) is de dagkaart met even brede kolommen 386 tot 490 px breed tot rond 1340 px; tot 470 px werd het
+   pilletje "Avond" afgekapt, dus daar ligt de grens op 500 px. Op de telefoon en de tablet (de dagkaart onder de kalender) blijft ze 400 px.
+   BESLISSING 681: vanaf 1440 px toont de dagkaart altijd haar volledige stand (op 1440 is haar inhoud 492 px breed, ruim boven de 470 px van "Avond"). */
+.kaart.maand__paneel { container-type: inline-size; container-name: paneel; }
+@container paneel (max-width: 400px) {
+  .maand__maaltijd > .cijfer { display: none; }
+  .maand__paneel .maand__moment { padding: 0 6px; font-size: 0.8125rem; }
+  .maand__paneel .maand__momenten { margin-left: var(--s-1); gap: 2px; }
+  .maand__bloktitel--supp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+}
+@media (min-width: 1100px) and (max-width: 1439.98px) {
+  @container paneel (max-width: 500px) {
+    .maand__maaltijd > .cijfer { display: none; }
+    .maand__paneel .maand__moment { padding: 0 6px; font-size: 0.8125rem; }
+    .maand__paneel .maand__momenten { margin-left: var(--s-1); gap: 2px; }
+    .maand__bloktitel--supp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+  }
+}
+/* BESLISSING 681: op brede schermen vult de dagkaart de hoogte met haar volledige stand, niet met gaten tussen de blokken.
+   Vanaf 1440 px: de blokken sluiten bovenaan op elkaar aan (de ruimte die bij een sobere of lege dag overblijft, staat onder het laatste blok, boven "Dag openen").
+   Vanaf 1600 px (de kolommen worden daar breder, layout.css): de maaltijden onder elkaar, elk met haar uur. Een volle dag (zes maaltijden, drie momenten,
+   een spuit en een notitie) is dan 452 px hoog; de dagkaart heeft er 465 tot 487 px voor. Van 1440 tot 1599 px is er 401 tot 411 px: daar blijven de
+   maaltijden in twee kolommen (386 px), anders moest de volle dag binnenin scrollen. */
+@media (min-width: 1440px) { .maand__paneel .maand__paneelinhoud { justify-content: flex-start; } }
+@media (min-width: 1600px) { .maand__paneel .maand__maaltijden { grid-template-columns: minmax(0, 1fr); } }.maand__paneelinhoud.kan-scrollen { -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent); mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent); }
+.maand__paneel .maand__waarden { margin-bottom: 0; }
+.maand__leegregel { margin: var(--s-2) 0 0; font-size: var(--fs-small); color: var(--c-text-muted); }
+
+/* ---------- Gepland deze maand: strakke rijen op hun gewone hoogte ---------- */
+.kaart.maand__gepkaart { padding: var(--s-5); }
+.maand__beurt { min-height: 56px; }
+.maand__beurtnaam, .maand__beurtsub { line-height: 1.3; }
+.kaart.maand__gepkaart { container-type: inline-size; }
+@container (min-width: 900px) {
+  /* Eén beurt: de rij over de volle breedte. Vanaf twee beurten twee kolommen; een laatste, losse rij loopt over de volle breedte. */
+  .maand__geplandlijst--twee { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-8); }
+  .maand__geplandlijst--twee > li:nth-child(2) { border-top: 0; }
+  .maand__geplandlijst--twee > li:last-child:nth-child(odd) { grid-column: 1 / -1; }
+}
+@media (max-width: 719px) { .maand__beurtstand { display: block; } .maand__beurt { grid-template-columns: var(--tile-size) minmax(0, 1fr) auto auto; gap: var(--s-2); } }
+
+/* BESLISSING 294: geen stemming in de cel. Onder het nummer twee vaste plaatsen op één lijn (in alle cellen en rijen op dezelfde afstand onder het nummer):
+   links het salie bolletje (alle supplementen genomen, midden onder het nummer), rechts het spuitje of pilletje van een geplande beurt. Een lege plaats blijft staan.
+   BESLISSING 295: het nummer staat iets meer naar binnen (links 10, boven 8 px), zodat het rondje van vandaag (26 px) rondom minstens 6 px van de celrand
+   en dus minstens 4 px van de gekozen-rand vrij staat. */
+.mk__dag { padding: 8px 10px 5px; }
+.mk__tekens { gap: var(--s-1); min-height: 22px; justify-content: flex-start; }
+.mk__plek { flex: none; display: flex; align-items: center; justify-content: center; height: 22px; }
+.mk__plek--bol { width: 24px; } /* even breed als het nummer: het bolletje staat midden onder het nummer */
+.mk__plek--spuit { width: 26px; }
+.mk__tekens .mk__spuitplek { margin-left: 0; }
+@media (min-width: 720px) { .mk__nr { width: 24px; min-width: 24px; padding: 0; } }
+.mk__klaar { flex: none; display: block; width: 12px; height: 12px; border-radius: var(--r-pill); background: var(--c-health); }
+.maand__legenda .mk__klaar--legenda { width: 12px; height: 12px; }
+/* BESLISSING 556: elk teken staat in een even breed vak (dat van het spuitje), in het midden: de woorden van de legenda beginnen op dezelfde lijn */
+.maand__legenda .maand__legteken { flex: none; width: 26px; justify-content: center; }
+@media (max-width: 719px) {
+  .mk__dag { padding: 9px 2px 3px; }
+  .mk__tekens { justify-content: center; gap: 2px; min-height: 18px; }
+  .mk__plek { height: 18px; }
+  .mk__plek--bol { width: 10px; } /* even breed als het bolletje: alleen of als paar met het spuitje staat het gecentreerd onder het nummer */
+  .mk__plek--spuit { width: 20px; }
+  .mk__klaar { width: 10px; height: 10px; }
+}
+/* BESLISSING 666: elk vakje is een container, de tekens volgen de breedte van het vakje zelf.
+   Vanaf 64 px: het nummer linksboven met bolletje en spuitje eronder (zoals hierboven). Smaller heeft dat geen plaats (10 + 24 + 4 + 26 px), dan staat alles
+   in het midden: het nummer bovenaan op 9 px (het rondje van vandaag blijft 4 px vrij van de gekozen-rand, BESLISSING 295) en het bolletje en het spuitje
+   als gecentreerd groepje onderaan. Van 52 tot 64 px: bolletje 12 px, spuitje 26 bij 18 (9 + 20 + 18 + 3 = 50). Onder 52 px (telefoon, desktop van 1100
+   tot 1199 px): bolletje 10 px, spuitje 18 bij 12, zodat ook een vakje van 34,9 bij 44 px alles draagt (breed 10 + 2 + 18 = 30, hoog 9 + 20 + 12 + 1 = 42).
+   In een vakje van 44 px hoog is er geen lucht meer tussen het rondje van vandaag en het bolletje eronder: 2 + 4 + 26 + 10 + 2 = 44. */
+.mk__cel { container-type: inline-size; container-name: vak; }
+@container vak (max-width: 63.98px) {
+  .mk__dag { align-items: center; justify-content: space-between; padding: 9px 2px 3px; }
+  .mk__nr { align-self: center; height: 20px; font-size: var(--fs-small); line-height: 20px; }
+  .mk__tekens { justify-content: center; gap: var(--s-1); min-height: 18px; }
+  .mk__plek { height: 18px; }
+  .mk__plek--bol { width: 12px; }
+  .mk__plek--spuit { width: 26px; }
+  .mk__klaar { width: 12px; height: 12px; }
+  .mk__tekens .mk__spuitplek { margin-left: 0; }
+  .mk__tekens .kalender__spuit.mk__spuit { width: 26px; height: 18px; }
+  .mk__tekens .kalender__spuit.mk__spuit .icoon { width: 14px; height: 14px; }
+}
+@container vak (max-width: 51.98px) {
+  .mk__dag { padding: 9px 2px 1px; }
+  .mk__tekens { gap: 2px; min-height: 12px; }
+  .mk__plek { height: 12px; }
+  .mk__plek--bol { width: 10px; }
+  .mk__plek--spuit { width: 18px; }
+  .mk__klaar { width: 10px; height: 10px; }
+  .mk__tekens .kalender__spuit.mk__spuit { width: 18px; height: 12px; }
+  .mk__tekens .kalender__spuit.mk__spuit .icoon { width: 12px; height: 12px; }
+}
+
+/* BESLISSING 292: vandaag in de maand is hetzelfde paarse rondje als op Vandaag (26 px, --knop-bg / --knop-fg). Het rondje is een laag achter het cijfer:
+   het cijfer behoudt zijn eigen maat en regelhoogte, dus er verspringt niets. */
+.mk .mk__dag.is-vandaag .mk__nr { position: relative; isolation: isolate; background: transparent; color: var(--knop-fg); font-size: 0.8125rem; font-weight: 600; }
+.mk .mk__dag.is-vandaag .mk__nr::before {
+  content: '';
+  position: absolute;
+  left: 50%;
+  top: 50%;
+  width: 26px;
+  height: 26px;
+  transform: translate(-50%, -50%);
+  border-radius: var(--r-pill);
+  background: color-mix(in srgb, var(--c-day) var(--knop-mix-dag), var(--c-text)); /* de --knop-bg van het scherm Vandaag (op Dagboek is --knop-bg bruin) */
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* ---------- BESLISSING 308: aanraking ---------- */
+/* Het icoon in een dagcel groeide bij :hover buiten @media (hover: hover) (schermen.css): op een iPad of iPhone blijft de hover na een tik hangen en staat het icoon vergroot.
+   Op een aanraakscherm geen hover-effect. */
+@media (hover: none) {
+  .mk__dag:hover .icoon { transform: none; }
+}
+
+/* ---------- BESLISSING 308 en 692: iPad liggend met zijbalk onder 1100 px (960 tot 1099) ---------- */
+/* Het paneel van de dag is dan 290 px breed: de kop brak af, "Voorbeeldspuit" werd afgesneden en de supplementen en maaltijden werden afgekapt. De kalender en het paneel staan onder elkaar,
+   het paneel over de volle breedte en op zijn eigen hoogte (zonder binnenin te scrollen), zoals op 720 tot 959 px. BESLISSING 692: dit geldt tot 1099 px; vanaf 1100 px staan kalender en dagkaart naast elkaar. */
+@media (min-width: 960px) and (max-width: 1099.98px) {
+  .maand__kolommen { grid-template-columns: minmax(0, 1fr); grid-template-areas: "cijfers" "kal" "dag" "gep"; }
+  .maand__kalkaart { align-self: stretch; }
+  .maand__dag { contain: none; }
+  .maand__paneel { overflow: visible; }
+  .maand__paneelinhoud { overflow: visible; }
+}
+
+/* BESLISSING 692: van 1100 tot 1179 px staan kalender en dagkaart naast elkaar met vierkante vakjes van 44,9 tot 50,5 px; de rij is dan 434 tot 468 px hoog.
+   De dagkaart (compact) heeft voor een sobere of lege dag 280 px inhoud nodig (276 px): de twee kaarten zijn minstens 445 px hoog, zodat die dagen niet binnenin scrollen
+   en niets in de vervaging valt. Beide kaarten eindigen op dezelfde onderlijn; de kalenderkaart krijgt hoogstens 11 px extra onder de legenda (op 1100 px, op 1130 px niets meer).
+   Een helemaal volle dag scrolt hier nog binnenin, zoals op 1180 en 1280 px. */
+@media (min-width: 1100px) and (max-width: 1179.98px) {
+  .kaart.maand__kalkaart { min-height: 445px; }
+}

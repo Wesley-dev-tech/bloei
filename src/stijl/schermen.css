@@ -1,0 +1,1563 @@
+/* ============================================================
+   Schermen (spoor B): Vandaag en Dagboek. Alleen var(--...) uit bloei-huisstijl/tokens.css en afgeleid.css,
+   en calc(). Geen kleur, maat of lettertype buiten de tokens; geen regels per thema.
+   ============================================================ */
+
+/* Wat in een rij aan het einde staat, staat verticaal in het midden. */
+[data-scherm] .rij__eind { align-self: center; padding-top: 0; }
+.rij--stil { cursor: default; }
+.rij__pijl, .maaltijd__eind {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  color: var(--c-text-muted);
+}
+
+/* ---------- Gezichtje klein, in de kleur van zijn stap ---------- */
+.gevoelicoon { display: inline-flex; color: var(--mood-1); }
+.gevoelicoon[data-stap="2"] { color: var(--mood-2); }
+.gevoelicoon[data-stap="3"] { color: var(--mood-3); }
+.gevoelicoon[data-stap="4"] { color: var(--mood-4); }
+.gevoelicoon[data-stap="5"] { color: var(--mood-5); }
+
+/* ---------- Maaltijden in een kaart (dicht en open) ---------- */
+.maaltijd + .maaltijd { border-top: var(--lijn); }
+.maaltijd > .rij { padding: var(--s-2) 0; min-height: 0; }
+.maaltijd:first-child > .rij { padding-top: 0; }
+.maaltijd:last-child:not(.is-open) > .rij { padding-bottom: 0; }
+.maaltijd + .maaltijd > .rij { border-top: 0; }
+.maaltijd__volgende { color: var(--c-accent-text); font-weight: 500; }
+.maaltijd__paneel {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-5);
+  padding: var(--s-2) 0 var(--s-2);
+}
+.maaltijd__paneel[hidden], .maaltijd__chips[hidden] { display: none; }
+.maaltijd__veld { display: flex; flex-direction: column; gap: var(--s-2); align-items: flex-start; }
+.maaltijd__veld .gevoel { width: 100%; }
+.maaltijd__tekst { display: flex; align-items: flex-start; gap: var(--s-2); }
+.maaltijd__tekst .veld__invoer { flex: 1; min-width: 0; }
+.maaltijd__hart { color: var(--c-accent); }
+.maaltijd__chips .chip { max-width: 100%; }
+.maaltijd__chips .chip span { overflow: hidden; text-overflow: ellipsis; }
+/* BESLISSING 516 en 522: de knoppen (Klaar, Annuleren, Verwijderen) staan gecentreerd en even breed: de gedeelde knoppenrij in componenten.css ("Knoppenrij") */
+.maaltijd__bewaar { gap: var(--s-2); }
+.maaltijd__bewaar:disabled { opacity: .5; }
+.maaltijd__vink { display: block; width: calc(var(--s-1) * 1.5); height: calc(var(--s-1) * 3); margin-top: -2px; border: solid currentColor; border-width: 0 2px 2px 0; transform: rotate(45deg); }
+.maaltijd__verwijder { display: flex; }
+.maaltijd__verwijder > .knop { flex: 1 1 auto; }
+.maaltijd__verwijder[hidden] { display: none; }
+.maaltijd__wijzig { display: inline-flex; color: var(--c-text-muted); opacity: .7; }
+[data-scherm] .bladerkop__titel, [data-scherm] .kaart__titel { }
+.kaart__inhoud { margin-top: var(--s-3); }
+
+/* ---------- Dagboek ---------- */
+/* De kop van het Dagboek: de titel en de home-knop op één lijn; het segment Dag · Week · Maand eronder op een telefoon en
+   op één lijn met de titel vanaf 720 px */
+.dagboek__kop { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "titel uitleg home" "segment segment segment"; align-items: center; gap: var(--s-4) var(--s-3); }
+.dagboek__titel { grid-area: titel; margin: 0; }
+.dagboek__kop > .schermkop__uitleg { grid-area: uitleg; }
+.dagboek__home { grid-area: home; margin-right: calc(var(--s-3) * -1); }
+.dagboek__segment { grid-area: segment; width: 100%; }
+.dagboek__segment .segment__deel { flex: 1 1 0; }
+/* BESLISSING 254: Dag, Week en Maand zijn drie gelijke knoppen in de kleur van het tabblad: het gekozen deel gevuld (--knop-bg met --knop-fg), de andere in de zachte tint */
+.dagboek__segment { display: grid; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); gap: var(--s-2); background: transparent; border-radius: 0; }
+.dagboek__segment .segment__deel { width: 100%; height: var(--knop-h); min-width: 0; padding: 0 var(--s-5); border-radius: var(--r-md); background: var(--c-book-soft); box-shadow: inset 0 0 0 1px var(--c-line); color: var(--c-text); font-size: var(--knop-fs); }
+.dagboek__segment .segment__deel::before { display: none; }
+.dagboek__segment .segment__deel.is-actief { background: var(--knop-bg); box-shadow: none; color: var(--knop-fg); }
+@media (min-width: 720px) {
+  .dagboek__segment { grid-auto-columns: calc(var(--s-12) * 2); }
+  .dagboek__kop { grid-template-columns: minmax(0, 1fr) auto auto auto; grid-template-areas: "titel segment uitleg home"; gap: var(--s-4); }
+  .dagboek__segment { display: inline-grid; width: auto; }
+  .dagboek__segment .segment__deel { flex: none; }
+}
+.dag__naarvandaag { display: flex; justify-content: center; margin-top: calc(var(--s-2) * -1); }
+.dag__toekomst { text-align: center; color: var(--c-text-muted); font-size: var(--fs-h2); line-height: 1.25; text-wrap: balance; }
+.dag__wis { text-align: center; margin-top: calc(var(--s-2) * -1); }
+/* BESLISSING 260: Stemming en energie is één kaart zoals op het hoofdscherm (opbouw en klassen van .stemmingkaart), met de hint als laatste regel; de Notitie staat ernaast en haar tekstvak vult de kaart */
+.dag__stemming, .dag__notitie { display: flex; flex-direction: column; }
+.dag__notitie .veld__vak { flex: none; min-height: calc(var(--tap-min) * 3); max-height: calc(var(--tap-min) * 5); overflow: auto; }
+/* Dagraster: Eten links, Drinken en Supplementen gestapeld rechts, eronder Stemming en energie links en de Notitie rechts, op dezelfde kolomlijnen */
+@media (min-width: 720px) {
+  .dag__raster { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+  .dag__links, .dag__zij { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; }
+  .dag__links > .kaart, .dag__zij > .kaart { height: auto; }
+  .dag__eten, .dag__stemming { flex: 1 1 auto; }
+  .dag__notitie { flex: 1 1 auto; }
+  .dag__notitie .veld__vak { flex: 1 1 0; max-height: none; min-height: calc(var(--tap-min) * 2.5); }
+}
+/* Telefoon: de kolommen vervallen als vak; Eten, Drinken, Supplementen, Stemming en energie, Notitie onder elkaar */
+@media (max-width: 719px) {
+  .dag__links, .dag__zij { display: contents; }
+  .dag__eten { order: 1; }
+  .dag__drinken { order: 2; }
+  .dag__supplementen { order: 3; }
+  .dag__stemming { order: 4; }
+  .dag__notitie { order: 5; }
+}
+
+/* Week */
+.week__zin { text-align: center; color: var(--c-text-muted); font-size: var(--fs-h2); line-height: 1.25; padding: var(--s-2) 0; text-wrap: balance; }
+.week__leeg, .maand__tik { text-align: center; color: var(--c-text-muted); font-size: var(--fs-h2); line-height: 1.25; padding: var(--s-4) 0; }
+
+/* Dag: de moment-afvinkregels, de dranken van de dag */
+.dag__meer { margin-top: var(--s-2); }
+.dag__supplementen .leeg { padding: var(--s-4) 0 0; }
+/* BESLISSING 260: de zes tegels lopen van de linker- tot de rechterbinnenrand (zoals de balk); het label van de eerste staat links, dat van de laatste rechts onder zijn tegel */
+.dagdranken { display: flex; flex-wrap: wrap; justify-content: space-between; gap: var(--s-2) 0; }
+.dagdrank { display: flex; flex-direction: column; align-items: center; gap: var(--s-1); border-radius: var(--r-md); touch-action: manipulation; transition: transform var(--dur-fast) var(--ease), background-color var(--dur) var(--ease); }
+.dagdrank:active:not(:disabled) { transform: scale(.97); }
+.dagdrank:disabled { opacity: .4; cursor: not-allowed; }
+@media (hover: hover) { .dagdrank:hover:not(:disabled) .tegel { transform: scale(1.07); box-shadow: var(--shadow-float); } }
+.dagdrank__naam { font-size: var(--fs-label); font-weight: 500; line-height: 1.2; text-align: center; }
+/* BESLISSING 260: de dranken van de dag staan als één rij per soort ("Water  8x · 2 l"): tegel, naam, aantal en liters, rechts een tikvlak van 44 px om er één weg te halen */
+.dagdranklijst { display: flex; flex-direction: column; margin: var(--s-3) 0 0; padding: 0; list-style: none; max-height: calc(44px * 3.5); overflow-y: auto; overscroll-behavior: contain; }
+.dagdranklijst__rij { flex: none; display: flex; align-items: center; gap: var(--s-3); min-height: 44px; --tile-size: 32px; font-size: var(--fs-small); }
+.dagdranklijst__rij + .dagdranklijst__rij { border-top: var(--lijn); }
+.dagdranklijst__naam { font-weight: 500; }
+.dagdranklijst__stand { flex: 1; min-width: 0; }
+.dagdranklijst__rij .drank__weg { color: var(--c-text-muted); flex: none; width: var(--tap-min); height: var(--tap-min); min-width: var(--tap-min); min-height: var(--tap-min); display: inline-flex; align-items: center; justify-content: center; margin: 0 calc((var(--tap-min) - 20px) / -2) 0 auto; padding: 0; }
+.dagdranken__leeg { margin: var(--s-3) 0 0; }
+.dag__drinken .dagdranklijst { margin-top: 0; }
+.dag__drinken .dagdranken__leeg { margin-top: var(--s-1); }
+
+/* BESLISSING 260: Eten is zo hoog als zijn zes compacte rijen (tegel 40 px, rij ± 65 px, zoals op het hoofdscherm); de rijen rekken hoogstens tot 70 px mee met de kolom ernaast, de kaart eindigt dan op haar laatste rij */
+.dag__eten { display: flex; flex-direction: column; }
+.dag__eten:not(:has(.is-open)) { max-height: calc(var(--s-5) * 2 + var(--tile-size) + var(--s-4) + 6 * 70px); }
+.dag__eten .maaltijd { --tile-size: 40px; --tile-size-groot: 40px; padding: var(--s-3) 0; }
+.dag__eten .maaltijd > .rij { min-height: 40px; padding: 0; }
+.dag__eten > .kaartkop + .maaltijd { padding-top: 0; border-top: 0; }
+.dag__eten > .maaltijd:last-child:not(.is-open) { padding-bottom: 0; }
+.dag__eten > .maaltijd:not(.is-open) { flex: 1 1 auto; max-height: 70px; display: flex; flex-direction: column; justify-content: center; }
+.dag__eten > .maaltijd.is-open { flex: none; }
+.dag__eten .maaltijd__invullen { padding-right: 0; }
+/* Drinken en Supplementen staan gestapeld naast Eten, elk zo hoog als hun inhoud */
+.dag__drinken .drinkbaan { margin: 0 0 var(--s-1); }
+.dagdrank { padding: var(--s-1) 0; }
+.dag__drinken .dagdrank { min-width: 0; }
+.dag__drinken .dagdrank:first-child { align-items: flex-start; }
+.dag__drinken .dagdrank:last-child { align-items: flex-end; }
+.dag__drinken .dagdrank:first-child .dagdrank__naam { text-align: left; }
+.dag__drinken .dagdrank:last-child .dagdrank__naam { text-align: right; }
+.dag__momenten { display: flex; flex-direction: column; }
+.dag__momenten .momentrij { flex: none; min-height: 0; padding: calc(var(--s-1) * 1.5) 0; border-top: var(--lijn); border-radius: 0; }
+.dag__momenten .momentrij:first-child { border-top: 0; padding-top: 0; }
+.dag__momenten:last-child .momentrij:last-child { padding-bottom: 0; }
+.dag__zij .kaartkop { margin-bottom: var(--s-2); }
+.dag__supplementen .dag__spuit { min-height: 0; padding: calc(var(--s-1) * 1.5) 0; border-top: var(--lijn); }
+.dag__supplementen .dag__spuit:last-child { padding-bottom: 0; }
+.dag__meer { display: inline-flex; align-items: center; gap: var(--s-1); min-height: var(--s-8); color: inherit; touch-action: manipulation; }
+/* Hersteld: basisregels van de kaart Drinken op Vandaag en van de dranktegels (vóór de media queries, zodat die ze overschrijven) */
+.drinkkaart { cursor: pointer; }
+.drinkkaart__label { display: inline-flex; align-items: center; min-height: var(--tap-min); margin: calc(var(--s-4) * -1) 0 0; }
+.drinkkaart__rij { display: grid; grid-template-columns: minmax(0, 1fr); align-items: stretch; gap: var(--s-4); margin-top: var(--s-3); }
+.drinkkaart__links { display: flex; flex-direction: column; min-width: 0; }
+.drinkkaart__links > .label, .drinkkaart__andere > .label { margin-bottom: var(--s-3); }
+.drinkkaart__kern { flex: 1; display: flex; align-items: center; gap: var(--s-6); min-width: 0; }
+.drinkkaart__stand { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--s-1); }
+.drinkkaart__stand .knop { margin-top: var(--s-4); }
+.drinkkaart__gehaald { margin-top: var(--s-1); color: var(--c-text-muted); font-size: var(--fs-h2); }
+.drankrij { display: grid; gap: var(--s-2); }
+.drankknop { display: flex; flex-direction: column; align-items: center; gap: var(--s-1); padding: var(--s-1) 0; touch-action: manipulation; }
+.drankknop:active:not(:disabled) { transform: scale(.97); }
+.drankknop:disabled { opacity: .4; cursor: not-allowed; }
+.drankknop__naam { font-size: var(--fs-label); font-weight: 500; line-height: 1.2; text-align: center; }
+.drankknop__ml { font-size: var(--fs-label); color: var(--c-text-muted); line-height: 1.2; }
+/* Hersteld: de basis van Vandaag (telefoon: één kolom, de wrappers verdwijnen) */
+.vandaag { display: flex; flex-direction: column; gap: var(--s-4); }
+.vandaag__rij1, .vandaag__rij3 { display: contents; }
+.vandaag__rij1 { order: 0; }
+.vandaag__rij3 { order: 2; }
+@media (min-width: 720px) {
+  .drinkkaart { --glas-h: 200px; }
+  .dagboek__kop .segment--vol { display: inline-flex; width: auto; align-self: flex-start; }
+  .vandaag { gap: var(--s-6); }
+  .vandaag__rij1, .vandaag__rij3 { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); }
+  /* Vanaf 720 px staan Supplementen en Stemming en energie altijd open: geen knop, geen chevron, geen samenvatting */
+  .vandaag .uitklap__kop:disabled { opacity: 1; cursor: default; pointer-events: none; }
+  .vandaag .uitklap__chevron, .vandaag .uitklap__samenvatting { display: none; }
+}
+
+/* ---------- Desktop ---------- */
+@media (min-width: 960px) {
+  .drinkkaart { --glas-h: 170px; }
+  #scherm .kaart { border-radius: var(--r-lg); padding: var(--s-6); }
+  #scherm .kaart.uitklap { padding: 0; }
+  .vandaag__logo { display: none; }
+
+  /* Vandaag, van boven naar beneden:
+     rij 1  links de begroeting met de motivator (voortgang, zin en reeks), rechts Stemming en energie (even hoog);
+     rij 2  Drinken als één brede, liggende band: het glas, de stand met de knoppen en de andere dranken als tegels;
+     rij 3  Eten en Supplementen (onder elkaar tot 1399 px, daarna naast elkaar). Alles staat open. */
+  .vandaag { gap: var(--s-6); }
+  .vandaag__rij1 { gap: var(--s-6); }
+  .vc--stemming { flex-direction: column; }
+  .vc--stemming .uitklap__paneel { flex: 1; }
+  .vc--stemming .uitklap__binnen { display: flex; flex-direction: column; }
+  .vc--stemming .uitklap__inhoud { flex: 1; display: flex; flex-direction: column; justify-content: space-around; gap: var(--s-4); }
+  .vandaag__energie { margin-top: 0; padding-top: var(--s-4); }
+
+  .drinkkaart__rij { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+  .drinkkaart__links { padding-right: var(--s-6); }
+  .drinkkaart__andere { position: relative; padding-left: var(--s-6); }
+  .drinkkaart__andere::before { content: ''; position: absolute; left: 0; top: 0; bottom: 0; border-left: var(--lijn); transform: translateX(-50%); }
+  .drinkkaart__kern { align-items: stretch; }
+  .drinkkaart .drankrij { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
+  /* height: 100% en niet auto: Chrome haalt de breedte (aspect-ratio) uit de gerekte hoogte (align-self: stretch), WebKit niet: daar werd het glas vanaf 1440 px
+     maar 40 px breed (min-width). Een procent van de kern (die zelf gerekt en dus bepaald is) geeft in beide motoren dezelfde maat. contain: size houdt het glas
+     buiten de hoogte van de kern, zodat de procent niet rond zichzelf draait. */
+  .drinkkaart__kern > .watervulling { height: 100%; align-self: stretch; contain: size; flex: 0 1 auto; min-width: var(--s-10); }
+  .drinkkaart__kern > .drinkkaart__stand { flex: 1 0 8rem; }
+  .drinkkaart__kern > .drinkkaart__stand > .drinkbaan { margin-top: auto; }
+  .drinkkaart__stand > .cijfer-groot + .t-klein { margin-bottom: var(--s-4); }
+  .drinkkaart .cijfer-groot { font-size: calc(var(--fs-hero) * 1.2); }
+
+  /* Eten (twee kolommen zolang de kaart over de volle breedte staat) en Supplementen */
+  .vandaag .maaltijden { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-8); align-content: start; }
+  .vandaag .maaltijden > .kaart__label { grid-column: 1 / -1; }
+  .vandaag .maaltijden > .maaltijd { border-top: var(--lijn); padding: var(--s-3) 0; min-width: 0; }
+  .vandaag .maaltijden > .maaltijd > .rij { padding: 0; }
+  .vandaag .maaltijden > .maaltijd.is-open { grid-column: 1 / -1; }
+
+  .afvinklijst { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-8); align-content: start; }
+  .uitklap .afvinklijst { display: grid; }
+  .afvinklijst > .afvinkrij { border-top: var(--lijn); padding: var(--s-3) 0; min-height: 0; }
+  .afvinklijst > .afvinkrij:nth-child(-n+2) { border-top: 0; padding-top: 0; }
+  .vandaag .afvinklijst { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .vandaag .afvinklijst > .afvinkrij:nth-child(-n+3) { border-top: 0; padding-top: 0; }
+
+  /* Dagboek · Dag: .dag, .week en .maand hebben ruimere tussenruimte; de indeling van het dagraster staat bij .dag__raster (BESLISSING 260) */
+  .dag, .week, .maand { gap: var(--s-6); }
+
+  /* Dagboek · Maand: de kalender groot links, rechts het paneel van de gekozen dag en de legende; de kalender vult het venster */
+  .maand__kolommen { grid-template-columns: minmax(0, 1.5fr) minmax(0, 1fr); gap: var(--s-6); }
+  .kaart.maand__kalkaart { padding: var(--s-6); }
+  .kalender__dag { min-height: calc(var(--tap-min) * 1.5); }
+  .kalender__nr { top: var(--s-3); }
+  .kalender__blad { top: var(--s-3); right: var(--s-3); }
+
+  /* Drinken: links een grote kaart met het glas en de andere dranken, rechts de lijst van de dag (even hoog) */
+  .drinken__lijst { display: flex; min-width: 0; }
+  .drinken__lijst > .kaart { flex: 1; display: flex; flex-direction: column; }
+  .drinken__lijst .leeg { flex: 1; justify-content: center; }
+  .drankrij { gap: var(--s-4); }
+
+  /* Gewicht: bovenaan drie kerncijfers (laatste weging, weegdag, streefgewicht), eronder links de grafiek (hoogte van de
+     kolom ernaast) en rechts het noteren en de lijst van wegingen; alle kaarten van een rij even hoog */
+  .gewicht__raster {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-areas: "hoofd weegdag" "streef streef" "grafiek grafiek" "lijst lijst" "weetjes weetjes";
+  }
+  .gewichtgrafiek { grid-area: grafiek; }
+  .gewichtgrafiek__vlak { flex: 1; }
+  .gewichthoofd { grid-area: hoofd; }
+  .gewicht__weegdag { grid-area: weegdag; }
+  .gewichtstreef { grid-area: streef; }
+  .gewicht__lijst { grid-area: lijst; }
+  .gewicht__weetjes { grid-area: weetjes; }
+}
+
+/* ---------- Breed ---------- */
+@media (min-width: 1400px) {
+  /* Vandaag: Eten en Supplementen naast elkaar; in hun eigen kaart een kolom (Eten) en twee kolommen (Supplementen) */
+  .vandaag__rij3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vandaag .maaltijden { grid-template-columns: minmax(0, 1fr); }
+  .vandaag .maaltijden > .maaltijd:nth-child(2) { border-top: var(--lijn); }
+  .vandaag .afvinklijst { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .vandaag .afvinklijst > .afvinkrij:nth-child(3) { border-top: var(--lijn); padding-top: var(--s-3); }
+}
+
+/* Kaartkop van Drinken en Eten op Vandaag: dezelfde kop als de uitklapkaarten (icoontegel en label) */
+.vandaag .maaltijden > .kaartkop { grid-column: 1 / -1; }
+.drinkkaart__acties { flex-direction: column; align-items: stretch; gap: var(--s-1); }
+@media (min-width: 960px) {
+  .drinkkaart__acties { flex-direction: row; align-items: center; gap: var(--s-4); }
+  .drinkkaart__acties .knop--primair { flex: 1; width: auto; }
+  .drinkkaart__stand .drinkkaart__acties .knop { margin-top: 0; }
+  .vandaag .maaltijden > .kaartkop { margin-bottom: var(--s-3); }
+}
+
+/* Dranken: zes tegels (water, thee, koffie, sap, frisdrank, iets anders): drie per rij op een telefoon, zes op een rij vanaf 720 px */
+.drankrij { grid-template-columns: repeat(3, minmax(0, 1fr)); row-gap: var(--s-3); }
+@media (min-width: 720px) { .drankrij { grid-template-columns: repeat(6, minmax(0, 1fr)); } }
+
+/* Rij 1 op Vandaag (vanaf 960 px): de motivator en Stemming en energie zijn twee gelijke kolommen en even hoog; de ruimte wordt binnenin verdeeld */
+@media (min-width: 960px) {
+  .vandaag__rij1 { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: stretch; }
+  .vandaag__rij1 > .voortgang { flex-direction: column; gap: var(--s-4); }
+}
+
+/* ---------- Begroeting op Vandaag (BESLISSING 142): groter, met de naam als accent en een korte, zachte animatie ---------- */
+.vandaag__begroeting { display: flex; align-items: center; margin-bottom: var(--s-3); }
+.begroeting__merk { display: none; flex: none; color: var(--c-accent); }
+.begroeting__tekst { min-width: 0; }
+.begroeting__titel { text-wrap: balance; overflow-wrap: normal; hyphens: none; }
+.begroeting__naam { overflow-wrap: anywhere; }
+.begroeting__naam { display: inline-block; font-style: italic; }
+.begroeting__datum { margin-top: var(--s-3); }
+.vandaag__begroeting .vandaag__logo { display: block; }
+
+/* Zacht verschijnen (ook gebruikt door de nieuwe zin in de motivator). Het openen van een scherm loopt via src/ui/beweging.js. */
+@keyframes begroeting-op { from { opacity: 0; transform: translateY(var(--s-2)); } to { opacity: 1; transform: none; } }
+
+@media (min-width: 960px) {
+  .vandaag__begroeting { margin-bottom: 0; }
+  .vandaag__begroeting .vandaag__logo { display: none; }
+  .begroeting__merk { display: block; }
+  .begroeting__titel { font-size: calc(var(--fs-hero) * 1.5); line-height: 1.05; }
+}
+@media (min-width: 1280px) { .begroeting__titel { font-size: calc(var(--fs-hero) * 1.7); } }
+@media (min-width: 1600px) { .begroeting__titel { font-size: calc(var(--fs-hero) * 1.9); } }
+
+/* ---------- Drinken zonder knop: de dranktegels zijn de hoofdactie; de voortgangsbaan naar het dagdoel (BESLISSING 144) ---------- */
+.drinkbaan { height: var(--s-2); margin-top: var(--s-3); border-radius: var(--r-pill); background: var(--c-accent-soft); overflow: hidden; }
+.drinkbaan__vulling { display: block; height: 100%; width: 0; border-radius: var(--r-pill); background: var(--c-water); transition: width var(--dur) var(--ease), background-color 600ms var(--ease); }
+.drinkbaan.is-gehaald .drinkbaan__vulling { background: var(--c-health); }
+.drinkkaart__stand .drinkbaan { margin-top: var(--s-4); }
+.drinkkaart__andere { display: flex; flex-direction: column; min-width: 0; }
+.drinkkaart__andere .drankrij { flex: 1; }
+.drinkkaart__acties { display: flex; flex: none; justify-content: center; margin-top: var(--s-4); }
+.drinkkaart__acties:empty { display: none; }
+.drinkkaart__acties .knop--tekst { align-self: center; }
+.laatst { display: none; }
+.drinkhoofd__stand .drinkbaan { margin-top: var(--s-4); }
+.drankknop { min-height: calc(var(--tap-min) + var(--s-8)); }
+
+@media (min-width: 720px) {
+  .drinkkaart__acties { justify-content: flex-start; }
+  .laatst { display: block; margin-top: var(--s-4); }
+  .laatst__chips { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-2); }
+  .laatst__chip { display: inline-flex; align-items: center; gap: var(--s-2); padding: var(--s-1) var(--s-3); border-radius: var(--r-pill); background: var(--c-surface-soft); font-size: var(--fs-small); color: var(--c-text); }
+  /* Laatst gedronken: elke pil op één regel (icoon, uur en hoeveelheid; de soort staat in de title en het aria-label), in één kolom, even breed en links uitgelijnd */
+  .drinkkaart .laatst__chips { display: grid; grid-template-columns: minmax(0, max-content); justify-content: start; gap: var(--s-2); }
+  .drinkkaart .laatst__chip { min-width: 0; white-space: nowrap; }
+  .drinkkaart .laatst__chip > span { overflow: hidden; text-overflow: ellipsis; }
+  .drinkkaart .laatst__chip > .icoon { flex: none; }
+  .laatst__leeg { margin-top: var(--s-2); color: var(--c-text-muted); }
+}
+
+/* ---------- Rij 3 op Vandaag: Eten en Supplementen als een paar (BESLISSING 146) ---------- */
+.vc--eten .uitklap__kop:disabled { opacity: 1; cursor: default; pointer-events: none; }
+.vc--eten .uitklap__chevron { display: none; }
+.maaltijd .rij__sub { -webkit-line-clamp: 1; line-clamp: 1; }
+.maaltijd__invullen { display: inline-flex; align-items: center; gap: var(--s-1); padding: var(--s-1) var(--s-3); border-radius: var(--r-pill); font-size: var(--fs-small); font-weight: 500; color: var(--c-text-muted); white-space: nowrap; }
+.maaltijd__invullen.is-uitgelicht { background: var(--c-accent-soft); color: var(--c-accent-text); }
+.eten__favorieten { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-4); padding-top: var(--s-2); border-top: var(--lijn); }
+.eten__favorieten .label { margin-right: var(--s-2); }
+@media (min-width: 720px) {
+  .vandaag .uitklap__samenvatting { display: block; }
+}
+@media (min-width: 1400px) {
+  /* Even breed en exact even hoog; de kortste kaart verdeelt haar hoogte over de rijen */
+  .vandaag__rij3 { align-items: stretch; }
+  .vandaag__rij3 > .uitklap { display: flex; flex-direction: column; }
+  .vandaag__rij3 > .uitklap > .uitklap__paneel { flex: 1; }
+  .vandaag__rij3 .uitklap__binnen { display: flex; flex-direction: column; }
+  .vandaag__rij3 .uitklap__inhoud { flex: 1; display: flex; flex-direction: column; }
+  .vandaag__rij3 .maaltijden { flex: 1; display: flex; flex-direction: column; }
+  .vandaag__rij3 .maaltijden > .maaltijd { flex: 1; display: flex; flex-direction: column; justify-content: center; border-top: var(--lijn); }
+  .vandaag__rij3 .maaltijden > .maaltijd:first-child { border-top: 0; }
+  .vandaag__rij3 .afvinklijst { flex: 1; grid-auto-rows: 1fr; align-content: stretch; }
+  .vandaag__rij3 .afvinklijst > .afvinkrij { align-items: center; }
+}
+
+/* ---------- De motivator (BESLISSING 147): vier gelijke vakken, een grote warme zin en de week ---------- */
+.motiv__vakken { display: grid; grid-template-columns: repeat(4, minmax(0, 1fr)); gap: var(--s-2); margin-bottom: var(--s-5); }
+.motiv__vak { display: flex; flex-direction: column; align-items: center; gap: var(--s-1); padding: var(--s-2) 0; min-height: calc(var(--tap-min) + var(--s-8)); text-align: center; touch-action: manipulation; border-radius: var(--r-md); }
+.motiv__vak:active { transform: scale(.97); }
+.motiv__tegel { position: relative; display: inline-flex; }
+.motiv__naam { font-size: var(--fs-small); font-weight: 500; color: var(--c-text); }
+.motiv__stand { font-size: var(--fs-small); color: var(--c-text-muted); line-height: 1.2; }
+.voortgang__zin { min-height: 2.4em; }
+.week__dag { display: flex; flex-direction: column; align-items: center; gap: var(--s-1); }
+.week__bol { width: var(--s-5); height: var(--s-5); border-radius: var(--r-pill); background: var(--c-surface-soft); }
+.week__dag.is-bijgehouden .week__bol { background: var(--c-health); }
+.week__letter { font-size: var(--fs-label); font-weight: 500; color: var(--c-text-muted); line-height: 1; }
+.week__dag.is-toekomst .week__bol { background: transparent; box-shadow: inset 0 0 0 1px var(--c-line); }
+
+/* Een onderdeel dat net klaar raakt bloeit kort op; een nieuwe warme zin komt zacht op */
+.motiv__vak.is-net-klaar .motiv__tegel { animation: bloei 560ms var(--ease) both; }
+.voortgang__zin.is-wisselt { animation: begroeting-op 520ms var(--ease) both; }
+
+@media (min-width: 560px) { .motiv__vakken { gap: var(--s-4); } }
+@media (min-width: 960px) {
+  .voortgang__zin { font-size: calc(var(--fs-h2) * 1.45); }
+  .motiv__vakken { margin-bottom: 0; }
+}
+
+/* ---------- Supplementen per moment: een kaart per moment, "Aan de beurt" en "Later" (PLAN.md §16.12) ---------- */
+/* "Binnenkort": gewone rijen over de volle breedte; tekst breekt alleen op een spatie en wordt niet afgekapt */
+.laterkaart .afvinkrij__tekst .rij__titel, .laterkaart .afvinkrij .rij__sub { overflow-wrap: normal; word-break: normal; }
+.laterkaart .afvinkrij .rij__sub { display: block; -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; }
+@media (min-width: 720px) {
+  .laterkaart .afvinklijst { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, calc(var(--s-12) * 5)), 1fr)); gap: var(--s-4) var(--s-8); }
+  .laterkaart .afvinklijst > .afvinkrij, .laterkaart .afvinklijst > .afvinkrij:first-child { border-top: 0; padding: 0; }
+}
+
+/* Vandaag: de supplementen per moment in de uitklapkaart */
+
+/* Afvinkrijen: alleen de naam, op één regel; een lange naam kapt af met een ellips (BESLISSING 149) */
+.afvinkrij__tekst .rij__titel.afvinkrij__naam { display: block; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; overflow-wrap: normal; }
+
+/* Vandaag, Supplementen (BESLISSING 150): een grote rij per moment met één vinkvak; geen namen van supplementen */
+.suppkaart { display: flex; flex-direction: column; }
+.suppkaart .suppmomenten { flex: 1; display: flex; flex-direction: column; }
+@media (min-width: 720px) { .vandaag__rij3 > .suppkaart { display: flex; } }
+.etenkaart { display: flex; flex-direction: column; }
+.etenkaart .maaltijden { flex: 1; }
+
+/* Supplementen (BESLISSING 151): toelichting in de afvinkrij en het overzicht "Mijn supplementen" */
+.afvinkrij__toelichting { display: flex; flex-wrap: wrap; align-items: baseline; gap: var(--s-2); min-width: 0; font-size: var(--fs-small); color: var(--c-text-muted); }
+.afvinkrij__hoeveel { color: var(--c-text); font-weight: 500; }
+.afvinkrij__hoeveel + .afvinkrij__hoe::before { content: "·"; margin-right: var(--s-2); }
+
+/* Supplementen: geen kaart is hoger dan haar inhoud en er valt nergens een gat groter dan de gap. De kaarten staan in de DOM in de volgorde Ochtend, Middag, Avond,
+   Vandaag ook te doen, Binnenkort. Onder 1100 px staan ze onder elkaar (data-volgorde); vanaf 1100 px heeft rij 2 twee kolommen, bij drie ongeveer even lange momenten
+   vanaf 1280 px drie. "Vandaag ook te doen" en "Binnenkort" staan daaronder over de volle breedte, het dagschema direct onder die rij. */
+.supplementen__raster { display: flex; flex-direction: column; }
+.suppraster, .suppmomenten, .suppkol { display: flex; flex-direction: column; gap: var(--s-4); min-width: 0; }
+.suppmomenten, .suppkol { display: contents; }
+.suppraster .kaart[data-volgorde="0"] { order: 0; }
+.suppraster .kaart[data-volgorde="1"] { order: 1; }
+.suppraster .kaart[data-volgorde="2"] { order: 2; }
+.suppraster .kaart[data-volgorde="3"] { order: 3; }
+.suppraster .kaart[data-volgorde="4"] { order: 4; }
+.suppraster > .suppmomenten { order: 0; }
+@media (min-width: 960px) {
+  .supplementen__raster, .suppraster { gap: var(--s-6); }
+}
+@media (min-width: 1100px) {
+  .suppmomenten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-6); align-items: stretch; }
+  .suppkol { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; }
+  .suppmomenten .kaart[data-volgorde] { order: 0; }
+  /* een kolom die een tikje korter is: haar laatste kaart verdeelt de rijen over de hoogte (elke rij hooguit ± 14 px hoger) */
+  .suppmomenten[data-gelijk="ja"] .suppkol > .kaart:last-child { flex: 1 1 auto; display: flex; flex-direction: column; }
+  .suppmomenten[data-gelijk="ja"] .suppkol > .kaart:last-child > .afvinklijst { flex: 1 1 auto; display: flex; flex-direction: column; }
+  .suppmomenten[data-gelijk="ja"] .suppkol > .kaart:last-child > .afvinklijst > .afvinkrij { flex: 1 1 auto; align-items: center; }
+  .suppmomenten:not([data-gelijk="ja"]) { align-items: start; }
+}
+@media (min-width: 1280px) {
+  .suppmomenten[data-drie="ja"] { grid-template-columns: repeat(3, minmax(0, 1fr)); align-items: start; }
+  .suppmomenten[data-drie="ja"] .suppkol { display: contents; }
+}
+.supplementen__raster > .overzichtkaart { order: 100; }
+.overzichtkaart .kaart__label { margin-bottom: var(--s-3); }
+
+/* ---------- Vandaag, BESLISSING 152: rij 2 Drinken naast Supplementen, rij 3 Eten over de volle breedte in twee kolommen ---------- */
+.vandaag__rij2 { display: contents; }
+.maaltijden__kol { display: contents; }
+@media (min-width: 720px) {
+  .vandaag__rij2, .vandaag__rij3 { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); align-items: stretch; }
+  .vandaag__rij3 .maaltijden { display: grid; flex: none; grid-template-columns: minmax(0, 1fr); column-gap: var(--s-8); align-content: start; }
+  .vandaag .maaltijden .maaltijd { flex: none; display: block; justify-content: normal; border-top: var(--lijn); min-width: 0; }
+  .vandaag .maaltijden .maaltijd.is-open { grid-column: auto; }
+  .vandaag__rij3 .etenkaart { display: flex; flex-direction: column; }
+  .vandaag__rij2 > .suppkaart { display: flex; }
+}
+@media (min-width: 1100px) {
+  .vandaag__rij2 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+  .vandaag .maaltijden__kol { flex-direction: column; min-width: 0; }
+  .vandaag__rij2 .drankrij { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
+  .vandaag__rij2 .drinkkaart .cijfer-groot { font-size: var(--fs-hero); }
+  .vandaag__rij2 .suppkaart .momentrij { padding: var(--s-3) 0; }
+}
+@media (min-width: 1100px) {
+  .vandaag__rij2 .laatst { margin-top: var(--s-3); }
+  .vandaag__rij2 .laatst__chip:nth-child(n+3) { display: none; }
+}
+@media (min-width: 1100px) { .vandaag__rij2 .drinkkaart { --glas-h: 124px; } }
+@media (min-width: 1100px) and (max-height: 1000px) { .vandaag { gap: var(--s-4); } .vandaag__rij1, .vandaag__rij2, .vandaag__rij3 { gap: var(--s-4); } }
+
+/* ---------- Drinken: een raster dat het venster vult; Deze week met zeven staafjes (BESLISSING 148) ---------- */
+.drinken__raster > .drinkhoofd { justify-content: center; }
+.drinken__andere { display: flex; flex-direction: column; }
+/* BESLISSING 228: de lijst blijft compact (ruim drie regels, daarna rustig scrollen in de lijst); de grafiek heeft een vaste hoogte en rekt niet mee */
+/* Naast de weekkaart (vanaf 720 px) bepaalt de weekkaart de rijhoogte: de lijst vult de kaart en scrollt daarin */
+@media (min-width: 720px) {
+  .drinken__lijst > .kaart { display: flex; flex-direction: column; min-height: 0; }
+}
+.weekkaart.weekkaart--drinken .weekstaven { flex: 0 0 auto; min-height: 0; }
+.drinken__andere .drankrij { align-content: center; }
+@media (min-width: 720px) { .drinken__andere .drankrij { row-gap: var(--s-4); } }
+.weekstaven { position: relative; display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); height: 200px; }
+.weekstaven__lijn { position: absolute; left: 0; right: 0; top: calc(1.4rem + var(--s-1)); bottom: calc(1.6rem + var(--s-1)); pointer-events: none; }
+.weekstaven__lijn::after { content: ""; position: absolute; left: 0; right: 0; bottom: var(--doel); border-top: 1px dashed var(--c-text-muted); opacity: .5; }
+.weekstaaf { display: flex; flex-direction: column; align-items: center; justify-content: flex-end; gap: var(--s-1); min-width: 0; border-radius: var(--r-sm); text-decoration: none; color: inherit; touch-action: manipulation; transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+.weekstaaf__veld { flex: 1; width: 100%; display: flex; align-items: flex-end; justify-content: center; }
+.weekstaaf__balk { display: block; width: 62%; max-width: 40px; min-height: 4px; border-radius: var(--r-sm) var(--r-sm) 2px 2px; background: var(--c-surface-soft); }
+.weekstaaf.is-gevuld .weekstaaf__balk { background: var(--c-water); }
+.weekstaaf__waarde { height: 1.4rem; font-size: var(--fs-small); color: var(--c-text-muted); }
+.weekstaaf__letter { height: 1.6rem; display: inline-flex; align-items: center; justify-content: center; min-width: 1.6rem; border-radius: var(--r-pill); font-size: var(--fs-small); color: var(--c-text-muted); }
+.weekstaaf.is-vandaag .weekstaaf__letter { color: var(--c-text); font-weight: 500; }
+.weekstaaf:active { transform: scale(.97); }
+/* hover zonder achtergrondkleur (BESLISSING 188): zie het blok onderaan */
+.weekdagen { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.weekdag { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: var(--s-2) 0; border-radius: var(--r-sm); color: inherit; cursor: default; }
+.weekdag__bol { width: var(--s-6); height: var(--s-6); border-radius: var(--r-pill); background: var(--c-surface-soft); }
+.weekdag.is-klaar .weekdag__bol { background: var(--c-health); }
+.weekdag__letter, .weekdag__datum { font-size: var(--fs-small); color: var(--c-text-muted); line-height: 1.2; white-space: nowrap; text-align: center; font-variant-numeric: tabular-nums; }
+.weekdag__datum { font-size: max(11px, calc(var(--fs-small) - 1px)); }
+.weekdag { gap: var(--s-1); }
+.weekdag.is-vandaag .weekdag__datum { color: var(--c-text); font-weight: 500; }
+.weekkaart--supp .kaartkop__eind { font-size: var(--fs-small); color: var(--c-text-muted); white-space: nowrap; }
+/* hover zonder achtergrondkleur (BESLISSING 188): zie het blok onderaan */
+.weekkaart { display: flex; flex-direction: column; }
+.weekkaart .weekstaven, .weekkaart .weekdagen { flex: 1 1 auto; }
+.weekkaart .weekstaven { min-height: 160px; }
+
+/* Supplementen: de twee kolommen eindigen onderaan gelijk, de laatste kaart van een kolom rekt mee */
+
+/* Hover- en drukstanden op alles wat tikbaar is op Vandaag, Drinken en Supplementen (alleen transform, opacity en kleur) */
+.motiv__vak, .momentrij, .drankknop, .afvinkrij, .overzicht__rij { transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease); border-radius: var(--r-sm); }
+@media (hover: hover) {
+/* hover zonder achtergrondkleur (BESLISSING 188): zie het blok onderaan */
+/* hover zonder achtergrondkleur (BESLISSING 188): zie het blok onderaan */
+/* hover zonder achtergrondkleur (BESLISSING 188): zie het blok onderaan */
+}
+@media (prefers-reduced-motion: reduce) { .momentrij, .drankknop, .motiv__vak, .afvinkrij { transition: none; } .momentrij:active, .afvinkrij:active { transform: none; } }
+
+/* Motivator: de dagen van deze week zijn tikbaar naar hun dag in het Dagboek */
+.week__link { display: flex; flex-direction: column; align-items: center; gap: var(--s-1); min-width: 32px; padding: var(--s-1); border-radius: var(--r-sm); color: inherit; text-decoration: none; touch-action: manipulation; transition: background-color var(--dur-fast) var(--ease), transform var(--dur-fast) var(--ease); }
+a.week__link:active { transform: scale(.94); }
+/* hover zonder achtergrondkleur (BESLISSING 188): zie het blok onderaan */
+
+/* Vandaag op een laag scherm (bijvoorbeeld 1280x800): een compactere koprij, zodat Drinken en Supplementen grotendeels in beeld komen */
+@media (min-width: 1100px) and (max-height: 860px) {
+  .vandaag__begroeting .t-hero { font-size: calc(var(--fs-hero) * .72); }
+  .vandaag__begroeting .begroeting__merk { transform: scale(.8); transform-origin: left center; }
+  .vandaag__rij1 > .voortgang .voortgang__zin { font-size: var(--fs-h2); line-height: 1.2; }
+  .vandaag__rij1 .gevoel { margin-block: var(--s-2); }
+}
+@media (min-width: 1100px) and (max-height: 860px) {
+  .vandaag__rij1 .motiv__vakken { margin-bottom: 0; }
+  .vandaag__rij1 .motiv__vak { min-height: 0; }
+  .vandaag__rij1 .motiv__onder { gap: var(--s-3); }
+  .vandaag__rij1 .motiv__tegel .tegel { --tile-size: 44px; }
+}
+.weekstaaf:not(.is-gevuld) .weekstaaf__balk { height: 3px !important; min-height: 3px; background: var(--c-line); border-radius: var(--r-pill); }
+.weekstaaf.is-toekomst .weekstaaf__balk { opacity: .5; }
+@media (max-width: 719px) { .weekstaven { height: 170px; } .weekstaaf { min-width: 0; } .weekstaaf__waarde { font-size: var(--fs-label); } }
+a.week__link { min-height: 48px; justify-content: center; }
+
+/* Vandaag: de knop Delen rechts van de begroeting, verticaal gecentreerd; op een telefoon alleen het icoon */
+.begroeting__delen { margin-left: auto; align-self: center; flex: none; text-decoration: none; }
+@media (max-width: 719px) { .begroeting__delen { min-width: 48px; min-height: 48px; padding: 0; justify-content: center; } .begroeting__delen .knop__tekst { display: none; } }
+
+/* De motivatiezin reserveert drie regels, zodat de kaart niet van hoogte verandert als de zin wisselt (BESLISSING 156) */
+.voortgang__zin { min-height: 3.6em; line-height: 1.2; }
+@media (min-width: 1100px) and (max-height: 860px) { .vandaag__rij1 .voortgang__zin { min-height: 3.6em; } }
+@media (max-width: 380px) { .voortgang__zin { font-size: calc(var(--fs-h2) * .92); } }
+@media (min-width: 1100px) and (max-height: 860px) { .vandaag__rij1 .voortgang__zin { font-size: var(--fs-h2); } }
+@media (min-width: 1100px) and (min-height: 861px) { .vandaag__rij1 > .voortgang .voortgang__zin { font-size: calc(var(--fs-h2) * 1.1); } }
+@media (min-width: 1100px) and (max-height: 1000px) {
+  .vandaag__rij1 .motiv__vakken { margin-bottom: 0; }
+  .vandaag__rij1 .motiv__vak { min-height: 0; }
+  .vandaag__rij1 .motiv__onder { gap: var(--s-3); }
+}
+
+/* Maandpaneel: de maaltijden van de gekozen dag, het uur in een vaste kolom */
+.maand__maaltijden { list-style: none; margin: 0 0 var(--s-4); padding: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+.maand__maaltijd { display: grid; grid-template-columns: var(--s-12) minmax(0, 1fr); column-gap: var(--s-3); align-items: baseline; }
+.maand__maaltijd > .cijfer { grid-row: 1 / span 2; font-size: var(--fs-small); }
+.maand__maaltijdnaam { font-weight: 500; }
+.maand__notitie { margin: 0 0 var(--s-4); }
+
+/* Delen: periode en onderdelen, het voorbeeld en de knoppen */
+.delen__uitleg { margin: 0; }
+.delen__eigen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); margin-top: var(--s-4); }
+.delen__eigen[hidden] { display: none; }
+.delen__datum { display: flex; flex-direction: column; gap: var(--s-1); }
+.delen__vinkjes { display: grid; grid-template-columns: repeat(auto-fit, minmax(14rem, 1fr)); gap: var(--s-2) var(--s-4); }
+.delen__hint { margin: var(--s-3) 0 0; font-size: var(--fs-small); }
+.delen__knoppen { display: flex; flex-wrap: wrap; margin-top: var(--s-4); }
+.delen__verslag { display: flex; flex-direction: column; }
+/* Het verslag als een vel papier in de huisstijl: altijd Poeder (de tokens staan op het element zelf), ook onder Salie en Nacht.
+   Dezelfde opbouw als de pdf: kop met beeldmerk, samenvatting, dagkaarten met rijen, en onderaan Mijn supplementen. */
+.verslagvel { box-sizing: border-box; max-height: 62dvh; overflow: auto; padding: var(--s-6) var(--s-5); background: var(--c-bg); border: var(--lijn); border-radius: var(--r-md); font-family: var(--font-ui); line-height: 1.4; color: var(--c-text); -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+.verslag__leeg { margin: 0; padding: var(--s-6) 0; text-align: center; font-family: var(--font-display); font-style: italic; font-size: var(--fs-h2); color: var(--c-text-muted); }
+/* Afdrukken (BESLISSING 574): alleen de pagina's van de pdf (verslag-afdruk.js), elk op het formaat van de pdf en zonder marge van de printer
+   (de marges zitten in de tekening). De maat van @page wordt per afdruk gezet in verslag-afdruk.js; hier staat de vaste basis. */
+@page { margin: 0; }
+.afdruk { display: none; }
+@media print {
+  body > *:not(.afdruk) { display: none !important; }
+  html, body { display: block !important; background: white !important; margin: 0 !important; padding: 0 !important; border: 0 !important; overflow: visible !important; min-height: 0 !important; height: auto !important; }
+  .afdruk { display: block; margin: 0; padding: 0; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .afdruk__blad { display: block; break-after: page; break-inside: avoid; overflow: hidden; }
+  .afdruk__blad:last-child { break-after: auto; }
+}
+.week__delen { display: flex; justify-content: flex-end; }
+/* Delen: periode en onderdelen onder elkaar (het segment met vier keuzes is breed) */
+.delen__raster { grid-template-columns: minmax(0, 1fr); }
+.delen__periode .chips { flex-wrap: wrap; }
+.verslagvel { }
+.meer__favorieten .meer__actie { margin-top: var(--s-4); }
+.over { align-self: start; }
+
+/* ---------- Medaille (BESLISSING 164): ronde badge uit vormen, kleur per soort uit de tokens ---------- */
+@property --v { syntax: '<percentage>'; inherits: true; initial-value: 0%; }
+.medaille { --mk: var(--tile-health-fg); --mb: var(--tile-health-bg); --m: 96px; position: relative; display: inline-block; flex: none; width: var(--m); height: var(--m); margin-bottom: calc(var(--m) * .14); isolation: isolate; }
+.medaille__schijf { position: absolute; inset: 7%; display: grid; place-items: center; border-radius: 50%; background: var(--mb); box-shadow: 0 0 0 calc(var(--m) * .035) var(--mk), 0 0 0 calc(var(--m) * .06) var(--c-surface); overflow: hidden; }
+.medaille__binnen { position: absolute; inset: 11%; border-radius: 50%; border: 1px solid color-mix(in srgb, var(--mk) 55%, transparent); }
+.medaille__icoon { position: relative; display: inline-flex; color: var(--mk); }
+.medaille__lint { position: absolute; bottom: calc(var(--m) * -.12); width: 24%; height: 34%; background: var(--mk); opacity: .8; clip-path: polygon(0 0, 100% 0, 100% 100%, 50% 80%, 0 100%); z-index: -1; }
+.medaille__lint--l { left: 26%; transform: rotate(9deg); }
+.medaille__lint--r { right: 26%; transform: rotate(-9deg); }
+.medaille__glans { position: absolute; inset: 0; border-radius: 50%; pointer-events: none; opacity: 0; }
+.medaille__glans::before { content: ""; position: absolute; top: -10%; bottom: -10%; left: -45%; width: 38%; background: linear-gradient(100deg, transparent, color-mix(in srgb, var(--c-surface) 75%, transparent), transparent); transform: translateX(-120%) skewX(-14deg); }
+.medaille__glans.is-glans { animation: medaille-glans-zicht 900ms var(--ease) var(--glans-vertraging, 0ms) both; }
+.medaille__glans.is-glans::before { animation: medaille-glans 900ms var(--ease) var(--glans-vertraging, 0ms) both; }
+@keyframes medaille-glans { from { transform: translateX(-120%) skewX(-14deg); } to { transform: translateX(420%) skewX(-14deg); } }
+@keyframes medaille-glans-zicht { 0%, 100% { opacity: 0; } 15%, 80% { opacity: 1; } }
+/* Nog niet behaald: dezelfde vorm, omlijnd en gedempt, met een voortgangsring; geen vulling, geen slotje */
+/* Nog te behalen (BESLISSING 199): één rustige neutrale kleur voor alle aankomende badges (de eigen kleur krijgt een badge pas als ze behaald is), een zachte schijf, zonder lintjes, met een duidelijke voortgangsring; het verschil met behaald zit in de vorm, niet in vaagheid. */
+.medaille.is-open .medaille__schijf { background: var(--tile-neutral-bg); box-shadow: none; }
+.medaille.is-open .medaille__binnen { display: none; }
+.medaille.is-open .medaille__icoon { color: var(--tile-neutral-fg); }
+.medaille.is-open .medaille__lint { display: none; }
+.medaille__voortgang { position: absolute; inset: 0; width: 100%; height: 100%; transform: rotate(-90deg); overflow: visible; }
+.medaille__baan, .medaille__boog { fill: none; stroke-width: 6; }
+.medaille__baan { stroke: var(--c-line); }
+.medaille__boog { stroke: var(--c-day); stroke-linecap: round; stroke-dasharray: var(--vn, 0) 100; transition: stroke-dasharray 900ms var(--ease); }
+.medaille.is-nul .medaille__boog { stroke-opacity: 0; }
+.medaille-bijschrift { display: inline-flex; flex-direction: column; align-items: center; gap: var(--s-2); text-align: center; }
+.medaille-bijschrift__naam { font-family: 'Cormorant Garamond', serif; }
+
+/* Het scherm Badges: een brede kaart met de reeks en de laatst behaalde medaille, en een raster van medaillekaarten */
+.badgescherm { display: flex; flex-direction: column; }
+.badgehero { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-5); align-items: center; }
+.badgehero__laatst { display: flex; align-items: center; gap: var(--s-5); min-width: 0; }
+.badgehero__tekst { display: flex; flex-direction: column; gap: var(--s-1); min-width: 0; }
+.badgehero__naam { font-family: 'Cormorant Garamond', serif; }
+.badgehero__reeks { display: flex; flex-direction: column; gap: var(--s-4); }
+.medailleraster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); align-items: stretch; }
+.medaillekaart { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: var(--s-3); padding: var(--s-5) var(--s-3); text-align: center; height: 100%; }
+.medaillekaart .medaille-bijschrift { flex: 1; justify-content: flex-start; }
+.medaillekaart__naam { font-size: var(--fs-h2); line-height: 1.15; }
+@media (hover: hover) { .medaillekaart:hover .medaille { transform: scale(1.07); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); } }
+.medaillekaart:active .medaille { transform: scale(.96); }
+.medailleblad { display: flex; flex-direction: column; align-items: center; gap: var(--s-4); text-align: center; }
+@media (min-width: 720px) { .medailleraster { gap: var(--s-6); } .badgehero { grid-template-columns: minmax(0, 1.2fr) minmax(0, 1fr); gap: var(--s-8); } }
+@media (min-width: 960px) { .medailleraster { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (min-width: 1280px) { .medailleraster { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@media (prefers-reduced-motion: reduce) { .medaille, .medaille__boog { transition: none; } .medaillekaart:hover .medaille { transform: none; } }
+@media (min-width: 1100px) { .badgehero--drie { grid-template-columns: minmax(0, 1.25fr) minmax(0, 1.25fr) minmax(0, .9fr); } .badgehero--drie .badgehero__laatst + .badgehero__laatst { padding-left: var(--s-6); border-left: var(--lijn); } }
+.badgehero .medaille { margin-bottom: calc(var(--m) * .14); }
+/* Over: drie losse regels met witruimte ertussen */
+.over .over__liefde { margin-bottom: var(--s-4); }
+.over__tekst { margin-bottom: var(--s-5); }
+.over__hart { display: inline-flex; vertical-align: -.1em; margin-left: var(--s-1); color: var(--c-accent-text); }
+.over__hart .icoon { width: 1em; height: 1em; }
+/* Instelscherm Drinken: het voorbeeld rechts (glas, glazen van de dag, dranken met hun grootte) */
+.drinkvoorbeeld__glasrij { display: flex; }
+.drinkvoorbeeld__tekst { min-width: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+.drinkvoorbeeld__som { margin: 0; font-size: var(--fs-h2); line-height: 1.2; color: var(--c-text); }
+.drinkvoorbeeld__glazen { display: flex; flex-wrap: wrap; gap: var(--s-1); }
+.drinkvoorbeeld__glas { width: var(--s-3); height: var(--s-4); border-radius: 2px 2px var(--s-1) var(--s-1); background: var(--c-water); opacity: .85; animation: bloeiop 300ms var(--ease) both; }
+.drinkvoorbeeld__dranken { display: grid; gap: var(--s-2) var(--s-4); margin: 0; padding: 0; list-style: none; }
+.drinkvoorbeeld__dranken li { display: flex; align-items: center; gap: var(--s-2); }
+.drinkvoorbeeld__dranken li > span:nth-child(2) { flex: 1; }
+.drinkvoorbeeld__dranken .tegel { width: var(--s-8); height: var(--s-8); }
+/* Instelscherm Gewicht: het voorbeeld (een week met de weegdag en een kleine grafiek) */
+.weegdagen { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s-1); max-width: 24rem; }
+.weegdagen .chips { flex-wrap: wrap; justify-content: flex-end; }
+.gewvoorbeeld__zin { margin: 0; font-size: var(--fs-h2); }
+.gewvoorbeeld__week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--s-2); margin: 0; padding: 0; list-style: none; }
+.gewvoorbeeld__dag { display: flex; align-items: center; justify-content: center; min-height: var(--s-10); border-radius: var(--r-sm); background: var(--c-surface-soft); color: var(--c-text-muted); font-size: var(--fs-small); font-weight: 500; transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease); }
+.gewvoorbeeld__dag.is-weegdag { background: var(--c-weight-soft); color: var(--c-weight-text); box-shadow: inset 0 0 0 2px var(--c-weight); }
+.gewvoorbeeld__grafiek { width: 100%; height: auto; display: block; }
+.gewvoorbeeld__streef { stroke: var(--c-weight); stroke-width: 1.5; stroke-dasharray: 4 5; }
+/* Instelscherm Profiel: de begroeting als voorbeeld */
+.profielvoorbeeld__groet { line-height: 1.1; }
+.profielvoorbeeld__naam { font-style: italic; overflow-wrap: anywhere; }
+.profielvoorbeeld .instel__voorbeeldinhoud { align-items: flex-start; }
+.instel__lijst .profiel__naam { min-width: 12rem; }
+.instel__lijst .profiel__naam { margin-top: 0; }
+.instel__lijst .profiel__knoppen { flex-direction: row; align-items: center; flex-wrap: wrap; justify-content: flex-end; }
+/* Meer · Badges met medailles */
+.meer__medailles { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; gap: var(--s-5) var(--s-4); }
+.meer__medailleplek { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-3); min-width: 0; }
+.meer__medaillelabel { margin: 0; color: var(--c-text-muted); }
+.meer__medailleplek .medaille-bijschrift { align-items: flex-start; }
+@media (max-width: 559px) { .meer__medailles > :nth-child(3) { display: none; } }
+@media (min-width: 560px) { .meer__medailles { grid-template-columns: minmax(0, 1.5fr) repeat(2, minmax(0, 1fr)); } } /* de eerste kolom is breder: "Laatst behaald" blijft op één regel en de datum neemt hoogstens twee regels, zodat Badges niet hoger wordt dan Favorieten */
+/* Algemeen op een breed scherm (BESLISSING 230): geen kaart rekt zich over een rij met een veel hoger buurtje. Profiel en Thema, dan Badges
+   en Favorieten naast elkaar, dan Jouw instellingen (rijen op hun gewone hoogte) en Over. */
+@media (min-width: 720px) {
+  .meer__raster > .meer__profiel { grid-area: profiel; }
+  .meer__raster > .meer__themakaart { grid-area: thema; }
+  .meer__raster > .meer__badges { grid-area: badges; }
+  .meer__raster > .meer__menu { grid-area: menu; }
+  .meer__raster > .meer__favorieten { grid-area: fav; }
+  .meer__raster > .over { grid-area: over; }
+}
+.meer__volgende { display: contents; } /* BESLISSING 252: geen opacity: het kaartje in dit blok moet dekkend zijn */
+.meer__kleinemedailles { display: flex; flex-wrap: nowrap; gap: var(--s-2); margin-top: var(--s-4); } /* geen overflow: het kaartje en de schaduw mogen niet afgeknipt worden */
+/* Medaille: kleuren voor de nieuwe soorten */
+.badgegroep { display: flex; flex-direction: column; gap: var(--s-4); }
+.badgegroep__kop { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-4); padding-bottom: var(--s-2); border-bottom: var(--lijn); }
+.badgegroep__titel { margin: 0; }
+.badgehero__telling { font-size: var(--fs-h2); margin: 0; }
+.badgescherm { gap: var(--s-8); }
+.instel__groep { margin: var(--s-4) 0 var(--s-1); color: var(--c-text-muted); }
+.instel__groep:first-of-type { margin-top: var(--s-2); }
+.drankknop--voorbeeld { cursor: default; }
+.drinkvoorbeeld__dranken { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+/* Gewicht: weegdagchips op een eigen regel over de volle breedte, streefbediening op de lijn */
+.weegdagen--breed { max-width: none; justify-content: stretch; margin: 0 0 var(--s-3); }
+.weegdagen--breed .chips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--s-1); width: 100%; }
+.weegdagen--breed .chip { min-width: 0; width: 100%; justify-content: center; }
+/* BESLISSING 308: zeven tikvlakken van 44 px (met 4 px ertussen) vragen 332 px; is de houder smaller (iPhone, slide-over), dan staan de dagen 4 + 3 in twee rijen. */
+.weegdagen--breed { container-type: inline-size; container-name: weegdagen; }
+@container weegdagen (max-width: 331px) { .weegdagen--breed .chips { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.streefbediening { display: flex; align-items: center; gap: var(--s-3); justify-content: flex-end; flex-wrap: wrap; }
+.gewvoorbeeld__echt { position: relative; flex: 1 1 auto; min-height: calc(var(--s-12) * 3); }
+.gewvoorbeeld .instel__voorbeeldinhoud > .gewvoorbeeld__grafiekhouder { flex: 1 1 auto; display: flex; flex-direction: column; }
+.gewvoorbeeld__as { stroke: var(--c-line); stroke-width: 1.5; }
+.gewvoorbeeld__leeg { margin: var(--s-2) 0 0; color: var(--c-text-muted); text-align: center; }
+.gewvoorbeeld__volgende { margin: 0; }
+/* Delen-instellingen: het voorbeeld is klein, met een label; de hint staat op de lijn van de rijen */
+/* Het voorbeeld in .instel__groei (spoor C): de onderdelen verdelen de ruimte, bovenaan uitgelijnd; ze groeien niet zelf uit */
+.instel__voorbeeld .instel__voorbeeldinhoud { display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-5); }
+.instel__voorbeeld .instel__voorbeeldinhoud > * { flex: 0 0 auto; }
+/* Drinken: de dranktegels staan meteen onder het glas, daaronder Deze week */
+.drinkvoorbeeld .instel__voorbeeldinhoud { justify-content: flex-start; }
+.drinkvoorbeeld__week .kaart { box-shadow: none; padding: 0; background: none; }
+/* Desktop: de rijen links rekken nooit (gewone hoogte). De voorbeeldkaart rechts volgt de hoogte van de linkerkolom: haar inhoud is er niet van
+   bepalend (contain: size) en verdeelt zich binnenin; is ze langer, dan scrolt ze binnenin. Alleen het voorbeeld van Profiel bepaalt de hoogte
+   zelf (haar begroeting heeft een vaste opbouw): daar hebben de rijen links een iets ruimere vaste hoogte (72 px) en blijft de rest als witruimte
+   boven de lijn van "Goed om te weten" (die staat met margin-top: auto onderaan). Tussen kaart en blok blijft altijd minstens een gewone marge. */
+@media (min-width: 960px) {
+  .instelscherm .instel__voorbeeld:not(:has(.profielvoorbeeld)) { contain: size; overflow: auto; }
+  .instelscherm .instel__lijst > .kaart:has(+ .instel__weetjes) { margin-bottom: var(--s-6); }
+  .instelscherm:has(.profielvoorbeeld) .instel__lijst .rij { min-height: 72px; }
+  .instelscherm .profielvoorbeeld .instel__voorbeeldinhoud { gap: var(--s-4); }
+  .instelscherm .profielvoorbeeld__vakken { padding: var(--s-3); }
+  .instelscherm .favorietvoorbeeld .instel__voorbeeldinhoud { justify-content: space-between; }
+}
+
+/* ---------- Meer · Profiel en Favorieten in het instelscherm (BESLISSING 164) ---------- */
+.profielvoorbeeld .instel__voorbeeldinhoud, .favorietvoorbeeld .instel__voorbeeldinhoud { justify-content: flex-start; gap: var(--s-6); }
+.profielvoorbeeld__begroeting { gap: var(--s-4); min-width: 0; }
+.profielvoorbeeld__merk { flex: none; display: inline-flex; color: var(--c-accent); }
+.profielvoorbeeld__tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--s-1); }
+.profielvoorbeeld__groet { margin: 0; font-family: var(--font-display); line-height: 1.05; overflow-wrap: anywhere; }
+.profielvoorbeeld__datum { margin: 0; }
+.profielvoorbeeld__foto { flex: none; display: inline-flex; }
+.profielvoorbeeld__vakken { display: grid; gap: var(--s-3); padding: var(--s-4) var(--s-3); background: var(--c-surface); border-radius: var(--r-md); }
+.profielvoorbeeld__vak { display: flex; flex-direction: column; align-items: center; gap: var(--s-1); text-align: center; min-width: 0; }
+.profielvoorbeeld__vak .label { font-size: var(--fs-label); }
+.profielvoorbeeld__uitleg { margin: 0; }
+.favorietvoorbeeld__maaltijden { display: flex; flex-direction: column; background: var(--c-surface); border-radius: var(--r-md); padding: var(--s-2) var(--s-4); }
+.favorietvoorbeeld__maaltijden .rij { min-height: 56px; padding: var(--s-2) 0; }
+.favorietvoorbeeld__maaltijden .rij + .rij { border-top: var(--lijn); }
+.favorietvoorbeeld__chips { margin-top: 0; padding-top: 0; border-top: 0; }
+.favorietvoorbeeld__chip { cursor: default; }
+.favoriet__acties { display: inline-flex; align-items: center; gap: var(--s-1); }
+.favorieten__lijst .rij { transition: background-color var(--dur-fast) var(--ease); }
+/* hover zonder achtergrondkleur (BESLISSING 188): zie het blok onderaan */
+.favorieten__lijst .rij .veld__invoer { min-height: 44px; }
+/* Instelscherm Drinken: het glas groeit mee (met een maximum), de dranktegels staan er meteen onder, de zin op de schaal van de lijst */
+.drinkvoorbeeld__glasrij { flex: 1 1 auto; min-height: 190px; max-height: 340px; }
+.drinkvoorbeeld .instel__voorbeeldinhoud > .drinkvoorbeeld__glasrij { flex: 1 1 auto; }
+.drinkvoorbeeld .watervulling { height: auto; }
+.drinkvoorbeeld__tekst { justify-content: center; }
+.drinkvoorbeeld__som { font-family: var(--font-ui); font-size: var(--fs-body); font-weight: 500; }
+/* Telefoon: een rij met een stapper blijft laag (hoogstens ongeveer 72 px): de hint valt daar weg */
+@media (max-width: 719px) {
+  .instel__lijst .rij:has(.stapper) .rij__sub { display: none; }
+  .streefbediening { justify-content: flex-end; }
+}
+.favorietvoorbeeld__chips .chip { pointer-events: none; }
+
+/* Stemming is geen maaltijdtegel (HUISSTIJL §5.2): de enige ronde tegel in de app */
+.tegel--rond { border-radius: 50%; }
+.motiv__vak .tegel--rond .icoon { opacity: 1; }
+/* Drinken: het glas in het midden, de zin eronder; de weekstaafjes zonder de getallen (te krap in dit voorbeeld) */
+.drinkvoorbeeld__glasrij { flex-direction: column; align-items: center; gap: var(--s-4); }
+.drinkvoorbeeld .watervulling { align-self: center; flex: 1 1 auto; min-height: 0; }
+.drinkvoorbeeld__tekst { align-items: center; text-align: center; flex: 0 0 auto; }
+.drinkvoorbeeld__glazen { justify-content: center; }
+.drinkvoorbeeld__week .weekstaaf__waarde { display: none; }
+
+/* ---------- Telefoon, BESLISSING 171 ---------- */
+/* Stemming en energie is overal een gewone, altijd open kaart */
+.vc--stemming { display: flex; flex-direction: column; }
+.stemming__inhoud { display: flex; flex-direction: column; flex: 1; min-width: 0; }
+/* BESLISSING 237: twee gelijke delen (kopregel met de gekozen waarde in woorden, daaronder vijf gelijke kolommen met het woord eronder); gezichtjes en blaadjes staan recht onder elkaar */
+.stemming__inhoud { gap: var(--s-5); justify-content: space-between; }
+.stemming__lijn { flex: none; height: 0; border-top: var(--lijn); }
+.stemming__deel { flex: none; display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; }
+.stemming__inhoud .vandaag__energie { margin-top: 0; padding-top: 0; border-top: 0; align-items: stretch; justify-content: flex-start; }
+.stemming__kop { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.stemming__inhoud .kaart__inhoud { margin-top: 0; }
+.stemming__inhoud .gevoel, .stemming__inhoud .energie--kiezer { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: 0; width: 100%; }
+.stemming__inhoud .gevoel__optie, .stemming__inhoud .energie__tik { width: auto; height: auto; min-height: var(--tap-min); padding: 0; }
+.stemming__inhoud .energie--kiezer { --lh: var(--tap-min); align-items: stretch; }
+.stemming__inhoud .energie__tik { flex-direction: column; align-items: center; justify-content: flex-end; }
+.energie__woord { font-size: var(--fs-label); line-height: 1.2; color: var(--c-text-muted); transition: color var(--dur) var(--ease); }
+.energie__tik[aria-checked="true"] .energie__woord { color: var(--c-text); }
+.stemming__inhoud .gevoel__optie, .stemming__inhoud .energie__tik { gap: var(--s-1); }
+.stemming__inhoud .gevoel { margin-block: 0; }
+.stemming__inhoud .dag__wis { margin-top: calc(var(--s-3) * -1); text-align: left; }
+/* De begroeting breekt nooit midden in een woord: op een telefoon staan het beeldmerk (weg) en de knop Delen in de rij boven de groet */
+@media (max-width: 719px) {
+  .vandaag__begroeting { flex-wrap: wrap; }
+  .vandaag__begroeting .vandaag__logo { order: 1; flex: 1 1 auto; margin: 0; }
+  .vandaag__begroeting .begroeting__delen { order: 2; }
+  .vandaag__begroeting .begroeting__tekst { order: 3; flex: 1 1 100%; }
+  .begroeting__merk { display: none; }
+  .begroeting__titel { font-size: clamp(1.9rem, 10.5vw, 2.9rem); line-height: 1.05; }
+  .begroeting__groet { white-space: nowrap; }
+}
+/* Delen: drie compacte knoppen naast elkaar, even breed; niets breekt af op 360 px */
+.delen__knoppen { flex-wrap: nowrap; gap: var(--s-2); }
+.delen__knoppen .knop { flex: 1 1 0; min-width: 0; height: var(--knop-h); min-height: var(--knop-h); padding: 0 var(--s-3); font-size: var(--knop-fs); white-space: nowrap; }
+.delen__knoppen .knop__tekst { overflow: hidden; text-overflow: ellipsis; }
+@media (min-width: 720px) { .delen__knoppen .knop { flex: 0 0 auto; min-width: 7.5rem; } }
+/* Eten: elke maaltijdregel heeft dezelfde ruimte en een lijn erboven, ook "Aan de beurt" met de chip "Invullen" */
+.vandaag .maaltijden .maaltijd { border-top: var(--lijn); padding: var(--s-3) 0; }
+.vandaag .maaltijden .maaltijd > .rij { min-height: 56px; padding: 0; }
+.vandaag .maaltijden__kol:first-child > .maaltijd:first-child { border-top: 0; padding-top: 0; }
+/* BESLISSING 239: de kaart eindigt strak op haar inhoud en de twee kolommen beginnen en eindigen op dezelfde lijn (geen lege band onder de laatste rij) */
+.vandaag .maaltijden__kol:last-child > .maaltijd:last-child:not(.is-open) { padding-bottom: 0; }
+@media (min-width: 1100px) {
+  .vandaag .maaltijden__kol > .maaltijd:first-child { border-top: 0; padding-top: 0; }
+  /* Geen onderpadding-reset per kolom meer: Middagmaal (laatste van de eerste kolom) houdt haar onderruimte, anders is die rij korter dan de andere; de laatste rij onderaan krijgt hem al van de regel hierboven */
+}
+/* De motivatiezin staat links op dezelfde lijn als de vakken en de reeks, en verticaal in het midden ertussen (evenveel ruimte boven als onder) */
+@media (max-width: 439px) { .delen__knoppen .knop { padding: 0 var(--s-2); } .delen__knoppen .knop .icoon { display: none; } }
+
+/* ---------- Tester en telefoon (BESLISSING 171) ---------- */
+/* Vandaag zonder supplementen: Drinken neemt de volle breedte */
+.vandaag__rij2--alleen { grid-template-columns: minmax(0, 1fr) !important; }
+/* Supplementen: de kop van de kaart die "Nu" is staat op één regel en lijnt uit met de andere; Deze week over de volle breedte */
+.weekkaart--supp .weekdagen { max-width: none; }
+.supplementen__voorbeeld { pointer-events: none; margin-top: var(--s-2); }
+.supplementen__voorbeeldlabel { margin: var(--s-5) 0 var(--s-3); color: var(--c-text-muted); }
+.supplementen__uitleg .rij { padding: var(--s-3) 0; }
+.supplementen__leegkaart { display: flex; flex-direction: column; justify-content: center; }
+/* Aanpassen is op een telefoon alleen het potlood (het label blijft voor de schermlezer) */
+@media (max-width: 719px) {
+  .supplementen .schermkop__acties .knop--tekst .knop__tekst { display: none; }
+  .supplementen .schermkop__acties .knop--tekst { min-width: 48px; min-height: 48px; padding: 0; justify-content: center; }
+}
+/* Profiel op een telefoon: het naamveld en de fotoknoppen staan onder de naam, over de breedte */
+@media (max-width: 719px) {
+  .instel__lijst .rij:has(.profiel__naam), .instel__lijst .rij:has(.profiel__knoppen) { flex-wrap: wrap; }
+  .instel__lijst .rij:has(.profiel__naam) .rij__eind, .instel__lijst .rij:has(.profiel__knoppen) .rij__eind { flex: 1 1 100%; justify-content: flex-start; margin-left: 0; }
+  .instel__lijst .profiel__naam { width: 100%; min-width: 0; }
+  .instel__lijst .profiel__knoppen { justify-content: flex-start; }
+}
+/* Tikvlakken: zeven dagen naast elkaar vullen de breedte; minstens 48 hoog, zo breed als de kolom toelaat */
+.energie__tik { min-width: 48px; min-height: 48px; }
+.weekstaven, .weekdagen { gap: 0; }
+.weekstaaf, .weekdag { min-height: 48px; }
+.weekdag { min-height: 56px; }
+@media (max-width: 719px) {
+  .profielvoorbeeld__merk { display: none; }
+  .profielvoorbeeld__groet { overflow-wrap: normal; }
+  .profielvoorbeeld__vakken { row-gap: var(--s-4); }
+}
+.delen__paginas { margin: var(--s-2) 0 0; }
+/* Maand op desktop (tester 4): cellen met een begrensde hoogte, het stemmingsbolletje vlak onder het dagcijfer, kalender en paneel even hoog */
+@media (min-width: 960px) {
+  .kalender__dag { min-height: 0; }
+}
+/* De omhullende van de momentkaarten heeft op een telefoon een eigen vlak (voor de rondleiding), de kaarten volgen hun volgorde */
+.meer__rest { display: inline-flex; align-items: center; padding: 0 var(--s-2); color: var(--c-text-muted); font-size: var(--fs-small); }
+/* Dag: de dranktegels voldoen aan het tikvlak; het kalenderveld op een telefoon loopt door tot de rand zodat elke dag 48 px breed kan zijn */
+.dagdrank { min-width: var(--tap-min); }
+@media (max-width: 559px) { .kaart.maand__kalkaart { margin-left: calc(var(--s-5) * -1); margin-right: calc(var(--s-5) * -1); padding-left: 0; padding-right: 0; } }
+/* De motivatiezin staat gecentreerd in het kader (BESLISSING 180): evenwichtig afgebroken, niet breder dan een prettige regel */
+
+/* Profiel- en Favorietenvoorbeeld op een smal deel (1280 px): niets breekt midden in een woord, de chips zijn echte chips */
+.profielvoorbeeld__begroeting { display: grid; grid-template-columns: auto minmax(0, 1fr) auto; grid-template-areas: "merk . foto" "tekst tekst tekst"; align-items: center; row-gap: var(--s-3); }
+.profielvoorbeeld__merk { grid-area: merk; }
+.profielvoorbeeld__foto { grid-area: foto; }
+.profielvoorbeeld__tekst { grid-area: tekst; }
+.profielvoorbeeld__groet { font-size: clamp(1.7rem, 2.4vw, 2.4rem); overflow-wrap: normal; hyphens: none; }
+.profielvoorbeeld__woord { white-space: nowrap; }
+.profielvoorbeeld__vakken { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--s-4); }
+/* Telefoon (BESLISSING 383): het beeldmerk is daar verborgen, dus de foto of initiaal staat links, gelijk met de begroeting eronder */
+@media (max-width: 719px) { .profielvoorbeeld__foto { grid-area: merk; justify-self: start; } }
+.favorietvoorbeeld__chips { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); }
+.favorietvoorbeeld__chip { display: inline-flex; align-items: center; min-height: 36px; padding: 0 var(--s-4); border-radius: var(--r-pill); background: var(--c-surface); color: var(--c-text); font-size: var(--fs-small); box-shadow: inset 0 0 0 1px var(--c-line); }
+.favorietvoorbeeld__chip { max-width: 100%; min-width: 0; overflow-wrap: break-word; } /* een lange favoriet breekt af binnen de kaart */
+
+/* ---------- Eén kleur per onderwerp, overal (BESLISSING 181): zie het commentaarblok in src/ui/iconenkaart.js ---------- */
+/* Vandaag: wat over de dag gaat draagt pruim waar eerder het accent stond; de onderdelen houden hun eigen kleur */
+.begroeting__naam, .profielvoorbeeld__naam { color: var(--c-day); }
+.week__dag.is-vandaag .week__bol, .week__dag.is-vandaag.is-toekomst .week__bol { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-day); }
+/* De markering van vandaag in een weekrij heeft de zachte tint van het scherm waar ze staat */
+.weekstaaf.is-vandaag .weekstaaf__letter { background: var(--c-water-soft); }
+.weekdag.is-vandaag .weekdag__bol { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-health); }
+.weekdag.is-vandaag .weekdag__letter { color: var(--c-text); font-weight: 500; }
+/* Supplementen: "Nu" is salie */
+/* BESLISSING 204: ook het moment van nu heeft de gewone kaartkleur; alleen het plaatje "Nu" naast de titel wijst het aan. */
+/* Delen is aubergine */
+.begroeting__delen .icoon { color: currentColor; }
+
+/* Supplement toevoegen (BESLISSING 185): rechts in de kop op een breed scherm, over de breedte onder de kop op een telefoon */
+.sup-knoprij { display: none; }
+@media (max-width: 719px) { .sup-toevoegen--kop { display: none; } .sup-knoprij { display: flex; flex-wrap: wrap; gap: var(--s-3); align-items: center; } }
+
+/* ---------- Het uitlegkaartje bij een medaille (BESLISSING 186) en het blok in de motivator zonder tekst ernaast ---------- */
+.medaille-hover { position: relative; display: inline-flex; border-radius: 50%; color: inherit; text-decoration: none; touch-action: manipulation; }
+/* BESLISSING 247: het omhulsel verandert bij hover niets; alleen de medaille licht op als een icoon (schaal 1,07 met een zachte schaduw, zoals in componenten.css) */
+.medaille { transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease); }
+.medaille-hover:active .medaille { transform: scale(.96); }
+@media (hover: hover) { .medaille-hover:hover .medaille { transform: scale(1.07); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); } }
+.medaille-hover:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 3px; }
+.medaille-tip { position: absolute; z-index: 40; bottom: calc(100% + var(--s-2)); left: 50%; width: max-content; max-width: min(260px, 80vw); display: flex; flex-direction: column; gap: var(--s-1); background: var(--c-surface); color: var(--c-text); border-radius: var(--r-md); box-shadow: var(--shadow-float); display: none; opacity: 0; pointer-events: none; transform: translateX(calc(-50% + var(--tip-dx, 0px))) translateY(var(--s-1)); transition: opacity var(--dur) var(--ease), transform var(--dur) var(--ease); }
+.medaille-hover.tip-onder .medaille-tip { bottom: auto; top: calc(100% + var(--s-2)); transform: translateX(calc(-50% + var(--tip-dx, 0px))) translateY(calc(var(--s-1) * -1)); }
+.medaille-hover.is-uitleg .medaille-tip { display: flex; pointer-events: auto; }
+/* BESLISSING 249: een open kaartje ligt boven alles in de kaart. De omhullende blokken (die door hun opkomst een eigen laag hebben) krijgen dan een hogere laag. */
+.medaille-hover.is-uitleg { z-index: 50; }
+:is(.meer__medailles, .meer__medailleplek, .meer__kleinemedailles, .meer__kleinemedailles > *, .badgeblok, .badgeblok__groep, .badgeblok__paar, .medaille-bijschrift, .medaillekaart, .medailleraster, .badgegroep):has(.medaille-hover.is-uitleg) { position: relative; z-index: 50; }
+.medaille-hover.is-zicht .medaille-tip { opacity: 1; transform: translateX(calc(-50% + var(--tip-dx, 0px))); }
+.medaille-tip__naam { font-family: var(--font-display); font-size: var(--fs-h2); line-height: 1.1; }
+.medaille-tip__uitleg { font-size: var(--fs-small); }
+.medaille-tip__regel { font-size: var(--fs-small); color: var(--c-text-muted); }
+.medaille-tip__link { color: var(--c-accent-text); font-size: var(--fs-small); font-weight: 500; text-decoration: none; min-height: 44px; display: inline-flex; align-items: center; }
+@media (prefers-reduced-motion: reduce) { .medaille-tip, .medaille-hover { transition: none; } }
+/* het paar zit op één lijn: in de motivator staat het blok rustig onder de reeks */
+
+.dag__wis.is-leeg { visibility: hidden; }
+
+/* ---------- Hover zonder kleurverandering (BESLISSING 188): alleen uitlichten met een lichte lift en een zachte schaduw; geen achtergrond-, tekst-, icoon- of randkleur. De actieve stand houdt haar kleur. ---------- */
+/* BESLISSING 190: het icoon licht op via de gedeelde regel van spoor A (.licht-op-icoon op het vak, .tegel of .licht-icoon op het icoon; zie componenten.css). */
+
+/* De eigenaar: een lijn ook boven de eerste supplementenrij op Vandaag, rechte lijnen, en dezelfde uitlichting als de maaltijdregels.
+   De lijn zit op een vast omhulsel (.momentkant, net als .maaltijd bij Eten); alleen de rij erin gaat bij hover omhoog. */
+.suppkaart .momentkant { border-top: var(--lijn); }
+/* BESLISSING 238: de drie rijen delen de hoogte van de kaart gelijk (gelijke rijhoogte, inhoud verticaal gecentreerd): geen leeg vlak onderaan */
+.suppkaart .momentkant { flex: 1 1 0; display: flex; }
+.suppkaart .momentkant > .momentrij { flex: 1 1 auto; }
+.suppkaart .momentrij, .suppkaart .momentrij:first-child { border-top: 0; }
+.maaltijd, .vandaag .maaltijden .maaltijd { border-radius: 0; }
+.suppkaart .momentrij, .maaltijd > .rij { border-radius: var(--r-sm); }
+
+/* De eigenaar: Uitleg en Delen als één groepje rechts, met een kleine vaste tussenruimte (--s-2), ook als C de knop Uitleg toevoegt.
+   De rij heeft een grotere gap voor de andere onderdelen; die gap wordt voor deze twee buurknoppen teruggenomen. */
+.vandaag__begroeting { --begroet-gap: var(--s-6); gap: var(--begroet-gap); }
+@media (min-width: 960px) { .vandaag__begroeting { --begroet-gap: var(--s-8); } }
+.vandaag__begroeting .begroeting__delen { margin-left: auto; }
+.vandaag__begroeting .begroeting__uitleg + .begroeting__delen.knop { margin-left: calc(var(--s-2) - var(--begroet-gap)); }
+.vandaag__begroeting .begroeting__uitleg, .vandaag__begroeting .begroeting__delen { align-self: center; min-height: 48px; }
+/* BESLISSING 594: Rondleiding en Delen zijn even breed (de breedte van de langste, Rondleiding met haar icoon); op de telefoon zijn het twee even grote ronde knoppen */
+/* BESLISSING 595: smaller (8rem, minder binnenruimte) en optisch in het midden van de begroeting ernaast: het midden van de knop ligt tussen het midden van de hoofdletters en dat van de kleine letters (6 px onder het midden van het regelvak) */
+@media (min-width: 720px) { .vandaag__begroeting .knop.begroeting__delen { min-width: 8rem; padding-inline: var(--s-4); justify-content: center; translate: 0 6px; } }
+
+/* BESLISSING 191: alle vier de vakken van de motivator geven bij een tik dezelfde korte drukschaal van het icoon. */
+.motiv__vak:active .motiv__tegel { transform: scale(.94); }
+
+/* Gewicht-instellingen op een telefoon: bij het streefgewicht valt de hint weg zodat de bediening ernaast past (geen afgebroken tekst) */
+@media (max-width: 719px) { .instel__lijst .rij:has(.streefbediening) .rij__sub { display: none; } }
+
+/* Rechte scheidingslijnen (geen bocht aan de uiteinden): de rijen met een bovenrand hebben geen afronding meer nodig, want ze liften niet meer. */
+.overzicht__rij, .afvinkrij { border-radius: 0; }
+
+/* BESLISSING 200: "Deze week" is de eerste kaart van Supplementen. Breed: één rij (kop links, de zeven dagen over de rest van de breedte), dus geen leeg vlak. */
+@media (min-width: 960px) {
+  .supplementen__raster > .weekkaart--supp { flex-direction: row; align-items: center; gap: var(--s-8); }
+  .supplementen__raster > .weekkaart--supp > .kaartkop { flex: none; margin: 0; }
+  .supplementen__raster > .weekkaart--supp .weekdagen { flex: 1 1 auto; max-width: none; }
+}
+
+/* Het ritme onder de naam in de kaart "Vandaag ook te doen" (BESLISSING 201) */
+.afvinkrij__ritme { display: block; }
+
+/* ---------- Het dagschema "Mijn supplementen" (BESLISSING 202) ---------- */
+.overzichtkaart { display: flex; flex-direction: column; gap: var(--s-4); }
+.schema { width: 100%; border-collapse: collapse; table-layout: fixed; }
+.schema__bijschrift { text-align: left; padding: 0 0 var(--s-2); caption-side: top; }
+.schema thead th { font-size: var(--fs-small); font-weight: 500; letter-spacing: .08em; text-transform: uppercase; color: var(--c-text-muted); text-align: left; padding: var(--s-2) var(--s-3); border-bottom: var(--lijn); }
+.schema thead th:first-child, .schema th.schema__naam { padding-left: 0; }
+.schema th.schema__naam, .schema tfoot th { text-align: left; font-weight: 500; padding: var(--s-3) var(--s-3) var(--s-3) 0; vertical-align: top; }
+.schema td { padding: var(--s-3); vertical-align: top; }
+.schema .overzicht__rij { border-top: var(--lijn); cursor: pointer; }
+.schema tbody .overzicht__rij:first-child { border-top: 0; }
+.schema__knop { background: none; border: 0; padding: 0; font: inherit; color: inherit; text-align: left; cursor: pointer; }
+.schema__hoofd, .schema__extra, .schema__sub { display: block; }
+.schema__sub { display: none; }
+.schema .schema__moment, .schema .schema__teken { text-align: center; }
+.schema--dag .schema__moment, .schema--dag .schema__teken { width: 104px; }
+.schema--dag .schema__hoeveelkop, .schema--dag .schema__hoeveel { width: 28%; }
+.schema--periodiek .schema__hoeveelkop, .schema--periodiek .schema__hoeveel { width: 28%; }
+.schema--periodiek .schema__ritmekop, .schema--periodiek .schema__ritme { width: 140px; }
+.schema--periodiek .schema__volgendekop, .schema--periodiek .schema__volgende { width: 172px; }
+.schema__punt { display: inline-block; width: 12px; height: 12px; border-radius: 50%; background: var(--tile-health-fg); vertical-align: middle; }
+.schema__geen { display: inline-block; width: 10px; height: 2px; border-radius: 1px; background: var(--c-line); vertical-align: middle; }
+.schema tfoot tr { border-top: var(--lijn); }
+.schema__kort { display: none; }
+.overzichtkaart .schema + .schema { margin-top: var(--s-4); }
+@media (max-width: 719px) {
+  .schema__hoeveelkop, .schema__hoeveel, .schema__ritmekop, .schema__ritme, .schema__volgendekop, .schema__volgende { display: none; }
+  .schema__sub { display: block; }
+  .schema__lang { display: none; }
+  .schema__kort { display: inline; }
+  .schema--dag .schema__moment, .schema--dag .schema__teken { width: 40px; padding-left: 0; padding-right: 0; }
+  .schema--periodiek thead { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); }
+}
+
+/* BESLISSING 205: het kaartje bij een medaille is compact en strak: één linkerlijn, gelijke binnenruimte, de ritmiek van de app (naam, 4 px, uitleg, 8 px, regel, 8 px, link). */
+.medaille-tip { max-width: min(240px, calc(100vw - 32px)); padding: var(--s-4); gap: 0; text-align: left; overflow-wrap: break-word; box-sizing: border-box; }
+.medaille-tip > * { min-width: 0; }
+.medaille-tip__uitleg { margin-top: var(--s-1); }
+.medaille-tip__regel { margin-top: var(--s-2); }
+.medaille-tip__link { margin-top: var(--s-2); min-height: 0; }
+@media (hover: none) { .medaille-tip__link { min-height: 44px; } }
+
+/* BESLISSING 207: alle behaalde medailles zijn salie (de kleur van het begrip supplementen): volle salie schijf met een licht icoon en lintjes. Nog te behalen blijft neutraal met de ring in pruim. */
+.medaille.is-behaald .medaille__schijf { background: var(--mk); }
+.medaille.is-behaald .medaille__icoon { color: var(--c-surface); }
+.medaille.is-behaald .medaille__binnen { border-color: color-mix(in srgb, var(--c-surface) 55%, transparent); }
+
+/* De zin volgt de breedte van de kaart, zoals op een telefoon: zo blijft de motivator even hoog voor alle zinnen (BESLISSING 142). */
+@container motiv (max-width: 420px) { .voortgang .voortgang__zin, .vandaag__rij1 > .voortgang .voortgang__zin { font-size: var(--fs-h2); } }
+@container motiv (max-width: 329px) { .voortgang .voortgang__zin, .vandaag__rij1 > .voortgang .voortgang__zin { font-size: calc(var(--fs-h2) * .92); } }
+
+/* ---------- De motivator op één ritme (BESLISSING 215) ----------
+   Verticaal: vakken, zin, lijn en onderste rij staan onder elkaar met overal dezelfde afstand (space-between binnen de kaart, in een losse kolom een vaste afstand);
+   boven en onder staat de gewone binnenruimte van de kaart.
+   Onderste rij: drie groepen (Laatst behaald, Nog te behalen, Deze week), elk met een kopje op één regel dat links op één lijn staat met het eerste onderdeel.
+   Overal dezelfde tussenruimte tussen twee onderdelen (medaille of weekstip). De eerste groep begint op de linker binnenrand, de laatste weekstip eindigt op de
+   rechter binnenrand; de overgebleven ruimte is gelijk verdeeld over twee tussenruimtes met in het midden steeds dezelfde dunne lijn.
+   Smaller dan 600 px (de kaart zelf, niet het venster) staat Deze week op een eigen rij onder de medailles. */
+.kaart.voortgang, .vandaag__rij1 > .voortgang { container-type: inline-size; container-name: motiv; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-5); }
+.voortgang .motiv__vakken { display: grid; grid-template-columns: none; grid-auto-flow: column; grid-auto-columns: minmax(0, 1fr); margin: 0; }
+.voortgang .motiv__vak { justify-content: flex-start; min-height: 0; padding: 0; gap: var(--s-1); }
+.voortgang .motiv__naam { white-space: nowrap; }
+.voortgang .voortgang__zin { display: flex; align-items: center; justify-content: center; margin: 0 auto; padding: 0; width: 100%; max-width: 34ch; min-height: 3.6em; box-sizing: border-box; text-align: center; text-wrap: balance; }
+.voortgang .motiv__lijn { height: 1px; background: var(--c-line); }
+
+.voortgang .motiv__onder { --gat: var(--s-3); --dot: var(--s-6); --afstand: var(--s-4); --m: 46px; display: grid; grid-template-columns: auto 1fr auto 1fr auto; grid-template-rows: auto auto auto; margin: 0; padding: 0; border: 0; gap: 0; width: 100%; }
+.voortgang .motiv__onder--zonder-laatst { grid-template-columns: auto 1fr auto; }
+.voortgang .badgeblok { grid-column: 1 / 4; grid-row: 1 / 4; display: grid; grid-template-columns: subgrid; grid-template-rows: subgrid; min-width: 0; margin: 0; padding: 0; gap: 0; cursor: default; text-decoration: none; color: inherit; }
+.voortgang .motiv__onder--zonder-laatst .badgeblok { grid-column: 1; }
+.voortgang .badgeblok__groep, .voortgang .motiv__weekvak { display: grid; grid-template-rows: subgrid; grid-template-columns: auto; justify-items: start; min-width: 0; margin: 0; padding: 0; gap: 0; }
+.voortgang .badgeblok__groep { grid-row: 1 / 4; }
+.voortgang .badgeblok__groep--behaald { grid-column: 1; }
+.voortgang .badgeblok__scheiding, .voortgang .motiv__scheiding { grid-row: 1 / 4; justify-self: center; align-self: stretch; width: 1px; background: var(--c-line); }
+.voortgang .badgeblok__scheiding { grid-column: 2; }
+.voortgang .badgeblok__groep--open { grid-column: 3; }
+.voortgang .badgeblok--zonder-laatst .badgeblok__groep--open { grid-column: 1; }
+.voortgang .motiv__scheiding { grid-column: 4; }
+.voortgang .motiv__onder--zonder-laatst .motiv__scheiding { grid-column: 2; }
+.voortgang .motiv__weekvak { grid-column: 5; grid-row: 1 / 4; }
+.voortgang .motiv__onder--zonder-laatst .motiv__weekvak { grid-column: 3; }
+.voortgang .badgeblok__label, .voortgang .motiv__weekvak > .label { grid-row: 1; align-self: end; margin: 0 0 var(--s-3); padding: 0; text-align: left; white-space: nowrap; }
+.voortgang .badgeblok__paar { grid-row: 2; display: flex; align-items: center; gap: var(--gat); padding: 0; width: auto; min-height: 0; }
+.voortgang .badgeblok__paar > * { margin: 0; }
+.voortgang .badgeblok .medaille { --m: 46px !important; margin: 0; }
+.voortgang .motiv__week { grid-row: 2 / 4; display: grid; grid-template-rows: subgrid; grid-auto-flow: column; grid-auto-columns: auto; justify-items: center; column-gap: var(--gat); width: auto; min-height: 0; margin: 0; padding: 0; list-style: none; }
+.voortgang .week__dag { grid-row: 1 / 3; display: grid; grid-template-rows: subgrid; justify-items: center; min-width: 0; gap: 0; }
+.voortgang .week__link { grid-row: 1 / 3; display: grid; grid-template-rows: subgrid; justify-items: center; width: var(--dot); min-width: 0; min-height: 0; padding: 0; gap: 0; }
+.voortgang .week__bol { grid-row: 1; align-self: center; width: var(--dot); height: var(--dot); }
+.voortgang .week__letter { grid-row: 2; margin-top: var(--s-1); }
+
+@container motiv (max-width: 599px) {
+  .voortgang .motiv__onder { --afstand: var(--s-2); grid-template-columns: auto 1fr auto; grid-template-rows: auto auto auto auto auto; }
+  .voortgang .badgeblok { grid-column: 1 / -1; grid-row: 1 / 3; }
+  .voortgang .motiv__onder--zonder-laatst .badgeblok { grid-column: 1 / -1; }
+  .voortgang .badgeblok__groep { grid-row: 1 / 3; }
+  .voortgang .badgeblok__scheiding { grid-row: 1 / 3; }
+  .voortgang .badgeblok__groep--open { grid-column: 3; }
+  .voortgang .badgeblok--zonder-laatst .badgeblok__groep--open { grid-column: 1; }
+  .voortgang .motiv__scheiding { display: none; }
+  .voortgang .motiv__weekvak, .voortgang .motiv__onder--zonder-laatst .motiv__weekvak { grid-column: 1 / -1; grid-row: 3 / 6; }
+  .voortgang .motiv__weekvak > .label { margin-top: var(--s-5); }
+  .voortgang .badgeblok .medaille { --m: clamp(30px, calc((100cqw - 4 * var(--afstand) - 3 * var(--gat) - 2px) / 5), 46px) !important; }
+  .voortgang .badgeblok__label, .voortgang .motiv__weekvak > .label { font-size: 11px; letter-spacing: .06em; }
+  /* Op een eigen rij vullen de medailles en de weekstippen de breedte van binnenrand tot binnenrand, met gelijke tussenruimtes (geen leeg vlak rechts) */
+  .voortgang .motiv__onder--zonder-laatst .badgeblok__groep--open { grid-column: 1 / -1; }
+  .voortgang .motiv__onder--zonder-laatst .badgeblok__groep { width: 100%; }
+  .voortgang .motiv__onder--zonder-laatst .badgeblok__paar { width: 100%; justify-content: space-between; }
+  .voortgang .motiv__weekvak { justify-items: stretch; }
+  .voortgang .motiv__week { width: 100%; justify-content: space-between; }
+}
+/* Kaart Drinken: "Laatst gedronken" blijft op één regel, ook in de smallere linkerhelft op 1280 en 1440 px */
+.drinkkaart .laatst > .label { white-space: nowrap; }
+@media (max-width: 1500px) { .drinkkaart .laatst > .label { letter-spacing: .06em; } }
+
+/* BESLISSING 218: onder de kop van een momentkaart (en van "Vandaag ook te doen" en "Binnenkort") staat een lijn over de volle binnenbreedte, met dezelfde ruimte erboven en eronder;
+   de status (Nu, of Genomen om ... uur) staat rechts als gewone tekst; na de laatste rij staat geen lijn. */
+/* de rijen van "Vandaag ook te doen": een rij met haar link, tussen de blokken een lijn */
+.beurtlijst { display: block; }
+.beurtblok + .beurtblok { border-top: var(--lijn); margin-top: var(--s-3); padding-top: var(--s-3); }
+.beurtblok .afvinkrij { border-top: 0; padding-block: 0; }
+.beurtblok__link { display: inline-flex; align-items: center; margin-top: var(--s-2); padding-left: calc(var(--tile-size) + var(--s-4)); color: var(--c-accent-text); font-size: var(--fs-small); font-weight: 500; text-decoration: none; min-height: 44px; }
+.supplementrij { text-align: left; }
+
+/* Basis van de compacte kalender (src/ui/kalender.js, gebruikt door de kaart Kalender op Vandaag; de maand van het Dagboek heeft sinds BESLISSING 255 een eigen component, .mk) */
+.kalender { display: flex; flex-direction: column; gap: var(--s-1); }
+.kalender__week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); }
+.kalender__dagnaam { text-align: center; padding-bottom: var(--s-2); }
+.kalender__leeg { height: var(--tap-min); }
+.kalender__dag { position: relative; height: var(--tap-min); border-radius: var(--r-sm); color: var(--c-text); touch-action: manipulation; transition: background-color var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+.kalender__dag.is-vandaag { background: var(--c-book-soft); }
+.kalender__dag.is-gekozen { box-shadow: inset 0 0 0 2px var(--c-book); background: var(--c-book-soft); }
+.kalender__dag.is-toekomst { color: var(--c-text-muted); }
+.kalender__dag:active { transform: scale(.97); }
+.kalender__nr { transition: transform var(--dur) var(--ease); position: absolute; top: var(--s-2); left: 0; right: 0; text-align: center; font-size: var(--fs-body); font-weight: 500; line-height: 1.3; }
+@media (hover: hover) { .kalender__dag:hover:not(.is-gekozen) .kalender__nr { transform: scale(1.2); } }
+.kalender__blad { position: absolute; top: var(--s-2); right: var(--s-2); width: var(--s-2); color: var(--energy-on); opacity: var(--o); }
+.kalender__blad svg { display: block; width: 100%; height: auto; }
+
+/* ---------- Vandaag · Kalender (BESLISSING 245): rij 3 is Eten (2/3) + Kalender (1/3), net als rij 2; op een telefoon een eigen kaart onder Eten ---------- */
+.vc--kalender { order: 2; }
+.kalkaart { display: flex; flex-direction: column; --kal-cel: 44px; container-type: inline-size; container-name: kalkaart; }
+.kalkaart .kaartkop { margin-bottom: var(--s-2); }
+.kalkaart__blader { display: flex; align-items: center; gap: var(--s-1); }
+.kalkaart__maand { width: 7.75rem; } /* BESLISSING 459: label datumkop; een vaste breedte voor de langste maand ("SEPTEMBER 2026" is 118 px), zodat de pijlen niet verspringen */
+.kalkaart__raster { flex: 1; display: flex; flex-direction: column; }
+/* De hoogte van zes weken blijft gereserveerd: bij vier of vijf weken verdelen de rijen dezelfde hoogte, zodat de kaart bij het bladeren niet verspringt */
+.kalkaart .kalender { flex: 1; min-height: calc(var(--s-5) + 6 * (var(--kal-cel) + var(--s-1))); }
+.kalkaart .kalender__kop { height: var(--s-5); align-items: end; }
+.kalkaart .kalender__dagnaam { padding-bottom: 2px; }
+.kalkaart .kalender__week:not(.kalender__kop) { flex: 1 1 0; min-height: var(--kal-cel); }
+.kalkaart .kalender__dag { height: auto; min-height: var(--kal-cel); }
+.kalkaart .kalender__leeg { height: auto; }
+.kalkaart .kalender__blad { display: none; }
+.kalkaart .kalender__dag.is-vandaag { box-shadow: inset 0 0 0 2px var(--c-book); }
+.kalkaart .kalender__dag.is-vandaag .kalender__nr { font-weight: 700; }
+/* Het dagcijfer en het teken eronder staan als één groepje in het midden van de cel, zodat een hogere cel geen leeg stuk onderaan geeft */
+.kalkaart .kalender__nr { top: calc(50% - 21px); font-size: var(--fs-body); line-height: 1.2; }
+.kalkaart .kalender__tekens { top: calc(50% + 3px); bottom: auto; }
+.kalkaart__legenda { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-4); margin: var(--s-2) 0 0; line-height: 1.2; }
+/* BESLISSING 464: de legenda onder de kalender (Vandaag en Dagboek maand) is een label (.label); een item blijft heel (teken en woord samen), de items breken anders onder elkaar */
+.kalkaart__legendaitem, .maand__legitem { white-space: nowrap; }
+.kalkaart__legendaitem { display: inline-flex; align-items: center; gap: var(--s-2); }
+.kalkaart__legenda .kalender__spuit { width: 16px; height: 16px; }
+.kalkaart__legenda .kalender__spuit .icoon { width: 10px; height: 10px; }
+.kalkaart__onder { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.kalkaart__link { display: inline-flex; align-items: center; margin-top: 0; gap: var(--s-1); color: var(--c-accent-text); font-weight: 500; }
+.kalkaart__terug.is-verborgen { visibility: hidden; }
+/* BESLISSING 265: de legenda en de link beginnen op de linkerrand van een tweecijferig dagcijfer in de maandagkolom (een halve cel min de halve breedte van twee cijfers) */
+.kalkaart { --kal-in: calc((100cqw / 7 - 1.25 * var(--fs-body)) / 2); --kal-in-r: calc((100cqw / 7 - 1.1 * var(--fs-body)) / 2); }
+.kalkaart__legenda, .kalkaart__onder { padding-left: var(--kal-in); }
+.kalkaart .kaartkop { padding-left: var(--kal-in); padding-right: var(--kal-in-r); }
+.kalkaart__blader .icoonknop:last-child { margin-right: calc((var(--knop-h) - 20px) / -2); } /* de pijl zelf, niet het tikvlak, sluit aan op de rechterrand van de cijfers */
+/* Een smalle kaart: de maand met de pijlen staat op een eigen regel onder de kop, over de volle breedte; 384 px = de breedte waaronder label, pijlen en maand niet meer met var(--s-3) ertussen op één regel passen */
+@container kalkaart (max-width: 384px) {
+  .kalkaart .kaartkop { flex-wrap: wrap; row-gap: 0; }
+  .kalkaart .kaartkop__eind { flex: 1 0 100%; }
+  .kalkaart__blader { justify-content: space-between; }
+}
+/* Vanaf een tablet is de cel net hoog genoeg voor het cijfer met het groepje eronder (geen extra lucht tussen de weken) */
+@media (min-width: 720px) {
+  /* Een cel is minstens 42 px hoog: het cijfer (16 px), 2 px, het groepje (16 px) en minstens 4 px lucht boven en onder; tussen twee weken 4 px */
+  .kalkaart { --kal-cel: 42px; }
+  .kalkaart .kalender__nr { top: calc(50% - 17px); line-height: 1; }
+  .kalkaart .kalender__tekens { top: calc(50% + 1px); height: 16px; }
+  .kalkaart .kalender__spuit { width: 16px; height: 16px; }
+  .kalkaart .kalender__spuit .icoon { width: 11px; height: 11px; }
+  .kalkaart__link { min-height: 24px; } /* het tikvlak blijft 44 px via ::after (scherm-vandaag.css) */
+}
+@media (min-width: 1100px) {
+  .vandaag__rij3 { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+}
+/* Eten (BESLISSING 245): op elke desktopbreedte zes compacte maaltijdrijen in één kolom (tegel 40 px, rij ± 65 px). Eten is zo van nature ± 480 px hoog,
+   ongeveer even hoog als de kalender met leesbare cellen: geen van beide rekt zichtbaar. */
+@media (min-width: 960px) {
+  .vandaag .maaltijden .maaltijd { --tile-size: 40px; --tile-size-groot: 40px; }
+  .vandaag .maaltijden .maaltijd > .rij { min-height: 40px; }
+  .vandaag .maaltijden .maaltijd .tegel--groot { width: 40px; height: 40px; }
+  .vandaag .maaltijden .maaltijd .rij__tekst { gap: 0; }
+}
+@media (min-width: 1100px) {
+  .vandaag__rij3 .maaltijden { grid-template-columns: minmax(0, 1fr); }
+  .vandaag .maaltijden__kol { display: contents; }
+  .vandaag .maaltijden__kol:last-child > .maaltijd:first-child { border-top: var(--lijn); padding-top: calc(var(--s-3) - 1.5px); }
+  /* Is de kalender (smalle kaart: de maand staat op een eigen regel) iets hoger, dan verdelen de zes rijen het verschil gelijk (± 7 px per rij) */
+  .vandaag__rij3 .maaltijden { flex: 1 1 auto; align-content: stretch; }
+  .vandaag .maaltijden .maaltijd { display: flex; flex-direction: column; justify-content: center; padding-block: calc(var(--s-3) - 1.5px); } /* 1,5 px minder per kant: Middagmaal houdt nu zijn onderruimte, de kaart blijft zo even hoog als de kalender met haar leesbare cellen (≤ 46 px) toelaat */
+}
+
+/* BESLISSING 256: de datum onder de begroeting begint op de linkerrand van de inhoud, niet onder de tekst naast het beeldmerk.
+   De tekstwrapper vervalt als vak (display: contents): de titel blijft in de rij, de datum krijgt een eigen rij over de volle breedte. */
+@media (min-width: 720px) {
+  .vandaag__begroeting { flex-wrap: wrap; row-gap: 0; }
+  .vandaag__begroeting .begroeting__tekst { display: contents; }
+  .vandaag__begroeting .begroeting__titel { flex: 1 1 0; min-width: 0; }
+  .vandaag__begroeting .begroeting__datum { order: 9; flex: 0 0 100%; margin-top: var(--s-3); white-space: normal; text-align: left; }
+}
+
+/* ---------- Dagboek · Week (BESLISSING 253): samenvatting in kerncijfers en het weekschema als tabel ---------- */
+.wk { --wk-rij: 60px; --wk-teken: 16px; --wk-rand: color-mix(in srgb, var(--c-text-muted) 55%, transparent); }
+.wk__schemakaart { --wk-teken: 16px; }
+.wk__tekens--eten .wk__teken { width: 10px; height: 10px; border-radius: var(--r-pill); box-shadow: inset 0 0 0 1.5px var(--wk-rand); }
+.wk__tekens--eten .wk__teken.is-aan { box-shadow: none; }
+.wk__tekens--eten { gap: 3px; }
+.wk__tekens--moment { gap: 3px; }
+.wk__tekens--moment .wk__teken { font-size: 10px; }
+.wk__rechtsbl .wk__liter { min-width: 2.4em; text-align: right; }
+.wk__sr { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.wk__samenvatting { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.wk__samenvatting > .wk__skaart:last-child { grid-column: 1 / -1; }
+.wk__skaart { display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-2); padding: var(--s-4); }
+.wk__skop { display: flex; align-items: center; gap: var(--s-3); min-width: 0; }
+.wk__slabel { margin: 0; white-space: nowrap; letter-spacing: .04em; }
+.wk__skop .tegel { --tile-size: 32px; }
+@media (min-width: 720px) { .wk__slabel { letter-spacing: var(--ls-label); } .wk__skop .tegel { --tile-size: 40px; } }
+.wk__swaarde { display: flex; align-items: baseline; gap: var(--s-2); margin: 0; min-width: 0; }
+.wk__sgetal { font-family: var(--font-display); font-weight: 500; font-size: var(--fs-h1); line-height: var(--lh-tight); font-variant-numeric: lining-nums tabular-nums; }
+.wk__seenheid { font-size: var(--fs-small); color: var(--c-text-muted); }
+.wk__sub { margin: 0; font-size: var(--fs-small); line-height: 1.3; color: var(--c-text-muted); }
+.wk__gezichttegel { flex: none; display: inline-flex; align-items: center; justify-content: center; width: calc(var(--wk-teken) + var(--s-2)); height: calc(var(--wk-teken) + var(--s-2)); border-radius: var(--r-pill); background: var(--mood-1-soft); }
+.wk__gezichttegel--groot { width: var(--tile-size); height: var(--tile-size); }
+.wk__gezichttegel[data-stap="1"] { background: var(--mood-1-soft); }
+.wk__gezichttegel[data-stap="2"] { background: var(--mood-2-soft); }
+.wk__gezichttegel[data-stap="3"] { background: var(--mood-3-soft); }
+.wk__gezichttegel[data-stap="4"] { background: var(--mood-4-soft); }
+.wk__gezichttegel[data-stap="5"] { background: var(--mood-5-soft); }
+.wk__gezichttegel.is-leeg { background: transparent; color: var(--c-text-muted); }
+.wk__schemakaart { padding: var(--s-1) var(--s-3) 0; }
+.wk__schemakaart .week__zin { margin: 0; padding: var(--s-5) var(--s-2); border-top: var(--lijn); }
+.wk__tabelhouder { display: none; }
+.wk__compactlijst { list-style: none; margin: 0; padding: 0; }
+.wk__compactitem + .wk__compactitem { border-top: var(--lijn); }
+.wk__compact { display: flex; align-items: center; justify-content: space-between; gap: var(--s-2); min-height: calc(var(--wk-rij) + var(--s-2)); padding: 0 var(--s-1); border-radius: var(--r-md); color: var(--c-text); text-decoration: none; }
+.wk__compact.is-vandaag { background: var(--c-book-soft); }
+.wk__compact.is-toekomst { color: var(--c-text-muted); }
+.wk__linksbl { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-1); min-width: 0; }
+.wk__rechtsbl { display: flex; align-items: center; justify-content: flex-end; gap: var(--s-2); min-width: 0; flex: 1 1 auto; padding-left: var(--s-2); }
+.wk__dagnaam { font-weight: 500; white-space: nowrap; color: var(--c-text); text-decoration: none; }
+.wk__compact.is-toekomst .wk__dagnaam { color: var(--c-text-muted); font-weight: 400; }
+.wk__datum { font-weight: 400; color: var(--c-text-muted); }
+.wk__vandaag { font-size: var(--fs-label); font-weight: 500; color: var(--c-text); background: var(--c-book-soft); border-radius: var(--r-pill); padding: 2px var(--s-2); }
+.wk__compact.is-vandaag .wk__vandaag { background: var(--c-surface); }
+.wk__tekens { display: inline-flex; align-items: center; gap: var(--s-1); }
+.wk__teken { flex: none; display: inline-flex; align-items: center; justify-content: center; width: var(--wk-teken); height: var(--wk-teken); border-radius: var(--r-sm); box-shadow: inset 0 0 0 1.5px var(--wk-rand); color: var(--c-text-muted); font-size: var(--fs-label); font-weight: 500; line-height: 1; }
+.wk__teken--eten.is-aan { background: var(--tile-meal-fg); box-shadow: none; }
+.wk__teken--moment { border-radius: var(--r-pill); display: inline-grid; place-items: center; padding: 0; line-height: 1; letter-spacing: 0; text-indent: 0; }
+.wk__teken--moment > span[aria-hidden] { display: block; line-height: 1; letter-spacing: 0; }
+.wk__teken--moment.is-aan { background: var(--tile-health-fg); box-shadow: none; color: var(--c-surface); }
+.wk__teken--moment.is-geen { opacity: .4; }
+.wk__leeg { color: var(--c-text-muted); }
+.wk__liter { font-size: var(--fs-small); font-weight: 500; white-space: nowrap; }
+.wk__liter.is-leeg { font-weight: 400; color: var(--c-text-muted); }
+.wk__liter.is-gehaald { color: var(--c-health-text); }
+.wk__drank { display: grid; grid-template-columns: minmax(0, 1fr) 4.5rem; align-items: center; column-gap: var(--s-3); }
+.wk__drank .wk__liter { text-align: right; font-variant-numeric: tabular-nums; }
+.wk__balk { appearance: none; -webkit-appearance: none; width: 100%; min-width: 0; display: block; height: var(--s-2); border: 0; border-radius: var(--r-pill); background: var(--c-water-soft); overflow: hidden;  box-shadow: inset 0 0 0 1px var(--c-line); }
+.wk__balk::-webkit-progress-bar { background: var(--c-water-soft); border-radius: var(--r-pill); }
+.wk__balk::-webkit-progress-value { background: var(--tile-drink-fg); border-radius: var(--r-pill); }
+.wk__balk::-moz-progress-bar { background: var(--tile-drink-fg); border-radius: var(--r-pill); }
+.wk__balk.is-gehaald::-webkit-progress-value { background: var(--tile-health-fg); }
+.wk__balk.is-gehaald::-moz-progress-bar { background: var(--tile-health-fg); }
+.wk__gezicht { display: inline-flex; align-items: center; gap: var(--s-2); font-weight: 500; }
+.wk__spuit { display: inline-flex; align-items: center; gap: var(--s-1); }
+.wk__spuitnaam { font-size: var(--fs-small); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+.wk__notitie { display: block; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-size: var(--fs-small); color: var(--c-text); }
+@media (min-width: 720px) {
+  .wk__samenvatting { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .wk__samenvatting > .wk__skaart:last-child { grid-column: auto; }
+  .wk { --wk-teken: 20px; }
+  .wk__schemakaart { padding: var(--s-2) var(--s-4) 0; --wk-teken: 20px; }
+  .wk__tekens--eten .wk__teken { width: 14px; height: 14px; }
+  .wk__tekens--eten, .wk__tekens--moment { gap: var(--s-1); }
+  .wk__tekens--moment .wk__teken { font-size: var(--fs-label); }
+  .wk__compact { padding: 0 var(--s-4); }
+  .wk__rechtsbl { gap: var(--s-6); }
+}
+@media (min-width: 1400px) {
+  .wk__samenvatting { grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s-4); }
+  .wk__skaart { padding: var(--s-5); }
+  .wk__schemakaart { padding: var(--s-2) var(--s-6) 0; }
+  .wk__compactlijst { display: none; }
+  .wk__tabelhouder { display: block; }
+  .wk__tabel { width: 100%; table-layout: fixed; border-collapse: separate; border-spacing: 0; }
+  .wk__tabel th, .wk__tabel td { padding: 0 var(--s-3); text-align: left; vertical-align: middle; border-bottom: var(--lijn); }
+  .wk__tabel thead th { height: calc(var(--wk-rij) * .9); font-weight: 500; font-size: var(--fs-small); color: var(--c-text-muted); white-space: nowrap; }
+  .wk__tabel tbody tr:last-child > * { border-bottom: 0; }
+  .wk__tabel tbody tr { height: var(--wk-rij); }
+  .wk__tabel tbody th { font-weight: 400; }
+  .wk__kolkop { display: inline-flex; align-items: center; gap: var(--s-2); }
+  .wk__kolkop .tegel { --tile-size: var(--s-6); width: var(--s-6); height: var(--s-6); border-radius: var(--r-sm); }
+  .wk__kolkop .tegel .icoon { width: 13px; height: 13px; }
+  .wk__tabel .wk__dagcel { width: 14%; padding-left: var(--s-4); }
+  .wk__tabel .wk__c-eten { width: 14%; }
+  .wk__tabel .wk__c-drinken { width: 15%; }
+  .wk__tabel .wk__c-supp { width: 12%; }
+  .wk__tabel .wk__c-stemming { width: 12%; }
+  .wk__tabel .wk__c-energie { width: 9%; }
+  .wk__tabel .wk__c-beurt { width: 12%; }
+  .wk__tabel .wk__c-notitie { width: auto; }
+  .wk__tabel .wk__c-energie .energie { --lh: var(--energy-leaf-h); }
+  .wk__tabel .wk__tekens--eten .wk__teken { width: calc(var(--wk-teken) + 2px); height: calc(var(--wk-teken) + 2px); border-radius: var(--r-sm); box-shadow: inset 0 0 0 1.5px var(--wk-rand); }
+  .wk__tabel .wk__tekens--eten .wk__teken.is-aan { box-shadow: none; }
+  .wk__tabel .wk__tekens--moment .wk__teken { font-size: var(--fs-label); }
+  .wk__tabel .wk__dagcel .wk__dagnaam { font-size: var(--fs-body); }
+  .wk__tabel .wk__vandaag { margin-left: var(--s-2); }
+  .wk__rij.is-vandaag > * { background: var(--c-book-soft); }
+  .wk__rij.is-vandaag > .wk__dagcel { box-shadow: inset 3px 0 0 var(--c-book); }
+  .wk__rij.is-vandaag .wk__vandaag { background: var(--c-surface); }
+  .wk__rij.is-toekomst { color: var(--c-text-muted); }
+  .wk__rij.is-toekomst .wk__dagnaam { color: var(--c-text-muted); font-weight: 400; }
+  .wk__tabel .wk__teken--moment { width: calc(var(--wk-teken) + 2px); height: calc(var(--wk-teken) + 2px); }
+}
+@media (min-width: 1400px) and (min-height: 1100px) { .wk { --wk-rij: 72px; } }
+
+/* ---------- Dagboek · Maand (BESLISSING 255, herzien): rustige cellen, een gevulde pagina eromheen ---------- */
+/* De kalender: zeven kolommen, cellen breder dan hoog. Per cel linksboven het dagnummer en op één vaste regel eronder het gezichtje van de stemming
+   (links) en het spuitje van een geplande beurt (rechts). Een dunne salie streep onderaan zegt dat de dag volledig was. */
+.mk { display: flex; flex-direction: column; flex: 1; --mk-cel: 60px; }
+.mk__week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--s-1); }
+.mk__dagnaam { text-align: center; padding-bottom: var(--s-1); }
+.mk__cel, .mk__leeg { min-width: 0; display: flex; }
+.mk__week:not(.mk__kop) { flex: 1 1 var(--mk-cel); }
+.mk__dag {
+  flex: 1; position: relative; min-width: 0; display: flex; flex-direction: column; justify-content: space-between; align-items: stretch; border-radius: var(--r-sm); background: var(--c-surface-soft); color: var(--c-text);
+  touch-action: manipulation; text-align: left;
+}
+.mk__dag.is-toekomst { color: var(--c-text-muted); }
+.mk__dag.is-gekozen { box-shadow: inset 0 0 0 2px var(--c-book); background: var(--c-book-soft); }
+.mk__dag:active { transform: scale(.97); }
+.mk__nr { align-self: flex-start; min-width: 22px; height: 22px; padding: 0 var(--s-1); border-radius: var(--r-pill); font-size: 0.8125rem; font-weight: 500; line-height: 22px; text-align: center; }
+.mk__dag.is-vandaag .mk__nr { background: var(--c-accent); color: var(--c-on-primary); font-weight: 600; }
+.mk__tekens { display: flex; align-items: center; justify-content: space-between; min-height: 24px; }
+.mk__spuitplek { display: inline-flex; margin-left: auto; }
+.mk__tekens .gevoelicoon .icoon { width: 22px; height: 22px; }
+/* Het spuitje in drie duidelijk verschillende standen: gepland (zacht vlak), afgevinkt (vol vlak), voorbij (gedempt, zonder vlak) */
+.kalender__spuit.mk__spuit { width: 26px; height: 22px; border-radius: var(--r-pill); color: var(--tile-health-fg); background: var(--c-health-soft); box-shadow: none; opacity: 1; }
+.kalender__spuit.mk__spuit .icoon { width: 16px; height: 16px; }
+.kalender__spuit.mk__spuit.is-afgevinkt { background: var(--c-health-gevuld); color: var(--c-surface); }
+.kalender__spuit.mk__spuit.is-gemist { background: none; color: var(--c-text-muted); opacity: .6; }
+@media (hover: hover) {
+  .mk__dag .icoon { transition: transform var(--dur) var(--ease); }
+  .mk__dag:hover .icoon { transform: scale(1.15); }
+}
+/* De legenda: één compacte regel onder de kalender */
+.maand__legenda { list-style: none; padding: var(--s-3) 0 0; border-top: 1px solid var(--c-line); display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-4); }
+.maand__legitem { display: inline-flex; align-items: center; gap: 6px; white-space: nowrap; }
+.maand__legteken { display: inline-flex; align-items: center; gap: 2px; }
+.maand__legenda .gevoelicoon .icoon { width: 16px; height: 16px; }
+.maand__legenda .kalender__spuit.mk__spuit { width: 26px; height: 22px; }
+.maand__legenda .kalender__spuit.mk__spuit .icoon { width: 16px; height: 16px; }
+.maand__teken--eten { color: var(--tile-meal-fg); display: inline-flex; }
+.maand__teken--drinken { color: var(--tile-drink-fg); display: inline-flex; }
+.maand__teken--supplementen { color: var(--tile-health-fg); display: inline-flex; }
+/* De basis van de pagina: de kaarten onder elkaar (op een telefoon loopt de kalender tot de rand), het paneel met stemming en energie naast elkaar */
+.kaart.maand__kalkaart { box-shadow: none; padding: 0; border-radius: 0; }
+.maand__waarden { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.maand__waarde { display: flex; align-items: center; gap: var(--s-2); margin: var(--s-2) 0 0; font-weight: 500; min-height: var(--s-6); }
+.maand__waarden .energie { margin-top: var(--s-2); }
+/* Het paneel van de dag: blokken met een lijn ertussen, de maaltijden op één regel, een baan tot het dagdoel, de momenten als pilletjes */
+.maand__paneel { padding: var(--s-5); }
+.maand__paneel .maand__waarden { gap: var(--s-3); }
+.maand__blok { padding: var(--s-3) 0; border-top: 1px solid var(--c-line); }
+.maand__blokkop { display: flex; align-items: center; gap: var(--s-2); }
+.maand__bloktitel { flex: 1; font-size: var(--fs-small); color: var(--c-text-muted); }
+.maand__blokwaarde { font-size: 1.0625rem; font-weight: 500; }
+.maand__blok .maand__maaltijden { margin: var(--s-2) 0 0; gap: var(--s-1); }
+.maand__blok .maand__maaltijd { grid-template-columns: 44px auto minmax(0, 1fr); column-gap: var(--s-2); align-items: baseline; }
+.maand__blok .maand__maaltijd > .cijfer { grid-row: auto; }
+.maand__baan { display: block; width: 100%; height: 8px; margin-top: var(--s-2); border: 0; border-radius: var(--r-pill); appearance: none; background: var(--c-water-soft); overflow: hidden; }
+.maand__baan::-webkit-progress-bar { background: var(--c-water-soft); }
+.maand__baan::-webkit-progress-value { background: var(--c-water); border-radius: var(--r-pill); }
+.maand__baan::-moz-progress-bar { background: var(--c-water); border-radius: var(--r-pill); }
+.maand__momenten { display: flex; flex-wrap: wrap; gap: var(--s-2); margin-top: var(--s-2); }
+.maand__moment { padding: 2px var(--s-3); border-radius: var(--r-pill); font-size: var(--fs-small); background: var(--c-surface-soft); color: var(--c-text-muted); }
+.maand__moment.is-deel { background: var(--c-health-soft); color: var(--c-health-text); }
+.maand__moment.is-vol { background: var(--c-health); color: var(--c-on-health); }
+.maand__paneel .maand__notitie { display: -webkit-box; -webkit-line-clamp: 3; -webkit-box-orient: vertical; }
+.maand__paneel > .rij { margin-top: var(--s-2); }
+.maand__paneel .maand__tik { padding: 0; margin: var(--s-3) 0 0; text-align: left; font-size: var(--fs-body); }
+/* Gepland deze maand: compacte rijen op hun gewone hoogte, kolommen op vaste lijnen */
+.maand__geplandlijst { list-style: none; margin: 0; padding: 0; }
+.maand__geplandlijst > li { border-top: 1px solid var(--c-line); }
+.maand__geplandlijst > li:first-child { border-top: 0; }
+.maand__beurt { width: 100%; display: grid; grid-template-columns: 40px minmax(0, 1fr) 5.5rem 6rem; align-items: center; gap: var(--s-3); padding: var(--s-2) 0; text-align: left; }
+.maand__beurttekst { display: flex; flex-direction: column; min-width: 0; }
+.maand__beurtsub, .maand__beurtdatum, .maand__beurtstand { font-size: var(--fs-small); }
+.maand__beurtdatum { text-align: right; }
+.maand__beurtstand { text-align: right; }
+.maand__gepnog { margin: var(--s-2) 0 0; }
+/* Indeling op een groot scherm: kerncijfers over de volle breedte, de kalender met het paneel van de dag, daaronder de stemming en de geplande beurten */
+@media (min-width: 960px) {
+  .maand__kolommen { grid-template-areas: "kal dag"; grid-template-rows: 1fr; gap: var(--s-5); align-items: start; }
+  .kaart.maand__kalkaart { display: flex; flex-direction: column; padding: var(--s-5); box-shadow: var(--shadow-card); border-radius: var(--r-lg); }
+}
+/* Telefoon: zeven kolommen zonder horizontale scroll; de cel toont het nummer, het gezichtje en het spuitje */
+@media (max-width: 719px) {
+  .mk { --mk-cel: 64px; }
+  .mk__week { gap: 2px; }
+  .mk__dag { align-items: center; }
+  .mk__nr { align-self: center; min-width: 20px; height: 20px; font-size: var(--fs-small); line-height: 20px; }
+  .mk__spuitplek { margin-left: 0; }
+  .mk__tekens .gevoelicoon .icoon { width: 20px; height: 20px; }
+  .kalender__spuit.mk__spuit { width: 20px; height: 18px; }
+  .kalender__spuit.mk__spuit .icoon { width: 12px; height: 12px; }
+  .kalender__spuit .kalender__aantal { display: none; }
+  .maand__legenda { margin-left: var(--s-4); }
+}
+
+/* ---------- Drinken herwerkt (BESLISSING 257): rij 1 de dag, rij 2 het verloop, rij 3 de week en de cijfers, onderaan goed om te weten ---------- */
+.drinken__raster { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+.drinken__raster > .drinkhoofd { display: flex; flex-direction: column; justify-content: flex-start; }
+.drinken__raster > .drinken__lijst, .drinken__raster > .drinken__week, .drinken__raster > .drinken__cijfers { display: flex; min-width: 0; }
+.drinken__raster > .drinken__lijst > .kaart, .drinken__raster > .drinken__week > .kaart, .drinken__raster > .drinken__cijfers > .kaart { flex: 1; min-width: 0; display: flex; flex-direction: column; }
+/* Rij 1 links: het glas en de stand naast elkaar */
+.drinkhoofd__rij { flex: 1; display: flex; align-items: center; gap: var(--s-6); }
+.drinkhoofd__nog { margin-top: var(--s-1); color: var(--c-text-muted); font-size: var(--fs-h2); }
+.drinkhoofd__nog[hidden] { display: none; }
+.drinkhoofd .cijfer-groot { font-size: calc(var(--fs-hero) * 1.3); }
+/* Rij 1 rechts: zes grote tegels in drie kolommen, eronder het weghalen */
+.drinken__andere .drankrij { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); flex: 1; align-content: stretch; }
+.drinken__andere .drankknop { justify-content: center; gap: var(--s-2); padding: var(--s-3) var(--s-1); min-height: 88px; }
+.drinken__laatste { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); margin: var(--s-4) 0 0; padding-top: var(--s-3); border-top: var(--lijn); }
+.drinken__hint { margin: 0; min-width: 0; }
+.drinken__laatste .knop { flex: none; }
+/* Rij 2 links: de dag in drie dagdelen */
+/* Rij 2 rechts: de lijst per soort, compact en met een vaste bovengrens */
+.drinken__lijst .rij { min-height: 56px; padding-block: var(--s-2); }
+.drinken__nog-niets { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); margin: auto 0; }
+.drinken__nog-niets p { margin: 0; }
+.weekstaven--datum .weekstaaf__waarde { min-width: 2px; }
+/* Rij 3: de week en de kerncijfers */
+.weekkaart.weekkaart--drinken .weekstaven { height: 256px; }
+.weekstaaf__datum { height: 1.1rem; font-size: var(--fs-label); line-height: 1.1rem; color: var(--c-text-muted); font-variant-numeric: tabular-nums; }
+.weekstaaf.is-vandaag .weekstaaf__datum { color: var(--c-text); font-weight: 500; }
+.weekstaven--datum .weekstaven__lijn { bottom: calc(1.6rem + 1.1rem + var(--s-1) * 2); }
+.weekkaart--drinken .kaartkop__eind { flex: 0 1 auto; font-size: var(--fs-small); min-width: 0; margin-left: auto; }
+.drinken__kern { flex: 1; grid-auto-rows: 1fr; align-items: center; margin-bottom: var(--s-2); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-5) var(--s-4); }
+.drinken__kern .kerncijfer { align-items: center; }
+.drinken__kern .kerncijfer__getal { font-size: var(--fs-h1); }
+.drinken__kern .kerncijfer__eenheid { font-size: var(--fs-small); }
+.drinken__meest { margin-top: auto; padding-top: var(--s-2); border-top: var(--lijn); display: flex; flex-direction: column; gap: var(--s-3); }
+.drinken__meest .label { margin: 0; }
+.drinken__meestleeg { margin: 0; font-size: var(--fs-small); }
+.verdeling__vak { display: flex; flex-direction: column; gap: var(--s-3); }
+.verdeling { display: flex; gap: 2px; height: var(--s-3); border-radius: var(--r-pill); overflow: hidden; }
+.verdeling__deel { flex: var(--deel) 1 0; min-width: 4px; }
+.verdeling__deel--0 { background: var(--c-water); }
+.verdeling__deel--1 { background: color-mix(in srgb, var(--c-water) 75%, var(--c-surface)); }
+.verdeling__deel--2 { background: color-mix(in srgb, var(--c-water) 55%, var(--c-surface)); }
+.verdeling__deel--3 { background: color-mix(in srgb, var(--c-water) 40%, var(--c-surface)); }
+.verdeling__deel--4 { background: color-mix(in srgb, var(--c-water) 28%, var(--c-surface)); }
+.verdeling__deel--5 { background: color-mix(in srgb, var(--c-water) 18%, var(--c-surface)); }
+.verdeling__legenda, .drinken__meestleeg { min-height: calc(3em + var(--s-1)); }
+.verdeling__legenda { align-content: flex-start; list-style: none; margin: 0; padding: 0; display: flex; flex-wrap: wrap; gap: var(--s-1) var(--s-4); font-size: var(--fs-small); }
+.verdeling__item { display: inline-flex; align-items: center; gap: var(--s-2); }
+.verdeling__stip { flex: none; width: var(--s-2); height: var(--s-2); min-width: 0; border-radius: var(--r-pill); }
+/* Onderaan: goed om te weten */
+.weekkaart--drinken .kaartkop__label { flex: none; white-space: nowrap; }
+@media (min-width: 720px) {
+}
+@media (min-width: 960px) {
+  .drinken__raster { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-6); }
+  .drinken__raster > .drinken__weetjes, .drinken__raster > .drinken__lijst { grid-column: 1 / -1; }
+  .drinkhoofd__rij > .watervulling { height: 100%; min-height: 160px; align-self: stretch; contain: size; flex: 0 1 auto; min-width: var(--s-10); }
+  .drinken__andere .drankknop { min-height: 112px; }
+}
+@media (max-width: 719px) {
+  .drinken__andere .drankknop { min-height: 96px; }
+  .drinken__laatste { flex-direction: column; align-items: flex-start; }
+  .drinken__kern { grid-template-columns: minmax(0, 1fr); }
+}
+
+/* Supplementen op Vandaag: de rijen lopen van binnenrand tot binnenrand (de regels voor .suppmomenten van het tabblad Supplementen, align-items: start en een tussenruimte, gelden hier niet) */
+.vandaag .suppkaart .suppmomenten { display: flex; flex-direction: column; align-items: stretch; gap: 0; }
+
+/* Drinken: "Vandaag gedronken" in drie gelijke kolommen, dezelfde opbouw op dezelfde lijnen, gescheiden door lijnen (geen tinten) */
+@media (min-width: 720px) {
+}
+@media (max-width: 719px) {
+}
+
+/* ---------- Dagboek · Week: het uitlegkaartje bij een teken, cel of kerncijfer (BESLISSING 263), dekkend en binnen de kaart ---------- */
+.wk__skaart, .wk__schemakaart { position: relative; }
+.wk__tip { position: absolute; z-index: 40; left: var(--tip-x, 0); top: var(--tip-y, 0); width: max-content; max-width: min(280px, calc(100% - var(--s-4))); box-sizing: border-box; padding: var(--s-3) var(--s-4); background: var(--c-surface); color: var(--c-text); border: var(--lijn); border-radius: var(--r-md); box-shadow: var(--shadow-float); font-size: var(--fs-small); line-height: 1.35; text-align: left; white-space: pre-line; overflow-wrap: anywhere; pointer-events: none; }
+.wk [data-tip] { cursor: default; }
+.wk [data-tip]:focus-visible { outline: 2px solid var(--c-focus); outline-offset: 2px; border-radius: var(--r-sm); }
+
+/* Drinken: basisregels van het tabblad zelf (scoped onder .drinken, zodat ze niets op andere schermen raken) */
+.stil-bloei .watervulling.is-gehaald .watervulling__bloei g { animation: none; }
+.drinken__kop { display: flex; flex-direction: column; gap: var(--s-2); }
+.drinken__dag { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.drinkhoofd__stand { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--s-1); }
+.drinkhoofd__gehaald { margin-top: var(--s-1); color: var(--c-text-muted); font-size: var(--fs-h2); }
+.drinkhoofd__gehaald[hidden] { display: none; }
+.drinkhoofd .drinkbaan { margin-top: var(--s-4); }
+.drinken .drankrij { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); }
+.drinken .drankknop { display: flex; flex-direction: column; align-items: center; justify-content: center; gap: var(--s-2); padding: var(--s-3) var(--s-1); min-height: 88px; touch-action: manipulation; transition: transform var(--dur-fast) var(--ease), opacity var(--dur) var(--ease); }
+.drinken .drankknop:active:not(:disabled) { transform: scale(.97); }
+.drinken .drankknop:disabled { opacity: .4; cursor: not-allowed; }
+.drinken .drankknop__naam { font-size: var(--fs-label); font-weight: 500; line-height: 1.2; text-align: center; }
+.drinken .drankknop__ml { font-size: var(--fs-label); color: var(--c-text-muted); line-height: 1.2; }
+.drinken .drank__weg { flex: none; display: inline-flex; align-items: center; justify-content: center; width: var(--tap-min); height: var(--tap-min); margin-right: calc(var(--s-3) * -1); color: var(--c-text-muted); }
+
+/* Drinken: "Vandaag gedronken", één blok per soort over de volle breedte (BESLISSING 264) */
+.drinken__soorten { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+.soortblok { min-width: 0; display: flex; flex-direction: column; gap: var(--s-1); padding: var(--s-3) var(--s-4); border: var(--lijn); border-radius: var(--r-md); }
+.soortblok__naam, .soortblok__hoeveel { margin: 0; }
+.soortblok__naam { font-weight: 500; }
+.soortblok__hoeveel { color: var(--c-text-muted); font-size: var(--fs-small); }
+.drinken__soorten > .drinken__nog-niets { grid-column: 1 / -1; margin: 0; }
+/* Drinken: goed om te weten, drie gelijke kolommen met een kleine, rustige tekst bovenaan uitgelijnd met de tegel */
+.drinken__weetjesrij { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3); }
+.weetje { min-width: 0; display: flex; align-items: flex-start; gap: var(--s-3); }
+.weetje .tegel { flex: none; }
+.weetje__tekst { margin: 0; min-width: 0; font-size: var(--fs-small); line-height: 1.4; color: var(--c-text-muted); }
+@media (min-width: 960px) {
+  .drinken__soorten { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-4); }
+  .drinken__weetjesrij { grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-6); }
+}
+
+/* ---------- Gewicht (BESLISSING 197, 198, 229): hersteld ---------- */
+.gewicht__bovenkaart .cijfer-groot { font-size: var(--getal-hoofd); }
+.gewicht__bovenkaart .cijfer-groot.is-leeg { color: var(--c-text-muted); }
+.gewicht__bovenkaart .cijfer-groot__eenheid { font-size: var(--getal-eenheid); }
+.gewicht__invoer .stapper__waarde { font-size: var(--getal-invoer); width: 9rem; min-width: 0; padding: 0; }
+.gewicht__invoer .stapper__eenheid { font-size: .4em; }
+.gewicht__invoer .stapper__knop { width: var(--knop-h); height: var(--knop-h); }
+.gewichthoofd__verschil { margin-top: var(--s-2); color: var(--c-text); }
+.gewichtgrafiek { display: flex; flex-direction: column; gap: var(--s-4); }
+.gewichtgrafiek__vlak { position: relative; min-height: calc(var(--s-12) * 4 + var(--s-2)); }
+.gewicht__detail:empty { display: none; }
+.gewicht__gekozen { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; padding-top: var(--s-4); border-top: var(--lijn); }
+.gewicht__gekozenkg { font-family: var(--font-display); font-weight: 500; font-size: var(--fs-h1); line-height: 1.1; }
+.gewicht__acties { display: flex; align-items: center; gap: var(--s-2); }
+.streef { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; }
+.gewicht__invoer { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
+.gewicht__getal { cursor: text; }
+.gewicht__typveld { width: calc(var(--s-12) * 4); text-align: center; font-family: var(--font-display); font-size: var(--fs-h1); }
+.gewicht__hint { text-align: center; }
+.gewicht__raster .gewicht__hint { margin-top: var(--s-3); text-align: left; }
+.gewicht__lijstleeg { color: var(--c-text-muted); font-size: var(--fs-h2); line-height: 1.25; }
+/* De drie kaarten bovenaan hebben dezelfde bouw: kaartkop, een kern op dezelfde basislijn, een regel tekst en een actie onderaan */
+.gewicht__bovenkaart { display: flex; flex-direction: column; }
+.gewicht__kern { display: flex; align-items: flex-end; padding-bottom: var(--s-1); min-height: calc(var(--tile-size-groot) + var(--s-6)); }
+.gewicht__kern .cijfer-groot { line-height: 1.1; }
+.gewicht__kern .cijfer-groot { margin: 0; }
+.gewicht__regel { margin: var(--s-2) 0 var(--s-4); font-size: var(--fs-small); color: var(--c-text-muted); line-height: 1.4; }
+.gewicht__regel .gewichthoofd__verschil { margin: 0; }
+.gewicht__actie { margin-top: auto; }
+.gewicht__kern .streef { flex: 1; }
+.gewicht__lijst { display: flex; flex-direction: column; }
+/* BESLISSING 229: de lijst is zo hoog als haar inhoud (met een rustige scroll na drieënhalve rij) en "Goed om te weten" is een eigen kaart eronder; geen kaart rekt uit tot een leeg vlak */
+.gewicht__rijen { flex: 0 1 auto; max-height: calc(var(--tap-min) * 3.5); overflow-y: auto; overscroll-behavior: contain; }
+.gewicht__rijen > .rij { flex: none; }
+.gewicht__rijen:has(.gewicht__lijstleeg) { flex: 1 1 auto; display: flex; align-items: center; justify-content: center; text-align: center; }
+.gewicht__weetjes { display: flex; flex-direction: column; }
+.gewicht__toon { display: flex; justify-content: flex-start; margin-top: var(--s-1); }
+.gewicht__weetjes .rij { padding-block: var(--s-1); min-height: 0; }
+.gewicht__weetjes .rij__titel { font-size: var(--fs-small); line-height: 1.3; }
+/* Het actieve deel van de periodekeuze op Gewicht: de zachte duifblauwe tint */
+.gewichtgrafiek .segment__deel.is-actief { color: var(--c-weight-text); }
+.gewichtgrafiek .segment__deel.is-actief::before { background: var(--c-weight-soft); }
+.gewicht__lijst .leeg { flex: 1; justify-content: center; }
+.gewichtgrafiek--compact { position: relative; }
+@media (min-width: 1100px) {
+  /* Met nog geen twee wegingen is er geen lijn te tekenen: de grafiek is compact (zin en één punt), en Verloop, Je wegingen en "Goed om te weten" staan in een rij van gelijke hoogte */
+  .gewicht__raster--weinig .gewichtgrafiek { gap: var(--s-2); }
+  .gewichtgrafiek--compact .gewichtgrafiek__vlak { min-height: calc(var(--s-12) * 2.5); }
+  .gewichtgrafiek--compact .segment { position: absolute; top: var(--s-5); right: var(--s-6); width: calc(var(--s-12) * 6); }
+  .gewicht__raster--weinig .gewicht__weetjes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--s-6); align-content: start; }
+  .gewicht__raster--weinig .gewicht__weetjes > .kaartkop, .gewicht__raster--weinig .gewicht__weetjes > .gewicht__toon { grid-column: 1 / -1; }
+  .gewicht__raster--weinig .gewicht__weetjes > .rij { border-top: 0; }
+}
+

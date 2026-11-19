@@ -1,0 +1,139 @@
+/* ============================================================
+   De demo-balk (BESLISSING 364). Dit bestand wordt alleen in de demo geladen (src/demo/balk.js).
+   De balk is fixed bovenaan; de variabele --demo-balk-h (balk plus veilige zone boven) staat op <html> en schuift de schil omlaag.
+   Onderdelen die vast of sticky staan, tellen haar mee: zijbalk, schermkop, scrolpadding. De tabbalk staat onderaan en blijft.
+   Alleen var(--...) uit tokens.css (en env() voor de veilige zone).
+   ============================================================ */
+
+:root.demo {
+  --demo-balk-inhoud: 52px;   /* knop 44 px plus 4 px lucht boven en onder */
+  --demo-balk-h: calc(var(--demo-balk-inhoud) + env(safe-area-inset-top, 0px));
+  scroll-padding-top: var(--demo-balk-h);
+}
+/* Liggend op een telefoon is hoogte schaars: de balk blijft één regel en zo laag als het tikvlak toelaat. */
+@media (max-height: 500px) and (orientation: landscape) {
+  :root.demo { --demo-balk-inhoud: 48px; }
+}
+
+.demo-balk {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  z-index: 30;
+  box-sizing: border-box;
+  height: var(--demo-balk-h);
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  padding: env(safe-area-inset-top, 0px) max(var(--s-4), var(--safe-right)) 0 max(var(--s-4), var(--safe-left));
+  background: var(--c-surface-soft);
+  border-bottom: var(--lijn);
+  color: var(--c-text-muted);
+}
+
+.demo-balk__tekst {
+  flex: 1 1 auto;
+  min-width: 0;
+  margin: 0;
+  font-size: var(--fs-label);
+  line-height: 1.25;
+  color: var(--c-text-muted);
+}
+.demo-balk__zeker { color: var(--c-text); outline: none; }
+.demo-balk__kort { display: none; }
+@media (max-width: 559.98px) {
+  .demo-balk__lang { display: none; }
+  .demo-balk__kort { display: inline; }
+}
+@media (min-width: 720px) {
+  .demo-balk__tekst { font-size: var(--fs-small); }
+}
+
+/* Tikvlak 44 px: hoger dan de gewone kleine knop, smaller dan de gewone knop. */
+.demo-balk .knop {
+  flex: none;
+  height: 44px;
+  min-height: 44px;
+  min-width: 44px;
+  padding: 0 var(--s-4);
+  font-size: var(--fs-small);
+}
+.demo-balk.is-vraag .knop { padding: 0 var(--s-3); }
+/* BESLISSING 544: de knoppen Ja en Nee in de balk hebben als groep dezelfde zachte tint (zie de gedeelde regel voor knoppengroepen in componenten.css). */
+.demo-balk.is-vraag {
+  --knop-bg: var(--knop-zacht-bg);
+  --knop-fg: var(--knop-zacht-fg);
+}
+
+/* Het welkomscherm onder de balk (ook het voorbeeld van BESLISSING 675): het scherm vult de hoogte van het venster, en de balk nam daar bovenaan zijn
+   hoogte van af, zodat de pagina even ver kon scrollen als de balk hoog is (liggend op een telefoon viel de onderkant van de kaart buiten beeld).
+   Een doorzichtige rand zo hoog als de balk, met een even grote negatieve marge, schuift het vak onder de balk: de kaart (zelfde maat, zelfde opbouw)
+   staat in het midden van wat zichtbaar is en de pagina wordt niet hoger dan in de echte app. De rand telt mee in de minimale hoogte (border-box). */
+:root.demo #scherm > .welkom {
+  border-top: var(--demo-balk-h) solid transparent;
+  margin-top: calc(var(--demo-balk-h) * -1);
+}
+
+/* BESLISSING 682: in het kaartje "Dit is de demo" staat "Begrepen" alleen. Op de telefoon blijft hij over de volle breedte; vanaf 720 px (waar de
+   wisdialoog van de echte app haar knoppen naast elkaar zet) gecentreerd en zo breed als een gewone enkele hoofdknop (13rem, zoals Verder op het
+   welkomscherm en de enkele knoppen van het slot). Gevuld, want hij staat alleen. */
+@media (min-width: 720px) {
+  .dialoog--demo .dialoog__acties > .knop--breed { width: fit-content; min-width: min(100%, 13rem); max-width: 100%; align-self: center; }
+}
+
+/* BESLISSING 711: het kaartje "Dit is de demo" staat in het midden van de pagina, nooit tegen de onderkant. Dat doet nu de algemene regel voor elk
+   venster in componenten.css (.dialoog, BESLISSINGEN 717 en 718): op de staande tablet en vanaf 960 px in het midden, op de telefoon het kadertje. */
+
+/* BESLISSING 711: de balk tijdens het voorbeeld van het welkomscherm (675). Het welkomscherm zelf is exact het echte; alleen de balk past zich aan.
+   Op een gewoon scherm: de uitleg en de knop "Terug naar de demo" (52 px, het pijltje en het korte "Demo" zijn verborgen). */
+.demo-balk__terug .icoon, .demo-balk__terug-kort { display: none; }
+/* Lage schermen (tot 700 px hoog, telefoon en tablet): de balk is 36 px in plaats van 52 (liggend 48). De knop is zichtbaar 32 px hoog; een onzichtbaar
+   tikvlak maakt hem 44 px hoog: van de bovenrand tot 8 px onder de balk. Zo hoeft er op 390 x 660 niet meer gescrold te worden. */
+@media (max-height: 699.98px) and (max-width: 959.98px) {
+  :root.demo.demo-voorbeeld { --demo-balk-inhoud: 36px; }
+  .demo-balk.is-voorbeeld .knop { position: relative; height: 32px; min-height: 32px; padding: 0 var(--s-3); }
+  .demo-balk.is-voorbeeld .knop::after { content: ''; position: absolute; inset: -3px -1px -12px; } /* vanaf de binnenrand (1 px rand): 30 + 3 + 12 = 45, waarvan 44 in beeld */
+}
+/* Het laagste scherm (zoals 320 x 480): het echte welkomscherm vult daar het venster op 12 px na; elke balk, hoe dun ook, duwt de kaart onder de rand
+   (36 px gaf nog 27 px scrollen). Past de kaart met de balk niet in het venster, dan zet voorbeeld.js de klasse demo-voorbeeld--zweef op <html> (gemeten,
+   niet geraden: de kaart verandert van hoogte met de hoogte van het venster, dus een vaste grens liet op 360 x 520 en 320 x 640 nog scrollen). Dan neemt de
+   balk geen plaats in: alleen een klein gevuld knopje "Demo" met een pijltje naar links zweeft linksboven, op de lege hoek van de kaart (het logo staat in het midden).
+   Zichtbaar 36 px hoog, tikvlak 44 px. De pagina is dan even hoog als in de echte app. */
+:root.demo.demo-voorbeeld.demo-voorbeeld--zweef { --demo-balk-inhoud: 0px; }
+:root.demo-voorbeeld--zweef .demo-balk.is-voorbeeld {
+  inset: calc(env(safe-area-inset-top, 0px) + var(--s-2)) auto auto calc(env(safe-area-inset-left, 0px) + var(--s-2));
+  height: auto;
+  padding: 0;
+  background: none;
+  border: 0;
+}
+:root.demo-voorbeeld--zweef .demo-balk.is-voorbeeld :is(.demo-balk__tekst, .demo-balk__terug-lang) { display: none; }
+:root.demo-voorbeeld--zweef .demo-balk.is-voorbeeld :is(.demo-balk__terug .icoon, .demo-balk__terug-kort) { display: inline-flex; }
+:root.demo-voorbeeld--zweef .demo-balk.is-voorbeeld .knop { position: relative; height: 36px; min-height: 36px; gap: var(--s-1); padding: 0 var(--s-3) 0 var(--s-2); font-size: var(--fs-small); box-shadow: var(--shadow-float); }
+:root.demo-voorbeeld--zweef .demo-balk.is-voorbeeld .knop::after { content: ''; position: absolute; inset: -5px; } /* vanaf de binnenrand (1 px rand): 34 + 10 = 44 */
+
+/* De app begint onder de balk. De veilige zone boven zit al in de balk: de schil telt haar niet nog eens. */
+:root.demo .schil {
+  --safe-top: 0px;
+  padding-top: var(--demo-balk-h);
+}
+@media (min-width: 960px) {
+  :root.demo #zijbalk {
+    top: var(--demo-balk-h);
+    height: calc(100dvh - var(--demo-balk-h));
+  }
+}
+@media (max-width: 959px) {
+  :root.demo .schermkop { top: var(--demo-balk-h); }
+}
+
+/* De klevende kop van het Dagboek en het logo met de ronde knoppen schuiven onder de balk (hoorde eerst in layout.css; die bevat niets van de demo). */
+@media (max-width: 959px) {
+  :root.demo .dagboek > .dagboek__kop { top: var(--demo-balk-h); }
+}
+@media (max-width: 719px) {
+  :root.demo .vandaag > .vandaag__begroeting > .vandaag__logo, :root.demo .vandaag > .vandaag__begroeting > .knop.begroeting__delen { top: calc(var(--demo-balk-h) + var(--s-2)); }
+  /* het vlak achter het logo reikt ook over de balk heen */
+  :root.demo .vandaag > .vandaag__begroeting > .vandaag__logo::before { top: calc((var(--safe-top, 0px) + var(--s-2) + var(--demo-balk-h)) * -1); }
+}

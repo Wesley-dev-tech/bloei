@@ -1,0 +1,900 @@
+/* scherm-algemeen: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool. */
+
+/* BESLISSING 308: de rij kleine medailles op Algemeen toont er zoveel als in de kaart passen (src/schermen/meer.js meet de rij); de rest valt weg achter "+ x". */
+.meer__kleinemedailles > .is-weg { display: none; }
+.meer__rest { white-space: nowrap; } /* "+ 26" breekt nooit over twee regels */
+/* de rij bepaalt de breedte van haar kaart niet (anders rekt de kaart mee met alle medailles en meet het script een te brede rij) */
+.meer__raster > .kaart { min-width: 0; }
+.meer__kleinemedailles { min-width: 0; contain: inline-size; }
+.meer__favorieten .meer__favrijen > .is-weg { display: none; }
+
+/* BESLISSING 308, Algemeen onder 1440 px (de brede indeling blijft zoals ze is): geen uitgerekte rijen en geen leeg vlak in een kaart naast een buurkaart.
+   De favorieten (src/schermen/meer.js telt hoeveel rijen er passen) en de rijen van "Jouw instellingen" blijven tussen 64 en 80 px hoog; "Over" verdeelt een
+   eventueel restje over zijn blokken; de cijfers in de profielkaart staan met hun getal op één lijn, ook als een label over twee regels loopt. */
+@media (max-width: 1439.98px) {
+  .meer__cijfers.meer__stats { margin-top: var(--s-3); padding-top: var(--s-4); align-items: stretch; }
+  .meer__stats > .kerncijfer { align-items: stretch; }
+  .meer__stats .kerncijfer__tekst { justify-content: space-between; }
+  /* de labels van de kerncijfers ("Dagen bijgehouden") zijn in een smalle kolom van de drie volledig leesbaar: zonder letterruimte, het woord breekt nooit */
+  .meer__stats .kerncijfer__tekst > .label { letter-spacing: 0; overflow-wrap: normal; }
+}
+@media (min-width: 720px) and (max-width: 1439.98px) {
+  .meer__raster .meer__favorieten.meer__favorieten .meer__favrijen { flex: 1 1 0; min-height: 192px; margin-top: -4px; overflow: hidden; }
+  .meer__favorieten.meer__favorieten .meer__favrij { flex: 1 1 0; min-height: 64px; max-height: 80px; }
+  .meer__raster > .meer__menu.meer__menu { display: flex; flex-direction: column; }
+  .meer__raster > .meer__menu.meer__menu > .rij { flex: 1 1 64px; min-height: 64px; max-height: 80px; }
+  .meer__raster > .over.over { justify-content: space-between; }
+}
+
+/* Tussen 960 en 1440 px staat Favorieten naast Badges. Heeft Badges een "Laatst behaald" met een beschrijving over twee regels (zodra de eerste favoriet de badge
+   "Eerste favoriet" geeft), dan is die kaart 378 in plaats van 354 px hoog en rekt Favorieten mee (rijen 78 in plaats van 70 px): het lege vlak onder de kop
+   komt dan op 34,8 px. De rijen 4 px verder omhoog (de helft telt) houdt het in beide toestanden onder 32 px (31,4 en 27,5). */
+@media (min-width: 960px) and (max-width: 1439.98px) {
+  .meer__raster .meer__favorieten.meer__favorieten .meer__favrijen { margin-top: -8px; }
+}
+
+/* BESLISSING 271: kaart "Over", de korte regels onderaan horen bij elkaar. 8 px tussen de drie regels kleine tekst, 16 px vóór "Profiel verwijderen". */
+.over.over.over { gap: 0; }
+.meer__raster > .meer__menu.meer__menu > .rij { min-height: 0; height: 64px; padding-top: 0; padding-bottom: 0; margin-top: var(--s-1); align-items: center; box-sizing: border-box; }
+.meer__raster > .meer__menu.meer__menu > .rij:first-of-type { margin-top: 0; }
+.meer__raster > .meer__menu.meer__menu, .meer__raster > .over.over { align-self: stretch; height: auto; }
+.over.over > .over__logo { margin-bottom: var(--s-3); }
+.over.over > .over__tekst { margin-bottom: 20px; }
+@media (min-width: 720px) { .over.over > .over__tekst { margin-bottom: 32px; } }
+.over.over > .over__liefde { margin-bottom: var(--s-2); }
+.over.over > .over__liefde ~ .cijfer { margin-bottom: var(--s-4); }
+.over.over > .knop.knop--wis { margin-top: 0; }
+/* BESLISSING 427 en 436: de licentielink staat naast de versie op één regel (zelfde ruimte eronder als de versieregel vroeger had);
+   tikvlak van de link ≥ 44 px, de negatieve marge houdt de regel even hoog (alleen het tikvlak groeit). */
+.over.over > .over__licenties { margin-bottom: var(--s-4); }
+.over__licenties a { display: inline-flex; align-items: center; min-height: 44px; margin-block: -14px; }
+/* Op 720 tot 1279 px is de regel 288 px breed en vragen de drie delen samen 292 px: de link viel naar een tweede regel, onder de versie (x-annuleren-favoriet.spec.js, 820 px).
+   Het streepje krijgt 1 px minder ruimte aan elke kant en de letters van de link 0,1 px minder tussenruimte (samen 5 px): niets is te zien, alles past op één regel. */
+@media (min-width: 720px) and (max-width: 1279.98px) { .over__punt { margin-inline: -1px; } .over__licenties a { letter-spacing: -.1px; } }
+
+/* Kaart "Favorieten": een lijst met rijen over de volle binnenbreedte, elke rij even hoog, dunne lijnen ertussen; ze vult de hoogte van de buurkaart. */
+.meer__favorieten.meer__favorieten { text-align: left; }
+.meer__favorieten .meer__favrijen { flex: 1 1 auto; display: flex; flex-direction: column; margin: 0; padding: 0; list-style: none; }
+.meer__favorieten.meer__favorieten .meer__voet { padding-top: 0; }
+.meer__favorieten.meer__favorieten .meer__favrijen { margin-top: -8px; }
+@media (max-width: 1399.98px) { .meer__favorieten.meer__favorieten .meer__favrijen { margin-top: -10px; } } /* in de smallere kaart staan de rijen hoger (de kaart rekt mee met Badges, de rijen rekken dan ook, dus maar de helft van de marge telt): meer terug */ /* de eerste rij is minstens 60 px hoog met haar inhoud in het midden: 5 px terug, zodat het lege vlak onder de kop niet boven 32 px komt (BESLISSING 281) */
+/* BESLISSING 281: de kaart Thema begint 12 px onder de lijn, zonder eigen bovenmarge op de tegels. */
+.meer__themakaart.meer__themakaart > .meer__thema { margin-top: 0; }
+.meer__favorieten .meer__favrij { flex: 1 1 0; min-height: 60px; display: flex; align-items: center; gap: var(--s-4); }
+.meer__favorieten .meer__favrij + .meer__favrij { border-top: var(--lijn); }
+.meer__favorieten .meer__favtekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: var(--s-1); }
+.meer__favorieten .meer__favtekst > .rij__titel, .meer__favorieten .meer__favtekst > .rij__sub { line-height: 1.6; }
+.meer__favorieten .meer__favtekst > * { overflow: hidden; text-overflow: ellipsis; white-space: nowrap; display: block; }
+.meer__favorieten .meer__favrij .rij__pijl { flex: none; }
+.meer__favorieten .meer__voet { width: 100%; justify-content: space-between; }
+.meer__favorieten .meer__link { display: inline-flex; align-items: center; gap: var(--s-1); }
+.meer__favorieten.kaart--knop:hover .meer__link--plus .icoon { transform: none; }
+/* "Favoriet toevoegen" licht op zoals "Profiel verwijderen" (.knop--wis): alleen als de muis op de link zelf staat tilt de hele link (plusje en tekst) 1 px op en wordt het plusje iets groter en helderder */
+.meer__favorieten .meer__link--plus, .meer__favorieten .meer__link--plus .icoon { transition: transform var(--dur-fast) var(--ease), filter var(--dur-fast) var(--ease); }
+@media (hover: hover) { .meer__favorieten.kaart--knop .meer__link--plus:hover { transform: translateY(-1px); } .meer__favorieten.kaart--knop .meer__link--plus:hover .icoon { transform: scale(1.12); filter: brightness(1.35); } }
+@media (prefers-reduced-motion: reduce) { .meer__favorieten .meer__link--plus, .meer__favorieten .meer__link--plus .icoon { transition: none; } .meer__favorieten.kaart--knop .meer__link--plus:hover, .meer__favorieten.kaart--knop .meer__link--plus:hover .icoon { transform: none; } }
+/* BESLISSING 486: in de kaarten Naam en profielfoto, Badges en Favorieten licht bij aanwijzen van de KAART geen icoon op (het icoon in de kaartkop nooit).
+   De iconen in de rijen van Favorieten en de profielfoto lichten alleen op als de muis op hun eigen rij staat, nooit allemaal tegelijk. */
+.meer__profiel.kaart--knop:hover .kaartkop .tegel, .meer__badges.kaart--knop:hover .kaartkop .tegel, .meer__favorieten.kaart--knop:hover .tegel { transform: none; box-shadow: none; filter: none; }
+.meer__profiel .profielfoto { transition: transform var(--dur-fast) var(--ease), box-shadow var(--dur-fast) var(--ease); }
+@media (hover: hover) {
+  .meer__favorieten.kaart--knop .meer__favrij:hover .tegel { transform: scale(1.07); box-shadow: var(--shadow-float); }
+  .meer__profiel .meer__profielrij:hover .profielfoto { transform: scale(1.07); box-shadow: var(--shadow-float); }
+}
+@media (prefers-reduced-motion: reduce) { .meer__profiel .profielfoto { transition: none; } .meer__favorieten.kaart--knop .meer__favrij:hover .tegel, .meer__profiel .meer__profielrij:hover .profielfoto { transform: none; } }
+
+/* Delen: de vier onderdelen (Eten, Drinken, Gewicht, Notities) als vier gelijke opties met hun icoontegel: onder elkaar op een telefoon,
+   2x2 op een tablet en in één rij van vier op een breed scherm; geen scheve rij en geen leeg vlak. */
+.delen .delen__vinkjes { display: flex; flex-direction: column; gap: 0; }
+.delen .delen__optie { display: flex; align-items: center; gap: var(--s-3); width: 100%; min-width: 0; min-height: 60px; padding: 0; text-align: left; cursor: pointer; }
+.delen .delen__optie .rij__tekst { flex: 1; min-width: 0; }
+.delen .delen__optie .rij__sub { display: block; -webkit-line-clamp: unset; line-clamp: unset; overflow: visible; } /* vaste tekst: loopt door naar een tweede regel, nooit afgekapt */
+.delen .delen__titelrij { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); min-width: 0; }
+.delen .delen__tel { flex: none; font-size: var(--fs-small); line-height: 1.3; color: var(--c-text-muted); white-space: nowrap; }
+.delen .delen__tel:empty { display: none; }
+
+/* Delen, BESLISSING 300: twee kolommen. Links "Stel je verslag samen" (periode en onderdelen) en "Bewaren of versturen"; rechts het verslag, in een kaart
+   die precies zo hoog is als de linkerkolom (contain: size laat de rechterkaart niets bijdragen aan de rijhoogte) met het vel binnenin scrollend.
+   Onder 1100 px staat alles onder elkaar in de volgorde samenstellen, verslag, bewaren, met het vel op ± 60 % van het scherm. */
+.delen .delen__kolommen { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-6); align-items: start; }
+.delen .delen__samenstel, .delen .delen__bewaren, .delen .delen__verslag { min-width: 0; }
+.delen .delen__verslag { display: flex; flex-direction: column; }
+/* BESLISSING 331: de rechterkolom (het verslag, en bij een kort verslag ook "Goed om te weten" eronder) */
+.delen .delen__rechts { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; }
+.delen .delen__groep { display: flex; flex-direction: column; gap: var(--s-2); }
+.delen .delen__groep + .delen__groep { margin-top: var(--s-4); }
+.delen .delen__groeplabel { margin: 0; }
+.delen .delen__periode .chips { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--s-4); row-gap: var(--s-2); }
+.delen .delen__periode .chips .chip { justify-content: center; min-width: 0; padding-inline: var(--s-1); }
+.delen .delen__periode .chips .chip.delen__chip--breed { grid-column: 1 / -1; } /* BESLISSING 474: "Aangepast" alleen op de laatste rij, over de volle breedte van het raster */
+.delen .delen__periodevak { display: grid; margin-top: var(--s-1); }
+.delen .delen__periodewoorden, .delen .delen__eigen { grid-area: 1 / 1; margin: 0; }
+.delen .delen__periodewoorden { display: flex; flex-direction: column; justify-content: center; align-items: center; text-align: center; /* BESLISSING 558 */ gap: 2px; padding: var(--s-3) var(--s-4); border-radius: var(--r-md); background: var(--c-surface-soft); }
+/* BESLISSING 467: de gekozen periode en het aantal dagen zijn twee labels onder elkaar (.label, hoofdletters via css); een lang bereik breekt evenwichtig */
+.delen .delen__periodedatum { font-variant-numeric: lining-nums; }
+/* BESLISSING 473: voluit; een bereik breekt alleen na het streepje (elke helft blijft heel). Op een vak dat te smal is voor het langste bereik op één regel
+   is de hoogte van twee regels altijd gereserveerd, zodat het vak niet verspringt bij het wisselen van periode. */
+.delen .delen__periodedeel { white-space: nowrap; }
+.delen .delen__periodevak { container: periodevak / inline-size; }
+@container periodevak (max-width: 560px) { .delen .delen__periodedatum { min-height: calc(2 * 1.3em); } }
+.delen .delen__periodewoorden.is-uit, .delen .delen__eigen.is-uit { visibility: hidden; }
+.delen .delen__eind { display: inline; white-space: pre; }
+/* BESLISSING 317 en 331: onder 1100 px is het vel zo hoog als zijn inhoud en hoogstens 60 % van het scherm, dan scrolt het binnenin; de lege toestand heeft een vaste minimumhoogte. */
+.delen .delen__velhouder { position: relative; flex: none; }
+.delen .delen__velhouder .verslagvel { position: static; max-height: 60dvh; overflow: auto; overscroll-behavior: contain; }
+.delen .delen__velhouder .verslagvel.verslagvel--leeg { min-height: 20rem; }
+.delen .delen__velhouder.kan-verder .verslagvel { -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 64px), transparent); mask-image: linear-gradient(to bottom, black calc(100% - 64px), transparent); }
+.delen .verslagvel--leeg { display: flex; align-items: center; justify-content: center; text-align: center; }
+.delen .verslagvel .verslag__leeg { display: flex; flex-direction: column; align-items: center; gap: var(--s-3); padding: 0; }
+.delen .verslagvel .verslag__leegtekst { margin: 0; font-family: var(--font-display); font-style: italic; font-size: var(--fs-h2); color: var(--c-text); }
+.delen .verslagvel .verslag__leegtip { margin: 0; color: var(--c-text-muted); }
+
+/* Het vel (BESLISSING 306): dezelfde opbouw als de pdf, als één doorlopend blad: kop, titel met de periode, kerncijfers, gewicht, per dag een band met
+   daaronder één tabel (Onderdeel, Wat) op vaste kolommen, en de voet. Altijd het lichte papier (Poeder); de lijnen zijn die van de pdf
+   (de lijnkleur voor de helft naar de gedempte tekstkleur). De kolommen en de kerncijfers volgen de breedte van het vel (container), niet die van het scherm. */
+.verslagvel { --vel-lijn: color-mix(in srgb, var(--c-line) 50%, var(--c-text-muted)); container-type: inline-size; container-name: vel; padding: var(--s-6); font-size: var(--fs-small); line-height: 1.45; }
+.verslagvel__gedempt { color: var(--c-text-muted); }
+.verslagvel__kop { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); padding-bottom: var(--s-3); border-bottom: 1px solid var(--vel-lijn); }
+.verslagvel__merk { display: flex; align-items: center; gap: var(--s-2); }
+.verslagvel__woord { font-family: var(--font-display); font-style: italic; font-weight: 500; font-size: 1.375rem; line-height: 1; }
+.verslagvel__wie { display: flex; flex-wrap: wrap; align-items: center; gap: 0 var(--s-3); margin: 0; font-size: var(--fs-label); line-height: 1.4; }
+.verslagvel__naamkop { font-weight: 500; }
+.verslagvel__titel { margin: calc(var(--s-5) + var(--vel-titel, 0px) / 2) 0 var(--s-1); font-family: var(--font-display); font-weight: 500; font-size: 2rem; line-height: 1.15; text-wrap: balance; color: var(--c-text); }
+/* BESLISSING 461: onder de titel "Verslag" de periode als label (.label: hoofdletters, gespatieerd) */
+.verslagvel__periode { margin: 0 0 calc(var(--s-4) + var(--vel-titel, 0px) / 2); text-wrap: balance; }
+/* De kerncijfers (BESLISSING 315): exact even brede blokken over de volle breedte van het vel, het eerste op de linkerrand en het laatste tot de rechterrand
+   (de buitenste opvulling en de eerste lijn van elke rij vallen buiten de clip). Elk blok heeft dezelfde drie lijnen: label, getal met kleine eenheid, onderregel. */
+.verslagvel__cijfers { --vel-cp: var(--s-3); display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); margin: 0 calc(-1 * var(--vel-cp)); clip-path: inset(0 var(--vel-cp)); border-bottom: 1px solid var(--vel-lijn); }
+.verslagvel__cijfer { display: flex; flex-direction: column; gap: 2px; min-width: 0; padding: calc(var(--s-3) + var(--vel-kern, 0px) / 2) var(--vel-cp); border-top: 1px solid var(--vel-lijn); border-left: 1px solid var(--vel-lijn); }
+.verslagvel__cijfers--n1 { grid-template-columns: minmax(0, 1fr); }
+.verslagvel__cijfers--n3 .verslagvel__cijfer:last-child, .verslagvel__cijfers--n5 .verslagvel__cijfer:last-child { grid-column: 1 / -1; }
+.verslagvel__cijferlabel, .verslagvel__kolomkop, .verslagvel__gewichtrij--kop { font-size: 0.6875rem; font-weight: 500; letter-spacing: 0.06em; text-transform: uppercase; color: var(--c-text-muted); }
+.verslagvel__cijferlabel { white-space: nowrap; line-height: 1.3; }
+.verslagvel__cijferwaarde { display: flex; align-items: baseline; gap: 0; font-family: var(--font-display); font-size: 1.75rem; font-weight: 500; line-height: 1.1; color: var(--c-text); white-space: nowrap; }
+.verslagvel__cijfereenheid { font-family: var(--font-ui); font-size: 0.55em; font-weight: 400; line-height: 1; color: var(--c-text); }
+.verslagvel__cijferonder { font-size: 0.6875rem; line-height: 1.3; color: var(--c-text-muted); }
+/* Het gewicht (alleen bij twee of meer wegingen): een tabel over de volle breedte; Datum 34 %, Gewicht 16 %, Verschil met de vorige 26 %, met de eerste 24 %,
+   zoals in de pdf; getallen rechts uitgelijnd onder hun kop. */
+.verslagvel__gewicht { margin-top: var(--s-5); }
+.verslagvel__sectietitel { margin: 0 0 var(--s-2); font-family: var(--font-display); font-weight: 500; font-size: 1.25rem; line-height: 1.2; color: var(--c-text); }
+.verslagvel__gewichttabel, .verslagvel__dag { overflow: hidden; border: 1px solid var(--vel-lijn); border-radius: var(--r-sm); }
+.verslagvel__gewichtrij { display: grid; grid-template-columns: 34% 16% 26% 24%; padding: 6px var(--s-2); border-bottom: 1px solid var(--vel-lijn); }
+.verslagvel__gewichtrij:last-child { border-bottom: 0; }
+.verslagvel__gewichtrij > :nth-child(n + 2) { text-align: right; white-space: nowrap; }
+.verslagvel__kg { font-weight: 500; }
+/* De dagen (BESLISSING 316): per dag één afgelijnde tabel, in een kader: de band, de kolomkoprij (Maaltijd | Wat) en de rijen, met een verticale kolomlijn op
+   dezelfde plaats in elke dag (Maaltijd 24 %, Wat de rest; BESLISSING 336). Drinken is de afgescheiden voetrij. */
+.verslagvel__dagen { margin-top: calc(var(--s-5) + var(--vel-dagen, 0px)); }
+.verslagvel__kolomkop, .verslagvel__rij { display: grid; grid-template-columns: 24% minmax(0, 1fr); border-bottom: 1px solid var(--vel-lijn); }
+.verslagvel__kolomkop > span, .verslagvel__rij > span { min-width: 0; padding: 6px var(--s-2); }
+.verslagvel__rij > span { padding-block: calc(6px + var(--vel-rij, 0px) / 2); }
+.verslagvel__kolomkop > span + span, .verslagvel__rij > span + span { border-left: 1px solid var(--vel-lijn); }
+.verslagvel__kolomkop > span { white-space: nowrap; }
+.verslagvel__rij:last-child { border-bottom: 0; }
+.verslagvel__rij--leeg > span { border-left: 0 !important; }
+.verslagvel__dag { margin-top: var(--s-4); break-inside: avoid; }
+.verslagvel__dagen > .verslagvel__dag:first-child { margin-top: 0; }
+.verslagvel__band { display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-3); padding: 6px var(--s-2); background: var(--c-share-soft); border-bottom: 1px solid var(--vel-lijn); break-after: avoid; }
+.verslagvel__dagtitel { margin: 0; } /* BESLISSING 459: de dagkop is een label (.label) */
+.verslagvel__bandeind { flex: none; font-size: var(--fs-label); font-weight: 500; color: var(--c-text-muted); }
+.verslagvel__rij--leeg > .verslagvel__wat--breed { grid-column: 1 / -1; }
+.verslagvel__onderdeel { display: flex; align-items: flex-start; gap: 6px; min-width: 0; }
+.verslagvel__naam { min-width: 0; font-weight: 500; overflow-wrap: anywhere; }
+.verslagvel .tegel { width: 20px; height: 20px; border-radius: 7px; --t-bg: var(--c-share-soft); --t-fg: var(--c-share); } /* BESLISSING 373: elke tegel in het verslag is zacht lavendel met een donker lavendel icoon */
+.verslagvel .tegel .icoon { width: 11px; height: 11px; }
+.verslagvel__wat { min-width: 0; overflow-wrap: anywhere; }
+.verslagvel__notitie { white-space: pre-line; }
+.verslagvel__rij--drinken { box-shadow: inset 0 1px 0 var(--vel-lijn); }
+.verslagvel__rij--drinken .verslagvel__wat { display: grid; grid-template-columns: minmax(0, 1fr) 6rem; column-gap: var(--s-3); align-items: start; }
+.verslagvel__soorten { grid-column: 1 / -1; }
+.verslagvel__gehaald { white-space: nowrap; }
+.verslagvel__hoofd { font-weight: 500; }
+.verslagvel__balk { appearance: none; box-sizing: border-box; width: 100%; height: 6px; margin-top: 7px; border: 1px solid var(--vel-lijn); border-radius: 3px; background: var(--c-share-soft); overflow: hidden; }
+.verslagvel__balk::-webkit-progress-bar { background: var(--c-share-soft); }
+.verslagvel__balk::-webkit-progress-value { background: var(--c-share-licht); }
+.verslagvel__balk::-moz-progress-bar { background: var(--c-share-licht); }
+.verslagvel__geen { margin: var(--s-5) 0 0; color: var(--c-text-muted); }
+.verslagvel__voet { margin-top: calc(var(--s-6) + var(--vel-voet, 0px)); padding-top: var(--s-3); border-top: 1px solid var(--vel-lijn); font-size: var(--fs-label); color: var(--c-text-muted); }
+/* Kerncijfers per breedte van het vel: 5 in één rij vanaf 44rem, daaronder 3 + 2 (elke rij loopt tot de rechterrand: zes kolommen, drie keer twee en twee keer drie),
+   4 in één rij vanaf 40rem (anders 2 + 2), 3 in één rij vanaf 28rem; op een telefoon (smaller dan 21rem) staat elk kerncijfer op een eigen regel. */
+@container vel (min-width: 21rem) {
+  .verslagvel__cijfers--n5 { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .verslagvel__cijfers--n5 .verslagvel__cijfer { grid-column: span 2; }
+  .verslagvel__cijfers--n5 .verslagvel__cijfer:nth-child(n + 4) { grid-column: span 3; }
+}
+@container vel (min-width: 28rem) { .verslagvel__cijfers--n3 { grid-template-columns: repeat(3, minmax(0, 1fr)); } .verslagvel__cijfers--n3 .verslagvel__cijfer:last-child { grid-column: auto; } }
+@container vel (min-width: 40rem) { .verslagvel__cijfers--n4 { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+@container vel (min-width: 42rem) { .verslagvel__cijfers--n5 { grid-template-columns: repeat(5, minmax(0, 1fr)); } .verslagvel__cijfers--n5 .verslagvel__cijfer, .verslagvel__cijfers--n5 .verslagvel__cijfer:nth-child(n + 4) { grid-column: auto; } }
+@media (max-width: 559px) { .verslagvel { padding: var(--s-4) var(--s-3); } }
+@container vel (max-width: 34rem) {
+  .verslagvel__titel { font-size: 1.625rem; }
+  .verslagvel__cijfers { --vel-cp: var(--s-2); }
+  .verslagvel__cijfer { padding-block: var(--s-2); }
+  .verslagvel__cijferlabel { font-size: 0.625rem; letter-spacing: 0.04em; }
+  .verslagvel__cijferwaarde { font-size: 1.5rem; }
+  .verslagvel__wie { flex-direction: column; align-items: flex-start; }
+  /* de dagtabel blijft een tabel met twee kolommen: Maaltijd vast in rem, de tegeltjes vervallen */
+  .verslagvel__kolomkop, .verslagvel__rij { grid-template-columns: 6.25rem minmax(0, 1fr); }
+  .verslagvel__kolomkop > span, .verslagvel__rij > span, .verslagvel__gewichtrij { padding-inline: var(--s-2); }
+  .verslagvel .tegel { display: none; }
+  .verslagvel__rij--drinken .verslagvel__wat { grid-template-columns: minmax(0, 1fr) 3.5rem; column-gap: var(--s-2); }
+  /* het gewicht: korte koppen (Vorige, Eerste), de tekst blijft in de pagina */
+  .verslagvel__gewichtrij { grid-template-columns: 28% 20% 26% 26%; padding-inline: var(--s-1); font-size: 0.75rem; }
+  .verslagvel__gewichtrij--kop { font-size: 0.625rem; letter-spacing: 0.02em; }
+  .verslagvel__gewichtrij--kop > [data-kort] { font-size: 0; letter-spacing: 0; }
+  .verslagvel__gewichtrij--kop > [data-kort]::after { content: attr(data-kort); font-size: 0.625rem; letter-spacing: 0.04em; }
+}
+/* Op een telefoon is een blok te smal voor drie in een rij: elk kerncijfer op een eigen regel, label met onderregel links en het cijfer rechts. */
+@container vel (max-width: 20.99rem) {
+  .verslagvel__cijfers { grid-template-columns: minmax(0, 1fr); }
+  .verslagvel__cijfers .verslagvel__cijfer:nth-child(n) { grid-column: auto; display: grid; grid-template-columns: minmax(0, 1fr) auto; column-gap: var(--s-3); align-items: center; }
+  .verslagvel__cijferlabel { grid-column: 1; grid-row: 1; }
+  .verslagvel__cijferonder { grid-column: 1; grid-row: 2; }
+  .verslagvel__cijferwaarde { grid-column: 2; grid-row: 1 / span 2; }
+}
+/* BESLISSING 537: Versturen, Pdf bewaren en Afdrukken zijn drie even brede knoppen, gecentreerd in de kaart (niet van rand tot rand). Dezelfde techniek als de
+   gedeelde regel Knoppenrij (componenten.css): een raster van gelijke kolommen (minmax(0, 1fr)) in een houder zo breed als haar inhoud (fit-content), dus elke
+   knop is zo breed als de breedste tekst met haar icoon, en margin-inline: auto. Standaard staan ze onder elkaar (drie rijen, telefoon en smalle kolom); is de
+   kaart breed genoeg voor alle drie naast elkaar (container "bewaren", 29rem: drie keer 141 px plus twee tussenruimtes is 447 px), dan staan ze in een rij. Geen tekst wordt afgekapt: de knop is zo breed als zijn tekst. */
+.delen .delen__bewaren { container: bewaren / inline-size; }
+.delen .delen__knoppen { display: grid; grid-auto-flow: row; grid-auto-columns: minmax(0, 1fr); gap: var(--s-3); width: fit-content; max-width: 100%; margin: 0 auto; }
+.delen .delen__knoppen .knop { flex: none; width: 100%; min-width: 0; padding: 0 var(--s-4); justify-content: center; }
+.delen .delen__knoppen .knop__tekst { overflow: visible; text-overflow: clip; }
+.delen .delen__knoppen .knop .icoon { display: block; }
+/* BESLISSING 562: de drie knoppen staan ALTIJD met drie naast elkaar, op elk formaat, even breed en gecentreerd. In een smalle kaart (telefoon, en de
+   linkerkolom op desktop) met een kleinere letter en minder binnenruimte; in de smalste kaart zonder icoon, zodat geen tekst afgekapt wordt. */
+.delen .delen__knoppen { grid-auto-flow: column; }
+@container bewaren (max-width: 28.99rem) { .delen .delen__knoppen { gap: var(--s-2); } .delen .delen__knoppen .knop { padding: 0 var(--s-2); gap: var(--s-1); font-size: var(--fs-small); } }
+@container bewaren (max-width: 18.5rem) { .delen .delen__knoppen .knop .icoon { display: none; } }
+@media (min-width: 1100px) {
+  .delen .delen__kolommen { grid-template-columns: minmax(22.5rem, 1fr) minmax(0, 2fr); grid-template-rows: auto auto; align-items: stretch; }
+  .delen .delen__samenstel { grid-column: 1; grid-row: 1; }
+  .delen .delen__bewaren { grid-column: 1; grid-row: 2; }
+  .delen .delen__rechts { grid-column: 2; grid-row: 1 / span 2; contain: size; min-height: 0; }
+  .delen .delen__verslag { flex: 1 1 0; min-height: 0; }
+  .delen .delen__velhouder { flex: 1 1 0; height: auto; min-height: 0; }
+  .delen .delen__velhouder .verslagvel { position: absolute; inset: 0 0 auto 0; max-height: 100%; }
+  .delen .delen__velhouder .verslagvel.verslagvel--leeg { bottom: 0; min-height: 0; }
+  /* Kort verslag (BESLISSING 331): het vel en zijn kaart zijn zo hoog als hun inhoud, "Goed om te weten" eronder vult de rest van de kolom.
+     De variabelen (--vel-rij, --vel-voet, --weetje-rek, --weetjes-boven, --weetjes-onder) verdelen het restverschil, begrensd (delen.js). */
+  .delen .delen__rechts.is-kort .delen__verslag { flex: none; }
+  .delen .delen__rechts.is-kort .delen__velhouder { flex: none; }
+  .delen .delen__rechts.is-kort .delen__velhouder .verslagvel { position: static; max-height: none; overflow: visible; }
+  /* min-height blijft de inhoud (auto): de kaart krimpt nooit tot onder haar kop en weetjes, ook niet als de hoogte van de kolom nog van een vorige breedte is */
+  .delen .delen__rechts .delen__weetjes { flex: 1 1 auto; display: flex; flex-direction: column; }
+  /* BESLISSING 517: is de kaart hoger dan haar inhoud, dan krijgen de rijen weetjes gelijke ruimte boven, tussen en onder (geen één groot gat) */
+  .delen .delen__rechts .delen__weetjesrij { flex: 1 1 auto; align-content: space-evenly; margin-top: calc(-1px - var(--weetje-rek, 0px) / 2); }
+  .delen .delen__rechts .delen__weetjes.is-meet { flex: none; }
+  .delen .delen__rechts .delen__weetjesrij { padding-top: var(--weetjes-boven, 0px); padding-bottom: var(--weetjes-onder, 0px); column-gap: var(--s-4); }
+  .delen .delen__rechts .delen__weetjes--rij .delen__weetjesrij { grid-template-columns: repeat(3, minmax(0, 1fr)) max-content; }
+  .delen .delen__rechts .delen__weetjes--raster .delen__weetjesrij { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .delen .delen__rechts.is-strak .verslagvel__voet { margin-top: calc(var(--s-3) + var(--vel-voet, 0px)); }
+  .delen .delen__rechts.is-strak .verslagvel__dagen { margin-top: calc(var(--s-3) + var(--vel-dagen, 0px)); }
+  .delen .delen__rechts.is-strak .delen__weetjesrij { row-gap: var(--s-1); }
+  .delen .delen__rechts .weetje__tekst { white-space: normal; }
+  .delen .delen__rechts .weetje--link { width: auto; }
+}
+.delen .delen__weetjesrij > .weetje { padding-block: calc(var(--weetje-rek, 0px) / 2); }
+@media (max-width: 559px) { .delen .delen__paginas { display: none; } }
+@media print {
+  .delen .delen__kolommen { display: block !important; }
+  .delen .delen__verslag, .delen .delen__rechts { contain: none !important; }
+  .delen .delen__velhouder { position: static !important; height: auto !important; }
+  .delen .delen__velhouder .verslagvel { position: static; overflow: visible; -webkit-mask-image: none !important; mask-image: none !important; }
+  .delen .delen__weetjes { display: none !important; }
+  .verslagvel { padding: 0; }
+  .verslagvel__dag, .verslagvel__gewicht, .verslagvel__rij, .verslagvel__cijfers { break-inside: avoid; }
+  .verslagvel__kolomkop, .verslagvel__sectietitel { break-after: avoid; }
+}
+
+/* Delen: "Goed om te weten" (BESLISSING 297), dezelfde vorm en maten als op Drinken en Gewicht: vanaf 1600 px vier kolommen (drie weetjes en de link
+   rechts, zo breed als zijn tekst), van 600 tot 1599 px 2 x 2, op een telefoon onder elkaar. Alleen de link licht op bij hover. */
+.delen .delen__weetjesrij { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3) var(--s-6); padding-top: 0; margin-top: -1px; }
+@media (min-width: 600px) { .delen .delen__weetjesrij { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+@media (min-width: 1600px) { .delen .delen__weetjesrij { grid-template-columns: repeat(3, minmax(0, 1fr)) max-content; column-gap: var(--s-4); } .delen .weetje__tekst { white-space: nowrap; } .delen .weetje--link { width: auto; } }
+#scherm .delen .delen__weetjes.kaart { padding-bottom: var(--s-3); }
+.delen .weetje--link { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; position: relative; width: 100%; text-align: left; cursor: pointer; touch-action: manipulation; }
+.delen .weetje--link::after { content: ''; position: absolute; inset: -4px 0; }
+.delen .weetje--link .weetje__tekst { color: var(--c-accent-text); font-size: var(--fs-small); }
+
+/* Welkom (eerste start): één kaart, gecentreerd op het scherm, zo hoog als haar inhoud. De drie stappen staan in hetzelfde vak
+   boven elkaar (de hoogste bepaalt de hoogte), zodat de kaart niet verspringt en de knoppen op een vaste plaats blijven. */
+.welkom { min-height: calc(100dvh - var(--s-6) - var(--s-8) - var(--safe-top) - var(--safe-bottom)); display: flex; align-items: center; justify-content: center; }
+/* BESLISSING 660 tot 664: evenveel ruimte boven als onder de kaart. Zonder navigatie heeft #scherm 24 px boven en 32 px onder (layout.css); vanaf 960 px
+   32 px boven en onder. Het welkomscherm vult de rest (de binnenruimte telt mee in de hoogte), met boven 8 px binnenruimte op de telefoon, zodat de kaart precies in
+   het midden van het venster staat. */
+.welkom { padding-top: var(--s-2); box-sizing: border-box; }
+@media (min-width: 960px) { .welkom { padding-top: 0; min-height: calc(100dvh - var(--s-8) - var(--s-8) - var(--safe-top) - var(--safe-bottom)); } }
+.welkom .welkom__kaart { width: 100%; max-width: 520px; display: flex; flex-direction: column; gap: var(--s-5); padding: var(--s-6) var(--s-5); text-align: center; }
+@media (min-width: 640px) { .welkom .welkom__kaart { padding: var(--s-8); gap: var(--s-6); } }
+/* De twee houders (links de kop en de stapaanduiding, rechts de stappen en de knoppen) zijn alleen op een liggende telefoon een kolom; op elke andere maat
+   tellen ze niet mee, zodat er niets verschuift. */
+.welkom .welkom__kol { display: contents; }
+.welkom .welkom__kop { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
+.welkom .welkom__titel { margin: var(--s-2) 0 0; }
+.welkom .welkom__intro { margin: 0; max-width: 32ch; color: var(--c-text-muted); text-wrap: balance; }
+.welkom .welkom__voortgang { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
+.welkom .welkom__bolletjes { display: flex; gap: var(--s-2); }
+.welkom .welkom__bolletje { width: var(--s-2); height: var(--s-2); border-radius: 50%; background: var(--c-accent-soft); transition: background-color var(--dur) var(--ease); }
+.welkom .welkom__bolletje.is-actief { background: var(--c-accent); }
+.welkom .welkom__staptekst { margin: 0; }
+.welkom .welkom__stappen { display: grid; }
+.welkom .welkom__stap { grid-area: 1 / 1; display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; opacity: 0; visibility: hidden; transition: opacity var(--dur) var(--ease), visibility 0s var(--dur); }
+.welkom .welkom__stap.is-actief { opacity: 1; visibility: visible; transition: opacity var(--dur) var(--ease); }
+.welkom .welkom__vraag { margin: 0; }
+.welkom .welkom__hint { margin: 0; }
+.welkom .welkom__bediening { margin: var(--s-3) 0 var(--s-3); min-height: var(--tap-min); display: flex; align-items: center; justify-content: center; }
+.welkom .welkom__naamveld { position: relative; width: 100%; }
+.welkom .welkom__naamveld .veld__invoer { text-align: center; }
+/* De hint staat onder het veld in de ruimte tussen veld en knop en verandert dus niets aan de hoogte van de kaart. */
+.welkom .welkom__melding { position: absolute; top: 100%; left: 0; right: 0; margin: var(--s-1) 0 0; line-height: 1.2; color: var(--c-text-muted); }
+.welkom .welkom__melding:empty { display: none; }
+.welkom .welkom__bediening .weegdagen--breed { margin: 0; width: 100%; }
+.welkom .welkom__bediening .stapper { gap: var(--s-4); }
+.welkom .welkom__bediening .stapper__waarde { min-width: calc(var(--s-12) * 2); text-align: center; outline: none; }
+.welkom .welkom__knoppen { display: flex; flex-direction: column; gap: var(--s-2); }
+.welkom .welkom__knoppen > .knop { width: 100%; }
+.welkom .welkom__rij { display: flex; justify-content: space-between; align-items: center; margin: 0 calc(var(--s-3) * -1) calc(var(--s-2) * -1); }
+.welkom .welkom__kaart { padding-bottom: var(--s-4); }
+@media (min-width: 640px) { .welkom .welkom__kaart { padding-bottom: var(--s-6); } }
+.welkom .welkom__rij .is-weg { visibility: hidden; }
+/* BESLISSING 450, stap 4: "Vergrendeling instellen" en "Nu niet" zijn even breed en even hoog (minstens 48 px), onder elkaar over de volle breedte. */
+.welkom .welkom__knoppen > .knop { min-height: 48px; }
+.welkom .welkom__knoppen > .is-weg { visibility: hidden; }
+/* BESLISSING 512 (herzien): elke stap is even groot (de kaart houdt de hoogte van de hoogste stap en de knoppen staan op een vaste plaats); de inhoud van een
+   kortere stap staat verticaal in het midden van die ruimte, zodat de leegte gelijk boven en onder verdeeld is. */
+.welkom .welkom__stap { justify-content: center; }
+/* BESLISSING 513: de kaart is korter, op elk toestel. De hoogste stap (de vergrendeling) bepaalt de hoogte van alle stappen en is daarom compacter: de twee keuzes
+   tonen alleen hun naam (de uitlegregel blijft voor een schermlezer), met minder binnenruimte; de kaart heeft minder lucht tussen haar delen; en
+   overal staan "Vergrendeling instellen" en "Nu niet" naast elkaar, even breed en even hoog. */
+.welkom .slot__optiehint { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; border: 0; }
+.welkom .slot__optie { position: relative; padding-block: var(--s-2); min-height: 52px; }
+.welkom .welkom__kaart.welkom__kaart { gap: var(--s-4); padding-top: var(--s-5); }
+/* BESLISSING 669: binnen een stap overal dezelfde tussenruimte van 16 px (tussen de vraag en de uitleg, de uitleg en de bediening, en via de tussenruimte van de
+   kaart tussen de bediening en de knoppen); de bediening heeft geen eigen marge meer. De compacte maten hieronder houden 8 px. */
+.welkom .welkom__bediening { margin-block: 0; }
+.welkom .welkom__stap { gap: var(--s-4); }
+/* de twee knoppen van de laatste stap naast elkaar: op een smalle telefoon krijgt "Vergrendeling instellen" de breedte van haar tekst en "Nu niet" de rest;
+   vanaf 480 px zijn ze even breed. In de andere stappen loopt "Verder" over de volle breedte. */
+.welkom .welkom__knoppen { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: var(--s-2); }
+.welkom .welkom__knoppen > .knop { min-width: 0; padding-inline: var(--s-4); }
+.welkom .welkom__knoppen > .knop:first-child:has(+ .is-weg) { grid-column: 1 / -1; }
+.welkom .welkom__knoppen > .knop.is-weg { display: none; }
+.welkom .welkom__knoppen > .welkom__rij { grid-column: 1 / -1; }
+/* BESLISSING 529: de knoppen van het welkomscherm zijn niet over de volle breedte uitgesmeerd: "Verder" is zo breed als een gewone knop en staat in het midden;
+   de twee knoppen van de laatste stap zijn even breed en staan samen in het midden; "Terug" en "Overslaan" staan naast elkaar in het midden, niet op de randen. */
+.welkom .welkom__knoppen { justify-content: center; }
+.welkom .welkom__knoppen > .knop:first-child:has(+ .is-weg) { justify-self: center; width: min(100%, 13rem); }
+.welkom .welkom__rij.welkom__rij { justify-content: center; gap: var(--s-5); margin-inline: 0; min-height: 48px; } /* de rij houdt haar hoogte, ook zonder zichtbare knop, zodat elke stap even hoog blijft */
+.welkom .welkom__rij.welkom__rij .is-weg { display: none; }
+@media (min-width: 960px) { .welkom .welkom__rij.welkom__rij { min-height: 44px; } }
+@media (min-width: 480px) { .welkom .welkom__knoppen { grid-template-columns: repeat(2, minmax(0, 11rem)); } }
+/* BESLISSING 660 tot 664: "Vergrendeling instellen" en "Nu niet" vormen een groep en zijn op elke breedte even breed (hoogstens 11rem, samen in het midden),
+   ook op een smalle telefoon (513 liet "Nu niet" daar smaller). Past de tekst niet op een regel, dan breekt ze in de knop (twee regels passen in de hoogte
+   van de knop, zoals "Opnieuw proberen" en "Alleen de pincode" in dezelfde stap); de kaart wordt er niet hoger door. */
+.welkom .welkom__knoppen.welkom__knoppen { grid-template-columns: repeat(2, minmax(0, 11rem)); }
+.welkom .welkom__knoppen > .knop { height: auto; padding: 0 var(--s-2); white-space: normal; line-height: 1.2; text-align: center; }
+.welkom .welkom__knoppen > .knop .knop__tekst { min-width: 0; overflow-wrap: break-word; }
+/* Een knop die alleen staat, blijft gevuld (BESLISSING 544): "Verder" in stap 1 tot 3 staat alleen (Terug en Overslaan zijn tekstknoppen); alleen in de
+   laatste stap vormen "Vergrendeling instellen" en "Nu niet" een groep in de zachte tint (componenten.css). */
+.welkom .welkom__knoppen:has(> .welkom__nuniet.is-weg) { --knop-bg: inherit; --knop-fg: inherit; }
+/* BESLISSING 514: op een telefoon staan de twee keuzes naast elkaar, zonder icoontegel, zodat de hoogste stap (en dus elke stap) lager is. */
+@media (max-width: 479.98px) {
+  .welkom .welkom__bediening :has(> .slot__optie) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); align-items: stretch; }
+  .welkom .slot__optie { padding: var(--s-2) var(--s-3); min-height: 48px; gap: var(--s-2); text-align: left; }
+  .welkom .slot__optie > .tegel { display: none; }
+  .welkom .welkom__kop { gap: var(--s-1); }
+}
+/* Het cijferblok na "Vergrendeling instellen" past in dezelfde kaart: de kaart houdt de hoogte die ze had (gezet in welkom.js), het blok is compacter
+   (toetsen 46 px hoog, nog altijd boven het tikdoel van 44 px) en staat in het midden van de vrije ruimte. */
+.welkom .welkom__stappen { flex: 1 1 auto; }
+/* met het cijferblok open maken de inleidende zin en de vraag plaats (de voortgang "Stap 4 van 4" blijft staan), zodat het blok in de kaart past */
+.welkom .welkom__kaart.is-code .welkom__intro, .welkom .welkom__kaart.is-code .welkom__stap.is-actief > .welkom__vraag { display: none; }
+.welkom .welkom__kaart.is-code { overflow: hidden; }
+.welkom .slot__instel { gap: var(--s-2); }
+.welkom .cijferblok { gap: var(--s-3); }
+.welkom .cijferblok__rooster { gap: var(--s-2); max-width: 264px; }
+.welkom .cijferblok__toets, .welkom .cijferblok__vrij { min-height: 46px; }
+.welkom .cijferblok__toets { font-size: 1.375rem; }
+.welkom .welkom__slotvak { width: 100%; }
+.welkom .welkom__slotmelding:empty { display: none; }
+/* BESLISSING 660 tot 664, de deelstappen van het slot: met het cijferblok open maakt de kop (logo en titel) plaats, zoals al bij de herstelcode en bij
+   "Dat lukte niet" (BESLISSING 518). Zo staan de drie deelstappen gelijk onder "Stap 4 van 4" en past ook het cijferblok met de zin over Face ID (of de
+   vingerafdruk) in de kaart: daar viel "Annuleren" eerder onder de kaart weg. */
+.welkom .welkom__kaart.is-code .welkom__kop { display: none; }
+/* De melding na een mislukte poging ("Dat lukte niet ...") staat op de plaats van de zin over de herstelcode, in hetzelfde vak: de kaart wordt er niet hoger
+   door (eerder 50 px hoger) en de knoppen blijven op hun plaats. */
+.welkom .welkom__slot.welkom__slot { display: grid; grid-template-columns: minmax(0, 1fr); }
+.welkom .welkom__slot > :is(.welkom__slotlater, .welkom__slotmelding) { grid-area: 2 / 1; margin: 0; }
+.welkom .welkom__slot:has(> .welkom__slotmelding:not(:empty)) > .welkom__slotlater { visibility: hidden; }
+
+/* BESLISSING 660 tot 664, een lage staande telefoon (zichtbare hoogte tot 600 px: 360x560, 445x580, 320x480) en een laag breed venster (500 tot 600 px hoog:
+   1280x560, 1024x560): dezelfde voorwaarden en dezelfde compacte maten als de slotschermen daar (BESLISSING 644 en 654), zodat elke stap zonder scrollen in beeld
+   staat. Vaste regels voor alle stappen: 8 px boven en onder de pagina, 16 px binnenruimte in de kaart, 8 px (--s-2) tussen alle delen, logo 26 px, knoppen
+   44 px, de twee keuzes van de vergrendeling naast elkaar zonder icoontegel (zoals op een smalle telefoon). */
+@media (max-height: 600px) and (max-aspect-ratio: 1/1), (min-aspect-ratio: 1/1) and (min-height: 500.02px) and (max-height: 600px) {
+  .schil[data-nav] #scherm:has(> .welkom) { padding-top: calc(var(--s-2) + var(--safe-top)); padding-bottom: calc(var(--s-2) + var(--safe-bottom)); }
+  .welkom.welkom { padding-top: 0; min-height: calc(100dvh - var(--s-4) - var(--safe-top) - var(--safe-bottom)); }
+  .welkom { --knop-h: 44px; }
+  .welkom .welkom__kaart.welkom__kaart { padding: var(--s-4); gap: var(--s-2); }
+  .welkom .welkom__kop { gap: var(--s-1); }
+  .welkom .welkom__kop .logo { --logo-t: 26px !important; }
+  .welkom .welkom__titel { margin-top: 0; }
+  .welkom .welkom__bediening.welkom__bediening { margin-block: 0; }
+  .welkom .welkom__stap { gap: var(--s-2); }
+  .welkom .welkom__knoppen > .knop { min-height: 44px; }
+  .welkom .welkom__rij.welkom__rij { min-height: 44px; margin-bottom: 0; }
+  .welkom .welkom__bediening :has(> .slot__optie) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); align-items: stretch; }
+  .welkom .slot__optie { padding: var(--s-2) var(--s-3); min-height: 44px; gap: var(--s-2); text-align: left; }
+  .welkom .slot__optie > .tegel { display: none; }
+}
+/* De laagste staande telefoon (320x480): ook zo is de kaart te hoog. Daar staat de titel in de maat van een kaarttitel (22 px, zoals op het slotscherm), de
+   inleidende zin in de kleine letter (14 px), de stapaanduiding op een regel, 12 px binnenruimte boven en onder in de kaart en cijfertoetsen van 44 px (zoals het slot daar, BESLISSING 649). */
+@media (max-height: 500px) and (max-aspect-ratio: 1/1) {
+  .welkom .welkom__kaart.welkom__kaart { padding-block: var(--s-3); }
+  .welkom .welkom__kop .logo { --logo-t: 24px !important; }
+  .welkom .welkom__titel { font-size: var(--fs-h2); }
+  .welkom .welkom__intro { font-size: var(--fs-small); line-height: 1.4; }
+  .welkom .welkom__voortgang { flex-direction: row; justify-content: center; }
+  .welkom .cijferblok__toets, .welkom .cijferblok__vrij { min-height: 44px; }
+}
+
+/* BESLISSING 667, de liggende telefoon (844x390, 667x375, 568x320): twee kolommen volgens dezelfde vaste regels als de slotschermen liggend (BESLISSING 654
+   en 660 tot 662, slot.css):
+   - twee kolommen van gelijke breedte (21rem, kleiner als het venster smaller is) met 32 px ertussen, samen in het midden van de kaart;
+   - links het logo, de titel, de inleidende zin en de stapaanduiding; rechts de vraag met haar uitleg en bediening, en de knoppen;
+   - beide kolommen op dezelfde middenlijn, met evenveel ruimte boven als onder het blok;
+   - 8 px tussen alle delen, 16 px binnenruimte in de kaart en 8 px boven en onder de pagina;
+   - elke brede knop vult zijn kolom ("Verder" alleen, het paar van stap 4 samen); logo 26 px, knoppen 44 px, cijfertoetsen 46 px.
+   De houders .welkom__kol (welkom.js) zijn hier de twee kolommen; op elke andere maat tellen ze niet mee. */
+@media (min-aspect-ratio: 1/1) and (max-height: 500px) {
+  .schil[data-nav] #scherm:has(> .welkom) { max-width: none; padding-top: calc(var(--s-2) + var(--safe-top)); padding-bottom: calc(var(--s-2) + var(--safe-bottom)); }
+  .welkom.welkom { padding-top: 0; min-height: calc(100dvh - var(--s-4) - var(--safe-top) - var(--safe-bottom)); }
+  .welkom { --knop-h: 44px; }
+  .welkom .welkom__kaart.welkom__kaart {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 21rem));
+    column-gap: var(--s-8);
+    row-gap: 0;
+    justify-content: center;
+    align-items: center;
+    width: 100%;
+    max-width: calc(2 * 21rem + var(--s-8) + 2 * var(--s-4));
+    padding: var(--s-4);
+  }
+  .welkom .welkom__kol { display: flex; flex-direction: column; justify-content: center; gap: var(--s-2); min-width: 0; }
+  .welkom .welkom__kop { gap: var(--s-2); }
+  .welkom .welkom__kop .logo { --logo-t: 26px !important; }
+  .welkom .welkom__titel { margin-top: 0; font-size: var(--fs-h2); }
+  .welkom .welkom__intro { max-width: none; text-wrap: pretty; }
+  .welkom .welkom__stap { gap: var(--s-2); }
+  .welkom .welkom__bediening.welkom__bediening { margin-block: 0; }
+  /* de knoppen: "Verder" alleen vult de kolom, het paar van stap 4 samen ook (even breed); Terug en Overslaan als tekstknoppen in het midden */
+  .welkom .welkom__knoppen.welkom__knoppen { grid-template-columns: repeat(2, minmax(0, 1fr)); width: 100%; }
+  .welkom .welkom__knoppen > .knop { min-height: 44px; }
+  .welkom .welkom__knoppen > .knop:first-child:has(+ .is-weg) { width: 100%; justify-self: stretch; }
+  .welkom .welkom__rij.welkom__rij { min-height: 44px; margin-bottom: 0; }
+  .welkom .welkom__bediening :has(> .slot__optie) { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); align-items: stretch; }
+  .welkom .slot__optie { padding: var(--s-2) var(--s-3); min-height: 44px; gap: var(--s-2); text-align: left; }
+  .welkom .slot__optie > .tegel { display: none; }
+
+  /* De deelstappen (het cijferblok, de herstelcode en "Dat lukte niet"): de kop maakt plaats (zoals staand). Links de stapaanduiding en de tekst van de
+     deelstap (met de meldingsregel en Annuleren, zoals bij "Een nieuwe code" op het slot), rechts het cijferblok (228 px) of de knoppen. De houders tot
+     en met de deelstap tellen dan niet mee: hun delen zijn zelf vakken van de twee kolommen. De eerste en de laatste rij zijn flexibel en vangen het
+     verschil in hoogte op, zodat beide kolommen op dezelfde middenlijn staan. */
+  .welkom .welkom__kaart.is-code { grid-template-rows: 1fr repeat(8, auto) 1fr; align-items: center; justify-items: center; }
+  /* met het cijferblok rechts: de rechterkolom zo breed als het cijferblok, de linkerkolom niet breder dan haar langste zin (hoogstens 21rem), zodat er tussen
+     de tekst en de toetsen geen groter leeg vlak staat dan de 32 px (zoals "Een nieuwe code" op het slot) */
+  .welkom .welkom__kaart.is-code:has(.cijferblok) { grid-template-columns: fit-content(min(21rem, calc(100% - var(--s-8) - 228px))) 228px; }
+  .welkom .welkom__kaart.is-code::before { content: ""; grid-column: 1; grid-row: 1; }
+  .welkom .welkom__kaart.is-code::after { content: ""; grid-column: 1; grid-row: -2 / -1; }
+  .welkom .welkom__kaart.is-code :is(.welkom__kol, .welkom__stappen, .welkom__stap.is-actief, .welkom__bediening, .welkom__slotvak, .welkom__slotvak > .slot__instel) { display: contents; }
+  .welkom .welkom__kaart.is-code .welkom__stap:not(.is-actief) { display: none; }
+  .welkom .welkom__kaart.is-code :is(.welkom__voortgang, .welkom__slotvak > .slot__instel > *) { grid-column: 1; margin: var(--s-2) 0 0; max-width: 100%; }
+  .welkom .welkom__kaart.is-code .welkom__voortgang.welkom__voortgang { margin-top: 0; }
+  .welkom .welkom__kaart.is-code .welkom__slotvak > .slot__instel > :is(.cijferblok, .slot__kant, .herstel__keuze) { grid-column: 2; grid-row: 1 / -1; margin: 0; width: 100%; }
+  .welkom .welkom__kaart.is-code .slot__kant { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
+  /* een lege meldingsregel neemt geen plaats; ze blijft bestaan, zodat een schermlezer de melding hoort */
+  .welkom .welkom__kaart.is-code .slot__instel > .slot__boodschap:empty { margin: 0; min-height: 0; }
+  .welkom .welkom__kaart.is-code :is(.slot__uitleg, .slot__eerlijk, .slot__boodschap, .herstel__uitleg) { line-height: 1.4; text-wrap: pretty; }
+  /* de tekst van elke deelstap in dezelfde letter (staand staat de uitleg bij de herstelcode en bij "Dat lukte niet" kleiner om in de hoogte te passen) */
+  .welkom .welkom__kaart.is-code .welkom__slotvak > .slot__instel > :is(.slot__uitleg, .slot__eerlijk) { font-size: var(--fs-body); }
+  .welkom .welkom__kaart.is-code :is(.herstel__keuze, .herstel__knoppen) { gap: var(--s-2); width: 100%; }
+  .welkom .welkom__kaart.is-code .herstel__keuze { display: grid; grid-template-columns: minmax(0, 1fr); }
+  .welkom .welkom__kaart.is-code :is(.herstel__keuze, .slot__kant) > .knop--breed { width: 100%; min-width: 0; max-width: none; align-self: stretch; }
+  .welkom .cijferblok, .welkom .cijferblok__rooster { gap: var(--s-2); }
+  .welkom .cijferblok__rooster { max-width: 228px; }
+  .welkom .cijferblok__toets, .welkom .cijferblok__vrij { min-height: 46px; }
+  .welkom .welkom__kaart.is-code :is(.herstel__keuze, .herstel__knoppen) > .knop { min-height: 44px; }
+}
+/* De laagste liggende telefoon (568x320): ook in twee kolommen is de rechterkolom van stap 4 (de hoogste) daar 294 px hoog, en er is 320 px. Daar is de
+   binnenruimte van de kaart 8 px (zoals de tussenruimte overal) en de ruimte boven en onder de kaart 4 px; links en rechts van de kaart 8 px, zodat de
+   kolommen er wat breder zijn. */
+@media (min-aspect-ratio: 1/1) and (max-height: 360px) {
+  .schil[data-nav] #scherm:has(> .welkom) {
+    padding: calc(var(--s-1) + var(--safe-top)) max(var(--s-2), var(--safe-right)) calc(var(--s-1) + var(--safe-bottom)) max(var(--s-2), var(--safe-left));
+  }
+  .welkom.welkom { min-height: calc(100dvh - var(--s-2) - var(--safe-top) - var(--safe-bottom)); }
+  .welkom .welkom__kaart.welkom__kaart { padding: var(--s-2); max-width: calc(2 * 21rem + var(--s-8) + 2 * var(--s-2)); }
+}
+/* BESLISSING 668: "Vingerafdruk" (88 px in de gewone letter) past op een smalle telefoon en liggend op een regel in zijn keuzevak. Waar de twee keuzes naast
+   elkaar staan, is de binnenruimte links en rechts 8 px (was 12): zo is er naast het rondje plaats vanaf 140 px per keuze (360 px breed). Waar een keuze
+   smaller is (320 px breed: 120 px; liggend 568x320 en 667x375: 122 en 137 px) staan beide namen in de kleine letter (14 px), met een rondje van 18 px
+   en 4 px ertussen. Pincode en Face ID staan er in dezelfde maat. */
+@media (max-width: 479.98px), (min-aspect-ratio: 1/1) and (max-height: 500px) {
+  .welkom .slot__optie.slot__optie { padding-inline: var(--s-2); }
+}
+@media (max-width: 359.98px), (min-aspect-ratio: 1/1) and (max-height: 500px) and (max-width: 699.98px) {
+  .welkom .slot__optie.slot__optie { gap: var(--s-1); }
+  .welkom .slot__optie .slot__optielabel { font-size: var(--fs-small); }
+  .welkom .slot__optie .slot__radio { width: 18px; height: 18px; }
+}
+/* Liggend staan de uitleg van de stap en de zin onder de keuzes in dezelfde regelhoogte als de teksten van de slotschermen liggend (1,4). */
+@media (min-aspect-ratio: 1/1) and (max-height: 500px) {
+  .welkom :is(.welkom__hint, .welkom__slotlater, .welkom__slotmelding) { line-height: 1.4; }
+}
+
+/* BESLISSING 308, instellingenschermen op aanraking (iPhone en iPad, op elke breedte): alles wat je aantikt heeft een tikvlak van minstens 44 px:
+   de knoppen in een rij (Zetten, Wissen, Foto kiezen) en de stappers + en - (anders 36 en 40 px vanaf 960 px). Op een scherm met muis blijft het zoals het was.
+   Het voorbeeld is geen bediening: de weekstaven in het voorbeeld van Drinken zijn niet aan te tikken. */
+@media (hover: none) {
+  :is(.instellingen__drinken, .instellingen__gewicht, .instellingen__profiel, .favorieten__nieuw, .favorieten__lijst, .slot__kaart) { --knop-klein-h: 44px; }
+  .instelscherm :is(.instellingen__drinken, .instellingen__gewicht) .stapper__knop { width: 44px; height: 44px; } /* layout.css laadt na dit bestand: dus een klasse meer */
+}
+.drinkvoorbeeld .weekstaaf { pointer-events: none; }
+@media (max-width: 1439.98px) { .profiel__knoppen { gap: var(--s-2); } }
+/* "Zo ziet het eruit" op Naam en profielfoto: de vier vakken (Eten, Drinken, Supplementen, Stemming) staan in een smal voorbeeld 2 x 2, zodat de labels niet over elkaar lopen. */
+.profielvoorbeeld { container: profielvoorbeeld / inline-size; }
+@media (max-width: 1439.98px) { @container profielvoorbeeld (max-width: 519px) { .instelscherm .profielvoorbeeld__vakken { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--s-4); } } }
+/* Vergrendeling, uitgeschakelde groep "Openen met": de uitleg (kop, naam en hint van Pincode en Face ID) blijft leesbaar in het gewone gedempte tekstkleur-token;
+   alleen de bediening (de keuzerondjes) en de icoontegels zien er uitgeschakeld uit. Geen doorzichtigheid op de tekst (contrast 2,4 tot 3,8 : 1 daarvoor). */
+.instelscherm .slot__groep.is-uit .slot__optie, .instelscherm .slot__groep.is-uit .slot__groepkop, .instelscherm .slot__groep .slot__optie:disabled { opacity: 1; }
+.instelscherm .slot__groep.is-uit .slot__radio, .instelscherm .slot__groep.is-uit .slot__optie .tegel { opacity: .5; }
+.instelscherm .slot__groep.is-uit .slot__optiehint, .instelscherm .slot__groep.is-uit .slot__groepkop { color: var(--c-text-muted); }
+
+/* Drinken, "Zo ziet het eruit": in een smal voorbeeld (iPad liggend, 960 tot 1100 px) staan de dranken 2 x 3 (anders breekt "Iets anders" over twee regels naast
+   buren op één regel) en vervalt de herhaling "dagdoel 2,5 l" in de kop van de week (staat al in de zin erboven). */
+.drinkvoorbeeld { container: drinkvoorbeeld / inline-size; }
+@container drinkvoorbeeld (max-width: 269px) {
+  .drinkvoorbeeld__dranken { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .drinkvoorbeeld .weekkaart .kaartkop__eind { display: none; }
+}
+/* Favorieten, "Zo ziet het eruit": in een smal voorbeeld valt de hint "Invullen" weg (hij liep over de naam van de maaltijd). */
+.favorietvoorbeeld { container: favorietvoorbeeld / inline-size; }
+@container favorietvoorbeeld (max-width: 299px) { .favorietvoorbeeld .maaltijd__invullen { display: none; } }
+/* Naam en profielfoto, smalle voorbeelden (iPad liggend in gesplitste weergave, 960 tot 1100 px): de vier vakken staan onder elkaar, en de rij met de foto laat haar knoppen
+   op een eigen regel staan zodat de tekst ervoor niet tot 15 px wordt ingedrukt. Drinken op een slide-over van 320 px: de stapper staat onder de tekst van zijn rij. */
+@media (max-width: 1439.98px) { @container profielvoorbeeld (max-width: 259px) { .instelscherm .profielvoorbeeld__vakken { grid-template-columns: minmax(0, 1fr); row-gap: var(--s-3); } } }
+/* Naam en profielfoto vanaf 720 px: het naamveld heeft een vaste breedte van 12rem. Zonder die breedte volgde het de eigen breedte van het invoerveld (width: 100% in een
+   flex-item zonder vaste maat), en die is in WebKit groter dan in Chrome (263 tegen 216 px op 1280 px): de tekst ervoor werd er 47 px smaller door en brak op twee regels. */
+@media (min-width: 720px) { .instelscherm .instellingen__profiel .profiel__naam { width: 12rem; } }
+@media (min-width: 960px) and (max-width: 1099.98px) {
+  .instelscherm .instellingen__profiel > .rij { flex-wrap: wrap; }
+  .instelscherm .instellingen__profiel > .rij > .rij__tekst { flex: 1 1 calc(100% - var(--tile-size) - var(--s-4)); }
+  .instelscherm .instellingen__profiel > .rij > .rij__eind { flex: 1 1 100%; justify-content: flex-start; margin-left: 0; }
+  .instelscherm .instellingen__profiel .profiel__naam { width: 100%; min-width: 0; }
+}
+@media (max-width: 359.98px) {
+  .instelscherm .instellingen__drinken > .rij { flex-wrap: wrap; }
+  .instelscherm .instellingen__drinken > .rij > .rij__tekst { flex: 1 1 calc(100% - var(--tile-size) - var(--s-4)); }
+  .instelscherm .instellingen__drinken > .rij > .rij__eind { flex: 1 1 100%; justify-content: flex-end; margin-left: 0; }
+}
+/* Naam en profielfoto: de begroeting in het voorbeeld heeft genoeg regelhoogte als de naam naar een tweede regel loopt. */
+@media (max-width: 1439.98px) { .profielvoorbeeld .profielvoorbeeld__groet { line-height: 1.2; } }
+/* Algemeen onder 1440 px: past een kaart met medailles niet in drie kolommen, dan twee (zoals op een telefoon), anders loopt de derde medaille over de rand van de kaart. */
+.meer__badges { container: meerbadges / inline-size; }
+@container meerbadges (max-width: 459px) {
+  .meer__medailles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .meer__medailles > :nth-child(3) { display: none; }
+}
+@media (min-width: 720px) and (max-width: 1439.98px) { .meer__raster > .meer__menu.meer__menu { justify-content: space-between; } }
+/* 960 tot 1024 px: Favorieten en Badges staan naast elkaar en de menukaart rekt mee tot 610 px (rijen blijven 80 px). Met space-between kwam de hele restruimte tussen tegel en
+   eerste rij (38 px, grens 34); space-evenly verdeelt ze ook boven en onder de rijen (33 px). Daaronder en daarboven blijft het zoals het was. */
+@media (min-width: 960px) and (max-width: 1023.98px) { .meer__raster > .meer__menu.meer__menu { justify-content: space-evenly; } }
+/* Badges, het blad bij een tik op een medaille, op een telefoon liggend (390 px hoog of minder): het blad was 443 px hoog (een medaille van 132 px, ruime tussenruimte) en scrolde in het
+   venster. Nu 303 px: medaille 72 px, kleinere tussenruimte, en het kadertje houdt 8 px rand boven en onder in plaats van 16 px plus 8 % onderaan (telefoon.css). Titel, kruisje en Sluiten staan zonder scrollen in beeld. */
+@media (orientation: landscape) and (max-height: 480px) and (max-width: 959.98px) { /* dezelfde telefoon liggend als in telefoon.css */
+  dialog.dialoog:has(.medailleblad):not(.dialoog--statisch):not(.dialoog--venster):not(#slot *) {
+    inset-block: calc(var(--safe-top) + var(--s-2)) calc(var(--safe-bottom) + var(--s-2));
+    max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - var(--s-2) * 2);
+  }
+  dialog.dialoog:has(.medailleblad):not(#slot *) .dialoog__blad { gap: var(--s-2); padding-block: var(--s-4); }
+  dialog.dialoog:has(.medailleblad) .dialoog__acties { margin-top: 0; }
+  .medailleblad { gap: var(--s-2); }
+  .medailleblad .medaille { --m: 72px !important; }
+  .medailleblad .medaille .medaille__icoon svg { width: calc(var(--m) * .36); height: calc(var(--m) * .36); }
+}
+/* Algemeen, kaart Badges: staat er maar één medaille, dan staat die in een eigen kolom (het label "Laatst behaald" breekt dan niet over twee regels). */
+.meer__medailles:has(> :only-child) { grid-template-columns: minmax(0, 1fr); }
+/* Badges: op een telefoon is de ruimte tussen de grote medaille en de telling klein genoeg voor één blok. */
+.badgescherm .badgehero { row-gap: var(--s-3); }
+/* BESLISSING 500, Badges op een telefoon: de twee uitgelichte medailles (132 px, gezet in medaille.js) waren te groot voor de pagina. Onder 720 px zijn ze 84 px,
+   met het icoon en de naam ernaast in verhouding. De maat staat als --m in de stijl van het element, vandaar !important (zoals bij de medailles op Vandaag). */
+@media (max-width: 719.98px) {
+  .badgescherm .badgehero .medaille { --m: 84px !important; }
+  .badgescherm .badgehero .medaille .medaille__icoon svg { width: calc(var(--m) * .36); height: calc(var(--m) * .36); }
+  .badgescherm .badgehero__laatst { gap: var(--s-4); }
+  .badgescherm .badgehero__naam.t-h1 { font-size: var(--fs-h2); line-height: var(--lh-tight); }
+  /* BESLISSING 502: de telling en de twee kerncijfers (Bijgehouden, Op rij) in verhouding met de pagina: de twee cijfers naast elkaar en een maat kleiner */
+  .badgescherm .badgehero__reeks { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-3); }
+  .badgescherm .badgehero__reeks > .badgehero__telling { grid-column: 1 / -1; font-size: var(--fs-body); }
+  .badgescherm .badgehero__reeks .kerncijfer__getal { font-size: var(--fs-h1); }
+  .badgescherm .badgehero__reeks .kerncijfer .tegel { --tile-size: 32px; }
+  /* het label boven het icoon; eronder het icoon met het cijfer en "dagen" ernaast, op één lijn */
+  .badgescherm .badgehero__reeks .kerncijfer { display: grid; grid-template-columns: auto minmax(0, 1fr); align-items: center; column-gap: var(--s-3); row-gap: var(--s-2); }
+  .badgescherm .badgehero__reeks .kerncijfer > .kerncijfer__tekst { display: contents; }
+  .badgescherm .badgehero__reeks .kerncijfer .label { grid-column: 1 / -1; grid-row: 1; margin: 0; }
+  .badgescherm .badgehero__reeks .kerncijfer > .tegel { grid-column: 1; grid-row: 2; }
+  .badgescherm .badgehero__reeks .kerncijfer .kerncijfer__waarde { grid-column: 2; grid-row: 2; margin: 0; }
+}
+/* Alle badges behaald (geen "Volgende"): de medaille links, haar naam, datum en de regel "Alle 33 badges behaald." ernaast over de volle breedte van de kaart; het label op één regel. */
+.meer__medailles--alles .meer__medaillelabel { white-space: nowrap; }
+.meer__medailles--alles .medaille-bijschrift { display: grid; grid-template-columns: auto minmax(0, 1fr); grid-template-rows: auto auto auto; align-content: center; column-gap: var(--s-4); row-gap: var(--s-1); align-items: center; width: 100%; }
+.meer__medailles--alles .medaille-bijschrift > .medaille-hover, .meer__medailles--alles .medaille-bijschrift > .medaille { grid-column: 1; grid-row: 1 / span 3; }
+.meer__medailles--alles .medaille-bijschrift > :not(.medaille-hover):not(.medaille) { grid-column: 2; min-width: 0; }
+.meer__medailles--alles .meer__allebehaald { margin-top: var(--s-1); color: var(--c-accent-text); }
+
+/* Kaart Privacy op Algemeen (BESLISSING 339): een vierde rij over de volle breedte, onder "Jouw instellingen" en "Over" (die even hoog blijven, BESLISSING 311).
+   De zeven regels (tegel en één of twee zinnen, de vorm van de weetjes) staan in een brede kaart 3 + 2 + 2, zodat elke rij tot de rechterrand loopt en er geen
+   leeg vak overblijft; in een smalle kaart onder elkaar. De kolommen volgen de breedte van de kaart zelf. */
+@media (min-width: 720px) {
+  .meer__raster.meer__raster { grid-template-areas: "profiel thema" "badges fav" "menu over" "privacy privacy"; }
+  .meer__raster > .privacy { grid-area: privacy; }
+}
+.privacy__regels { container: privacyregels / inline-size; }
+.privacy .privacy__lijst { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4) var(--s-6); margin: 0; padding: 0; list-style: none; }
+/* zes regels in één raster van gelijke cellen: 3 x 2 op een brede kaart, 2 x 3 op een middelbrede, 1 x 6 op een smalle; nooit een lege cel */
+@container privacyregels (min-width: 480px) { .privacy .privacy__lijst { grid-template-columns: repeat(2, minmax(0, 1fr)); grid-auto-rows: 1fr; row-gap: var(--s-3); } } /* alle rijen even hoog: gelijke rijafstand; één kolom heeft zijn natuurlijke hoogte */
+@container privacyregels (min-width: 860px) { .privacy .privacy__lijst { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+
+/* BESLISSINGEN 308 en 345, instellingenschermen Gewicht en Favorieten van 960 tot 1440 px (iPad liggend, kleine laptop; de brede indeling vanaf 1440 px blijft zoals ze is). */
+@media (min-width: 960px) and (max-width: 1439.98px) {
+  /* BESLISSING 345 (src/schermen/instel-balans.js zet .is-balans, alleen op Gewicht en Favorieten): het voorbeeld is zo hoog als de linkerkolom en vult het verschil met
+     echte inhoud (de grafiek groeit mee, bij Favorieten staan er meer maaltijden); "Goed om te weten" staat in de kolom waar de kolommen het gelijkst door eindigen
+     (links, of onder het voorbeeld). */
+  .instelscherm.is-balans > .instel__voorbeeld { contain: none; overflow: visible; align-self: stretch; }
+  .instelscherm.is-balans.is-meet > * { align-self: start; }
+  .instelscherm.is-balans .instel__voorbeeldinhoud { justify-content: flex-start; gap: var(--s-5); }
+  .instelscherm.is-balans > .instel__voorbeeld > .instel__weetjes { flex: none; margin-top: var(--s-6); }
+  .instelscherm.is-balans > .instel__voorbeeld .instel__weetjesrij { grid-template-columns: minmax(0, 1fr); }
+  .instelscherm.is-balans > .instel__voorbeeld .instel__weetjes .tegel { background: var(--c-surface); } /* op het zachte vlak van het voorbeeld heeft de tegel zijn eigen ondergrond */
+  /* Gewicht: de grafiek (ook de lege, met rasterlijnen) rekt mee; de lijnen houden hun dikte. */
+  .instelscherm.is-balans .gewvoorbeeld__grafiekhouder > .gewvoorbeeld__grafiek { flex: 1 1 auto; height: 100%; min-height: 96px; }
+  .instelscherm.is-balans .gewvoorbeeld__grafiek line { vector-effect: non-scaling-stroke; }
+  .instelscherm.is-balans .gewvoorbeeld__raster { opacity: .7; }
+  /* Favorieten: de maaltijden verdelen het verschil (elke rij 56 tot 80 px); de extra maaltijden toont instel-balans.js alleen als er plaats voor is. */
+  .instelscherm.is-balans .favorietvoorbeeld__maaltijden { flex: 1 1 auto; }
+  .instelscherm.is-balans .favorietvoorbeeld__maaltijden .rij { flex: 1 1 56px; max-height: 80px; }
+}
+.gewvoorbeeld__raster { stroke: var(--c-line); stroke-width: 1; opacity: 0; }
+.favorietvoorbeeld__maaltijden .rij.is-weg { display: none; }
+
+/* BESLISSING 296: op de instellingenschermen reageert alleen wat je kan aantikken. Rijen zonder tik (div.rij) lichten niet op. */
+@media (hover: hover) { .instelscherm .rij:not(.rij--knop):hover .tegel { transform: none; box-shadow: none; } }
+/* BESLISSING 296: "Goed om te weten" op de instellingenschermen: statische blokken (tegel links, tekst ernaast) in 2x2 (drie weetjes plus als laatste
+   blok "Toon het me" met het vraagteken); onder 600 px onder elkaar. Het blok is zo hoog als zijn inhoud, de kaart erboven vult de rest. */
+.instelscherm .instel__lijst > .instel__weetjes--blokken { flex: 0 0 auto; margin-top: auto; }
+/* BESLISSING 362: de kop van "Goed om te weten" is de gewone kaartkop (icoontegel, titel, lijn eronder: 8 px onder de titel, 12 px onder de lijn, zoals kaartkop-lijn.css);
+   de lijn erboven vervalt, anders staan er twee lijnen onder elkaar. */
+.instelscherm .instel__lijst > .instel__weetjes--blokken, .instelscherm > .instel__voorbeeld > .instel__weetjes--blokken { border-top: 0; padding-top: 0; }
+.instelscherm .instel__weetjes--blokken > .kaartkop { box-sizing: content-box; min-height: var(--tile-size); padding-bottom: var(--s-2); margin-bottom: var(--s-3); border-bottom: var(--lijn); }
+.instelscherm .instel__weetjesrij { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3) var(--s-6); align-items: start; }
+@media (min-width: 600px) { .instelscherm .instel__weetjesrij { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.instelscherm .instel__weetjesrij .weetje--link { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; text-align: left; cursor: pointer; touch-action: manipulation; justify-self: stretch; width: 100%; gap: var(--s-3); color: var(--c-accent-text); }
+.instelscherm .instel__weetjesrij .weetje--link .weetje__tekst { color: var(--c-accent-text); font-size: var(--fs-small); }
+
+/* ---------- Herinneringen (#/meer/meldingen): alleen selectors die met .meldingen beginnen ---------- */
+.meldingen .meldingen__intro { margin: 0 0 var(--s-3); }
+/* De hoofdschakelaar en elke soort: tegel plus schakelaar op één rij; het uur eronder op een eigen rij, uitgelijnd met de tekst erboven. */
+.meldingen .instel__lijst .meldingen__soort, .meldingen .instel__lijst .meldingen__hoofd { height: calc(64px + var(--rij-rek, 0px)); min-height: 0; padding-block: var(--s-2); }
+.meldingen .instel__lijst .meldingen__uur { border-top: 0; height: calc(56px + var(--rij-rek, 0px)); min-height: 0; padding-block: 0; padding-left: calc(var(--tile-size) + var(--s-4)); }
+.meldingen .meldingen__uur .rij__tekst { flex: 1; min-width: 0; }
+.meldingen .meldingen__uur .rij__eind { flex: none; }
+.meldingen .meldingen__uur .tijdveld__invoer { min-height: var(--tap-min); }
+.meldingen .rij > .schakelaar { min-height: 44px; }
+.meldingen .meldingen__stappen { list-style: none; margin: var(--s-2) 0 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-3); }
+.meldingen .meldingen__stap { display: flex; align-items: center; gap: var(--s-4); min-height: var(--tap-min); border-top: var(--lijn); padding-top: var(--s-3); }
+.meldingen .meldingen__nr { flex: none; display: inline-flex; align-items: center; justify-content: center; width: var(--tile-size); height: var(--tile-size); border-radius: 50%; background: var(--c-accent-soft); color: var(--c-accent-text); font-family: var(--font-display); font-size: var(--fs-h2); line-height: 1; }
+
+/* Het voorbeeld: een nagebootst vergrendeld scherm met de melding erop; het vlak vult de kaart, de inhoud staat bovenaan. */
+.meldingen .meldingen__telefoon { position: relative; display: flex; flex-direction: column; gap: var(--s-3); padding: calc(var(--s-6) + var(--klok-lucht, 0px) / 2) var(--s-3) var(--s-6); border-radius: var(--r-md); overflow: hidden; min-height: 0; }
+.meldingen .meldingen__behang { position: absolute; inset: 0; background: var(--c-accent-soft); }
+.meldingen .meldingen__telefoon > :not(.meldingen__behang) { position: relative; }
+.meldingen .meldingen__klok { margin: var(--s-2) 0 0; text-align: center; font-family: var(--font-display); font-size: calc(var(--fs-hero) * 1.1); line-height: 1; color: var(--c-text); }
+.meldingen .meldingen__datum { margin: 0 0 var(--s-3); text-align: center; color: var(--c-text-muted); }
+.meldingen .meldingen__melding { display: flex; align-items: flex-start; gap: var(--s-3); padding: var(--s-3) var(--s-4); background: var(--c-surface); border-radius: var(--r-md); box-shadow: var(--shadow-card); }
+.meldingen .meldingen__app { flex: none; display: inline-flex; width: 36px; height: 36px; align-items: center; justify-content: center; border-radius: var(--r-sm); background: var(--c-surface-soft); }
+.meldingen .meldingen__inhoud { display: flex; flex-direction: column; gap: 2px; min-width: 0; flex: 1; }
+.meldingen .meldingen__kop { display: flex; justify-content: space-between; gap: var(--s-3); }
+.meldingen .meldingen__titel { font-weight: 500; }
+.meldingen .meldingen__tekst { overflow-wrap: anywhere; line-height: 1.35; }
+.meldingen .meldingen__slotnota { margin: 0; text-align: center; }
+/* BESLISSINGEN 318 en 322: geen omhullende kaart; losse kaarten in twee kolommen, elk zo hoog als haar inhoud (nooit uitgerekt).
+   Links de kaart met de schakelaars; rechts het voorbeeld met "Goed om te weten" direct eronder. */
+.meldingen .instelscherm { align-items: start; gap: var(--s-6); padding: 0; background: none; box-shadow: none; border-radius: 0; }
+.meldingen .instelscherm .instel__lijst, .meldingen .instelscherm aside.instel__voorbeeld, .meldingen .instelscherm .meldingen__goed { padding: var(--s-6); background: var(--c-surface); border: 0; border-radius: var(--r-md); box-shadow: var(--shadow-card); contain: none; overflow: visible; align-self: stretch; width: auto; min-width: 0; box-sizing: border-box; }
+.meldingen .instelscherm .meldingen__rechts, .meldingen .instelscherm .meldingen__links { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; align-self: start; }
+/* De stapel meldingen in het nagebootste scherm: één compact kaartje per tijdstip; de variabelen verdelen het restverschil met de linkerkolom (begrensd). */
+.meldingen .meldingen__stapel { margin-top: calc(var(--klok-lucht, 0px) / 2); display: flex; flex-direction: column; gap: calc(var(--s-2) + var(--stapel-gat, 0px)); }
+.meldingen .meldingen__stapel > .meldingen__melding { padding: calc(var(--s-2) + var(--stapel-hoog, 0px) / 2) var(--s-3); align-items: center; }
+.meldingen .meldingen__stapel > .meldingen__melding[hidden] { display: none; }
+.meldingen .meldingen__stapel .meldingen__tekst { display: block; overflow: visible; line-height: 1.3; font-size: var(--fs-small); }
+.meldingen .meldingen__stapel .meldingen__app { width: 32px; height: 32px; }
+.meldingen .meldingen__melding--gedempt { opacity: .6; }
+.meldingen .meldingen__nog { margin: 0; text-align: center; }
+.meldingen .meldingen__nog[hidden] { display: none; }
+/* BESLISSING 751: op de telefoon (dezelfde grens als telefoon.css: smal, of liggend en laag) toont het voorbeeld de eerste twee meldingen, zodat het
+   tijdens de rondleiding samen met de uitlegkaart in beeld past. display: none haalt de andere ook weg voor een schermlezer. De regel "en nog N" voor
+   de telefoon telt vanaf de derde melding; die voor vier kaartjes (één kolom op een tablet) vervalt daar. Tablet en desktop: ongewijzigd. */
+.meldingen .meldingen__nog--telefoon { display: none; }
+@media (max-width: 719.98px), (max-width: 959.98px) and (max-height: 500px) {
+  .meldingen .meldingen__stapel > .meldingen__melding:nth-child(n + 3) { display: none; }
+  .meldingen .meldingen__stapel > .meldingen__nog--vier { display: none; }
+  .meldingen .meldingen__stapel > .meldingen__nog--telefoon:not([hidden]) { display: block; }
+  /* Met twee kaartjes is 24 px lucht boven en onder te ruim voor het kleine vlak: overal 16 px (boven de klok, tussen datum en stapel, onder de stapel). */
+  .meldingen .meldingen__telefoon { padding-block: var(--s-4); }
+  .meldingen .meldingen__klok { margin-top: 0; }
+  .meldingen .meldingen__datum { margin-bottom: var(--s-1); }
+}
+.meldingen .meldingen__goed--raster .meldingen__weetjes { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: calc(var(--s-2) + var(--weetje-rek, 0px)) var(--s-6); }
+.meldingen .meldingen__goed--rij3 .meldingen__weetjes { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-6); }
+.meldingen .meldingen__goed--rij3 .meldingen__weetje, .meldingen .meldingen__goed--rij3 .meldingen__weetje:first-child, .meldingen .meldingen__goed--rij3 .meldingen__weetje:last-child { padding: 0; border-top: 0; align-items: flex-start; }
+.meldingen .meldingen__bijschrift { margin-top: var(--s-4); padding-top: var(--s-3); border-top: var(--lijn); }
+.meldingen .meldingen__bijschrift[hidden] { display: none; }
+.meldingen .meldingen__bijschrift .meldingen__weetje { padding: 0; border-top: 0; }
+.meldingen .meldingen__goed--raster .meldingen__weetje,.meldingen .meldingen__goed--raster .meldingen__weetje:first-child, .meldingen .meldingen__goed--raster .meldingen__weetje:last-child { padding: 0; border-top: 0; align-items: flex-start; }
+/* Uitgeschakelde, statische rijen (zonder werkende schakelaars): gedempt, geen hover, niet aanklikbaar. */
+.meldingen .meldingen__straks { margin: var(--s-1) 0 0; }
+.meldingen .meldingen__nep { opacity: .5; pointer-events: none; cursor: default; user-select: none; }
+.meldingen .instelscherm aside.instel__voorbeeld > .kaart, .meldingen .instelscherm aside.instel__voorbeeld .instel__groei, .meldingen .instelscherm aside.instel__voorbeeld .instel__groei > * { flex: none; }
+@media (max-width: 719px) { .meldingen .instelscherm { gap: var(--s-5); } .meldingen .instelscherm .instel__lijst, .meldingen .instelscherm aside.instel__voorbeeld, .meldingen .instelscherm .meldingen__goed { padding: var(--s-5); } .meldingen .instelscherm .meldingen__rechts, .meldingen .instelscherm .meldingen__links { gap: var(--s-5); } }
+/* "Goed om te weten": de vier weetjes onder elkaar, tegel links, tekst ernaast, dunne lijnen ertussen. */
+.meldingen .meldingen__weetjes { display: flex; flex-direction: column; }
+.meldingen .meldingen__weetje { display: flex; align-items: flex-start; gap: var(--s-4); padding: calc(var(--s-3) + var(--weetje-rek, 0px) / 2) 0; border-top: var(--lijn); }
+.meldingen .meldingen__weetje:first-child { border-top: 0; padding-top: 0; }
+.meldingen .meldingen__weetje:last-child { padding-bottom: 0; }
+.meldingen .meldingen__weetjetekst { min-width: 0; font-size: var(--fs-small); } /* de plaats ten opzichte van de tegel: componenten.css (BESLISSING 568) */
+/* In een brede kaart (de linkerkolom) staan de weetjes 2x2, in een smalle (de rechterkolom) onder elkaar. */
+@media (min-width: 960px) {
+  .meldingen .instelscherm .instel__lijst { padding-top: var(--s-6); }
+}
+
+/* Tijdstippen van drinken en supplementen: schakelaar met het nummer, het uur en een knop om het tijdstip weg te halen; compacte rijen, ingesprongen onder de soort. */
+.meldingen .instel__lijst .meldingen__slot { border-top: 0; height: calc(56px + var(--rij-rek, 0px)); min-height: 0; padding-block: 0; padding-left: calc(var(--tile-size) + var(--s-4)); gap: var(--s-3); }
+.meldingen .meldingen__slot .schakelaar { min-height: 44px; }
+.meldingen .meldingen__slot .schakelaar__label { font-size: var(--fs-small); }
+.meldingen .meldingen__slotveld { flex: none; display: inline-flex; }
+.meldingen .meldingen__slot .tijdveld__invoer { min-height: var(--tap-min); width: calc(var(--s-12) * 2.4); }
+.meldingen .meldingen__weg { flex: none; width: var(--tap-min); height: var(--tap-min); color: var(--c-text-muted); }
+.meldingen .instel__lijst .meldingen__toevoegen { border-top: 0; height: calc(52px + var(--rij-rek, 0px)); min-height: 0; padding-block: 0; padding-left: calc(var(--tile-size) + var(--s-4)); }
+.meldingen .instel__lijst .meldingen__toevoegen .knop { height: var(--tap-min); min-height: 44px; }
+.meldingen .instel__lijst .rij:not(.meldingen__soort, .meldingen__hoofd, .meldingen__uur, .meldingen__slot, .meldingen__toevoegen, .meldingen__details) { min-height: 0; padding-block: var(--s-1); }
+/* Telefoon: de tijdstiprijen gebruiken de hele breedte, zodat de schakelaar niet onder het uur verdwijnt. */
+@media (max-width: 480px) {
+  .meldingen .instel__lijst .meldingen__slot { padding-left: 0; gap: var(--s-2); }
+  .meldingen .meldingen__slot .schakelaar__label { white-space: nowrap; }
+  .meldingen .meldingen__slot .tijdveld__invoer { width: calc(var(--s-12) * 1.9); }
+}
+/* Heel smalle telefoon (320): de schakelaar en het kruisje krimpen nooit; het tijdveld en de tussenruimte geven mee. 360 en breder blijven zoals ze zijn. */
+.meldingen .meldingen__slot .schakelaar__baan, .meldingen .meldingen__slot .meldingen__slotveld, .meldingen .meldingen__slot .meldingen__weg { flex: none; }
+@media (max-width: 359px) {
+  .meldingen .instel__lijst .meldingen__slot { gap: var(--s-1); }
+  .meldingen .meldingen__slot .schakelaar { flex: none; width: auto; gap: var(--s-2); }
+  .meldingen .meldingen__slot .tijdveld__invoer { width: calc(var(--s-12) * 1.5); padding-inline: var(--s-2); }
+  .meldingen .meldingen__slot .meldingen__weg { width: 44px; min-width: 44px; height: 44px; }
+}
+/* De uitgeschakelde voorbeeldrijen zijn iets compacter (ze zijn niet te bedienen). */
+.meldingen .instel__lijst .meldingen__soort.meldingen__nep { height: calc(60px + var(--rij-rek, 0px)); }
+/* Details tonen (BESLISSING 335): een rij als de soorten, maar zonder vaste hoogte (de uitleg kan op een smal scherm over twee regels staan). Uitgeschakeld: alleen de schakelaar oogt uitgeschakeld, de tekst blijft leesbaar. */
+.meldingen .instel__lijst .meldingen__details { min-height: calc(64px + var(--rij-rek, 0px)); padding-block: var(--s-1); }
+.meldingen .instel__lijst .meldingen__details.meldingen__nep { min-height: calc(60px + var(--rij-rek, 0px)); }
+.meldingen .meldingen__details .schakelaar:disabled { opacity: 1; }
+.meldingen .meldingen__details .schakelaar:disabled .schakelaar__baan { opacity: .4; }
+
+
+
+/* Tikdoelen van minstens 44 px hoog (BESLISSING 182), zonder dat er iets verschuift: het element is groter, de ruimte die het inneemt blijft gelijk
+   (opvulling met een even grote negatieve marge). */
+.delen .weetje.weetje--link.weetje--link.weetje--link { min-height: max(44px, var(--tile-size)); padding-block: calc(var(--weetje-rek, 0px) / 2 + max(0px, (44px - var(--tile-size)) / 2)); margin-block: min(0px, calc((var(--tile-size) - 44px) / 2)); }
+.meer__profieltekst a { display: inline-block; padding-block: 12px; margin-block: -12px; }
+.meer__actie { padding-bottom: 8px; margin-bottom: -8px; }
+.meer__link { padding-block: 12px; margin-block: -12px; }
+
+/* BESLISSING 433: staan de weetjes ("Goed om te weten") op één rij naast elkaar, dan is de zichtbare ruimte TUSSEN de items overal gelijk (einde tekst van het ene
+   tot de tegel van het volgende): de items staan op hun inhoudsbreedte, het eerste op de linker binnenrand, het laatste op de rechter (space-between), met minstens
+   --s-5 ertussen. Eén gedeelde regel voor Delen, Drinken en Gewicht (de rij met drie gelijke kolommen en een smalle laatste gaf 71, 158 en 111 px). Onder 1600 px blijft het
+   raster met gelijke kolommen en gelijke rij-afstand zoals het was; in de rechterkolom van Delen (.delen__rechts) bepaalt delen.js de vorm. */
+@media (min-width: 1600px) {
+  :is(.delen .delen__weetjesrij, .drinken .drinken__weetjesrij, .gewicht .gewicht__weetjesrij, .instelscherm .instel__weetjesrij:not(:has(> :nth-child(3)))):not(.delen__rechts *, .instel__voorbeeld *) { /* instelschermen: alleen een rij van één of twee weetjes; meer weetjes blijven in het raster (max-content paste er niet in) */
+    grid-template-columns: none;
+    grid-auto-flow: column;
+    grid-auto-columns: max-content;
+    justify-content: space-between;
+    column-gap: var(--s-5);
+  }
+}
+/* BESLISSING 503, Instellingen Drinken op een telefoon: de kan in "Zo ziet het eruit" was te groot voor de pagina (190 tot 340 px hoog). Onder 720 px is ze 112 px hoog
+   en rekt ze niet meer mee met de kaart. */
+@media (max-width: 719.98px) {
+  .drinkvoorbeeld .instel__voorbeeldinhoud > .drinkvoorbeeld__glasrij.drinkvoorbeeld__glasrij { flex: 0 0 auto; min-height: 0; max-height: none; }
+  .drinkvoorbeeld .drinkvoorbeeld__glasrij > .watervulling.watervulling { flex: 0 0 auto; height: 112px; }
+}
+/* BESLISSING 518: na de code volgen in dezelfde kaart (zelfde hoogte, is-code) het toestel als hulp en de herstelcode. Daar maakt ook de kop (logo en
+   titel) plaats, zodat de code, de twee knoppen, het vinkje en Verder in de kaart passen; "Stap 4 van 4" blijft staan. */
+.welkom .welkom__kaart.is-herstel .welkom__kop { display: none; }
+.welkom .welkom__kaart.is-herstel .welkom__bediening { margin-block: 0; }
+.welkom .herstel .slot__uitleg { font-size: var(--fs-small); }
+/* BESLISSING 534, Algemeen onder Vergrendeling: de knoppen rechts in de rijen (Wijzigen, Maken, Koppelen, Ontkoppelen) zijn onderling even breed en hebben een
+   zachte achtergrond, zodat ze op de witte kaart zichtbaar zijn. */
+.instelscherm:has(.slot__kaart) .rij__eind > .knop.knop--secundair { min-width: 7.5rem; }
+/* BESLISSING 535, Algemeen onder Vergrendeling: het voorbeeld van het slotscherm ("Zo ziet het eruit") was te groot voor de pagina. Het is nu een klein model:
+   hoogstens 15rem breed, met lage toetsen, en het rekt niet meer mee met de hoogte van de kolom. */
+.instelscherm .instel__groei > .slotvoorbeeld.slotvoorbeeld { max-width: 15rem; max-height: none; flex: 0 0 auto; align-self: center; gap: var(--s-2); }
+.instelscherm .slotvoorbeeld .slotvoorbeeld__rooster { flex: 0 0 auto; grid-auto-rows: 1.8rem; }
+.instelscherm .slotvoorbeeld .slotvoorbeeld__toets { min-height: 0; height: 1.8rem; }
+/* BESLISSING 538, Algemeen onder Vergrendeling: rechts staat het voorbeeld ("Zo ziet het eruit") zo hoog als zijn inhoud en daaronder "Goed om te weten", op
+   dezelfde afstand (--s-6) als tussen de kaarten links. Elke kaart is zo hoog als haar inhoud: niets rekt of spreidt om de kolommen gelijk te trekken (dat gaat
+   met de inhoud: weetjes in een of twee kolommen). Op een kolom volgen kaarten, voorbeeld en weetjes elkaar op. */
+.instelscherm > .instel__rechts { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; }
+.instelscherm > .instel__rechts > .instel__voorbeeld.instel__voorbeeld { flex: none; contain: none; overflow: visible; }
+.instelscherm > .instel__rechts > .instel__weetjes.instel__weetjes { margin-top: 0; padding-top: 0; border-top: 0; flex: none; }
+.slot-scherm .instel__weetjesrij .weetje--link { min-height: 44px; }
+@media (min-width: 960px) {
+  .instelscherm > .instel__rechts { padding-bottom: var(--s-5); }
+  .instelscherm > .instel__rechts .instel__weetjesrij { grid-template-columns: minmax(0, 1fr); }
+}
+@media (max-width: 719.98px) {
+  .instelscherm > .instel__rechts > .instel__voorbeeld.instel__voorbeeld { padding-top: var(--s-6); }
+}
+/* BESLISSING 538, de rechtse kolom zo kort mogelijk: is ze breed genoeg, dan staan de weetjes in twee kolommen naast elkaar (twee rijen) en niet onder elkaar. */
+@media (min-width: 960px) {
+  .instelscherm > .instel__rechts { container: slotrechts / inline-size; }
+  @container slotrechts (min-width: 340px) {
+    .instelscherm > .instel__rechts .instel__weetjesrij { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  }
+}
+/* BESLISSING 538, alleen Algemeen onder Vergrendeling: twee gelijke kolommen (de andere instelschermen houden 3 op 2, layout.css). */
+@media (min-width: 960px) {
+  .slot-scherm .instelscherm { grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); }
+}
+/* BESLISSING 547: met het slot uit staat "Goed om te weten" onder de twee kolommen (kaart Vergrendeling en voorbeeld) over de volle breedte, op de gewone kaartafstand (--s-6),
+   met de weetjes op een rij van vier naast elkaar waar dat past (het blok zelf is de container), anders in twee kolommen; op een kolom volgt alles in DOM-volgorde. */
+.slot-scherm .instelscherm > .instel__weetjes.instel__weetjes { margin-top: 0; padding-top: 0; border-top: 0; flex: none; }
+.slot-scherm .instelscherm > .instel__rechts { align-self: start; }
+@media (min-width: 960px) {
+  .slot-scherm .instelscherm { row-gap: var(--s-6); }
+  .slot-scherm .instelscherm > .instel__weetjes.instel__weetjes { grid-column: 1 / -1; container: slotweetjes / inline-size; }
+  @container slotweetjes (min-width: 800px) {
+    .slot-scherm .instelscherm > .instel__weetjes .instel__weetjesrij { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+  }
+}
+/* Slot aan: het voorbeeld is iets groter (toetsen 2,1rem), zodat de rechtse kolom (voorbeeld plus weetjes) dicht bij de linkse eindigt. */
+.slot-scherm .instelscherm.slot-aan .slotvoorbeeld .slotvoorbeeld__rooster { grid-auto-rows: 2.1rem; }
+.slot-scherm .instelscherm.slot-aan .slotvoorbeeld .slotvoorbeeld__toets { height: 2.1rem; }
+/* Slot uit: de ruimte onder de kaart Vergrendeling en onder het voorbeeld is al de kaartafstand boven "Goed om te weten"; geen extra binnenruimte onderaan de twee kolommen. */
+@media (min-width: 960px) {
+  .slot-scherm .instelscherm:not(.slot-aan) > .instel__lijst, .slot-scherm .instelscherm:not(.slot-aan) > .instel__rechts { padding-bottom: 0; }
+}
+
+/* Rondleiding (#/meer/uitleg) tussen 960 en 1120 px: naast het zijmenu blijft voor de inhoud evenveel over als op een staande tablet (ongeveer 650 px).
+   De twee kolommen van uitleg.css (BESLISSING 236) waren daar elk maar 250 tot 320 px breed: naast de tegel en de knop "Toon het me" hield een titel
+   80 tot 140 px over en brak hij op drie tot vijf regels, in een rij van 52 tot 55 px. De tekst liep over de lijnen en door de volgende rij, en in de
+   laatste rij onder de kaartrand uit (z-kaartuitloop). Vanaf 1120 px past elke titel op hoogstens twee regels in zijn rij; daaronder staat alles
+   onder elkaar, zoals onder 960 px: eerst de instellingen, het voorbeeld en "Goed om te weten", dan de lijst. De letter- en rijmaten blijven die van
+   de andere instelschermen op deze schermmaat (layout.css). De kiezers beginnen met .uitleg-scherm, omdat uitleg.css na dit bestand laadt.
+   Telefoon, staande tablet (onder 960 px) en desktop (vanaf 1120 px) veranderen niet. */
+@media (min-width: 960px) and (max-width: 1119.98px) {
+  .uitleg-scherm .instelscherm.uitleg__tweeen { grid-template-columns: minmax(0, 1fr); }
+  .uitleg-scherm .uitleg__tweeen > .instel__lijst:first-child { padding-bottom: 0; }
+  .uitleg-scherm .uitleg__tweeen > .uitleg__rechts { padding-left: 0; padding-top: 0; border-left: 0; }
+  .uitleg-scherm .uitleg__rechts > .kaart { flex: none; }
+  .uitleg-scherm .uitleg__rechts > .kaart > .rij { flex: none; max-height: none; min-height: 56px; padding-block: var(--s-2); }
+  .uitleg-scherm .uitleg__rechts > .kaart > .kaartkop + .rij { padding-top: 0; border-top: 0; }
+  .uitleg-scherm .uitleg__rechts > .kaart > .rij:last-child { padding-bottom: 0; }
+  .uitleg-scherm .uitleg__tweeen > .instel__lijst:first-child > .kaart:first-child > .rij { min-height: 56px; }
+  .uitleg-scherm .uitleg__kaart--voorbeeld { padding: var(--s-5); }
+  .uitleg-scherm .uitleg__kaart--voorbeeld .uitleg__acties { margin-top: 0; }
+  @container (min-width: 600px) {
+    .uitleg-scherm .uitleg__tweeen .instel__weetjesrij { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  }
+}

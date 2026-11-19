@@ -1,0 +1,133 @@
+/* ============================================================
+   Afgeleide maten (spoor A). Alles hier is berekend uit de tokens in
+   bloei-huisstijl/tokens.css: nooit een nieuwe kleur, nooit een hexwaarde.
+   ============================================================ */
+:root {
+  /* Icoontegels: 56 px voor de grote variant, icoon schaalt mee */
+  --tile-size-groot: calc(var(--tile-size) * 7 / 5);
+  --icon-size-lijst: calc(var(--s-5));            /* 20 px in lijsten (HUISSTIJL §5) */
+
+  /* Knoppen en velden */
+  /* Knoppen in verhouding met de rijen (BESLISSING 182): 48 px op een telefoon, 44 px op een bureaublad; Jost 500 15 px, niet meegeschaald */
+  /* Het hoofdgetal van een scherm (1,4 liter op Drinken, het gewicht op Gewicht) en het getal in een invoerblad: meeschalend met de pagina (BESLISSING 184) */
+  --getal-hoofd: calc(var(--fs-h1) * 4 / 3);   /* ongeveer 48 px op een groot scherm, 40 px op een telefoon; de waarden ernaast zijn --fs-h1 */
+  --getal-invoer: calc(var(--fs-h1) * 1.15);
+  --getal-eenheid: calc(var(--fs-body) * .9);
+  --knop-h: 48px;
+  --knop-fs: 15px;
+  --knop-pad: 20px;
+  --knop-min-b: 120px;
+  --knop-icoon: 16px;
+  --knop-klein-h: 40px;                           /* een knop in een rij van een instelscherm of een tabel */
+  --knop-klein-fs: 14px;
+  --veld-h: var(--tap-min);
+  /* De hoofdknop krijgt de kleur van zijn tabblad (BESLISSING 184), uit twee variabelen: --knop-bg en --knop-fg. Standaard aubergine (--c-primary).
+     Wit op de tabbladkleur haalt 4,5 : 1 niet overal, dus in Poeder en Salie is de knop de tabbladkleur gemengd met --c-text; het mengpercentage per
+     tabblad is het kleinste dat 4,5 : 1 haalt met --c-on-primary en wordt in Nacht 100 (de lichte tabbladkleur met donkere tekst):
+       tabblad       mengsel   contrast Poeder/Salie   contrast Nacht
+       Vandaag       100 %     4,94                    5,80
+       Dagboek        65 %     4,82                    6,72
+       Drinken        vaste waarde (--c-water-vol in tokens.css, BESLISSING 531): 4,81 (Poeder), 4,80 (Salie); Nacht 7,39
+       Supplementen   55 %     4,89                    6,81
+       Gewicht        75 %     4,68                    6,56
+       Delen/Algemeen aubergine (--c-primary)          9,82 (Nacht) */
+  --knop-bg: var(--c-primary);
+  --knop-fg: var(--c-on-primary);
+  --knop-mix-dag: 100%;
+  --knop-mix-dagboek: 65%;
+  --knop-mix-drank: 45%;                          /* niet meer gebruikt door de app (Drinken heeft --c-water-vol); alleen de stijlpagina leest hem nog */
+  --knop-mix-gezondheid: 55%;
+  --knop-mix-gewicht: 75%;
+  /* BESLISSING 537: de omrande knop (.knop--secundair) is een zacht vlak in de kleurfamilie van haar tabblad, met de gewone tekstkleur erop. Eén regel:
+     het vlak is de familiekleur voor 35 % in het zachte familievlak (--knop-zacht-bg); buiten een tabblad (slot, welkomscherm, herstelcode, kop van
+     Vandaag) is de familie het accent van het thema, zie tabkleur.css voor de familieregel. Gemeten (tests/ui/knop-zacht.test.js): tekst >= 4,9 en
+     het vlak tegen de kaart en tegen de pagina >= 1,3 in elke familie en elk thema; 20 % haalde tegen de pagina maar 1,22 tot 1,46. */
+  --knop-zacht-bg: color-mix(in srgb, var(--c-accent) 35%, var(--c-accent-soft));
+  --knop-zacht-fg: var(--c-text);
+  --stip: var(--s-1);                             /* 4 px: stip onder de actieve tab */
+  --tab-label: calc(var(--fs-label) * 11 / 12);   /* 11 px */
+
+  /* Gevoelschaal (HUISSTIJL §5.2) */
+  --gevoel-tegel: var(--tap-min);                 /* ronde tegel 48 px */
+  --gevoel-schaal: 1.08;
+
+  /* Energieschaal (HUISSTIJL §5.3). De kiezer en de energiekaart gebruiken blaadjes
+     van 4/3 van --energy-leaf-h (zoals voorbeeld-energiekaart.png); in lijsten blijft het token zelf. */
+  --energy-leaf-h-groot: calc(var(--energy-leaf-h) * 4 / 3);
+  --energy-tik-b: calc(var(--tap-min) - var(--s-1)); /* 44 px */
+  --energy-tik-h: var(--tap-min);                 /* 48 px */
+
+  /* Lijnen, focus en scherm achter een dialoog */
+  --lijn: 1px solid var(--c-line);
+  --focus: 2px solid var(--c-focus);
+  --scrim: color-mix(in srgb, var(--c-text) 40%, transparent);
+
+  /* Schakelaar */
+  --schakel-b: calc(var(--s-12) + var(--s-1));    /* 52 px */
+  --schakel-h: calc(var(--s-8));                  /* 32 px */
+  --schakel-knop: calc(var(--s-6));               /* 24 px */
+}
+
+:root {
+  /* Uit-stand van schakelaar en vinkvak: gedempte tekstkleur op het vlak (Poeder 75 %: 3,22 op de kaart, 3,02 op de achtergrond; BESLISSING 414) */
+  --schakel-uit: color-mix(in srgb, var(--c-text-muted) 75%, var(--c-surface));
+  --vink-b: calc(var(--s-6) + var(--s-1));        /* 28 px vinkvak */
+}
+
+:root {
+  /* Beeld (HUISSTIJL §6) */
+  --miniatuur: var(--tile-size-groot);            /* 56 px */
+  --r-miniatuur: var(--s-3);                      /* 12 px */
+  --ring-profiel: 2px;
+}
+
+[data-theme="nacht"] { --knop-mix-dag: 100%; --knop-mix-dagboek: 100%; --knop-mix-drank: 100%; --knop-mix-gezondheid: 100%; --knop-mix-gewicht: 100%; }
+/* Thema's (controle 15 november): de uit-stand van schakelaar en vinkvak en de focusring halen in Salie en Nacht de 3 : 1 voor randen en bedieningsdelen
+   (WCAG 1.4.11) die in Poeder (toen 45 %) niet gehaald werd; Poeder staat sinds BESLISSING 414 op 75 %, zie :root hierboven.
+     Salie : uit-stand 80 % (3,38 op het vlak, 3,17 op de achtergrond en op de knop); focusring in --c-accent-text (accent zelf haalt op de achtergrond 2,90)
+     Nacht : uit-stand 65 % (3,81 op het vlak, 4,25 op de achtergrond, 3,23 met de donkere knop; bij 45 % was dat 2,55 en 2,16) */
+[data-theme="salie"] { --schakel-uit: color-mix(in srgb, var(--c-text-muted) 80%, var(--c-surface)); --focus: 2px solid var(--c-accent-text); }
+[data-theme="nacht"] { --schakel-uit: color-mix(in srgb, var(--c-text-muted) 65%, var(--c-surface)); }
+/* BESLISSING 355: het vlak achter een drankknop op Drinken, uit de kleurfamilie van Drinken: de zachte drinkkleur voor de helft met de kaartkleur, dus lichter dan de icoontegel (die de zachte drinkkleur zelf is). Volgt elk thema via de themakleuren. */
+:root { --drank-vlak: color-mix(in srgb, var(--c-water-soft) 50%, var(--c-surface)); }
+/* BESLISSING 356: het gehaalde dagdoel op Drinken en Vandaag heeft exact de kleur van de iconen in de dranktegels (--tile-drink-fg). "Onderweg" is de lichtere drinkkleur; alleen in Nacht, waar beide gelijk zijn, is "onderweg" lichter gemaakt met de kaartkleur. */
+:root { --drank-gehaald: var(--tile-drink-fg); --drank-onderweg: var(--c-water); }
+[data-theme="nacht"] { --drank-onderweg: color-mix(in srgb, var(--c-water) 60%, var(--c-surface)); }
+/* BESLISSING 355: Drinken als tekst (zoals --c-weight-text en --c-health-text): de icoonkleur van Drinken, donkerder gemaakt met de tekstkleur tot hij 4,5:1 haalt op de kaart, in elk thema. */
+:root { --c-water-text: color-mix(in srgb, var(--tile-drink-fg) 62%, var(--c-text)); }
+/* BESLISSING 357: elk tabblad draagt zijn eigen kleurfamilie (src/stijl/tabkleur.css). Elke familie heeft daarvoor dezelfde rollen; wat ontbrak,
+   staat hier, gemengd uit de tokens van die familie (contrast in Poeder en Salie; in Nacht zijn de lichte familiekleuren zelf ruim genoeg):
+     Dagboek = abrikoos (BESLISSING 368), vaste waarden in tokens.css (geen mengsel meer):
+     --c-book-icoon   icoon in de abrikoostegel     (zie rapport voor de gemeten waarden)
+     --c-book-text    abrikoos als tekst; ook "gehaald" in het Dagboek
+     --c-book-gevuld  vinkvak en schakelaar aan, met het lichte teken erop
+     --c-book-vol     vol vlak met lichte tekst: de hoofdknop van het Dagboek
+     --c-water-gevuld vinkvak en schakelaar aan (= --drank-gehaald)                   3,49                                 Nacht 7,39
+     --c-water-vol    vol vlak met lichte tekst: de hoofdknop van Drinken (vaste waarde in tokens.css, het blauwgroen van de iconen: Poeder 4,81, Salie 4,80, Nacht 7,39; vlak tegen de pagina en de kaart 4,8 tot 5,1)
+     --c-health-vol   vol vlak met lichte tekst: de hoofdknop van Supplementen        4,89                                 Nacht 6,81
+     --c-weight-gevuld vinkvak en schakelaar aan (het duifblauw zelf)                 3,46                                 Nacht 6,56
+     --c-weight-vol   vol vlak met lichte tekst: de hoofdknop van Gewicht             4,68                                 Nacht 6,56
+     --c-accent-gevuld vinkvak en schakelaar aan op Algemeen en de instellingen (BESLISSING 365): het accent van het thema, iets dieper
+                      gemaakt met de tekstkleur, want het accent zelf haalt in Salie maar 2,90    Poeder 4,19   Salie 3,54   Nacht 6,41
+   Algemeen en de instellingen (BESLISSING 365): het roze accent van het thema (in Salie het groene accent); tekst en volle vlakken in
+   --c-accent-text-op-soft (>= 4,6 ook op het zachte vlak). Delen: aubergine (--c-share) voor alles, 12,5 met het lichte teken (Nacht 9,8). */
+:root {
+  /* BESLISSING 368: de abrikoos-rollen (--c-book-icoon, -text, -gevuld, -vol) staan als vaste waarden in tokens.css (een mengsel met aubergine werd weer bruin) */
+  --c-water-gevuld: var(--tile-drink-fg);
+  /* --c-water-vol (Drinken, BESLISSING 531): vaste waarde in bloei-huisstijl/tokens.css, geen mengsel met de tekstkleur meer (dat gaf leigrijs) */
+  --c-health-vol: color-mix(in srgb, var(--c-health) var(--knop-mix-gezondheid), var(--c-text));
+  --c-weight-gevuld: var(--c-weight);
+  --c-weight-vol: color-mix(in srgb, var(--c-weight) var(--knop-mix-gewicht), var(--c-text));
+  --c-accent-gevuld: color-mix(in srgb, var(--c-accent) 85%, var(--c-text));
+  /* De medailles houden overal hun eigen kleur (uitzondering op 357): vastgelegd op de wortel, vóór een tabblad de familietokens herbenoemt */
+  --medaille-kleur: var(--tile-health-fg);
+  --medaille-vlak: var(--tile-health-bg);
+  --medaille-open-kleur: var(--tile-neutral-fg);
+  --medaille-open-vlak: var(--tile-neutral-bg);
+}
+/* Het onderwerp van het scherm dat open staat (ook voor een blad of dialoog, die buiten het scherm hangen) */
+:root:has([data-scherm^="vandaag"]) { --knop-bg: color-mix(in srgb, var(--c-day) var(--knop-mix-dag), var(--c-text)); }
+:root:has([data-scherm^="dagboek"]) { --knop-bg: var(--c-book-vol); }
+:root:has([data-scherm^="drinken"]) { --knop-bg: var(--c-water-vol); }
+:root:has([data-scherm^="supplementen"]) { --knop-bg: color-mix(in srgb, var(--c-health) var(--knop-mix-gezondheid), var(--c-text)); }
+:root:has([data-scherm^="gewicht"]) { --knop-bg: color-mix(in srgb, var(--c-weight) var(--knop-mix-gewicht), var(--c-text)); }

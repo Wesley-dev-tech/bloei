@@ -1,0 +1,35 @@
+# Wat Vercel niet hoeft te uploaden om de app te bouwen. Dit gaat over de bron die naar de bouwmachine gaat;
+# wat publiek wordt, is alleen de inhoud van dist/ (outputDirectory in vercel.json).
+# Niet negeren: index.html, stijl.html, src/, public/, fonts/, bloei-huisstijl/ (de bouw leest tokens en svg's),
+# scripts/ (vite.config.js leest scripts/csp.mjs), package.json, package-lock.json, vite.config.js.
+
+# Tests en testuitvoer
+tests/
+test-results/
+playwright-report/
+playwright.config.js
+screenshots/
+
+# De meldingsdienst wordt apart uitgerold op Cloudflare.
+worker/
+
+# Projectdocumenten en werkmappen
+CLAUDE.md
+EISEN.md
+BESLISSINGEN.md
+PLAN.md
+LOGBOEK.md
+ITERATIES.md
+HANDLEIDING-PUBLICEREN.md
+skills-lock.json
+.claude/
+.agents/
+
+# Lokale bouw- en sleutelbestanden
+dist/
+dist-*/
+dev-dist/
+.env
+.env.local
+.verboden-woorden.local
+tmp-*

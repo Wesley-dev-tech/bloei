@@ -1,0 +1,464 @@
+/* herstel: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool.
+   Teruggehaalde regels uit de bouw van 15.01 van 14 november; elke klasse komt nog voor in de broncode.
+   Deze regels laden vóór schermen.css, dus de huidige regels winnen bij gelijke specificiteit. */
+
+/* ===== Algemeen (Meer, Profiel, Favorieten, instellingen) ===== */
+
+.over__logo { margin-bottom: var(--s-4); }
+.over__liefde { margin-bottom: var(--s-1); }
+
+.meer__thema,
+.profiel__naam,
+.meer__menu>.rij { margin-top: var(--s-2); }
+
+.meer__thema .chip { padding: 0 var(--s-3); }
+
+.meer__profielrij {
+  align-items: center;
+  gap: var(--s-4);
+  display: flex;
+}
+
+.meer__profieltekst {
+  gap: var(--s-1);
+  flex-direction: column;
+  flex: 1;
+  min-width: 0;
+  display: flex;
+}
+
+.meer__profieltekst .t-h2 { overflow-wrap: anywhere; }
+
+.meer__leeg {
+  color: var(--c-text-muted);
+  font-size: var(--fs-h2);
+  line-height: 1.25;
+}
+
+.meer__uitleg { margin-top: var(--s-3); }
+
+.meer__themakaart,
+.meer__badges,
+.meer__favorieten,
+.meer__menu,
+.meer__profiel {
+  flex-direction: column;
+  display: flex;
+}
+
+.meer__themakaart .meer__thema { flex: 1; }
+
+.meer__themakaart .themavoorbeeld {
+  aspect-ratio: auto;
+  min-height: calc(var(--s-12) + var(--s-6));
+  flex: 1;
+}
+
+.meer__cijfers {
+  gap: var(--s-4);
+  margin-top: var(--s-5);
+  padding-top: var(--s-5);
+  border-top: var(--lijn);
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  display: grid;
+}
+
+.meer__cijfers .kerncijfer__getal,
+.meer__stats .kerncijfer__getal { font-size: var(--fs-h1); }
+
+.meer__stats { grid-template-columns: repeat(3,minmax(0,1fr)); }
+
+.meer__actie {
+  align-items: center;
+  gap: var(--s-1);
+  padding-top: var(--s-4);
+  font-size: var(--fs-small);
+  color: var(--c-accent-text);
+  margin-top: auto;
+  font-weight: 500;
+  display: inline-flex;
+}
+
+.themategels {
+  gap: var(--s-3);
+  grid-template-columns: repeat(2,minmax(0,1fr));
+  display: grid;
+}
+
+@media (width>=560px) {
+  .themategels { grid-template-columns: repeat(4,minmax(0,1fr)); }
+}
+
+.themategel {
+  gap: var(--s-2);
+  padding: var(--s-2);
+  border-radius: var(--r-md);
+  text-align: left;
+  touch-action: manipulation;
+  box-shadow: inset 0 0 0 1px var(--c-line);
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+  flex-direction: column;
+  display: flex;
+}
+
+.themategel:active { transform: scale(.97); }
+.themategel.is-actief { box-shadow: inset 0 0 0 2px var(--c-accent); }
+
+.themategel__naam {
+  padding: 0 var(--s-1) var(--s-1);
+  font-size: var(--fs-small);
+  font-weight: 500;
+}
+
+.themategel.is-actief .themategel__naam { color: var(--c-accent-text); }
+
+.themavoorbeeld {
+  --p-bg: var(--c-bg);
+  --p-strook: var(--c-surface-soft);
+  --p-accent: var(--c-accent);
+  --p-tekst: var(--c-accent-text);
+  gap: var(--s-2);
+  aspect-ratio: 3/2;
+  padding: var(--s-2);
+  border-radius: var(--r-sm);
+  background: var(--p-bg);
+  flex-direction: column;
+  display: flex;
+  position: relative;
+  overflow: hidden;
+}
+
+.themavoorbeeld--poeder {
+  --p-bg: var(--bloei-porselein);
+  --p-strook: var(--bloei-poeder);
+  --p-accent: var(--bloei-oudroze);
+  --p-tekst: var(--bloei-aubergine);
+}
+
+.themavoorbeeld__balk {
+  align-items: center;
+  gap: var(--s-1);
+  display: flex;
+}
+
+.themavoorbeeld__balk i {
+  width: var(--s-2);
+  height: var(--s-2);
+  border-radius: var(--r-pill);
+  background: var(--p-accent);
+}
+
+.themavoorbeeld__balk b {
+  width: var(--s-4);
+  height: var(--s-1);
+  border-radius: var(--r-pill);
+  background: var(--p-tekst);
+  opacity: .55;
+}
+
+.themavoorbeeld__strook {
+  border-radius: var(--s-1);
+  background: var(--p-strook);
+  flex: 1;
+}
+
+.themavoorbeeld--auto {
+  background: 0 0;
+  grid-template-columns: 1fr 1fr;
+  gap: 0;
+  padding: 0;
+  display: grid;
+}
+
+.themavoorbeeld--auto>.themavoorbeeld {
+  aspect-ratio: auto;
+  border-radius: 0;
+}
+
+.weegdagen .chip {
+  min-width: var(--tap-min);
+  justify-content: center;
+}
+
+.profiel__knoppen {
+  align-items: flex-start;
+  gap: var(--s-1);
+  flex-direction: column;
+  display: flex;
+}
+
+.favoriet__nieuw {
+  gap: var(--s-3);
+  margin-top: var(--s-2);
+  flex-direction: column;
+  display: flex;
+}
+
+/* ===== Vandaag ===== */
+
+.vandaag__logo { margin-bottom: var(--s-6); }
+.vandaag__begroeting .t-hero { text-wrap: balance; }
+.vandaag__begroeting .label { margin-top: var(--s-2); }
+
+.cijfer-groot__eenheid {
+  font-family: var(--font-ui);
+  font-size: var(--fs-h2);
+  color: var(--c-text-muted);
+  font-weight: 400;
+}
+
+.voortgang__deel {
+  align-items: center;
+  gap: var(--s-2);
+  flex-direction: column;
+  min-width: 0;
+  display: flex;
+}
+
+.voortgang__label {
+  font-size: var(--fs-label);
+  color: var(--c-text-muted);
+  line-height: 1.2;
+}
+
+.voortgang__deel .tegel { transition: background-color var(--dur) var(--ease); }
+.voortgang__deel .icoon { transition: opacity var(--dur) var(--ease); }
+.voortgang .kaart__label { margin-bottom: var(--s-3); }
+
+[data-scherm] .schermkop { margin-bottom: 0; }
+
+.vc--eten { order: 2; }
+.vc--stemming { order: 4; }
+
+.uitklap__inhoud .gevoel { margin-top: var(--s-1); }
+
+.vandaag__energie {
+  justify-content: space-between;
+  align-items: center;
+  gap: var(--s-4);
+  margin-top: var(--s-5);
+  padding-top: var(--s-4);
+  border-top: var(--lijn);
+  display: flex;
+}
+
+.drinkkaart__link {
+  min-height: var(--tap-min);
+  margin-top: var(--s-2);
+  color: var(--c-accent-text);
+  align-items: center;
+  font-weight: 500;
+  display: inline-flex;
+}
+
+.uitklap .afvinklijst { display: block; }
+
+/* ===== Dagboek (dag, maand) ===== */
+
+.dag__zij {
+  gap: var(--s-4);
+  flex-direction: column;
+  min-width: 0;
+  display: flex;
+}
+
+.dag__zij>.kaart { height: auto; }
+.dag__zij>.dag__supplementen { flex: auto; }
+
+.legenda {
+  grid-template-columns: repeat(auto-fit, minmax(calc(var(--s-12) * 2), 1fr));
+  gap: var(--s-3) var(--s-4);
+  display: grid;
+}
+
+.uitklap__inhoud .dag__wis {
+  margin-top: var(--s-3);
+  text-align: left;
+}
+
+.dagboek__kop .segment--vol { max-width: 100%; }
+
+.maand__gepkaart {
+  flex-direction: column;
+  display: flex;
+}
+
+@media (width>=960px) {
+  .maand__dag>.kaart { flex: 1; }
+}
+
+/* ===== Drinken ===== */
+
+.drank__weg {
+  margin-right: calc(var(--s-3) * -1);
+  font-size: var(--fs-h2);
+  color: var(--c-text-muted);
+  line-height: 1;
+}
+
+.drinken__lijst .leeg { padding: var(--s-6) var(--s-2) var(--s-2); }
+.drinken__weetjesrij .rij { border-top: 0; }
+
+/* ===== Supplementen en momenten ===== */
+
+.momentrij+.momentrij,
+.afvinkrij+.afvinkrij { border-top: var(--lijn); }
+
+.momentrij .vinkvak__vak,
+.afvinkrij .vinkvak__vak {
+  flex: none;
+  margin-left: auto;
+}
+
+.kaart>.afvinkrij:first-child { padding-top: 0; }
+.kaart>.afvinkrij:last-child { padding-bottom: 0; }
+
+.afvinkrij__tekst,
+.momentrij__tekst {
+  flex-direction: column;
+  flex: 1;
+  gap: 2px;
+  min-width: 0;
+  display: flex;
+}
+
+.afvinkrij__tekst .rij__titel { overflow-wrap: anywhere; }
+
+.afvinkrij .rij__sub {
+  -webkit-line-clamp: 3;
+  line-clamp: 3;
+  overflow-wrap: anywhere;
+}
+
+.momenten {
+  gap: var(--s-4);
+  flex-direction: column;
+  display: flex;
+}
+
+.momentkop {
+  align-items: center;
+  gap: var(--s-4);
+  margin-bottom: var(--s-2);
+  display: flex;
+  min-height: var(--tile-size);
+}
+
+.momentkop__tekst {
+  flex-direction: row;
+  flex: 1;
+  gap: var(--s-3);
+  min-width: 0;
+  display: flex;
+  align-items: center;
+}
+
+.momentkop__nu {
+  font-size: var(--fs-small);
+  color: var(--c-health-text);
+  font-weight: 500;
+}
+
+.momentkop__stand {
+  font-size: var(--fs-small);
+  color: var(--c-text-muted);
+  flex: none;
+}
+
+.momentkaart .afvinklijst,
+.beurtkaart .afvinklijst,
+.laterkaart .afvinklijst { display: block; }
+
+.momentkaart .afvinklijst>.afvinkrij,
+.beurtkaart .afvinklijst>.afvinkrij,
+.laterkaart .afvinklijst>.afvinkrij {
+  border-top: var(--lijn);
+  padding: var(--s-3) 0;
+}
+
+.momentkaart .afvinklijst>.afvinkrij:first-child,
+.beurtkaart .afvinklijst>.afvinkrij:first-child,
+.laterkaart .afvinklijst>.afvinkrij:first-child,
+.beurtkaart .beurtblok:first-child>.afvinkrij {
+  border-top: 0;
+  padding-top: 0;
+}
+
+.momentrij:first-child { border-top: 0; }
+
+.momentrij__naam {
+  text-overflow: ellipsis;
+  white-space: nowrap;
+  overflow: hidden;
+}
+
+.momentrij__nu {
+  color: var(--c-health-text);
+  font-size: var(--fs-small);
+}
+
+.momentrij.is-nu .momentrij__naam { font-weight: 500; }
+.momentkaart.is-nu { order: unset; }
+
+.momentrij:active,
+.afvinkrij:active,
+.overzicht__rij:active,
+.maaltijd>.rij:active { transform: scale(.985); }
+
+.momentkaart .momentkop,
+.beurtkaart .momentkop,
+.laterkaart .momentkop {
+  margin-bottom: var(--s-4);
+  padding-bottom: var(--s-4);
+  border-bottom: var(--lijn);
+  box-sizing: content-box;
+  min-height: 0;
+  height: var(--tile-size);
+}
+
+.momentkaart .momentkop__stand,
+.beurtkaart .momentkop__stand,
+.laterkaart .momentkop__stand {
+  text-align: right;
+  margin-left: auto;
+}
+
+@media (width>=960px) {
+  .momenten {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: var(--s-6);
+    align-items: start;
+    display: grid;
+  }
+
+  .momentkaart.is-nu { order: 0; }
+}
+
+/* ===== Vieringen ===== */
+
+.vieringhouder {
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s-4) + var(--s-12) + var(--s-4));
+  z-index: 50;
+  padding: 0 var(--s-5);
+  pointer-events: none;
+  justify-content: center;
+  display: flex;
+  position: fixed;
+}
+
+.viering {
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  max-width: var(--content-max);
+  padding: var(--s-4) var(--s-5);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-float);
+  animation: blad-op var(--dur) var(--ease);
+  display: flex;
+}
+
+.viering__naam { margin-top: var(--s-1); }

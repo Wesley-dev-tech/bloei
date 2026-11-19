@@ -1,0 +1,124 @@
+/* scherm-dagboek-dag: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool.
+   Dit bestand laadt na schermen.css en wint van de oudere regels met dezelfde specificiteit; elke selector begint met .dag.
+   Opbouw: op 1100 px en breder twee onafhankelijke kolommen: links Eten en daaronder de Notitie (het elastische deel: haar tekstvak
+   vult de resterende hoogte, zodat beide kolommen op dezelfde lijn eindigen), rechts Drinken en Supplementen; daaronder Stemming en
+   energie over de volle breedte met de twee delen naast elkaar. Op een telefoon één kolom: Eten, Drinken, Supplementen, Stemming en
+   energie, Notitie. Geen kaart is hoger dan haar inhoud, behalve de Notitie. */
+
+/* ---------- Raster ---------- */
+.dag .dag__raster { display: flex; flex-direction: column; gap: var(--s-4); align-items: stretch; min-width: 0; }
+.dag .dag__links, .dag .dag__zij { display: contents; }
+.dag .dag__eten { order: 1; }
+.dag .dag__drinken { order: 2; }
+.dag .dag__supplementen { order: 3; }
+.dag .dag__stemming { order: 4; }
+.dag .dag__notitie { order: 5; }
+.dag .dag__raster .kaart { height: auto; flex: none; min-width: 0; }
+@media (min-width: 1100px) {
+  .dag .dag__raster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-6); align-items: stretch; }
+  .dag .dag__links, .dag .dag__zij { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; }
+  .dag .dag__links > .kaart, .dag .dag__zij > .kaart { order: 0; }
+  .dag .dag__stemming { grid-column: 1 / -1; }
+}
+
+/* ---------- Eten: zes compacte rijen van ± 65 px, zoals op het hoofdscherm ---------- */
+.dag .dag__eten { display: flex; flex-direction: column; max-height: none; }
+.dag .dag__eten .maaltijd { --tile-size: 40px; --tile-size-groot: 40px; --miniatuur: 40px; padding: var(--s-3) 0; }
+/* Eén afstand van de lijn onder de kaartkop naar de eerste inhoud (s-3, BESLISSING 281): de gedeelde kaartkop zet die als marge, het eerste element heeft geen eigen bovenruimte. */
+.dag .dag__eten > .kaartkop + .maaltijd { padding-top: 0; border-top: 0; }
+.dag .dag__stemming .stemming__inhoud { padding-top: 0; }
+.dag .dag__notitie .veld__vak { margin-top: 0; }
+.dag .dag__eten > .maaltijd:last-child:not(.is-open) { padding-bottom: 0; }
+.dag .dag__eten > .maaltijd:not(.is-open) { flex: none; max-height: none; display: flow-root; } /* flow-root: de negatieve marge van de rij (tikvlak 44 px) klapt niet door de omhullende heen */
+.dag .dag__eten > .maaltijd.is-open { flex: none; }
+/* BESLISSING 330: de rij is zelf 4 px hoger dan haar inhoud (40 px, op een breed scherm 42 px: dus 44 px of meer; het tikvlak en de focusring); 2 px negatieve marge boven en onder laat haar op de indeling haar oude hoogte innemen, zodat de kaart niet groeit. */
+.dag .dag__eten .maaltijd > .rij { position: relative; min-height: 0; margin-block: -2px; padding: 2px 0; } /* position: relative bleef staan zodat de tekst op dezelfde manier getekend wordt als voorheen (geen ander lettervlak) */
+.dag .dag__eten .maaltijd .rij__tekst { gap: 0; }
+.dag .dag__eten .maaltijd .rij__titel, .dag .dag__eten .maaltijd .rij__sub { line-height: 1.25; }
+.dag .dag__eten .maaltijd__invullen { padding-right: 0; }
+
+/* ---------- Drinken: kop, balk, zes tegels, daaronder één rij per soort; twee lijnen (de binnenranden van de kaart) ---------- */
+/* Ritme (de gedeelde kaartkop heeft een lijn eronder, BESLISSING 273): kop, lijn, s-3, balk, s-4, dranktegels, s-3, rijen per soort. De afstand staat op het eerste element na de kop. */
+.dag .dag__drinken .drinkbaan { margin: 0 0 var(--s-4); }
+.dag .drinkbaan__vulling { box-sizing: border-box; border: 1px solid transparent; background-clip: content-box; } /* een lege balk blijft een element van minstens 2 px (onzichtbaar), zodat de ruimte erboven niet als leeg telt */
+/* BESLISSING 384: zes gelijke kolommen over de volle breedte van de kaart; elk icoon staat op dezelfde middellijn als zijn eigen naam, die op één regel blijft. */
+.dag .dagdranken { display: flex; flex-wrap: nowrap; justify-content: space-between; gap: 0; margin: 0; }
+.dag .dagdrank { position: relative; flex: 1 1 0; display: flex; flex-direction: column; align-items: center; gap: var(--s-1); width: auto; min-width: 0; padding: 0; border-radius: var(--r-md); }
+.dag .dagdrank .dagdrank__naam { display: block; width: auto; max-width: 100%; white-space: nowrap; text-align: center; }
+.dag .dag__drinken .dagdrank:first-child, .dag .dag__drinken .dagdrank:last-child { align-items: center; } /* schermen.css zette de eerste en laatste aan de kaartrand */
+.dag .dag__drinken .dagdrank:first-child .dagdrank__naam, .dag .dag__drinken .dagdrank:last-child .dagdrank__naam { text-align: center; }
+@media (max-width: 1499px) {
+  .dag .dagdrank .dagdrank__naam { line-height: 1.15; }
+}
+.dag .dagdranklijst { display: flex; flex-direction: column; margin: var(--s-3) 0 0; padding: 0; list-style: none; max-height: none; overflow: visible; }
+.dag .dagdranklijst__rij { flex: none; display: flex; align-items: center; gap: var(--s-3); padding: 0; font-size: var(--fs-small); }
+.dag .dagdranklijst__rij + .dagdranklijst__rij { border-top: var(--lijn); }
+.dag .dagdranklijst__rij .tegel { --tile-size: 32px; }
+.dag .dagdranklijst__naam { font-weight: 500; }
+.dag .dagdranklijst__stand { flex: 1 1 auto; min-width: 0; }
+.dag .dagdranklijst__rij .drank__weg { flex: none; display: inline-flex; align-items: center; justify-content: center; width: var(--tap-min); height: var(--tap-min); min-width: var(--tap-min); min-height: var(--tap-min); margin: 0 calc((var(--tap-min) - 20px) / -2 - 3.75px) 0 auto; padding: 0; font-size: var(--fs-body); color: var(--c-text-muted); }
+.dag .dagdranken__leeg { margin: var(--s-3) 0 0; }
+
+/* ---------- Supplementen: de momenten (en de geplande spuit) onder elkaar als rijen over de volle breedte ---------- */
+.dag .dag__momenten { display: flex; flex-direction: column; margin: 0; }
+.dag .dag__momenten > .momentrij { display: flex; align-items: center; gap: var(--s-4); width: 100%; min-height: 0; padding: var(--s-3) 0; border-top: var(--lijn); border-radius: 0; text-align: left; }
+.dag .dag__momenten > .momentrij:first-child { border-top: 0; padding-top: 0; }
+.dag .dag__momenten > .momentrij:last-child { padding-bottom: 0; }
+.dag .dag__momenten .momentrij .tegel { --tile-size: 40px; }
+.dag .dag__momenten .momentrij__tekst { flex: 1 1 auto; min-width: 0; display: flex; flex-direction: column; gap: 0; text-align: left; }
+.dag .dag__momenten .rij__titel, .dag .dag__momenten .rij__sub { line-height: 1.25; }
+.dag .dag__momenten .momentrij .vinkvak__vak { flex: none; margin-left: auto; }
+.dag .dag__momenten .dag__spuit:disabled.is-klaar { opacity: 1; cursor: default; }
+.dag .dag__supplementen .kaartkop__eind { display: flex; align-items: center; }
+.dag .dag__supplementen .dag__meer { margin: 0; min-height: 0; padding: 0; gap: var(--s-1); line-height: 1; font-size: var(--fs-small); }
+.dag .dag__supplementen .leeg { display: flex; flex-direction: row; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: var(--s-2) var(--s-4); padding: 0; text-align: left; }
+.dag .dag__supplementen .leeg__merk { display: none; }
+.dag .dag__supplementen .leeg__tekst { margin: 0; max-width: none; font-size: var(--fs-body); text-align: left; text-wrap: pretty; }
+
+/* ---------- Stemming en energie: de opbouw van het hoofdscherm; de hint is de laatste regel ---------- */
+.dag .dag__stemming { display: flex; flex-direction: column; }
+.dag .dag__stemming .stemming__inhoud { flex: 1 1 auto; justify-content: flex-start; gap: var(--s-4); }
+.dag .dag__stemming .dag__wis { margin: 0; text-align: left; }
+.dag .dag__stemming .dag__wis.is-leeg { visibility: hidden; }
+
+/* ---------- Notitie: het tekstvak vult de hoogte van de kaart; lange tekst scrolt binnenin ---------- */
+.dag .dag__notitie { display: flex; flex-direction: column; }
+/* Vaste hoogte, los van de tekst: tekstvak() zet inline een hoogte naar de inhoud, die hier bewust genegeerd wordt (!important); lange tekst scrolt in het vak. */
+.dag .dag__notitie .veld__vak { flex: none; width: 100%; height: calc(var(--tap-min) * 3.4) !important; min-height: 0; max-height: none; overflow-y: auto; }
+@media (min-width: 700px) and (max-width: 1099.98px) {
+  .dag .dag__notitie .veld__vak { height: calc(var(--tap-min) * 4.2) !important; }
+}
+/* Tot de eerste meting van de kolommen (verdeelKolommen in dagboek-dag.js) is het raster onzichtbaar: de Notitie kan nog naar de andere kolom verhuizen. */
+.dag .dag__raster.is-meet { visibility: hidden; }
+/* Ruimte die de Notitie op haar minimum niet kan opvangen, verdeelt de script over de rijen van de andere kolom (--dag-rek, hoogstens 10 px per rij). */
+.dag .dag__eten > .maaltijd + .maaltijd { padding-top: calc(var(--s-3) + var(--dag-rek, 0px) / 2); }
+.dag .dag__eten > .maaltijd:not(:last-child) { padding-bottom: calc(var(--s-3) + var(--dag-rek, 0px) / 2); }
+.dag .dag__momenten > .momentrij:not(:first-child) { padding-top: calc(var(--s-3) + var(--dag-rek, 0px) / 2); }
+.dag .dag__momenten > .momentrij:not(:last-child) { padding-bottom: calc(var(--s-3) + var(--dag-rek, 0px) / 2); }
+.dag .dagdranklijst__rij { min-height: calc(var(--tap-min) + var(--dag-rek, 0px)); }
+@media (min-width: 1100px) {
+  .dag .dag__links > .dag__notitie, .dag .dag__zij > .dag__notitie { flex: 1 1 auto; }
+  .dag .dag__notitie .veld__vak { flex: 1 1 0; height: 0 !important; min-height: calc(var(--tap-min) * 2); max-height: none; }
+}
+
+/* ---------- BESLISSING 308: tikvlakken en labels op telefoon en iPad ---------- */
+/* Een maaltijd die opengaat scrolt zichtbaar tussen de vaste kop en de tabbalk (de knoppen onderaan verdwenen er anders achter, op 390 x 844 en op een iPad staand). */
+.dag .dag__eten .maaltijd { scroll-margin-block: calc(var(--s-12) * 2) calc(var(--tabbar-h) + var(--safe-bottom) + var(--s-4)); }
+/* Een rij Eten is zelf 44 px hoog (zie bij Eten hierboven). */
+/* "1 van 3 >" in de kop van Supplementen is een klein stuk tekst (63 x 14 px): de knop zelf is 44 px hoog; een negatieve marge houdt haar op de indeling 14 px en de tekst op zijn plaats. */
+.dag .dag__supplementen .dag__meer { position: relative; box-sizing: border-box; height: calc(var(--tap-min) - var(--s-1)); margin-block: calc((var(--fs-small) - (var(--tap-min) - var(--s-1))) / 2); }
+/* De zes dranken: "Kan water" en "Iets anders" stonden op twee regels naast vier labels op één regel (labels van 12 px kleiner maken kan niet). Alle zes labels krijgen nu de hoogte van twee regels
+   (met de breedte van hun tegel, ze raken elkaar niet): evenveel ruimte onder elke tegel. Vanaf 1440 px blijven de labels op één regel zoals ze waren. */
+
+/* ---------- Stemming en energie over de volle breedte: de twee delen naast elkaar, gescheiden door een verticale lijn ---------- */
+@media (min-width: 1100px) {
+  .dag .dag__stemming .stemming__inhoud { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: var(--s-8); align-items: start; }
+  .dag .dag__stemming .stemming__lijn { width: 0; height: 100%; border-top: 0; border-left: var(--lijn); }
+  .dag .dag__stemming .dag__wis { grid-column: 1 / -1; }
+  .dag .dag__stemming .dag__wis.is-leeg { visibility: visible; } /* in de brede kaart staat de hint altijd: zo blijft er geen lege band onder de tegels */
+  /* De vijf keuzes van elk deel zijn gelijke tegels die de breedte van hun helft vullen, met een vaste tussenruimte: geen kleine tekens met lucht ertussen */
+  .dag .dag__stemming .stemming__inhoud { row-gap: var(--s-3); }
+  .dag .dag__stemming .gevoel, .dag .dag__stemming .energie--kiezer { gap: var(--s-2); --gevoel-tegel: 40px; --lh: 32px; }
+  .dag .dag__stemming .gevoel__optie, .dag .dag__stemming .energie__tik { width: 100%; min-height: calc(var(--tap-min) * 1.6); padding: var(--s-2); justify-content: center; border-radius: var(--r-md); background: var(--c-surface-soft); }
+  .dag .dag__stemming .energie__tik { justify-content: flex-end; }
+}

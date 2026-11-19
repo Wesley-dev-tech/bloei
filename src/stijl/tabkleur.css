@@ -1,0 +1,299 @@
+/* ============================================================
+   Tabkleur (BESLISSINGEN 357, 358 en 359): binnen een tabblad draagt alles wat een themakleur heeft de kleurfamilie van dat tabblad.
+   Als laatste geladen (src/main.js). Geen kleurwaarden: alleen tokens uit tokens.css en afgeleid.css.
+
+   Hoe: het scherm staat in #scherm met data-scherm="<route>" (src/app.js). Een blad, dialoog of melding (.blad, dialog, .strokenhouder) hangt
+   aan <body>, buiten #scherm; via :root:has(#scherm[data-scherm...]) krijgt ook dat de familie van het open tabblad. Bewust NIET herbenoemd:
+   de navigatie (#zijbalk, #tabbalk: elk tabblad in zijn eigen kleur), het kaartje van de rondleiding (.uitleg), de melding "Nieuwe badge"
+   (.vieringhouder) en het slot (#slot): die hangen buiten deze wortels.
+
+   1. Elke familie krijgt dezelfde rollen (--f-<familie>-<rol>), vastgelegd op :root zodat ze nooit zelf herbenoemd worden:
+        basis    de kleur zelf (balk, staaf, bolletje, lijn, ring)         zacht   vlak, tegel, spoor van een balk, gekozen vlak
+        icoon    icoon in zijn tegel (>= 3 : 1), pijltjes, focusrand       tekst   link en kleur als tekst (>= 4,5 : 1)
+        gevuld   vinkvak en schakelaar aan, met het lichte teken (>= 3)    vol     vol vlak met lichte tekst (>= 4,5)
+        vulling / op-vulling   wat "doel gehaald, alles genomen" vult en de tekst erop (de eigen familie houdt haar eigen paar); een vollere
+                 tint dan basis, ook in Nacht (Dagboek: de abrikoos als tekst, --c-book-text; in Nacht lichter dan de basis)
+        gehaald  het gehaalde dagdoel van Drinken                          mix     de menging van de knop in een supplementkaart
+   2. Per tabblad wijzen --fam-* naar de rollen van zijn familie: Dagboek abrikoos, Drinken mist, Supplementen salie, Gewicht duifblauw,
+      Algemeen en de instellingen het accent van het thema (BESLISSING 365), Delen lavendel. Op Vandaag elke kaart in de familie van haar tabblad (370).
+   3. Eén gemeenschappelijk blok herbenoemt alle familie- en accenttokens naar --fam-*. Uitzonderingen die blijven: --c-day (de paarse stip
+      van vandaag, de boog van een medaille), de gevoelschaal (--mood-*), de blaadjes van de energie (--energy-*, op :root berekend) en het
+      verslagvel (zet zijn eigen Poeder-tokens, src/ui/pdf-tokens.js).
+   ============================================================ */
+:root {
+  --f-dagboek-basis: var(--c-book);         --f-dagboek-zacht: var(--c-book-soft);     --f-dagboek-icoon: var(--c-book-icoon);
+  --f-dagboek-tekst: var(--c-book-text);    --f-dagboek-gevuld: var(--c-book-gevuld);  --f-dagboek-vol: var(--c-book-vol);
+  --f-dagboek-vulling: var(--c-book-text);  --f-dagboek-op-vulling: var(--c-on-primary); --f-dagboek-gehaald: var(--c-book-text); --f-dagboek-mix: 100%;
+
+  --f-drank-basis: var(--c-water);          --f-drank-zacht: var(--c-water-soft);      --f-drank-icoon: var(--tile-drink-fg);
+  --f-drank-tekst: var(--c-water-text);     --f-drank-gevuld: var(--c-water-gevuld);   --f-drank-vol: var(--c-water-vol);
+  --f-drank-vulling: var(--c-water-vol);    --f-drank-op-vulling: var(--c-on-primary); --f-drank-gehaald: var(--drank-gehaald); --f-drank-mix: 100%;
+  --f-drank-onderweg: var(--drank-onderweg);
+
+  --f-gezond-basis: var(--c-health);        --f-gezond-zacht: var(--c-health-soft);    --f-gezond-icoon: var(--tile-health-fg);
+  --f-gezond-tekst: var(--c-health-text);   --f-gezond-gevuld: var(--c-health-gevuld); --f-gezond-vol: var(--c-health-vol);
+  --f-gezond-vulling: var(--c-health);      --f-gezond-op-vulling: var(--c-on-health); --f-gezond-gehaald: var(--c-health-vol); --f-gezond-mix: var(--knop-mix-gezondheid);
+
+  --f-gewicht-basis: var(--c-weight);       --f-gewicht-zacht: var(--c-weight-soft);   --f-gewicht-icoon: var(--tile-weight-fg);
+  --f-gewicht-tekst: var(--c-weight-text);  --f-gewicht-gevuld: var(--c-weight-gevuld); --f-gewicht-vol: var(--c-weight-vol);
+  --f-gewicht-vulling: var(--c-weight-vol); --f-gewicht-op-vulling: var(--c-on-primary); --f-gewicht-gehaald: var(--c-weight-vol); --f-gewicht-mix: 100%;
+
+  /* Algemeen (BESLISSING 365): het accent van het thema, de kleur van het tabblad Algemeen in de navigatie (Poeder en Nacht roze, Salie groen) */
+  --f-algemeen-basis: var(--c-accent);      --f-algemeen-zacht: var(--c-accent-soft);  --f-algemeen-icoon: var(--tile-meal-fg);
+  --f-algemeen-tekst: var(--c-accent-text-op-soft); --f-algemeen-gevuld: var(--c-accent-gevuld); --f-algemeen-vol: var(--c-accent-text-op-soft);
+  --f-algemeen-vulling: var(--c-accent-text-op-soft); --f-algemeen-op-vulling: var(--c-on-primary); --f-algemeen-gehaald: var(--c-accent-text-op-soft); --f-algemeen-mix: 100%;
+
+  /* Delen (BESLISSING 369): lavendel; de volle lavendel (--c-share-licht) voor vlakken, balken en vinkvak, de diepe tint (--c-share) voor het icoon, de tekstvariant voor tekst en --c-share-vol voor het volle vlak met witte tekst */
+  --f-delen-basis: var(--c-share-licht);    --f-delen-zacht: var(--c-share-soft);      --f-delen-icoon: var(--c-share);
+  --f-delen-tekst: var(--c-share-text);     --f-delen-gevuld: var(--c-share-licht);    --f-delen-vol: var(--c-share-vol);
+  --f-delen-vulling: var(--c-share-licht);  --f-delen-op-vulling: var(--c-on-share);   --f-delen-gehaald: var(--c-share-text); --f-delen-mix: 100%;
+
+  /* Vandaag (BESLISSING 370): pruim, voor de bovenste kaart (icoon in de tegel 4,32, tekst 5,26, licht teken 4,94; Nacht 5,71 / 6,85 / 5,80) */
+  --f-dag-basis: var(--c-day);              --f-dag-zacht: var(--c-day-soft);          --f-dag-icoon: var(--c-day);
+  --f-dag-tekst: var(--c-day);              --f-dag-gevuld: var(--c-day);              --f-dag-vol: var(--c-day);
+  --f-dag-vulling: var(--c-day);            --f-dag-op-vulling: var(--c-on-primary);   --f-dag-gehaald: var(--c-day); --f-dag-mix: 100%;
+}
+
+/* ---- 2. Welk tabblad welke familie heeft ---- */
+#scherm[data-scherm^="dagboek"],
+:root:has(#scherm[data-scherm^="dagboek"]) body > :is(.blad, dialog, .strokenhouder) {
+  --fam-basis: var(--f-dagboek-basis); --fam-zacht: var(--f-dagboek-zacht); --fam-icoon: var(--f-dagboek-icoon); --fam-tekst: var(--f-dagboek-tekst);
+  --fam-gevuld: var(--f-dagboek-gevuld); --fam-vol: var(--f-dagboek-vol); --fam-vulling: var(--f-dagboek-vulling); --fam-op-vulling: var(--f-dagboek-op-vulling);
+  --fam-gehaald: var(--f-dagboek-gehaald); --fam-mix: var(--f-dagboek-mix);
+}
+#scherm[data-scherm="drinken"],
+:root:has(#scherm[data-scherm="drinken"]) body > :is(.blad, dialog, .strokenhouder) {
+  --fam-basis: var(--f-drank-basis); --fam-zacht: var(--f-drank-zacht); --fam-icoon: var(--f-drank-icoon); --fam-tekst: var(--f-drank-tekst);
+  --fam-gevuld: var(--f-drank-gevuld); --fam-vol: var(--f-drank-vol); --fam-vulling: var(--f-drank-vulling); --fam-op-vulling: var(--f-drank-op-vulling);
+  --fam-gehaald: var(--f-drank-gehaald); --fam-mix: var(--f-drank-mix); --fam-onderweg: var(--f-drank-onderweg);
+}
+#scherm[data-scherm="supplementen"],
+:root:has(#scherm[data-scherm="supplementen"]) body > :is(.blad, dialog, .strokenhouder) {
+  --fam-basis: var(--f-gezond-basis); --fam-zacht: var(--f-gezond-zacht); --fam-icoon: var(--f-gezond-icoon); --fam-tekst: var(--f-gezond-tekst);
+  --fam-gevuld: var(--f-gezond-gevuld); --fam-vol: var(--f-gezond-vol); --fam-vulling: var(--f-gezond-vulling); --fam-op-vulling: var(--f-gezond-op-vulling);
+  --fam-gehaald: var(--f-gezond-gehaald); --fam-mix: var(--f-gezond-mix);
+}
+#scherm[data-scherm="gewicht"],
+:root:has(#scherm[data-scherm="gewicht"]) body > :is(.blad, dialog, .strokenhouder) {
+  --fam-basis: var(--f-gewicht-basis); --fam-zacht: var(--f-gewicht-zacht); --fam-icoon: var(--f-gewicht-icoon); --fam-tekst: var(--f-gewicht-tekst);
+  --fam-gevuld: var(--f-gewicht-gevuld); --fam-vol: var(--f-gewicht-vol); --fam-vulling: var(--f-gewicht-vulling); --fam-op-vulling: var(--f-gewicht-op-vulling);
+  --fam-gehaald: var(--f-gewicht-gehaald); --fam-mix: var(--f-gewicht-mix);
+}
+/* Algemeen en alle instellingenschermen (route meer...): het roze van Algemeen, de medailles blijven (BESLISSING 365, vervangt de neutrale lezing van 321) */
+#scherm[data-scherm^="meer"],
+:root:has(#scherm[data-scherm^="meer"]) body > :is(.blad, dialog, .strokenhouder) {
+  --fam-basis: var(--f-algemeen-basis); --fam-zacht: var(--f-algemeen-zacht); --fam-icoon: var(--f-algemeen-icoon); --fam-tekst: var(--f-algemeen-tekst);
+  --fam-gevuld: var(--f-algemeen-gevuld); --fam-vol: var(--f-algemeen-vol); --fam-vulling: var(--f-algemeen-vulling); --fam-op-vulling: var(--f-algemeen-op-vulling);
+  --fam-gehaald: var(--f-algemeen-gehaald); --fam-mix: var(--f-algemeen-mix);
+}
+#scherm[data-scherm="delen"],
+:root:has(#scherm[data-scherm="delen"]) body > :is(.blad, dialog, .strokenhouder) {
+  --fam-basis: var(--f-delen-basis); --fam-zacht: var(--f-delen-zacht); --fam-icoon: var(--f-delen-icoon); --fam-tekst: var(--f-delen-tekst);
+  --fam-gevuld: var(--f-delen-gevuld); --fam-vol: var(--f-delen-vol); --fam-vulling: var(--f-delen-vulling); --fam-op-vulling: var(--f-delen-op-vulling);
+  --fam-gehaald: var(--f-delen-gehaald); --fam-mix: var(--f-delen-mix);
+}
+
+/* Een bevestigingsvraag (bevestig(), een dialog zonder data-familie) boven een open blad volgt de familie van dat blad: op Vandaag is de vraag bij een
+   maaltijd dus Dagboek en niet pruim, in Favorieten ook Dagboek en niet het roze van Algemeen (de selectors staan bij elke familie hieronder en bij blok 3).
+   BESLISSING 422: een pop-up (.blad of dialog, aan <body>) volgt de familie van de KAART die haar opent, niet van het tabblad. De markup draagt
+   data-familie="dagboek | drank | gezond | gewicht | algemeen | delen" op het .blad of op de dialog zelf (maaltijd = dagboek, ook op Vandaag;
+   weging = gewicht; supplement = supplementen; drank = drinken; instellingen = algemeen; Delen = delen). Zonder attribuut verandert er niets: dan geldt de
+   familie van het tabblad hierboven. De dubbele :root maakt deze regels sterker dan die van het tabblad. */
+:root:root:has(#app) body > :is(.blad, dialog)[data-familie="dagboek"],
+:root:root:has(#app) body > .blad > dialog[data-familie="dagboek"],
+:root:root:has(#app):has(body > .blad[data-familie="dagboek"] > dialog[open]) body > dialog.dialoog:not(.supplementkaart, .dialoog--wis) {
+  --fam-basis: var(--f-dagboek-basis); --fam-zacht: var(--f-dagboek-zacht); --fam-icoon: var(--f-dagboek-icoon); --fam-tekst: var(--f-dagboek-tekst);
+  --fam-gevuld: var(--f-dagboek-gevuld); --fam-vol: var(--f-dagboek-vol); --fam-vulling: var(--f-dagboek-vulling); --fam-op-vulling: var(--f-dagboek-op-vulling);
+  --fam-gehaald: var(--f-dagboek-gehaald); --fam-mix: var(--f-dagboek-mix);
+}
+:root:root:has(#app) body > :is(.blad, dialog)[data-familie="drank"],
+:root:root:has(#app) body > .blad > dialog[data-familie="drank"],
+:root:root:has(#app):has(body > .blad[data-familie="drank"] > dialog[open]) body > dialog.dialoog:not(.supplementkaart, .dialoog--wis) {
+  --fam-basis: var(--f-drank-basis); --fam-zacht: var(--f-drank-zacht); --fam-icoon: var(--f-drank-icoon); --fam-tekst: var(--f-drank-tekst);
+  --fam-gevuld: var(--f-drank-gevuld); --fam-vol: var(--f-drank-vol); --fam-vulling: var(--f-drank-vulling); --fam-op-vulling: var(--f-drank-op-vulling);
+  --fam-gehaald: var(--f-drank-gehaald); --fam-mix: var(--f-drank-mix); --fam-onderweg: var(--f-drank-onderweg);
+}
+:root:root:has(#app) body > :is(.blad, dialog)[data-familie="gezond"],
+:root:root:has(#app) body > .blad > dialog[data-familie="gezond"],
+:root:root:has(#app):has(body > .blad[data-familie="gezond"] > dialog[open]) body > dialog.dialoog:not(.supplementkaart, .dialoog--wis) {
+  --fam-basis: var(--f-gezond-basis); --fam-zacht: var(--f-gezond-zacht); --fam-icoon: var(--f-gezond-icoon); --fam-tekst: var(--f-gezond-tekst);
+  --fam-gevuld: var(--f-gezond-gevuld); --fam-vol: var(--f-gezond-vol); --fam-vulling: var(--f-gezond-vulling); --fam-op-vulling: var(--f-gezond-op-vulling);
+  --fam-gehaald: var(--f-gezond-gehaald); --fam-mix: var(--f-gezond-mix);
+}
+:root:root:has(#app) body > :is(.blad, dialog)[data-familie="gewicht"],
+:root:root:has(#app) body > .blad > dialog[data-familie="gewicht"],
+:root:root:has(#app):has(body > .blad[data-familie="gewicht"] > dialog[open]) body > dialog.dialoog:not(.supplementkaart, .dialoog--wis) {
+  --fam-basis: var(--f-gewicht-basis); --fam-zacht: var(--f-gewicht-zacht); --fam-icoon: var(--f-gewicht-icoon); --fam-tekst: var(--f-gewicht-tekst);
+  --fam-gevuld: var(--f-gewicht-gevuld); --fam-vol: var(--f-gewicht-vol); --fam-vulling: var(--f-gewicht-vulling); --fam-op-vulling: var(--f-gewicht-op-vulling);
+  --fam-gehaald: var(--f-gewicht-gehaald); --fam-mix: var(--f-gewicht-mix);
+}
+:root:root:has(#app) body > :is(.blad, dialog)[data-familie="algemeen"],
+:root:root:has(#app) body > .blad > dialog[data-familie="algemeen"],
+:root:root:has(#app):has(body > .blad[data-familie="algemeen"] > dialog[open]) body > dialog.dialoog:not(.supplementkaart, .dialoog--wis) {
+  --fam-basis: var(--f-algemeen-basis); --fam-zacht: var(--f-algemeen-zacht); --fam-icoon: var(--f-algemeen-icoon); --fam-tekst: var(--f-algemeen-tekst);
+  --fam-gevuld: var(--f-algemeen-gevuld); --fam-vol: var(--f-algemeen-vol); --fam-vulling: var(--f-algemeen-vulling); --fam-op-vulling: var(--f-algemeen-op-vulling);
+  --fam-gehaald: var(--f-algemeen-gehaald); --fam-mix: var(--f-algemeen-mix);
+}
+:root:root:has(#app) body > :is(.blad, dialog)[data-familie="delen"],
+:root:root:has(#app) body > .blad > dialog[data-familie="delen"],
+:root:root:has(#app):has(body > .blad[data-familie="delen"] > dialog[open]) body > dialog.dialoog:not(.supplementkaart, .dialoog--wis) {
+  --fam-basis: var(--f-delen-basis); --fam-zacht: var(--f-delen-zacht); --fam-icoon: var(--f-delen-icoon); --fam-tekst: var(--f-delen-tekst);
+  --fam-gevuld: var(--f-delen-gevuld); --fam-vol: var(--f-delen-vol); --fam-vulling: var(--f-delen-vulling); --fam-op-vulling: var(--f-delen-op-vulling);
+  --fam-gehaald: var(--f-delen-gehaald); --fam-mix: var(--f-delen-mix);
+}
+
+/* Vandaag (BESLISSING 370): het overzicht; elke kaart in de familie van het tabblad waar haar inhoud thuishoort. Eten, Stemming en energie en de
+   Kalender horen bij het Dagboek, Supplementen bij Supplementen, de weegkaart bij Gewicht, de bovenste kaart bij Vandaag zelf. De kaart Drinken
+   regelt scherm-vandaag.css (niet hier); de kop (begroeting, Uitleg, Delen) blijft pruim. */
+#scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart) {
+  --fam-basis: var(--f-dagboek-basis); --fam-zacht: var(--f-dagboek-zacht); --fam-icoon: var(--f-dagboek-icoon); --fam-tekst: var(--f-dagboek-tekst);
+  --fam-gevuld: var(--f-dagboek-gevuld); --fam-vol: var(--f-dagboek-vol); --fam-vulling: var(--f-dagboek-vulling); --fam-op-vulling: var(--f-dagboek-op-vulling);
+  --fam-gehaald: var(--f-dagboek-gehaald); --fam-mix: var(--f-dagboek-mix);
+}
+#scherm[data-scherm="vandaag"] .suppkaart {
+  --fam-basis: var(--f-gezond-basis); --fam-zacht: var(--f-gezond-zacht); --fam-icoon: var(--f-gezond-icoon); --fam-tekst: var(--f-gezond-tekst);
+  --fam-gevuld: var(--f-gezond-gevuld); --fam-vol: var(--f-gezond-vol); --fam-vulling: var(--f-gezond-vulling); --fam-op-vulling: var(--f-gezond-op-vulling);
+  --fam-gehaald: var(--f-gezond-gehaald); --fam-mix: var(--f-gezond-mix);
+}
+#scherm[data-scherm="vandaag"] .voortgang {
+  --fam-basis: var(--f-dag-basis); --fam-zacht: var(--f-dag-zacht); --fam-icoon: var(--f-dag-icoon); --fam-tekst: var(--f-dag-tekst);
+  --fam-gevuld: var(--f-dag-gevuld); --fam-vol: var(--f-dag-vol); --fam-vulling: var(--f-dag-vulling); --fam-op-vulling: var(--f-dag-op-vulling);
+  --fam-gehaald: var(--f-dag-gehaald); --fam-mix: var(--f-dag-mix);
+}
+
+/* ---- 3. Alle familie- en accenttokens naar de familie van het tabblad ---- */
+#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]),
+#scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart, .suppkaart, .voortgang),
+:root:has(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"])) body > :is(.blad, dialog, .strokenhouder),
+body > :is(.blad, dialog)[data-familie],
+body > .blad > dialog[data-familie],
+:root:has(body > .blad[data-familie] > dialog[open]) body > dialog.dialoog:not(.supplementkaart, .dialoog--wis) {
+  /* BESLISSING 371: het vlak van een bedieningsonderdeel (niet-gekozen chip, spoor van een keuzerij, stapper, invoervak, kalendercel): de zachte
+     familietint voor iets meer dan de helft met de kaartkleur, dus lichter dan het tegelvlak en het gekozen vlak */
+  --fam-bediening: color-mix(in srgb, var(--fam-zacht) 55%, var(--c-surface));
+  /* BESLISSING 537: het zachte vlak van een omrande knop (.knop--secundair) en de tekst erop; dezelfde formule als op :root in afgeleid.css, maar met de familie */
+  --knop-zacht-bg: color-mix(in srgb, var(--fam-basis) 35%, var(--fam-zacht));
+  --knop-zacht-fg: var(--c-text);
+  /* accent (oudroze: iconen zonder tegel, links, gekozen chip en segment, focus) en de maaltijdtegel */
+  --c-accent: var(--fam-icoon);
+  --c-accent-text: var(--fam-tekst);
+  --c-accent-text-op-soft: var(--fam-tekst);
+  --c-accent-soft: var(--fam-zacht);
+  --c-focus: var(--fam-tekst);
+  --focus: 2px solid var(--fam-tekst);
+  --tile-meal-bg: var(--fam-zacht);    --tile-meal-fg: var(--fam-icoon);
+  /* Drinken */
+  --c-water: var(--fam-basis);
+  --c-water-soft: var(--fam-zacht);
+  --c-water-text: var(--fam-tekst);
+  --drank-vlak: color-mix(in srgb, var(--fam-zacht) 50%, var(--c-surface));
+  --drank-gehaald: var(--fam-gehaald);
+  --drank-onderweg: var(--fam-onderweg, var(--fam-basis)); /* alleen Drinken heeft een eigen "onderweg" (in Nacht lichter dan de drinkkleur) */
+  --tile-drink-bg: var(--fam-zacht);   --tile-drink-fg: var(--fam-icoon);
+  /* Supplementen en gezondheid */
+  --c-health: var(--fam-vulling);
+  --c-on-health: var(--fam-op-vulling);
+  --c-health-soft: var(--fam-zacht);
+  --c-health-gevuld: var(--fam-gevuld);
+  --c-health-text: var(--fam-tekst);
+  --tile-health-bg: var(--fam-zacht);  --tile-health-fg: var(--fam-icoon);
+  --knop-mix-gezondheid: var(--fam-mix);
+  /* Gewicht */
+  --c-weight: var(--fam-basis);
+  --c-weight-soft: var(--fam-zacht);
+  --c-weight-text: var(--fam-tekst);
+  --tile-weight-bg: var(--fam-zacht);  --tile-weight-fg: var(--fam-icoon);
+  /* Dagboek */
+  --c-book: var(--fam-basis);
+  --c-book-soft: var(--fam-zacht);
+  --tile-book-bg: var(--fam-zacht);    --tile-book-fg: var(--fam-icoon);
+  /* Vandaag (alleen de tegel; --c-day blijft voor de stip van vandaag) en Delen */
+  --tile-day-bg: var(--fam-zacht);     --tile-day-fg: var(--fam-icoon);
+  --c-share: var(--fam-icoon);
+  --c-share-soft: var(--fam-zacht);
+  --tile-share-bg: var(--fam-vulling); --tile-share-fg: var(--fam-op-vulling);
+  /* Neutraal: binnen een tabblad hebben alle tegels de kleur van het tabblad (BESLISSINGEN 323 en 365) */
+  --tile-neutral-bg: var(--fam-zacht); --tile-neutral-fg: var(--fam-icoon);
+}
+
+/* ---- Uitzonderingen en wat niet via een token loopt ---- */
+/* De medailles houden hun eigen kleur (behaald salie, nog te behalen neutraal; schermen.css .medaille) */
+:is(#scherm, body > dialog, body > .blad) .medaille { --mk: var(--medaille-kleur); --mb: var(--medaille-vlak); }
+:is(#scherm, body > dialog, body > .blad) .medaille.is-open .medaille__schijf { background: var(--medaille-open-vlak); }
+:is(#scherm, body > dialog, body > .blad) .medaille.is-open .medaille__icoon { color: var(--medaille-open-kleur); }
+/* BESLISSING 367: op Algemeen en het scherm Badges volgen ook de medailles het roze van Algemeen. Behaald = de volle schijf in de volle tint
+   (--c-accent-text-op-soft) met het lint en een licht icoon (Poeder 6,17, Salie 5,60, Nacht 8,36); nog te behalen = een zacht schijfje zonder lint
+   met het icoon in de tegeltint (3,86 / 4,60 / 6,09) en de voortgangsring zoals overal. Het verschil zit dus in vulling én lint, niet alleen in kleur.
+   Elders (Vandaag, de melding "Nieuwe badge") blijven ze groen. */
+#scherm[data-scherm^="meer"] .medaille { --mk: var(--fam-vol); --mb: var(--fam-zacht); }
+#scherm[data-scherm^="meer"] .medaille.is-open .medaille__schijf { background: var(--fam-zacht); }
+#scherm[data-scherm^="meer"] .medaille.is-open .medaille__icoon { color: var(--fam-icoon); }
+
+/* De supplementkaart buiten Supplementen: zijn knop is --c-health (nu de volle familiekleur), dus het lichte teken erop (componenten.css zet --c-text) */
+:root:has(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"])) body > dialog.supplementkaart { --knop-fg: var(--fam-op-vulling); }
+
+/* BESLISSINGEN 359 en 366: de knoppen in de kop van een scherm vormen één groep: het vraagteken als volle schijf (het teken is de achtergrond die
+   erdoor schijnt), het huisje en de deelknop in dezelfde helderheid als het icoon in een tegel van dat tabblad (op de achtergrond: Dagboek 3,68,
+   Drinken 3,49, Supplementen 4,47, Gewicht 3,46; Nacht >= 8,6). Een terugknop met woord blijft de tekstvariant (--c-accent-text, >= 4,5).
+   Op Algemeen en de instellingen (366) hebben het vraagteken, het huisje én de terugknop "‹ Algemeen" alle drie het roze van een tegelicoon
+   (--c-accent-text: 4,89 op de achtergrond, dus ook als tekst; Salie 5,25, Nacht 9,32).
+   Bron: componenten.css .icoonknop (--c-accent) en .schermkop__home (--c-text-muted). Op Vandaag (gevulde knoppen in pruim) verandert niets. */
+#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]) :is(.icoonknop.schermkop__uitleg:not(:disabled), .schermkop__home, .schermkop__delen) { color: var(--fam-icoon); }
+#scherm[data-scherm^="meer"] .schermkop .knop--tekst { color: var(--fam-icoon); }
+
+/* De week van het Dagboek: een afgevinkt moment is een bolletje in --tile-health-fg met een lichte letter (schermen.css .wk__teken--moment.is-aan).
+   De icoontint van het Dagboek haalt daarmee 3,91; de vollere tint van de familie haalt 5,18 (Nacht: 9,8 met de donkere letter). */
+#scherm[data-scherm^="dagboek"] .wk__teken--moment.is-aan { background: var(--fam-vulling); color: var(--fam-op-vulling); }
+
+/* De profielnaam in het voorbeeld op Naam en profielfoto staat in pruim (schermen.css .profielvoorbeeld__naam, --c-day): op Algemeen in zijn roze */
+#scherm[data-scherm^="meer"] .profielvoorbeeld__naam { color: var(--fam-tekst); }
+
+/* ---- Vandaag (BESLISSINGEN 358 en 370): uitzonderingen binnen de kaarten ---- */
+/* Kalender: in de familie van het Dagboek, maar het bolletje "alles genomen" en het spuitje (met hun legende) houden de kleur van Supplementen */
+#scherm[data-scherm="vandaag"] .kalkaart {
+  --c-health: var(--f-gezond-basis); --c-health-soft: var(--f-gezond-zacht); --c-health-gevuld: var(--f-gezond-gevuld);
+  --c-health-text: var(--f-gezond-tekst); --c-on-health: var(--f-gezond-op-vulling);
+  --tile-health-bg: var(--f-gezond-zacht); --tile-health-fg: var(--f-gezond-icoon);
+}
+#scherm[data-scherm="vandaag"] .kalkaart .kalkaart__link { color: var(--fam-tekst); }
+/* De bovenste kaart is van Vandaag (pruim), maar haar vier tegels tonen elk hun onderwerp: Eten zoals de kaart Eten (Dagboek), Drinken, Supplementen;
+   de stemming zet haar eigen kleur inline (vandaag.js) en blijft. De medailles erin blijven groen (BESLISSING 367). */
+#scherm[data-scherm="vandaag"] .voortgang .tegel--maaltijd { --t-bg: var(--f-dagboek-zacht); --t-fg: var(--f-dagboek-icoon); }
+#scherm[data-scherm="vandaag"] .voortgang .tegel--drank { --t-bg: var(--f-drank-zacht); --t-fg: var(--f-drank-icoon); }
+#scherm[data-scherm="vandaag"] .voortgang .tegel--gezondheid { --t-bg: var(--f-gezond-zacht); --t-fg: var(--f-gezond-icoon); }
+
+/* ---- BESLISSING 371: bedieningsvlakken en knoppen in de familie van het scherm (en op Vandaag van de kaart) ----
+   Wat het zachte kaartvlak (--c-surface-soft) gebruikte en bediening is, krijgt --fam-bediening: niet-gekozen chips en keuzeknoppen, het spoor
+   van een keuzerij, de stappers, invoervakken (ook het notitievak en de tijdvelden), het vak van de periode in woorden op Delen, de kalendercellen
+   van de maand, de momenten in het maandpaneel, de keuzevlakken van stemming en energie in de dag, en de lege sporen van staafjes, bolletjes en
+   het gewichtspad. Gekozen = het vollere familievlak met een rand in de icoontint, dus niet alleen een andere tint.
+   Bewust gebleven: echte kaartachtergronden, het voorbeeldvlak van een instelscherm, de profielfoto en de foto's, het verslagvel, de navigatie,
+   de supplementkaart (eigen gevulde chips) en de wisdialoog (gevaarlijke actie). */
+:is(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]),
+    #scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart, .suppkaart, .voortgang),
+    :root:has(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"])) body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis)),
+    body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis))[data-familie],
+    body > .blad > dialog[data-familie]:not(.supplementkaart, .dialoog--wis))
+  :is(.chip, .segment, .veld__invoer, .stapper__knop, .delen__periodewoorden, .mk__dag, .maand__moment, .dag__stemming .gevoel__optie, .dag__stemming .energie__tik,
+      .week__bol, .weekstaaf__balk, .weekdag__bol, .gewicht__pad, .gewvoorbeeld__dag) {
+  /* alleen het token herbenoemen: elke staat van het onderdeel (gekozen, gevuld, transparant) blijft zijn eigen regel volgen */
+  --c-surface-soft: var(--fam-bediening);
+}
+/* Gekozen chip of keuze: het vollere familievlak (accent-soft = --fam-zacht) en een rand in de icoontint. Niet in de supplementkaart (eigen gevulde chips). */
+:is(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]),
+    #scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart, .suppkaart, .voortgang))
+  :is(.chip.is-actief, .segment__deel.is-actief)::before { box-shadow: inset 0 0 0 1px var(--fam-icoon); }
+
+/* Knoppen: de hoofdknop in de volle familiekleur met het lichte teken (de rol vol, >= 4,5 : 1 in elke familie); de omrande knop heeft haar zachte vlak via --knop-zacht-bg (BESLISSING 537).
+   Op Vandaag per kaart. Niet in de supplementkaart (eigen knop) en niet in de
+   wisdialoog (gevaarlijke actie, eigen kleur). Bron: componenten.css .knop--primair (--knop-bg/--knop-fg) en .knop--secundair (--c-line). */
+#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]),
+#scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart, .suppkaart, .voortgang),
+:root:has(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"])) body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis)),
+body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis))[data-familie],
+body > .blad > dialog[data-familie]:not(.supplementkaart, .dialoog--wis) {
+  --knop-bg: var(--fam-vol);
+  --knop-fg: var(--c-on-primary);
+}
+/* De paarse stip van vandaag in de kaart Kalender is de --knop-bg van Vandaag (scherm-vandaag.css): die blijft pruim (BESLISSINGEN 291 en 292) */
+#scherm[data-scherm="vandaag"] .kalkaart { --knop-bg: color-mix(in srgb, var(--c-day) var(--knop-mix-dag), var(--c-text)); --knop-fg: var(--c-on-primary); }

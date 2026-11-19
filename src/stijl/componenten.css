@@ -1,0 +1,1129 @@
+/* ============================================================
+   Componenten van Bloei (spoor A) volgens HUISSTIJL.md §5 tot en met §8.
+   Alleen var(--...) uit bloei-huisstijl/tokens.css en afgeleid.css.
+   Klassen: Nederlandse BEM (blok, blok__deel, blok--variant, is-toestand).
+   ============================================================ */
+
+/* Gesimuleerde toestanden voor de stijlpagina (ingedrukt en focus) */
+.is-focus { outline: var(--focus); outline-offset: 2px; }
+
+.icoon { flex: none; display: inline-block; }
+.icoon--leeg { width: 1em; height: 1em; }
+
+/* ---------- Icoontegel (§5.1) ---------- */
+.tegel {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--tile-size);
+  height: var(--tile-size);
+  border-radius: var(--tile-radius);
+  background: var(--t-bg);
+  color: var(--t-fg);
+}
+.tegel--maaltijd   { --t-bg: var(--tile-meal-bg);    --t-fg: var(--tile-meal-fg); }
+.tegel--drank      { --t-bg: var(--tile-drink-bg);   --t-fg: var(--tile-drink-fg); }
+.tegel--gezondheid { --t-bg: var(--tile-health-bg);  --t-fg: var(--tile-health-fg); }
+.tegel--neutraal   { --t-bg: var(--tile-neutral-bg); --t-fg: var(--tile-neutral-fg); }
+.tegel--dag        { --t-bg: var(--tile-day-bg);     --t-fg: var(--tile-day-fg); }
+.tegel--dagboek    { --t-bg: var(--tile-book-bg);    --t-fg: var(--tile-book-fg); }
+.tegel--gewicht    { --t-bg: var(--tile-weight-bg);  --t-fg: var(--tile-weight-fg); }
+.tegel--delen      { --t-bg: var(--c-share-soft);    --t-fg: var(--c-share); } /* BESLISSING 235: zacht met aubergine icoon, zoals de andere tegels */
+.tegel--groot { width: var(--tile-size-groot); height: var(--tile-size-groot); }
+.tegel--gedimd .icoon { opacity: .4; }
+
+/* Actie- en navigatie-icoon zonder tegel: 48 x 48 tikvlak, --c-accent */
+.icoonknop {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--knop-h);
+  height: var(--knop-h);
+  border-radius: var(--r-sm);
+  color: var(--c-accent);
+  transition: transform var(--dur-fast) var(--ease), background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+  touch-action: manipulation;
+}
+/* Delen staat vanaf 960 px in de zijbalk, niet in de schermkop */
+@media (min-width: 960px) { .schermkop__delen { display: none; } }
+.icoonknop:active:not(:disabled), .icoonknop.is-ingedrukt { transform: scale(.97); }
+.icoonknop:disabled { color: var(--c-text-muted); opacity: .5; cursor: default; }
+@media (hover: hover) { .icoonknop:hover:not(:disabled) .icoon { transform: scale(1.12); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); } .icoonknop .icoon { transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease); } }
+
+/* ---------- Knoppen (§7) ---------- */
+.knop {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-2);
+  min-height: var(--knop-h);
+  min-width: var(--knop-min-b);
+  padding: 0 var(--knop-pad);
+  border: 1px solid transparent;
+  border-radius: var(--r-pill);
+  font-family: var(--font-ui);
+  font-size: var(--knop-fs);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  user-select: none;
+  touch-action: manipulation;
+  transition: transform var(--dur-fast) var(--ease), background-color var(--dur) var(--ease),
+    box-shadow var(--dur) var(--ease), opacity var(--dur) var(--ease);
+}
+.knop:active:not(:disabled), .knop.is-ingedrukt { transform: scale(.97); }
+.knop:disabled { opacity: .4; cursor: not-allowed; }
+/* Een knop is zo breed als zijn tekst; volle breedte alleen op een telefoon en in een blad of dialoog */
+.knop .icoon { width: var(--knop-icoon); height: var(--knop-icoon); }
+.knop--breed { display: flex; width: auto; align-self: flex-start; }
+@media (max-width: 719px) { .knop--breed { width: 100%; align-self: stretch; } }
+.dialoog .knop--breed, .blad .knop--breed, .strook .knop--breed { width: 100%; align-self: stretch; }
+@media (min-width: 960px) { :root { --knop-h: 44px; --knop-klein-h: 36px; } }
+.knop--klein { height: var(--knop-klein-h); min-height: var(--knop-klein-h); min-width: 0; padding: 0 var(--s-4); font-size: var(--knop-klein-fs); }
+
+/* Primair: aubergine, tekst porselein, hoogte 52, pill */
+.knop--primair { height: var(--knop-h); background: var(--knop-bg); color: var(--knop-fg); }
+.knop--primair:active:not(:disabled), .knop--primair.is-ingedrukt { transform: scale(.97); }
+/* Secundair (BESLISSING 537): een zacht vlak in de kleurfamilie van het tabblad (tokens --knop-zacht-bg en --knop-zacht-fg, afgeleid.css en tabkleur.css), zonder
+   rand: wit op wit zie je niet. De gevulde hoofdknop blijft de volle kleur, de tekstknop blijft zonder vlak. */
+.knop--secundair { height: var(--knop-h); background: var(--knop-zacht-bg); border-color: transparent; color: var(--knop-zacht-fg); }
+/* Tekstknop: licht, zonder rand */
+.knop--tekst { min-width: 0; padding: 0 var(--s-3); color: var(--c-accent-text); }
+.knop--groot { font-size: var(--knop-fs); }
+@media (hover: hover) {
+  .knop--primair:hover:not(:disabled) { box-shadow: var(--shadow-float); }
+  /* Bij hover blijft de achtergrond zoals in rust (BESLISSING 188): een lichte lift, of een onderstreping bij een tekstknop */
+  .knop--secundair:hover:not(:disabled) { transform: translateY(-1px); box-shadow: var(--shadow-float); }
+  .knop--tekst:hover:not(:disabled) { transform: translateY(-1px); }
+  .knop--tekst:hover:not(:disabled) .icoon { transform: scale(1.12); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); }
+}
+/* BESLISSING 462: een tekstknop in knopvorm heeft in geen enkele toestand een lijntje; hij licht op zoals de icoonknoppen (het icoon wordt groter met een zachte
+   schaduw, en de knop tilt 1 px op, zoals de andere knoppen; geen kleur, BESLISSING 188) en houdt bij toetsenbordfocus de gewone focusring. Het is een
+   transform: geen maat of plaats verandert. */
+.knop--tekst .icoon { transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease); }
+
+/* ---------- Chip en segment (§7) ----------
+   Het tikvlak is 48 px hoog; het zichtbare vlak is 40 px (transparante rand van 4 px erboven en eronder). */
+.chips { display: flex; flex-wrap: wrap; gap: var(--s-2); }
+.chip {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--s-2);
+  position: relative;
+  isolation: isolate;
+  height: var(--tap-min);
+  padding: 0 var(--s-4);
+  border: 0;
+  background: transparent;
+  color: var(--c-text);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  touch-action: manipulation;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+}
+/* Zichtbaar vlak 40 px (radius --r-sm) binnen het tikvlak van 48 px */
+.chip::before {
+  content: "";
+  position: absolute;
+  inset: var(--s-1) 0;
+  z-index: -1;
+  border-radius: var(--r-sm);
+  background: var(--c-surface-soft);
+  transition: background-color var(--dur) var(--ease);
+}
+.chip:active:not(:disabled), .chip.is-ingedrukt { transform: scale(.97); }
+.chip.is-actief { color: var(--c-accent-text); }
+.chip.is-actief::before { background: var(--c-accent-soft); }
+.chip:disabled { opacity: .4; cursor: not-allowed; }
+
+.segment {
+  display: inline-flex;
+  background: var(--c-surface-soft);
+  border-radius: calc(var(--r-sm) + var(--s-1));
+}
+.segment--vol { display: flex; width: 100%; }
+.segment--vol .segment__deel { flex: 1 1 0; }
+.segment__deel {
+  position: relative;
+  isolation: isolate;
+  min-width: var(--tap-min);
+  height: var(--tap-min);
+  padding: 0 var(--s-4);
+  border: 0;
+  background: transparent;
+  color: var(--c-text);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1;
+  white-space: nowrap;
+  touch-action: manipulation;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.segment__deel::before {
+  content: "";
+  position: absolute;
+  inset: var(--s-1);
+  z-index: -1;
+  border-radius: var(--r-sm);
+  background: transparent;
+  transition: background-color var(--dur) var(--ease);
+}
+.segment__deel.is-actief { color: var(--c-accent-text); }
+.segment__deel.is-actief::before { background: var(--c-accent-soft); }
+.segment__deel:active { transform: scale(.97); }
+
+/* ---------- Kaart (§7) en rij ---------- */
+/* Wit, radius 16, padding 20, --shadow-card, géén rand én schaduw tegelijk. */
+.kaart {
+  background: var(--c-surface);
+  border-radius: var(--r-md);
+  padding: var(--s-5);
+  box-shadow: var(--shadow-card);
+}
+.kaart--groot { border-radius: var(--r-lg); }
+.kaart__label { margin-bottom: var(--s-1); }
+.kaart__titel { margin-bottom: var(--s-4); }
+
+.rij {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  min-height: calc(var(--tile-size) + var(--s-6));
+  padding: var(--s-3) 0;
+  text-align: left;
+}
+.rij + .rij { border-top: var(--lijn); }
+.kaart > .rij:first-child { padding-top: 0; }
+.kaart > .rij:last-child { padding-bottom: 0; }
+.rij--knop { touch-action: manipulation; transition: opacity var(--dur-fast) var(--ease); }
+.rij__tekst { flex: 1; min-width: 0; display: flex; flex-direction: column; gap: 2px; }
+.rij__titel { font-size: var(--fs-body); font-weight: 500; line-height: 1.3; }
+/* Een gewoon woord breekt nooit midden af. Alleen tekst met een uitzonderlijk lang woord (een naam van één woord van 61 tekens) krijgt deze klasse
+   (heeftLangWoord in src/kern/langwoord.js) en breekt dan af binnen zijn kaart of cel, zodat kaart en pagina niet breder worden. */
+.is-langwoord { overflow-wrap: anywhere; min-width: 0; }
+.rij__sub {
+  font-size: var(--fs-small);
+  line-height: 1.4;
+  color: var(--c-text-muted);
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+.rij__actie { margin-right: calc(var(--s-3) * -1); }
+.rij__actie .icoon { width: var(--icon-size-lijst); height: var(--icon-size-lijst); }
+.rij__eind { flex: none; align-self: flex-start; padding-top: var(--s-1); font-size: var(--fs-small); color: var(--c-text-muted); }
+
+/* ---------- Uitklapkaart ---------- */
+.uitklap { padding: 0; }
+.uitklap__kop {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  min-height: calc(var(--tap-min) + var(--s-2));   /* 56 px */
+  padding: var(--s-2) var(--s-5);
+  border-radius: var(--r-md);
+  text-align: left;
+  touch-action: manipulation;
+}
+.uitklap__tekst { flex: 0 1 auto; min-width: 3em; display: flex; flex-direction: column; gap: 2px; }
+.uitklap__titel { font-size: var(--fs-body); font-weight: 500; line-height: 1.3; }
+.uitklap__samenvatting {
+  flex: 1 1 0;
+  min-width: 0;
+  display: block;
+  font-size: var(--fs-small);
+  color: var(--c-text-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  text-align: right;
+}
+.uitklap__chevron { flex: none; display: inline-flex; color: var(--c-accent); transition: transform var(--dur) var(--ease); }
+.uitklap.is-open .uitklap__chevron { transform: rotate(90deg); }
+/* De inhoud schuift open met een hoogte-animatie (rijen 0fr naar 1fr), zonder dat de pagina springt */
+.uitklap__paneel {
+  display: grid;
+  grid-template-rows: 0fr;
+  visibility: hidden;
+  transition: grid-template-rows var(--dur) var(--ease), visibility 0s linear var(--dur);
+}
+.uitklap.is-open .uitklap__paneel { grid-template-rows: 1fr; visibility: visible; transition-delay: 0s; }
+.uitklap__binnen { min-height: 0; overflow: hidden; padding: 0 var(--s-5); }
+.uitklap__inhoud { padding-bottom: var(--s-5); }
+.uitklap__inhoud > .rij:first-child { padding-top: 0; }
+.uitklap__inhoud > .rij:last-child { padding-bottom: 0; }
+
+/* ---------- Invoer ---------- */
+.veld__invoer {
+  display: block;
+  width: 100%;
+  min-height: var(--veld-h);
+  padding: var(--s-3) var(--s-4);
+  border: 1px solid transparent;
+  border-radius: var(--r-sm);
+  background: var(--c-surface-soft);
+  color: var(--c-text);
+  font-family: var(--font-ui);
+  font-size: var(--fs-body);   /* nooit kleiner dan 16 px: anders zoomt iOS in */
+  line-height: var(--lh-body);
+  -webkit-appearance: none;
+  appearance: none;
+  transition: border-color var(--dur) var(--ease);
+}
+.veld__invoer::placeholder { color: var(--c-text-muted); opacity: 1; }
+/* Eén rustige focusaanduiding (tik én toetsenbord): een accentrand van 2 px, geen tweede outline */
+.veld__invoer:focus, .veld__invoer:focus-visible { outline: none; border-color: var(--c-accent); box-shadow: 0 0 0 1px var(--c-accent); }
+.veld__invoer:disabled { opacity: .5; }
+.veld__vak { resize: none; overflow: hidden; min-height: calc(var(--tap-min) * 2); }
+
+.tijdveld { position: relative; display: inline-block; }
+.tijdveld__invoer { width: calc(var(--s-12) * 3); min-width: 0; text-align: left; }
+.tijdveld__invoer::-webkit-calendar-picker-indicator {
+  position: absolute;
+  inset: 0;
+  width: auto;
+  height: auto;
+  opacity: 0;
+  cursor: pointer;
+}
+.tijdveld__invoer::-webkit-date-and-time-value { text-align: left; }
+
+.stapper { display: inline-flex; align-items: center; gap: var(--s-2); }
+.stapper__knop {
+  flex: none;
+  width: var(--tap-min);
+  height: var(--tap-min);
+  border-radius: var(--r-sm);
+  background: var(--c-surface-soft);
+  color: var(--c-text);
+  font-size: var(--fs-h2);
+  font-weight: 400;
+  line-height: 1;
+  touch-action: manipulation;
+  user-select: none;
+  transition: transform var(--dur-fast) var(--ease), opacity var(--dur) var(--ease);
+}
+.stapper__knop:active:not(:disabled), .stapper__knop.is-ingedrukt { transform: scale(.97); }
+.stapper__knop:disabled { opacity: .4; cursor: not-allowed; }
+.stapper__waarde {
+  min-width: calc(var(--s-12) * 2);
+  padding: 0 var(--s-2);
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 500;
+  font-size: var(--fs-h1);
+  line-height: 1;
+  font-variant-numeric: lining-nums tabular-nums;
+}
+
+/* Schakelaar: de hele rij is het tikvlak */
+.schakelaar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--s-2) 0;
+  text-align: left;
+  touch-action: manipulation;
+}
+.schakelaar:disabled { opacity: .4; cursor: not-allowed; }
+.schakelaar__tekst { display: flex; flex-direction: column; gap: 2px; }
+.schakelaar__label { font-size: var(--fs-body); line-height: 1.3; }
+.schakelaar__uitleg { font-size: var(--fs-small); line-height: 1.4; color: var(--c-text-muted); }
+.schakelaar__baan {
+  flex: none;
+  position: relative;
+  width: var(--schakel-b);
+  height: var(--schakel-h);
+  border-radius: var(--r-pill);
+  background: var(--schakel-uit);
+  transition: background-color var(--dur) var(--ease);
+}
+.schakelaar__knop {
+  position: absolute;
+  top: calc((var(--schakel-h) - var(--schakel-knop)) / 2);
+  left: calc((var(--schakel-h) - var(--schakel-knop)) / 2);
+  width: var(--schakel-knop);
+  height: var(--schakel-knop);
+  border-radius: var(--r-pill);
+  background: var(--c-on-primary);
+  transition: transform var(--dur) var(--ease);
+}
+.schakelaar[aria-checked="true"] .schakelaar__baan { background: var(--c-health-gevuld); }
+.schakelaar[aria-checked="true"] .schakelaar__knop { transform: translateX(calc(var(--schakel-b) - var(--schakel-h))); }
+
+/* Vinkvak met een met CSS getekend vinkje (er is geen vinkje-icoon in de huisstijl) */
+.vinkvak {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  min-height: var(--tap-min);
+  padding: var(--s-2) 0;
+  text-align: left;
+  touch-action: manipulation;
+}
+.vinkvak:disabled { opacity: .4; cursor: not-allowed; }
+.vinkvak__vak {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--vink-b);
+  height: var(--vink-b);
+  border: 2px solid var(--schakel-uit);
+  border-radius: var(--r-sm);
+  color: var(--c-on-primary);
+  transition: background-color var(--dur) var(--ease), border-color var(--dur) var(--ease);
+}
+.vinkvak[aria-checked="true"] .vinkvak__vak { background: var(--c-health-gevuld); border-color: var(--c-health-gevuld); }
+.vinkje {
+  display: block;
+  width: calc(var(--s-1) * 1.5);
+  height: calc(var(--s-1) * 3);
+  margin-top: -2px;
+  border: solid currentColor;
+  border-width: 0 2px 2px 0;
+  transform: rotate(45deg) scale(0);
+  transition: transform var(--dur) var(--ease);
+}
+.vinkvak[aria-checked="true"] .vinkje { transform: rotate(45deg) scale(1); }
+
+/* ---------- Dialoog: blad onderaan, --r-lg ---------- */
+.dialoog {
+  position: fixed;
+  inset: auto 0 0 0;
+  width: 100%;
+  max-width: var(--content-max);
+  max-height: 90dvh;
+  margin: 0 auto;
+  padding: 0;
+  border: 0;
+  border-radius: var(--r-lg) var(--r-lg) 0 0;
+  background: var(--c-surface);
+  color: var(--c-text);
+  box-shadow: var(--shadow-float);
+  overflow: auto;
+}
+.dialoog::backdrop { background: var(--scrim); }
+dialog.dialoog[open] { animation: blad-op var(--dur) var(--ease); }
+dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
+.dialoog--statisch { position: relative; inset: auto; border-radius: var(--r-lg); }
+/* Op een breed scherm (vanaf 960 px) is een blad of dialoog een gecentreerd venster in plaats van een strook onderaan.
+   BESLISSINGEN 711, 717 en 718: ook op de staande tablet (720 tot 959 px breed, hoger dan 500 px) staat elk venster zo in het midden van de pagina,
+   horizontaal en verticaal, met vier ronde hoeken, nooit tegen de onderkant. Is de inhoud hoger dan het scherm, dan houdt max-height (90dvh) het venster
+   binnen het scherm met een gelijke marge boven en onder en scrolt de inhoud binnenin. Een gecentreerd venster raakt de onderrand niet: het blad houdt
+   onderin geen extra ruimte voor de veilige zone. De telefoon (onder 720 px, en liggend tot 500 px hoog) blijft het kadertje van telefoon.css. */
+.dialoog--venster { position: relative; inset: auto; width: 100%; max-width: 480px; margin: 0 auto; border-radius: var(--r-lg); box-shadow: var(--shadow-float); animation: none; }
+@media (min-width: 960px), (min-width: 720px) and (min-height: 500.02px) {
+  .dialoog {
+    inset: 0;
+    width: calc(100% - var(--s-10));
+    max-width: 480px;
+    height: fit-content;
+    margin: auto;
+    border-radius: var(--r-lg);
+  }
+  .dialoog--statisch { inset: auto; margin: 0 auto; }
+}
+@media (min-width: 720px) and (max-width: 959.98px) and (min-height: 500.02px) {
+  dialog.dialoog .dialoog__blad { padding-bottom: var(--s-5); }
+  dialog.supplementkaart .supplementkaart__onder { padding-bottom: var(--s-4); }
+}
+.dialoog__blad {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-3);
+  padding: var(--s-6) var(--s-5) calc(var(--s-5) + var(--safe-bottom));
+}
+.dialoog__tekst { color: var(--c-text-muted); }
+/* BESLISSING 422: de titelrij van een pop-up: de titel links, rechts het kruisje (een icoonknop met het huisstijl-icoon, 48 px tikvlak), verticaal gecentreerd op de
+   titelregel en zonder extra regel. Op elke breedte. De marges maken het tikvlak groter dan de rij: het icoon zelf staat op de rechterrand van de inhoud. */
+.blad__kop { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); }
+.blad__kop > :is(.dialoog__titel, .blad__titel) { flex: 1 1 auto; min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.blad__kop > .blad__sluit { flex: none; min-width: 44px; min-height: 44px; margin-block: calc(var(--s-2) * -1); margin-right: calc(var(--s-3) * -1); }
+.dialoog__acties { display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-3); }
+/* ---------- Knoppenrij (BESLISSING 522, bouwt voort op 469, 492, 516, 519 en 521) ----------
+   Eén regel voor elke groep knoppen die bij elkaar horen, onderaan een pop-up of bevestigingsvraag: de bevestigingsvragen (.dialoog__acties met twee of meer
+   knoppen), de bladen Maaltijd, Weging noteren, Streefgewicht en Weegdag (.maaltijd__acties) en de supplementkaart met haar vragen (.supplementkaart__knoppen).
+   De groep staat gecentreerd in haar houder en de knoppen zijn onderling even breed, op elk toestel en in elke toestand (twee of drie knoppen):
+   - een raster van gelijke kolommen (minmax(0, 1fr)) in een houder zo breed als haar inhoud (fit-content): elke kolom is zo breed als de breedste knop;
+   - minstens --rij-min per knop (de gewone minimumbreedte van een knop), nooit breder dan twee keer die maat (geen uitgesmeerde knoppen);
+   - is er te weinig plaats, dan krimpen de kolommen gelijk mee (nooit breder dan de houder);
+   - drie knoppen die op een smalle telefoon niet op een rij passen, staan twee boven en een gecentreerd eronder, alle drie even breed (zie onder).
+   Kleur, hoogte, volgorde en tekst van de knoppen veranderen niet. Een groep met één knop (bv. Sluiten bij een medaille) valt hier niet onder. */
+:is(.maaltijd__acties, .supplementkaart__knoppen, .dialoog__acties:where(:has(> .knop + .knop))) {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(0, 1fr);
+  align-items: center;
+  gap: var(--rij-gap, var(--s-2));
+  width: fit-content;
+  min-width: min(100%, calc(var(--rij-min, var(--knop-min-b)) * 2 + var(--rij-gap, var(--s-2))));
+  max-width: 100%;
+  margin-inline: auto;
+}
+:is(.dialoog__acties, .maaltijd__acties, .supplementkaart__knoppen):where(:has(> :nth-child(3):not([hidden]))) { min-width: min(100%, calc(var(--rij-min, var(--knop-min-b)) * 3 + var(--rij-gap, var(--s-2)) * 2)); }
+:is(.maaltijd__acties, .supplementkaart__knoppen, .dialoog__acties:where(:has(> .knop + .knop))) > * { min-width: 0; max-width: calc(var(--knop-min-b) * 2); margin: 0; }
+:is(.maaltijd__acties, .supplementkaart__knoppen, .dialoog__acties:where(:has(> .knop + .knop))) .knop { min-width: 0; width: 100%; padding-inline: var(--s-2); justify-content: center; }
+/* BESLISSING 521: de twee knoppen van een bevestigingsvraag zijn minstens 9rem breed (zo stonden ze op de telefoon) */
+.dialoog__acties { --rij-min: 9rem; }
+/* BESLISSING 544: knoppen die samen een groep vormen hebben dezelfde kleur: allemaal de zachte tint van het tabblad (--knop-zacht-bg) met de gewone tekstkleur
+   (--knop-zacht-fg), ook de hoofdknop (.knop--primair leest --knop-bg en --knop-fg, ook voor haar vinkje en icoon via currentColor). Een knop die alleen staat
+   (Weging noteren op een kaart, een enkele Verder) blijft gevuld in de familiekleur; een tekstknop naast een gevulde telt niet als groep. Uitgezonderd: de
+   wisdialoog (gevaarlijke actie, eigen kleur). Het supplementblad doet mee (BESLISSING 546). Houders: de gedeelde knoppenrij hierboven
+   (bevestigingsvragen en de bladen Maaltijd, Weging, Streefgewicht, Weegdag), Delen, de knoppenrijen van het slot, het herstel en het welkomscherm
+   en de installatiestrook. "Verder" onder de herstelcode staat alleen en blijft gevuld (BESLISSING 662): de stap zelf is geen houder, alleen haar paar
+   Kopiëren en Bewaren (.herstel__knoppen). Elke kleur komt uit de familie van het blad of het tabblad (tabkleur.css); buiten een familie (het slot) uit de tokens van het thema. */
+:is(.maaltijd__acties, .supplementkaart__knoppen, .dialoog:not(.dialoog--wis) .dialoog__acties:where(:has(> .knop + .knop)), .delen__knoppen, .herstel__keuze, .herstel__knoppen, .slot__acties--kwijt,
+    .welkom__knoppen, .installatiestrook__acties) {
+  --knop-bg: var(--knop-zacht-bg);
+  --knop-fg: var(--knop-zacht-fg);
+}
+/* Drie knoppen op een smalle telefoon. Van 360 tot 389 px past "Klaar, Annuleren, Verwijderen" nog op een rij met minder opvulling opzij (zoals de
+   supplementkaart): de pop-up blijft even hoog. Onder 360 px past het niet zonder de tekst af te kappen: twee boven en de derde gecentreerd eronder, alle
+   drie even breed. Een raster van vier gelijke kolommen: elke knop beslaat er twee (boven 1-2 en 3-4, onder 2-3), zodat de breedste tekst alle kolommen
+   even breed maakt en de derde knop precies in het midden staat. De supplementkaart heeft een kleinere letter en past wel (hieronder). */
+@media (max-width: 389.98px) {
+  :is(.dialoog__acties, .maaltijd__acties):where(:has(> :nth-child(3):not([hidden]))) .knop { padding-inline: var(--s-1); }
+}
+@media (max-width: 359.98px) {
+  :is(.dialoog__acties, .maaltijd__acties):where(:has(> :nth-child(3):not([hidden]))) { grid-auto-flow: row; grid-template-columns: repeat(4, minmax(0, 1fr)); min-width: min(100%, calc(var(--rij-min, var(--knop-min-b)) * 2 + var(--rij-gap, var(--s-2)))); }
+  :is(.dialoog__acties, .maaltijd__acties):where(:has(> :nth-child(3):not([hidden]))) > :nth-child(1) { grid-column: 1 / 3; }
+  :is(.dialoog__acties, .maaltijd__acties):where(:has(> :nth-child(3):not([hidden]))) > :nth-child(2) { grid-column: 3 / 5; }
+  :is(.dialoog__acties, .maaltijd__acties):where(:has(> :nth-child(3):not([hidden]))) > :nth-child(3) { grid-column: 2 / 4; }
+}
+/* Een vraag met een lange knoptekst ("Ja, verwijder mijn profiel") past op de telefoon niet naast een tweede knop: de twee staan onder elkaar, even breed
+   en gecentreerd, in plaats van afgekapt. */
+@media (max-width: 719px) { .dialoog--wis .dialoog__acties { grid-auto-flow: row; min-width: min(100%, var(--rij-min, var(--knop-min-b))); } }
+@keyframes blad-op { from { transform: translateY(var(--s-6)); opacity: 0; } to { transform: none; opacity: 1; } }
+@keyframes scherm-in { from { opacity: 0; } to { opacity: 1; } }
+
+/* ---------- Melding onderaan ---------- */
+.strokenhouder {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s-4));
+  z-index: 40;
+  display: flex;
+  justify-content: center;
+  padding: 0 var(--s-5);
+  pointer-events: none;
+}
+/* Op een breed scherm: compact, onderaan in het midden van het inhoudsvlak (rechts van de zijbalk) */
+@media (min-width: 960px) {
+  .strokenhouder { left: calc(var(--rail-width) + var(--safe-left)); bottom: calc(var(--safe-bottom) + var(--s-6)); }
+  body:has(.schil[data-nav="uit"]) .strokenhouder { left: 0; }
+}
+.strook {
+  pointer-events: auto;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-4);
+  width: 100%;
+  max-width: var(--content-max);
+  min-height: var(--tap-min);
+  padding: var(--s-2) var(--s-5);
+  border-radius: var(--r-md);
+  background: var(--c-primary);
+  color: var(--c-on-primary);
+  box-shadow: var(--shadow-float);
+  font-size: var(--fs-small);
+  animation: blad-op var(--dur) var(--ease);
+}
+.strook__actie {
+  min-height: var(--tap-min);
+  padding: 0 var(--s-2);
+  color: inherit;
+  font-weight: 600;
+  text-decoration: none;
+  border-radius: var(--r-pill);
+  transition: background-color var(--dur) var(--ease);
+}
+
+/* ---------- Bladerkop ---------- */
+.bladerkop {
+  display: grid;
+  grid-template-columns: var(--tap-min) 1fr var(--tap-min);
+  align-items: center;
+  gap: var(--s-2);
+}
+.bladerkop__midden { text-align: center; min-width: 0; }
+/* .bladerkop__titel: de datumkop staat op één regel (.datumkop); geen text-wrap hier, dat zou white-space weer op normal zetten */
+/* BESLISSING 470: in het Dagboek (dag, week, maand) is de datum groter dan het label erboven ("VANDAAG"): vloeiend van 13 px op de smalste telefoon tot --fs-body,
+   in de tekstkleur (rangorde: klein gedempt bijschrift, grotere datum). Het middenvak centreert de regel; een lange datum mag in de lege rand van het tikvlak
+   van de pijlen lopen (14 px rond het icoon), nooit over het icoon: pointer-events uit, zodat de pijlen tikbaar blijven. */
+#scherm[data-scherm^="dagboek"] .bladerkop__midden { display: flex; flex-direction: column; align-items: center; }
+#scherm[data-scherm^="dagboek"] .bladerkop__titel { font-size: clamp(13px, calc((100vw - 124px) / 15), var(--fs-body)); color: var(--c-text); pointer-events: none; }
+/* BESLISSING 489: dag en week met het jaar. Tablet en desktop de volle vorm ("16 - 22 november 2026", "maandag 16 november 2026"); op een telefoon (< 720 px,
+   het breekpunt van layout.css) de korte vorm op één regel ("16 - 22 nov 2026", "ma 16 november 2026"). De h2 draagt de volle vorm als aria-label. */
+.bladerkop__vorm--kort { display: none; }
+@media (max-width: 719px) {
+  #scherm[data-scherm^="dagboek"] .bladerkop__vorm--vol { display: none; }
+  #scherm[data-scherm^="dagboek"] .bladerkop__vorm--kort { display: inline; }
+}
+/* Een tekstlink met een pijl erachter ("Naar het Dagboek", "Afvinken in dagboek"): dezelfde ruimte tussen tekst en pijl als bij "Alle badges bekijken" (.meer__actie, var(--s-1)) */
+.pijllink { display: inline-flex; align-items: center; gap: var(--s-1); }
+.pijllink__pijl { display: inline-flex; margin: 0; }
+
+/* ---------- Schermkop ---------- */
+.schermkop { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-6); }
+.schermkop__tekst { min-width: 0; }
+.schermkop__titel { text-wrap: balance; }
+.schermkop__acties { flex: none; display: flex; align-items: center; gap: var(--s-2); margin-right: calc(var(--s-3) * -1); }
+/* De huisje-knop: navigatie-icoon zonder tegel, gedempt; bij hover, focus en indrukken in de accentkleur */
+.schermkop__home { color: var(--c-text-muted); }
+.schermkop__home:focus-visible { color: var(--c-accent); }
+
+/* ---------- Lege toestand (§6) ---------- */
+.leeg {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  padding: var(--s-10) var(--s-5);
+  text-align: center;
+}
+.leeg__merk { width: calc(var(--s-12) + var(--s-4)); height: calc(var(--s-12) + var(--s-4)); }
+.beeldmerk-paar { display: inline-flex; flex: none; }
+.leeg__tekst { max-width: 18em; font-size: var(--fs-h2); line-height: 1.25; text-wrap: balance; }
+
+/* ---------- Logo (§2) ---------- */
+.logo {
+  --logo-t: 28px;
+  display: inline-flex;
+  align-items: center;
+  gap: calc(var(--logo-t) * .4);
+  line-height: 1;
+  color: var(--c-text);
+}
+/* Het logo als link (home-knop): zelfde uitstraling, tikvlak minstens 48 px hoog */
+.logo--link { min-height: var(--tap-min); text-decoration: none; color: var(--c-text); touch-action: manipulation; }
+.logo__merk { flex: none; width: calc(var(--logo-t) * 1.1); height: calc(var(--logo-t) * 1.1); }
+.logo__merk--nacht { display: none; }
+[data-theme="nacht"] .logo__merk--licht { display: none; }
+[data-theme="nacht"] .logo__merk--nacht { display: block; }
+.logo__woord {
+  font-family: var(--font-display);
+  font-style: italic;
+  font-weight: 500;
+  font-size: var(--logo-t);
+  line-height: 1;
+  padding-bottom: calc(var(--logo-t) * .12);
+}
+
+/* ---------- Tabbalk (telefoon) ---------- */
+.tabbalk {
+  display: flex;
+  justify-content: center;
+  height: calc(var(--tabbar-h) + var(--safe-bottom));
+  padding: 0 max(0px, calc((100% - var(--content-max)) / 2)) var(--safe-bottom);
+  background: var(--c-surface);
+  border-top: var(--lijn);
+}
+.tabbalk__item {
+  flex: 1 1 0;
+  min-width: var(--tap-min);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-1);
+  color: var(--c-text-muted);
+  touch-action: manipulation;
+  transition: color var(--dur) var(--ease), transform var(--dur-fast) var(--ease);
+}
+.tabbalk__item:active { transform: scale(.97); }
+.tabbalk__label { font-size: var(--tab-label); font-weight: 400; line-height: 1.2; }
+.tabbalk__item::after {
+  content: "";
+  width: var(--stip);
+  height: var(--stip);
+  border-radius: var(--r-pill);
+  background: transparent;
+  transition: background-color var(--dur) var(--ease);
+}
+.tabbalk__item[aria-current="page"] { color: var(--c-text); }
+.tabbalk__item[aria-current="page"]::after { background: var(--c-accent); }
+
+/* ---------- Zijbalk (vanaf 960 px) ---------- */
+.zijbalk {
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-8);
+  width: var(--rail-width);
+  min-height: 100%;
+  padding: var(--s-8) var(--s-4);
+  background: var(--c-surface);
+  border-right: var(--lijn);
+}
+.zijbalk__logo { padding: 0 var(--s-4); }
+.zijbalk__lijst { display: flex; flex-direction: column; gap: var(--s-2); }
+.zijbalk__extra { margin-top: auto; padding-top: var(--s-4); border-top: var(--lijn); }
+.zijbalk__item {
+  display: flex;
+  align-items: center;
+  gap: var(--s-4);
+  min-height: var(--tap-min);
+  padding: 0 var(--s-4);
+  border-radius: var(--r-sm);
+  color: var(--c-text-muted);
+  font-size: 1rem;
+  font-weight: 400;
+  touch-action: manipulation;
+  transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease);
+}
+.zijbalk__item[aria-current="page"] { background: var(--c-surface-soft); color: var(--c-text); }
+
+/* ---------- Gevoelschaal (§5.2) ---------- */
+.gevoel { display: grid; grid-template-columns: repeat(5, minmax(0, 1fr)); gap: var(--s-2); }
+.gevoel__optie {
+  --stap: var(--mood-1);
+  --stap-soft: var(--mood-1-soft);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-2);
+  padding: var(--s-1) 0;
+  color: var(--c-text-muted);
+  touch-action: manipulation;
+}
+.gevoel__optie[data-stap="2"] { --stap: var(--mood-2); --stap-soft: var(--mood-2-soft); }
+.gevoel__optie[data-stap="3"] { --stap: var(--mood-3); --stap-soft: var(--mood-3-soft); }
+.gevoel__optie[data-stap="4"] { --stap: var(--mood-4); --stap-soft: var(--mood-4-soft); }
+.gevoel__optie[data-stap="5"] { --stap: var(--mood-5); --stap-soft: var(--mood-5-soft); }
+.gevoel__optie:focus-visible { outline: none; }
+.gevoel__optie:focus-visible .gevoel__tegel { outline: var(--focus); outline-offset: 2px; }
+.gevoel__tegel {
+  display: grid;
+  place-items: center;
+  width: var(--gevoel-tegel);
+  height: var(--gevoel-tegel);
+  border-radius: var(--r-pill);   /* de enige ronde tegel */
+  background: transparent;
+  color: var(--c-text-muted);
+}
+.gevoel__optie:active:not(.is-gekozen) .gevoel__tegel { transform: scale(.97); }
+.gevoel__label { font-size: var(--fs-label); line-height: 1.2; transition: color var(--dur) var(--ease); }
+.gevoel__optie.is-gekozen { color: var(--c-text); }
+.gevoel__optie.is-gekozen .gevoel__tegel { background: var(--stap-soft); color: var(--stap); transform: scale(var(--gevoel-schaal)); }
+.gevoel--alleenlezen .gevoel__optie:not(.is-gekozen) { opacity: .6; }
+
+/* ---------- Energieschaal (§5.3) ---------- */
+.energie {
+  --lh: var(--energy-leaf-h);
+  display: inline-flex;
+  align-items: flex-end;
+  gap: var(--energy-gap);
+}
+.energie__blad {
+  display: block;
+  flex: none;
+  height: calc(var(--lh) * var(--h));
+  aspect-ratio: 20 / 32;
+  color: var(--energy-off);
+  transform-origin: 50% 100%;
+}
+.energie__blad svg { display: block; width: 100%; height: 100%; }
+.energie__blad.is-gevuld { color: var(--energy-on); }
+.energie__blad.is-groei { animation: groei var(--dur) var(--ease); }
+@keyframes groei { from { transform: scale(.8); } to { transform: scale(1); } }
+
+/* Kiezer: één samenhangende rij tikvlakken; het blaadje is iets breder getoond zodat de rij minder los staat */
+.energie--kiezer { --lh: var(--energy-leaf-h-groot); gap: 0; }
+.energie--kiezer .energie__blad svg { transform: scaleX(1.3); }
+.energie__tik {
+  display: flex;
+  align-items: flex-end;
+  justify-content: center;
+  width: var(--energy-tik-b);
+  height: var(--energy-tik-h);
+  padding-bottom: var(--s-2);
+  touch-action: manipulation;
+}
+.energie--alleenlezen { opacity: .8; }
+
+.energiekaart { display: flex; align-items: center; justify-content: space-between; gap: var(--s-4); }
+.energiekaart__links { min-width: 0; }
+.energiekaart__woord { margin-top: var(--s-1); font-size: var(--fs-h1); line-height: 1.1; }
+.energiekaart__woord.is-leeg { color: var(--c-text-muted); }
+/* De tikvlakken (44 breed) hebben lucht naast het blaadje; die lucht mag over de kaartrand en het woord heen. */
+.energiekaart__rechts { flex: none; margin: 0 calc(var(--s-2) * -1) 0 0; }
+.energiekaart__rechts--tonen { margin: 0; }
+.energiekaart__rechts--tonen .energie { --lh: var(--energy-leaf-h-groot); }
+
+/* ---------- Beeld (§6) ---------- */
+.foto { position: relative; margin: 0; aspect-ratio: 4 / 3; overflow: hidden; border-radius: var(--photo-radius); background: var(--c-surface-soft); }
+.foto__beeld { display: block; width: 100%; height: 100%; object-fit: cover; }
+.foto__ring { position: absolute; inset: 0; border-radius: inherit; box-shadow: var(--photo-ring); pointer-events: none; }
+.foto__tint { position: absolute; inset: 0; background: var(--photo-tint); pointer-events: none; }
+.foto__tekst {
+  position: absolute;
+  left: var(--s-4);
+  right: var(--s-4);
+  bottom: var(--s-3);
+  color: var(--bloei-porselein);
+  font-size: var(--fs-small);
+  font-weight: 500;
+  line-height: 1.3;
+}
+
+.miniatuur {
+  position: relative;
+  flex: none;
+  display: block;
+  width: var(--miniatuur);
+  height: var(--miniatuur);
+  border-radius: var(--r-miniatuur);
+  overflow: hidden;
+  background: var(--c-surface-soft);
+}
+.miniatuur--tegel { display: inline-flex; border-radius: var(--r-miniatuur); background: var(--t-bg); }
+.miniatuur__beeld { display: block; width: 100%; height: 100%; object-fit: cover; }
+
+.profielfoto {
+  flex: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: var(--pf, 40px);
+  height: var(--pf, 40px);
+  border-radius: var(--r-pill);
+  overflow: hidden;
+  box-shadow: 0 0 0 var(--ring-profiel) var(--c-bg), 0 0 0 calc(var(--ring-profiel) + 1px) var(--c-line);
+}
+.profielfoto__beeld { display: block; width: 100%; height: 100%; object-fit: cover; }
+.profielfoto--initiaal { background: var(--c-accent-soft); color: var(--c-accent-text-op-soft); }
+.profielfoto__icoon { display: inline-flex; align-items: center; justify-content: center; line-height: 1; }
+.profielfoto__letter {
+  font-family: var(--font-display);
+  font-weight: 600;
+  font-size: calc(var(--pf, 40px) * .5);
+  line-height: 1;
+  padding-bottom: calc(var(--pf, 40px) * .04);
+}
+
+/* ---------- Watervulling (§7) ---------- */
+.watervulling { position: relative; display: inline-block; height: var(--wv-h, 200px); aspect-ratio: 120 / 196; }
+.watervulling svg { display: block; width: 100%; height: 100%; overflow: visible; }
+.watervulling__glas { fill: var(--c-water-soft); }
+.watervulling__rand { fill: none; stroke: var(--c-water); stroke-width: 2; stroke-linejoin: round; transition: stroke var(--dur) var(--ease); }
+.watervulling__peil { transition: transform var(--dur) var(--ease); }
+.watervulling__vlak, .watervulling__golf path { fill: var(--c-water); transition: fill 600ms var(--ease); }
+.watervulling__golf { display: none; }
+.watervulling.is-golvend .watervulling__golf { display: block; animation: golf 4s linear infinite; }
+.watervulling.is-golvend .watervulling__vlak { transform: translateY(4px); }
+.watervulling.is-start .watervulling__peil, .watervulling.is-start .watervulling__vlak { transition: none; }
+.watervulling.is-gehaald .watervulling__vlak, .watervulling.is-gehaald .watervulling__golf path { fill: var(--c-health); }
+.watervulling.is-gehaald .watervulling__rand { stroke: var(--c-health); }
+@keyframes golf { from { transform: translateX(0); } to { transform: translateX(-60px); } }
+/* Het beeldmerk bloeit als het doel gehaald is: blaadjes schalen van 0,9 naar 1 in 600 ms */
+.watervulling__bloei { position: absolute; left: 50%; top: 50%; width: 42%; transform: translate(-50%, -50%); color: var(--c-on-primary); opacity: 0; pointer-events: none; }
+.watervulling__bloei svg { width: 100%; height: auto; }
+.watervulling.is-gehaald .watervulling__bloei { opacity: 1; }
+.watervulling.is-gehaald .watervulling__bloei g { transform-box: fill-box; transform-origin: 50% 100%; animation: bloei 600ms var(--ease) both; }
+@keyframes bloei { from { transform: scale(.9); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+
+/* ---------- Gewichtsgrafiek (§7) ---------- */
+.grafiek { position: relative; width: 100%; }
+.grafiek svg { display: block; width: 100%; height: auto; overflow: visible; }
+/* Een grafiek in een vlak met een eigen hoogte vult dat vlak (.grafiek--vul): de hoogte volgt het vlak, niet andersom */
+.grafiek--vul { position: absolute; inset: 0; width: auto; }
+.grafiek--vul svg { height: 100%; }
+/* De basislijn, de lijn, de streeflijn en de labels laten een tik door naar de tiklaag, die het dichtstbijzijnde punt kiest. */
+.grafiek__basis { stroke: var(--c-line); stroke-width: 1; pointer-events: none; }
+.grafiek__lijn { fill: none; stroke: var(--c-weight); stroke-width: 2; stroke-linejoin: round; stroke-linecap: round; pointer-events: none; }
+.grafiek__streef { stroke: var(--c-weight); stroke-width: 1.5; stroke-dasharray: 4 4; pointer-events: none; }
+.grafiek__punt { fill: var(--c-weight); }
+.grafiek__krans { fill: var(--c-weight-soft); stroke: var(--c-weight); stroke-width: 2; }
+.grafiek__tiklaag { fill: transparent; cursor: pointer; }
+.grafiek__tikgroep { outline: none; }
+.grafiek__tikgroep:focus-visible .grafiek__punt { r: 4px; }
+.grafiek__tikgroep:focus-visible .grafiek__krans { stroke-width: 3; }
+.grafiek__label { font-family: var(--font-ui); font-size: var(--fs-label); font-weight: 500; letter-spacing: .04em; text-transform: uppercase; fill: var(--c-text-muted); font-variant-numeric: tabular-nums; pointer-events: none; }
+.grafiek__label--waarde { fill: var(--c-text); letter-spacing: 0; text-transform: none; font-size: var(--fs-small); }
+.grafiek__label--streef { fill: var(--c-text-muted); }
+
+/* ---------- Beweging (src/ui/beweging.js) ---------- */
+/* Zichtbaar maar rustig: 20 px omhoog in 520 ms (BESLISSING 162); de vertraging per element staat in beweging.js */
+.komop { animation: komop 520ms var(--ease) both; animation-delay: var(--komop-vertraging, 0ms); }
+@keyframes komop { from { opacity: 0; transform: translateY(var(--s-5)); } to { opacity: 1; transform: none; } }
+.bloeiop { animation: bloeiop 600ms var(--ease) both; }
+@keyframes bloeiop { from { opacity: 0; transform: scale(.9); filter: blur(2px); } to { opacity: 1; transform: none; filter: none; } }
+
+/* ---------- Tikbaar: dezelfde hover- en drukstanden voor alles ---------- */
+.kaart--knop {
+  display: flex;
+  flex-direction: column;
+  align-items: stretch;
+  justify-content: flex-start;
+  width: 100%;
+  text-align: left;
+  touch-action: manipulation;
+  /* zoals een knop: een gewone pijl als cursor en geen tekstselectie bij een tik (meer.js zette dit nog met JS) */
+  cursor: default;
+  user-select: none;
+  -webkit-user-select: none;
+  transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease);
+}
+.kaart--knop:active, .kaart--knop.is-ingedrukt { transform: scale(.98); }
+.tegel, .rij__pijl, .meer__actie .icoon { transition: transform var(--dur) var(--ease); }
+.rij__pijl, .meer__actie .icoon { display: inline-flex; }
+/* Bij verminderde beweging beweegt er niets bij hover */
+@media (prefers-reduced-motion: reduce) { .kaart--knop, .tegel, .rij__pijl, .themategel, .meer__actie .icoon { transition: none; } .kaart--knop:hover, .themategel:hover { transform: none; } }
+@media (hover: hover) {
+  /* een zachte lift bij een muis; bij een rij een tint achter de rij */
+  /* Een kaart beweegt bij hover niet en krijgt geen andere schaduw (BESLISSING 195); alleen het icoon licht op */
+  .rij--knop:hover .tegel, .kaart--knop:hover .tegel, .uitklap__kop:hover .tegel { transform: scale(1.08); }
+  /* de pijl schuift een paar pixels op: hier kun je op tikken */
+  .rij--knop:hover .rij__pijl, .kaart--knop:hover .rij__pijl, .kaart--knop:hover .meer__actie .icoon { transform: translateX(4px); }
+  .uitklap__kop:hover .rij__pijl { transform: translateY(1px); }
+}
+.rij--knop:active, .uitklap__kop:active { transform: scale(.98); }
+
+/* ---------- Raster: één tussenruimte, gelijke hoogtes per rij ---------- */
+.raster { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); align-items: stretch; }
+@media (min-width: 720px) { .raster { gap: var(--s-6); } }
+.raster > * { min-width: 0; }
+.raster > .kaart, .raster > .uitklap { height: 100%; }
+@media (min-width: 720px) {
+  .raster--2 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .raster--3 { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .raster--zij { grid-template-columns: minmax(0, 2fr) minmax(0, 1fr); }
+}
+@media (min-width: 1100px) {
+  .raster--3 { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+}
+
+/* ---------- Kaartkop en kerncijfer ---------- */
+.kaartkop { display: flex; align-items: center; gap: var(--s-3); min-height: var(--tile-size); margin-bottom: var(--s-4); }
+.kaartkop__label { flex: 1; min-width: 0; margin: 0; }
+.kaartkop__eind { flex: none; font-size: var(--fs-small); color: var(--c-text-muted); text-align: right; }
+.kerncijfer { display: flex; align-items: center; gap: var(--s-4); }
+.kerncijfer__tekst { min-width: 0; display: flex; flex-direction: column; gap: var(--s-1); }
+.kerncijfer__waarde { display: flex; align-items: baseline; gap: var(--s-2); margin: 0; }
+.kerncijfer__getal { font-family: var(--font-display); font-weight: 500; font-size: var(--fs-hero); line-height: var(--lh-tight); font-variant-numeric: lining-nums tabular-nums; }
+.kerncijfer__eenheid { font-size: var(--fs-body); color: var(--c-text-muted); }
+
+/* De grafieklijn tekent zich één keer bij het openen van een scherm; de punten verschijnen met de lijn mee */
+.grafiek__lijn--teken { stroke-dasharray: 1; stroke-dashoffset: 1; animation: lijn-teken 900ms var(--ease) 120ms forwards; }
+@keyframes lijn-teken { to { stroke-dashoffset: 0; } }
+.grafiek__punt--in { opacity: 0; animation: punt-in 260ms var(--ease) forwards; }
+@keyframes punt-in { to { opacity: 1; } }
+
+.vervaag { animation: vervaag 260ms var(--ease) both; }
+@keyframes vervaag { from { opacity: 0; } to { opacity: 1; } }
+
+/* Overvloeimodus van het beeldmerk (geen inline style, de CSP staat dat niet toe) */
+.mengen { mix-blend-mode: multiply; }
+.stapper__eenheid { font-size: .72em; font-weight: 400; color: var(--c-text-muted); }
+
+/* ---------- Schermkop op een telefoon en tablet (BESLISSING 171): plakt bovenaan, de titel breekt nooit midden in een woord ---------- */
+.schermkop { flex-wrap: wrap; }
+.schermkop__tekst { flex: 1 1 auto; }
+.schermkop__titel { overflow-wrap: normal; word-break: normal; hyphens: manual; font-size: clamp(1.5rem, 8vw, 2rem); }
+.schermkop__acties { margin-left: auto; }
+@media (max-width: 959px) {
+  .schermkop {
+    position: sticky;
+    top: var(--safe-top, 0px);
+    z-index: 15;
+    margin-left: calc(max(var(--s-5), var(--safe-left, 0px)) * -1);
+    margin-right: calc(max(var(--s-5), var(--safe-right, 0px)) * -1);
+    margin-bottom: var(--s-4);
+    padding: var(--s-2) max(var(--s-5), var(--safe-right, 0px)) var(--s-2) max(var(--s-5), var(--safe-left, 0px));
+    background: var(--c-bg);
+    border-bottom: 1px solid transparent;
+    transition: border-color var(--dur) var(--ease);
+  }
+  .schermkop.is-gescrold { border-bottom-color: var(--c-line); }
+  /* Het stuk boven de kop (de inkeping) krijgt dezelfde achtergrond zodra er gescrold is */
+  .schermkop.is-gescrold::before { content: ''; position: absolute; left: 0; right: 0; bottom: 100%; height: var(--safe-top, 0px); background: var(--c-bg); }
+  .schermkop__acties { margin-right: calc(var(--s-3) * -1); }
+}
+@media (min-width: 960px) { .schermkop__titel { font-size: var(--fs-h1); } }
+
+/* Menu (BESLISSING 176): het icoon van elk tabblad in de kleur van zijn familie, zonder tegel; labels in Jost 400, het actieve item aan zijn vlak en volle kleur */
+.navicoon { display: inline-flex; flex: none; opacity: .8; }
+.navicoon--accent { color: var(--c-accent); }
+.navicoon--dag { color: var(--c-day); }
+.navicoon--dagboek { color: var(--c-book); }
+.navicoon--gewicht { color: var(--c-weight); }
+.navicoon--delen { color: var(--c-text); }
+/* Het actieve tabblad: het zachte vlak in de tint van zijn eigen onderwerp */
+.zijbalk__item[data-kleur="dag"][aria-current="page"], .tabbalk__item[data-kleur="dag"][aria-current="page"] { background: var(--c-day-soft); }
+.zijbalk__item[data-kleur="dagboek"][aria-current="page"], .tabbalk__item[data-kleur="dagboek"][aria-current="page"] { background: var(--c-book-soft); }
+.zijbalk__item[data-kleur="drank"][aria-current="page"], .tabbalk__item[data-kleur="drank"][aria-current="page"] { background: var(--c-water-soft); }
+.zijbalk__item[data-kleur="gezondheid"][aria-current="page"], .tabbalk__item[data-kleur="gezondheid"][aria-current="page"] { background: var(--c-health-soft); }
+.zijbalk__item[data-kleur="gewicht"][aria-current="page"], .tabbalk__item[data-kleur="gewicht"][aria-current="page"] { background: var(--c-weight-soft); }
+.zijbalk__item[data-kleur="delen"][aria-current="page"], .tabbalk__item[data-kleur="delen"][aria-current="page"] { background: var(--c-share-soft); }
+.navicoon--maaltijd { color: var(--tile-meal-fg); }
+.navicoon--drank { color: var(--tile-drink-fg); }
+.navicoon--gezondheid { color: var(--tile-health-fg); }
+.navicoon--neutraal { color: var(--tile-neutral-fg); }
+.zijbalk__item .navicoon, .tabbalk__item .navicoon { margin: 0; }
+[aria-current="page"] > .navicoon { opacity: 1; }
+.tabbalk__item[aria-current="page"] { background: var(--c-surface-soft); border-radius: var(--r-sm); }
+/* Compacte schermkop op een telefoon: titel en icoonknoppen op één regel waar het past */
+@media (max-width: 959px) {
+  .schermkop__titel { font-size: clamp(1.35rem, 6.2vw, 1.75rem); }
+  .schermkop__acties { gap: 0; }
+  .schermkop .icoonknop { width: 44px; height: 44px; }
+  .schermkop .knop--tekst { padding-left: var(--s-2); padding-right: var(--s-2); }
+}
+@media (hover: hover) { .stapper__knop:hover:not(:disabled) { transform: scale(1.06); } }
+
+/* .kaart--licht-op: haak voor kaarten in een gemengd raster. Sinds BESLISSING 195 licht een kaart bij hover niet meer op; de klasse blijft bestaan omdat andere schermen haar gebruiken. */
+.kaart--licht-op { transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease); }
+@media (prefers-reduced-motion: reduce) { .kaart--licht-op { transition: none; } .kaart--licht-op:hover { transform: none; } }
+
+/* UITLICHTEN VIA HET ICOON (BESLISSING 190). Alles binnen een kaart dat een icoon heeft (rij, vak, chip met icoon, segment, themategel, menu-item)
+   licht bij hover alleen op via zijn icoon: de tegel of het icoon groeit een fractie met een zachte schaduw eronder. Nooit een lift, schaduw of
+   rand rond het hele element, nooit een kleurverandering. Een scherm met een eigen hoverbaar vak zet de klasse .licht-op-icoon op dat vak.
+   Gedeelde regel: :is(<hoverbaar element>):hover :is(<icoon>). Een knop zonder icoontegel is zijn eigen kader (lift en schaduw, zie .knop). */
+.tegel, .navicoon, .themavoorbeeld, .licht-icoon { transition: transform var(--dur) var(--ease), box-shadow var(--dur) var(--ease), filter var(--dur) var(--ease); }
+@media (hover: hover) {
+  :is(.rij--knop, .kaart--knop, .uitklap__kop, .chip, .segment__deel, .themategel, .zijbalk__item, .tabbalk__item, .licht-op-icoon):hover :is(.tegel, .themavoorbeeld, .licht-icoon) { transform: scale(1.07); box-shadow: var(--shadow-float); }
+  :is(.zijbalk__item, .tabbalk__item, .licht-op-icoon):hover .navicoon { transform: scale(1.12); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); }
+}
+@media (prefers-reduced-motion: reduce) { .tegel, .navicoon, .themavoorbeeld, .licht-icoon { transition: none; } }
+
+/* BESLISSING 566, 568: de plaats van de tekst naast haar icoontegel, voor elk weetje in de app (.weetje__tekst, ook de tekst van "Toon het me", en
+   .meldingen__weetjetekst op Herinneringen); de schermen zetten hier niets meer overheen. De tegel staat bovenaan, de tekst heeft geen opvulling en een vaste
+   regelhoogte (--weetje-regel). Twee plaatsen:
+   A (de weetjesrij onderaan Drinken, Gewicht en Delen; goedgekeurd door de eigenaar, BESLISSING 568): een tekst van één regel staat in het MIDDEN van haar tegel;
+   breekt ze over twee of meer regels (telefoon), dan begint ze bovenaan: de bovenkant van de inkt van de eerste regel (de hoogste letter, stokletters
+   inbegrepen) op de bovenkant van de tegel, nooit erboven. Het aantal regels hangt van de breedte af: uitlijnWeetjes in ui/weetjes.js zet dan
+   .weetje__tekst--meer, en een negatieve bovenmarge (--weetje-boven, afgerond op een hele px) haalt de ruimte boven de stokletters weg. Die ruimte van de
+   bovenkant van de regel tot de stokletters is regelhoogte / 2 + maat * ((ascent - descent) / 2 - stokletterhoogte) (Jost: ascent 1,07, descent 0,375,
+   stokletters 0,78, hoofdletters 0,70); de maat is vloeiend (14 tot 16 px), vandaar em; de constante is op pixels afgesteld. Gekozen boven text-box-trim: de
+   berekening werkt in elke browser (ook Firefox en oudere Safari) en geeft overal hetzelfde resultaat.
+   B (de instelschermen en de kaart Privacy, dus alles behalve A): de tekst staat als blok in het midden van haar tegel zolang ze er niet hoger dan is: een
+   regel in het midden, twee regels (2 x 20 px = de tegel van 40 px) vullen de tegel precies, en een tekst van drie of meer regels begint op de bovenrand van de
+   tegel en loopt eronder door. Geen negatieve marge: de tekst steekt nooit boven het icoon uit. Zuiver css, dus op elk formaat hetzelfde.
+   #scherm geeft de regels voorrang boven oudere regels per scherm. */
+:root { --weetje-regel: 20px; --weetje-boven: calc(0.4325em - 10px); }
+#scherm .weetje { align-items: flex-start; align-self: start; }
+:where(#scherm) .weetje { min-height: var(--tile-size); } /* zonder voorrang: een link met een tikvlak van 44 px (Gewicht, Vergrendeling) blijft hoger */
+/* B: een link heeft een tikvlak van minstens 44 px; de 4 px extra komen als opvulling ONDER de tegel, zodat de tekst in het midden van de tegel blijft staan (de rijen van A hebben hun eigen opvulling en marge, hieronder in dit bestand en per scherm) */
+#scherm .weetje.weetje--link:not(:is(.drinken__weetjesrij, .gewicht__weetjesrij, .delen__weetjesrij) > *) { padding-bottom: max(0px, calc(44px - var(--tile-size))); }
+#scherm .weetje .weetje__tekst, #scherm .meldingen__weetjetekst { display: block; box-sizing: border-box; margin: 0; padding: 0; min-height: 0; line-height: var(--weetje-regel); }
+#scherm .weetje:not(:is(.drinken__weetjesrij, .gewicht__weetjesrij, .delen__weetjesrij) > *) .weetje__tekst, #scherm .meldingen__weetjetekst { align-self: center; }
+#scherm :is(.drinken__weetjesrij, .gewicht__weetjesrij, .delen__weetjesrij) .weetje .weetje__tekst { margin-top: calc((var(--tile-size) - var(--weetje-regel)) / 2); }
+#scherm :is(.drinken__weetjesrij, .gewicht__weetjesrij, .delen__weetjesrij) .weetje .weetje__tekst.weetje__tekst--meer { margin-top: var(--weetje-boven); }
+@supports (margin-top: round(1.4px, 1px)) { #scherm :is(.drinken__weetjesrij, .gewicht__weetjesrij, .delen__weetjesrij) .weetje .weetje__tekst.weetje__tekst--meer { margin-top: round(var(--weetje-boven), 1px); } }
+
+/* BESLISSING 351: één opmaak voor elke "Toon het me" / link in een blok "Goed om te weten" (functie toonHetMe in ui/weetjes.js). Tegel in de familie
+   van het blok; tekst in dezelfde maat, hetzelfde gewicht en dezelfde linkkleur; tikvlak van minstens 44 px via een onzichtbare uitbreiding.
+   De tekst van de link heeft de kleur, maat en het gewicht van de weetjestekst ernaast; herkenbaar als bedienbaar door cursor
+   en de gewone focusring (BESLISSING 462, geen onderstreping). De dubbele klasse houdt de regel boven de oudere regels per scherm. */
+.weetje.weetje--link.weetje--link.weetje--link { position: relative; appearance: none; background: none; border: 0; margin: 0; padding: 0; font: inherit; text-align: left; cursor: pointer; touch-action: manipulation; color: var(--c-text-muted); }
+.weetje--link::after { content: ''; position: absolute; inset: -4px 0; }
+.weetje.weetje--link.weetje--link.weetje--link .weetje__tekst { color: var(--c-text-muted); font-size: var(--fs-small); font-weight: 400; }
+.weetje--link .weetje__tekst { border-radius: var(--r-sm); transition: background-color var(--dur) var(--ease); }
+/* BESLISSING 462: nooit een onderstreping; BESLISSING 188 houdt de kleur gelijk, dus hover geeft hier alleen de aanwijzer (cursor) en de focusring */
+
+/* Stemming en energie: het gezichtje en het blaadje lichten bij hover op via zichzelf (BESLISSING 190): een fractie groter met een zachte schaduw
+   eronder, zonder kleurverandering (een niet-gekozen gezichtje blijft gedempt, een leeg blaadje blijft leeg); het woord beweegt niet mee. */
+.gevoel__tegel { transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease), transform var(--dur) var(--ease), filter var(--dur) var(--ease); }
+.energie__blad { transition: color var(--dur) var(--ease), transform var(--dur) var(--ease), filter var(--dur) var(--ease); }
+@media (hover: hover) {
+  .gevoel:not(.gevoel--alleenlezen) .gevoel__optie:hover:not(:disabled):not(:active) .gevoel__tegel { transform: scale(var(--gevoel-schaal)); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); }
+  .energie--kiezer:not(.energie--alleenlezen) .energie__tik:hover:not(:disabled):not(:active) .energie__blad { transform: translateY(-2px) scale(1.1); filter: drop-shadow(0 2px 2px color-mix(in srgb, var(--c-text) 25%, transparent)); }
+}
+@media (prefers-reduced-motion: reduce) { .gevoel__tegel, .energie__blad { transition: none; } .gevoel__optie:hover .gevoel__tegel, .energie__tik:hover .energie__blad { transform: none; filter: none; } }
+
+/* Een chip of segment zonder icoon is zijn eigen kleine kader: een lichte lift bij een muis, zonder kleur (BESLISSING 190) */
+@media (hover: hover) { .chip:not(.is-actief):not(:disabled):not(:has(.tegel)):hover, .segment__deel:not(.is-actief):not(:has(.tegel)):hover { transform: translateY(-1px); } }
+
+/* De agenda van periodieke supplementen in de maandkalender (BESLISSING 208 en 210): onder het cijfer staat één gecentreerd groepje: het
+   stemmingsbolletje links en het teken van een geplande beurt rechts, op dezelfde verticale as als het cijfer. Het teken is een salie capsule in een
+   ronde vlak van 20 px (op een telefoon 16 px). BESLISSING 251: het teken is een spuitje (een spuit laat zich slecht omlijnen). Gepland: salie spuitje op een zacht salie vlak;
+   afgevinkt: lichte spuit op een vol salie vlak; niet afgevinkt in het verleden: gedempt, zonder vlak. */
+.kalender__tekens { position: absolute; left: 0; right: 0; bottom: var(--s-1); display: flex; align-items: center; justify-content: center; gap: var(--s-1); pointer-events: none; }
+.kalender__spuit { position: relative; flex: none; display: inline-flex; align-items: center; justify-content: center; width: 20px; height: 20px; border-radius: var(--r-pill); color: var(--c-health); background: var(--c-health-soft); }
+.kalender__spuit .icoon { width: 12px; height: 12px; }
+.kalender__spuit.is-afgevinkt { background: var(--c-health-gevuld); color: var(--c-surface); box-shadow: none; }
+.kalender__spuit.is-gemist { opacity: .5; box-shadow: none; background: none; }
+.kalender__aantal { position: absolute; top: -5px; right: -6px; min-width: 12px; height: 12px; padding: 0 2px; border-radius: var(--r-pill); background: var(--c-health); color: var(--c-on-health); font-size: 9px; font-weight: 600; line-height: 12px; text-align: center; }
+@media (max-width: 719px) {
+  .kalender__spuit { width: 16px; height: 16px; }
+  .kalender__spuit .icoon { width: 10px; height: 10px; }
+  .kalender__spuit.is-afgevinkt { box-shadow: none; }
+  .kalender__spuit.is-gemist { box-shadow: none; }
+}
+
+/* ---------- De supplementkaart (BESLISSINGEN 213 en 214) ----------
+   Een <dialog>: op een telefoon een blad van onderen, vanaf 960 px een gecentreerde kaart. Kop en knoppen blijven staan, de velden scrollen. De
+   hoofdknop heeft de kleur van het tabblad Supplementen (salie, met het afgeleide mengsel dat 4,5 : 1 haalt). */
+html.heeft-supplementkaart { overflow: hidden; }
+/* Kleur volgt het begrip (BESLISSING 181): in een kaart van supplementen is de accentkleur salie, op de kaart zelf gezet omdat een dialog in de top layer de
+   variabelen van het scherm niet erft. Dezelfde donkere tint als de hoofdknop (4,5 : 1 voor tekst in Poeder en Salie, voldoende voor de focusrand); in Nacht de lichte salie. */
+.supplementkaart { --supp-donker: color-mix(in srgb, var(--c-health) var(--knop-mix-gezondheid), var(--c-text)); --knop-bg: var(--c-health); --knop-fg: var(--c-text); --c-accent: var(--supp-donker); --c-accent-text: var(--supp-donker); --c-accent-soft: var(--c-health-soft); --focus: 2px solid var(--supp-donker); }
+/* Bewaren en een gekozen chip: de heldere salie van het tabblad met donkere tekst (in Nacht de lichte salie met de donkere tekst van de hoofdknop) */
+[data-theme="nacht"] .supplementkaart { --knop-fg: var(--c-on-primary); }
+.supplementkaart[open] { display: flex; flex-direction: column; overflow: hidden; max-height: 92dvh; }
+@media (min-width: 960px), (min-width: 720px) and (min-height: 500.02px) { .supplementkaart { max-width: 640px; } .supplementkaart[open] { max-height: 90dvh; } } /* ook op de staande tablet (BESLISSING 717) */
+.supplementkaart__kop { flex: none; display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-4) var(--s-3) var(--s-5); border-bottom: var(--lijn); }
+.supplementkaart__titel { flex: 1; min-width: 0; margin: 0; overflow-wrap: anywhere; }
+.supplementkaart__kruis { flex: none; }
+.supplementkaart__lijst { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--s-4) var(--s-5); }
+.supplementkaart__binnen { display: flex; flex-direction: column; gap: var(--s-4); }
+.supplementkaart__velden { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+@media (min-width: 720px) { .supplementkaart__velden { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.supplementkaart__veld { display: flex; flex-direction: column; gap: var(--s-2); min-width: 0; }
+.supplementkaart__veld--breed { grid-column: 1 / -1; }
+.supplementkaart__ritme { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+@media (min-width: 720px) { .supplementkaart__ritme { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
+.supplementkaart__ritme .supplementkaart__veld--breed { grid-column: 1 / -1; }
+.supplementkaart__periode { display: flex; flex-direction: column; gap: var(--s-2); padding-top: var(--s-4); border-top: var(--lijn); }
+.supplementkaart__periodekop { margin: 0; }
+.supplementkaart__fout { margin: 0; font-size: var(--fs-small); color: var(--c-text); }
+.supplementkaart__onder { flex: none; padding: var(--s-3) var(--s-5) calc(var(--s-4) + var(--safe-bottom)); border-top: var(--lijn); background: var(--c-surface); }
+/* BESLISSING 522: de schikking van de knoppen (gecentreerd, even breed) komt uit de gedeelde knoppenrij hierboven ("Knoppenrij"); hier staat alleen wat eigen is aan deze kaart. */
+.supplementkaart__vraag { display: flex; flex-direction: column; gap: var(--s-3); }
+.supplementkaart__vraagtekst { margin: 0; font-weight: 500; }
+/* BESLISSINGEN 519 en 546: de knoppen onderaan het supplementblad (Bewaren, Annuleren, Verwijderen, ook die van de vragen) hebben op elk toestel dezelfde kleur: de
+   zachte tint, zoals overal (de regel van BESLISSING 544 hierboven). Het blad hoort altijd bij de familie Supplementen, ook als het opent vanaf een ander tabblad;
+   de gekozen chip houdt het vollere groen (--knop-bg). */
+.supplementkaart { --knop-zacht-bg: color-mix(in srgb, var(--f-gezond-basis) 35%, var(--f-gezond-zacht)); --knop-zacht-fg: var(--c-text); }
+/* "Verwijderen" is hier een tekstknop (data-uitleg="kaart-weghalen") en staat in de rij als derde gelijke knop: ook zij is een zacht vlak */
+.supplementkaart__knoppen .knop--tekst { background: var(--knop-zacht-bg); border-color: transparent; color: var(--knop-zacht-fg); }
+/* BESLISSING 519: op de telefoon zijn de knoppen onderaan het supplementblad kleiner: 44 px hoog (de ondergrens voor een tikvlak), een kleinere letter, minstens
+   6,5rem breed (twee knoppen bij toevoegen, drie bij bewerken, op een rij). Een vraag met drie knoppen ("Verder aanpassen") past op de telefoon niet op een rij:
+   twee boven en de derde gecentreerd eronder, alle drie even breed (BESLISSING 522). */
+@media (max-width: 719px) {
+  .supplementkaart__knoppen { --rij-min: 6.5rem; }
+  .supplementkaart__knoppen .knop, .supplementkaart__vraag .knop { min-height: 44px; height: 44px; padding-inline: var(--s-1); font-size: var(--fs-small); }
+  .supplementkaart__vraag .supplementkaart__knoppen:where(:has(> :nth-child(3))) { grid-auto-flow: row; grid-template-columns: repeat(4, minmax(0, 1fr)); min-width: min(100%, calc(var(--rij-min, var(--knop-min-b)) * 2 + var(--rij-gap, var(--s-2)))); }
+  .supplementkaart__vraag .supplementkaart__knoppen:where(:has(> :nth-child(3))) > :nth-child(1) { grid-column: 1 / 3; }
+  .supplementkaart__vraag .supplementkaart__knoppen:where(:has(> :nth-child(3))) > :nth-child(2) { grid-column: 3 / 5; }
+  .supplementkaart__vraag .supplementkaart__knoppen:where(:has(> :nth-child(3))) > :nth-child(3) { grid-column: 2 / 4; }
+}
+@media (max-width: 349.98px) { .supplementkaart__knoppen { --rij-gap: var(--s-1); } .supplementkaart__knoppen .knop { font-size: 13px; padding-inline: 2px; } }
+
+/* Profiel verwijderen (BESLISSING 243): rustige tekstknop onderaan Over; bij hover licht alleen het icoon op, zonder onderstreping */
+.knop--wis { align-self: flex-start; padding-left: 0; } /* BESLISSING 246: het icoon staat gelijk met de linkerrand van de tekst erboven */
+@media (hover: hover) { .knop--wis:hover:not(:disabled) { text-decoration: none; } .knop--wis:hover .icoon { filter: brightness(1.35); } }
+
+/* ---------- Supplementkaart: gekozen chip, Bewaren en de sluier (BESLISSINGEN 213 en 214, testronde) ----------
+   Gekozen = duidelijk gevuld in salie met lichte tekst en een vinkje; niet gekozen = lichte, rustige chip met donkere tekst. */
+.supplementkaart .chip.is-actief { color: var(--knop-fg); font-weight: 600; padding-inline-end: var(--s-5); }
+.supplementkaart .chip.is-actief::before { background: var(--knop-bg); }
+.supplementkaart .chip.is-actief::after { content: ""; flex: none; width: 5px; height: 9px; margin-inline-start: var(--s-1); border: solid var(--knop-fg); border-width: 0 2px 2px 0; transform: translateY(-1px) rotate(45deg); }
+/* Bewaren is een heldere hoofdknop in de salie van het tabblad; alleen de uitgeschakelde stand is gedempt */
+.supplementkaart .knop--primair:not(:disabled):not([aria-disabled="true"]) { font-weight: 600; box-shadow: var(--shadow-card); }
+.supplementkaart .knop--primair:is(:disabled, [aria-disabled="true"]) { opacity: .4; box-shadow: none; }
+/* De sluier achter een open kaart of venster is in elk thema donker en half doorzichtig (in Nacht dus donkerder, niet lichter); op de dialog zelf gezet omdat ::backdrop niet overal van :root erft */
+.dialoog { --scrim: color-mix(in srgb, color-mix(in srgb, var(--bloei-aubergine) 45%, black) 62%, transparent); }

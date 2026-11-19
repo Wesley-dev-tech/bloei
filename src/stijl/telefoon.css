@@ -1,0 +1,138 @@
+/* telefoon.css (BESLISSING 363): alleen onder 720 px, geladen als laatste in main.js.
+   1. "Goed om te weten" staat op elk scherm als allerlaatste blok.
+   2. Op de telefoon dezelfde vaste afstand tussen kaarten en blokken (--s-4, 16 px; in een instelscherm, dat één kaart is, tussen de delen --s-6),
+      de laatste kaart op die afstand boven de tabbalk, en geen leeg vlak boven 32 px.
+   Boven 720 px verandert niets: elke regel staat in de ene media-query hieronder. */
+@media (max-width: 719.98px) {
+  /* ---------- Onderaan het scherm: de laatste kaart staat op één kaartafstand boven de tabbalk ---------- */
+  #scherm { padding-bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s-4)); }
+
+  /* ---------- Instellingenschermen (Drinken, Gewicht, Vergrendeling, Naam en profielfoto, Favorieten, Uitleg) ----------
+     De lijst met kaarten en het blok "Goed om te weten" zitten in .instel__lijst, het voorbeeld ernaast. Op de telefoon lost de lijst op in het raster van
+     het scherm (display: contents), zodat de volgorde kaarten, voorbeeld, "Goed om te weten" met `order` kan. De afstand tussen de delen is --s-6;
+     het voorbeeld heeft een lijn erboven met dezelfde ruimte erboven en eronder. */
+  .instelscherm { gap: var(--s-6); }
+  .instelscherm > .instel__lijst { display: contents; }
+  .instelscherm > .instel__lijst > .kaart,
+  .instelscherm > .instel__lijst > .kaart + .kaart,
+  .instelscherm > .instel__lijst > .kaart:has(+ .instel__weetjes),
+  .instelscherm > .instel__lijst > .kaart + .instel__weetjes,
+  .instelscherm.uitleg__tweeen .instel__lijst > .kaart:first-child + .kaart,
+  .instelscherm.uitleg__tweeen .instel__lijst > .kaart:has(+ .uitleg__weetjes),
+  .instelscherm.uitleg__tweeen .instel__lijst > .kaart + .uitleg__weetjes { margin-top: 0; margin-bottom: 0; }
+  .instelscherm > .instel__voorbeeld { order: 1; padding-top: var(--s-6); }
+  .instelscherm > .instel__lijst > .instel__weetjes,
+  .instelscherm > .instel__lijst > .uitleg__weetjes { order: 2; margin-top: 0; padding-top: 0; }
+
+  /* De ruimte die een kaart onderaan zelf nog heeft (de laatste rij, de groep opties) telt mee: zo staat de lijn boven het voorbeeld overal 24 px onder de inhoud. */
+  .instelscherm > .instel__lijst > .instellingen__drinken.instellingen__drinken.instellingen__drinken { margin-bottom: calc(var(--s-1) * -1); }
+  .instelscherm > .instel__lijst > .instellingen__gewicht.instellingen__gewicht.instellingen__gewicht { margin-bottom: calc(var(--s-3) * -1); }
+  .instelscherm > .instel__lijst > .slot__kaart.slot__kaart.slot__kaart { margin-bottom: calc(var(--s-5) * -1); }
+  /* Uitleg: de lijst "Hoe doe ik dat?" eindigt 5 px boven haar eigen onderrand. */
+  .instelscherm.uitleg__tweeen > .uitleg__rechts > .kaart { margin-bottom: calc(var(--s-1) * -1); }
+  /* Het lege assenvlak van het gewichtvoorbeeld (nog geen weging) is een band, geen vlak van 124 px. */
+  .gewvoorbeeld__grafiekhouder:has(.gewvoorbeeld__leeg) { margin-top: calc(var(--s-5) * -1); }
+  .gewvoorbeeld__grafiekhouder > .gewvoorbeeld__grafiek { height: var(--s-8); }
+  /* De voorbeelden van Naam en profielfoto en van Favorieten hebben een vlak in de kleur van de kaart zelf, met eigen binnenruimte: dat was ruimte
+     zonder inhoud (± 16 px extra rond de vakken en rijen, zodat ze 16 px smaller dan de rest stonden). Op de telefoon vervalt die binnenruimte. */
+  .instelscherm .profielvoorbeeld__vakken { padding: 0; }
+  .favorietvoorbeeld__maaltijden { padding: 0; }
+  /* De lege toestand van Supplementen (de kaart heeft zelf al 20 px binnenruimte): geen 40 px extra boven het beeldmerk en onder de knop. */
+  .supplementen__leegkaart > .leeg { padding: 0; }
+  /* De lege toestand van Favorieten: minder lucht boven het beeldmerk en geen lucht onder de zin (de kaart heeft die zelf). */
+  .favorieten__lijst .leeg { padding: var(--s-2) var(--s-5) 0; }
+
+  /* ---------- Herinneringen: de twee kolommen lossen op in één rij kaarten; "Goed om te weten" onder "Je gegevens" ---------- */
+  .meldingen .instelscherm { gap: var(--s-4); }
+  .meldingen .instelscherm > .meldingen__links,
+  .meldingen .instelscherm > .meldingen__rechts { display: contents; }
+  .meldingen .instelscherm .meldingen__goed:not(.meldingen__goed--gegevens) { order: 1; }
+
+  /* ---------- Supplementen en Delen: dezelfde kaartafstand ---------- */
+  .supplementen .sup-knoprij { margin-bottom: calc(var(--s-4) - var(--s-8)); }
+  .delen .delen__kolommen { gap: var(--s-4); }
+  .delen .delen__uitleg { margin-bottom: calc(var(--s-4) - var(--s-8)); }
+  .delen .delen__kolommen { margin-bottom: calc(var(--s-4) - var(--s-8)); }
+
+  /* ---------- Dagboek dag: de tekstknop in de lege kaart Supplementen staat op de tekstlijn van de zin erboven (de knop heeft 12 px binnenruimte) ---------- */
+  .dag .dag__supplementen .leeg > .knop--tekst { margin-left: calc(var(--s-3) * -1); }
+
+  /* ---------- Dagboek dag, kaart Drinken (BESLISSING 382): de dranken in een raster van drie kolommen (twee rijen bij zes dranken), elke naam op één regel
+     en gecentreerd onder haar icoon; de iconen staan in gelijke kolommen en de rijen hebben één vaste tussenruimte. Bij een ander aantal dranken blijft het raster van drie kolommen. ---------- */
+  .dag .dagdranken { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3) 0; justify-content: stretch; }
+  .dag .dagdrank { flex: none; width: 100%; }
+
+  /* ---------- Algemeen: kaart Over, "Profiel verwijderen" een regel dichter bij "Versie", niet een leeg vlak van ruim 36 px ---------- */
+  .over.over > .over__liefde ~ .cijfer { margin-bottom: var(--s-2); }
+
+  /* ---------- Delen, voorbeeldverslag: een maaltijdnaam breekt nooit midden in een woord ("Tussendoortje"): de kolom Maaltijd is breder en zonder tegel,
+     alleen de lange vrije tekst in de kolom Wat breekt nog overal af ---------- */
+  .verslagvel__kolomkop, .verslagvel__rij { grid-template-columns: 40% minmax(0, 1fr); }
+  .verslagvel__onderdeel .tegel { display: none; }
+  .verslagvel__naam { overflow-wrap: break-word; }
+}
+
+/* ---------- Pop-ups op een telefoon (BESLISSING 421) ----------
+   Elk pop-upvenster (<dialog class="dialoog">: de bladen van blad(), bevestig(), de supplementkaart, Alles wissen en Profiel verwijderen) is op een
+   telefoon een gecentreerd kadertje met 16 px ruimte rondom (plus de safe-areas) en afgeronde hoeken aan alle vier de kanten, in plaats van een
+   blad over de volle breedte onderaan. Iets boven het midden, zodat het schermtoetsenbord het minder snel bedekt. Is de inhoud hoger dan het kadertje,
+   dan schuift ze BINNEN het kadertje. Het vergrendelscherm (#slot), de rondleiding (.uitleg__kaart) en de meldingen (.strook) blijven zoals ze zijn.
+   Telefoon = onder 720 px breed, of een telefoon liggend (hoogte tot 500 px, breedte tot 960 px). Op een tablet en een computer verandert niets. */
+@media (max-width: 719.98px), (max-width: 959.98px) and (max-height: 500px) {
+  dialog.dialoog:not(.dialoog--statisch):not(.dialoog--venster):not(#slot *) {
+    inset: calc(var(--safe-top) + var(--s-4)) calc(env(safe-area-inset-right, 0px) + var(--s-4)) calc(var(--safe-bottom) + var(--s-4) + 8dvh) calc(env(safe-area-inset-left, 0px) + var(--s-4));
+    width: auto;
+    max-width: 480px;
+    height: fit-content;
+    max-height: calc(100dvh - var(--safe-top) - var(--safe-bottom) - var(--s-4) * 2 - 8dvh);
+    margin: auto;
+    border-radius: var(--r-lg);
+    overflow: auto;
+    overscroll-behavior: contain;
+  }
+  dialog.supplementkaart:not(#slot *) { overflow: hidden; }
+  dialog.dialoog[open]:not(.dialoog--statisch):not(.dialoog--venster):not(#slot *) { animation: pop-in var(--dur) var(--ease); }
+  /* het kadertje staat niet meer tegen de onderrand: geen extra ruimte voor de safe-area onderin */
+  dialog.dialoog:not(#slot *) .dialoog__blad { padding-bottom: var(--s-5); }
+  dialog.supplementkaart:not(#slot *) .supplementkaart__onder { padding-bottom: var(--s-4); }
+}
+@keyframes pop-in { from { opacity: 0; transform: scale(.96); } to { opacity: 1; transform: none; } }
+
+/* ---------- BESLISSING 426: tikvlakken op 320 tot 360 px ----------
+   Elk tikbaar element heeft ook op de smalste telefoons een tikvlak van minstens 44 x 44 px, zonder iets te verschuiven of te verkleinen. De regels staan in een media-query die alleen de breedtes raakt waar ze nodig zijn; de favorietchip en de twee
+   afstandsregels (week-stippen, licentielink) gelden op elke telefoonbreedte, zonder iets zichtbaars te veranderen. Gemeten met tests/e2e/z-tikvlakken-smal.spec.js. */
+/* Vandaag, kaart Drinken: "Laatste weghalen" staat in de kolom naast het glas (kolom links 174 px) en is 163 px breed; onder 357 px steekt hij daardoor uit de kaart
+   en onder 340 px zelfs uit het scherm (de pagina loopt dan horizontaal over en een telefoon zoomt uit). De tekst breekt dan na "Laatste". */
+@media (max-width: 356.98px) {
+  .vandaag .drinkkaart .drinkkaart__links > .drinkkaart__acties .knop--tekst { white-space: normal; text-align: left; max-width: 100%; }
+}
+/* Vandaag, strook Favorieten, op elke breedte: een lange favoriet (of een lang woord zonder spaties) maakt zijn chip breder dan het scherm en de pagina loopt dan
+   horizontaal over. Zoals in het maaltijdblad (schermen.css) blijft de chip binnen de rij en wordt de tekst met puntjes afgekapt; de volledige tekst blijft de naam van de knop.
+   De opvulling met een even grote negatieve marge laat de afkapping de staarten van g en y niet afsnijden zonder de hoogte te veranderen. */
+.eten__favorieten .chip { max-width: 100%; }
+.eten__favorieten .chip span { min-width: 0; overflow: hidden; text-overflow: ellipsis; padding-block: .2em; margin-block: -.2em; }
+/* Algemeen, kaart Over (alle telefoonbreedtes): de licentielink is 44 px hoog (tikvlak en element, z-toegankelijkheid) en staat op dezelfde lijn als de versie: zijn verticale midden
+   valt op het midden van de versieregel (x-annuleren-favoriet.spec.js, BESLISSING 436; vroeger lag het 6 px te hoog door een opvulling van 18 px boven). Daardoor reikt het tikvlak
+   tot 5 px boven "Profiel verwijderen" (r-telefoon eist 8 px): de ruimte onder de regel is daarom 3 px groter (19 in plaats van 16 px). De link ligt 1 px hoger dan het midden. */
+@media (max-width: 719.98px) {
+  .over.over.over > .over__licenties { margin-bottom: 19px; }
+  .over__licenties a { position: relative; top: -1px; }
+}
+/* BESLISSING 524: de week-stippen blijven op de smalste telefoons smaller dan 44 px, maar hun tikvlakken overlappen elkaar niet. Het element is er zo breed als zijn kolom
+   (opvulling 5 px in plaats van 10 px, een even grote negatieve marge: niets verschuift) en het tikvlak (::after) is net zo breed, 44 px hoog. Onzichtbaar. */
+@media (max-width: 369.98px) {
+  .vandaag .voortgang a.week__link { padding: 2px 5px; margin: -2px -5px; }
+  .vandaag .voortgang a.week__link::after { left: 0; width: 100%; transform: translateY(-50%); }
+}
+/* Supplementen, schema "Mijn supplementen": de knop met de naam heeft 10 px opvulling (met een even grote negatieve marge) en is bij een lange naam breder dan zijn cel;
+   de regel eronder en de volgende cel liggen er dan overheen en bijten 10 px van het tikvlak af (34 px hoog). De knop komt boven zijn buren te liggen; hij is doorzichtig,
+   dus er verandert niets te zien. */
+@media (max-width: 369.98px) {
+  .supplementen .schema__knop { position: relative; z-index: 1; }
+}
+/* Algemeen > Badges, op een telefoon smaller dan 390 px: staat in een rij een naam op twee regels (bijv. "Zeven stemmingen") naast een naam op een regel, dan is de kaart met de korte naam even
+   hoog en blijft er 67 px leeg onder haar voortgang ("4 van 5 dagen"). De voortgang staat dan in het midden van de ruimte onder de naam (automatische marge): de leegte is verdeeld over twee
+   plaatsen van 30 px. Een kaart zonder extra ruimte verandert niet; vanaf 390 px verandert er niets. */
+@media (max-width: 389.98px) {
+  .medaillekaart > .t-klein { margin-block: auto; }
+}

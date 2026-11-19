@@ -1,0 +1,14 @@
+{
+  "name": "bloei-herinneringen",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "sleutels": "node scripts/maak-vapid.mjs",
+    "dev": "wrangler dev --test-scheduled",
+    "uitrollen": "wrangler deploy"
+  },
+  "devDependencies": {
+    "wrangler": "^4.0.0"
+  }
+}

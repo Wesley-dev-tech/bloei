@@ -1,0 +1,444 @@
+/* ============================================================
+   Vergrendeling (spoor C, E10): het slotscherm, het cijferblok en het instelscherm.
+   Alleen var(--...) uit bloei-huisstijl/tokens.css; werkt in alle thema's. Tikvlakken van minstens 44 px (het minimum; op de gewone maten 48 px
+   en de cijfertoetsen 52 px, BESLISSING 536; op lage schermen kleiner, nooit onder 44 px, BESLISSING 644 en 654).
+   ============================================================ */
+
+#slot {
+  position: fixed;
+  inset: 0;
+  z-index: 100;
+  display: flex;
+  box-sizing: border-box;
+  overflow-y: auto;
+  padding: calc(var(--s-6) + var(--safe-top)) max(var(--s-5), var(--safe-right)) calc(var(--s-6) + var(--safe-bottom)) max(var(--s-5), var(--safe-left));
+  background: var(--c-bg);
+  color: var(--c-text);
+}
+#slot[hidden] { display: none; }
+
+.slot__binnen {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-4);
+  width: 100%;
+  max-width: 360px;
+  margin: auto;
+  text-align: center;
+}
+.slot--gordijn .slot__binnen { gap: 0; }
+/* BESLISSING 526: op het slotscherm staat elke knop gecentreerd ("Face ID gebruiken" stond op tablet en desktop links) */
+.slot__binnen .knop.knop--breed, .slot__binnen .slot__acties { align-self: center; }
+/* BESLISSING 527 en 537: een omrande knop op het slotscherm, in het welkomscherm en bij het herstel heeft een zachte achtergrond (wit op wit was niet te zien):
+   dat is nu de gewone regel voor elke omrande knop (--knop-zacht-bg, componenten.css), dus hier staat niets meer. */
+.slot__titel { margin-top: var(--s-2); }
+.slot__uitleg { color: var(--c-text-muted); text-wrap: balance; }
+.slot__boodschap { min-height: 1.5em; color: var(--c-accent-text); font-size: var(--fs-small); text-wrap: balance; }
+.slot__acties { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
+
+/* ---------- Cijferblok ---------- */
+.cijferblok { display: flex; flex-direction: column; align-items: center; gap: var(--s-6); width: 100%; }
+.cijferblok__stippen { display: flex; gap: var(--s-4); height: var(--s-4); }
+.cijferblok__stip {
+  width: var(--s-4);
+  height: var(--s-4);
+  box-sizing: border-box;
+  border: 2px solid var(--c-accent);
+  border-radius: var(--r-pill);
+  transition: background-color var(--dur-fast) var(--ease);
+}
+.cijferblok__stip.is-gevuld { background: var(--c-accent); }
+.cijferblok__rooster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-3); width: 100%; max-width: 300px; }
+.cijferblok__vrij { min-height: 64px; }
+.cijferblok__toets {
+  display: grid;
+  place-items: center;
+  min-height: 64px;
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-card);
+  color: var(--c-text);
+  font-family: var(--font-display);
+  font-size: 1.75rem;
+  font-variant-numeric: lining-nums;
+  font-weight: 500;
+  touch-action: manipulation;
+  transition: transform var(--dur-fast) var(--ease), opacity var(--dur-fast) var(--ease);
+}
+.cijferblok__toets:active:not(:disabled) { transform: scale(.97); }
+.cijferblok__toets:disabled { opacity: .4; }
+.cijferblok__toets:focus-visible { outline: var(--focus); outline-offset: 2px; }
+.cijferblok__toets--wis { background: transparent; box-shadow: none; color: var(--c-text-muted); }
+.cijferblok.is-fout .cijferblok__stippen { animation: slot-schud 240ms var(--ease); }
+@keyframes slot-schud { 0%, 100% { transform: translateX(0); } 25% { transform: translateX(calc(var(--s-2) * -1)); } 75% { transform: translateX(var(--s-2)); } }
+@media (max-height: 640px) {
+  .cijferblok { gap: var(--s-3); }
+  .cijferblok__toets, .cijferblok__vrij { min-height: 56px; }
+}
+
+/* Telefoon liggend (BESLISSING 308, 844 x 390 en kleiner): vier rijen toetsen staan niet onder de titel in 390 px hoogte. Titel en uitleg staan links, het
+   cijferblok rechts. Sinds BESLISSING 660 volgt dit scherm dezelfde vaste regels als de andere slotschermen liggend: zie het blok "liggende telefoon" verderop. */
+
+/* ---------- Instelscherm ---------- */
+.slot__instel { display: flex; flex-direction: column; gap: var(--s-4); width: 100%; max-width: 420px; margin: 0 auto; text-align: center; align-items: center; }
+.slot__instel .veld__invoer { width: 100%; }
+
+/* ---------- Overzicht (zelfde opbouw als de andere subschermen van Meer) ---------- */
+.slot__kaart > .knop { margin-top: auto; }
+.slot__kaart .slot__eerlijk { margin-top: auto; }
+.slot__acties { width: 100%; }
+/* Een lange naam (Android: "Vingerafdruk of schermslot gebruiken", BESLISSING 439) breekt op twee regels in de knop in plaats van
+   tegen de rand te lopen; de knop groeit dan mee. Bij een korte naam (Face ID) blijft de knop precies zo hoog als voorheen (min-height). */
+.slot__acties .knop { height: auto; padding-block: var(--s-3); white-space: normal; text-align: center; line-height: 1.25; }
+.slot__acties .knop__tekst { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
+/* Het rustige scherm bij een vergeten code: een leesbare kolom, de knoppen onder elkaar. */
+.slot__kwijt .slot__uitleg { margin: 0; }
+/* De eerlijke zin staat in gewone leesbare tekstgrootte, niet als voetnoot. */
+.slot__eerlijk { color: var(--c-text-muted); font-size: var(--fs-body); line-height: var(--lh-body); }
+.slot__instel .slot__eerlijk { text-align: center; }
+
+/* Op een smalle telefoon past "Vergrendeling" met de knoppen ernaast niet op één regel in de gewone titelgrootte. */
+@media (max-width: 480px) {
+  .slot-scherm .schermkop__titel { font-size: 1.625rem; overflow-wrap: normal; }
+}
+
+/* ---------- Voorbeeld van het slotscherm op het instelscherm ---------- */
+.slotvoorbeeld {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  max-width: 260px;
+  margin: 0 auto;
+  padding: var(--s-5) var(--s-4);
+  box-sizing: border-box;
+  background: var(--c-bg);
+  border: var(--lijn);
+  border-radius: var(--r-lg);
+  pointer-events: none;
+}
+.slotvoorbeeld__stippen { display: flex; gap: var(--s-2); }
+.slotvoorbeeld__stip { width: var(--s-2); height: var(--s-2); box-sizing: border-box; border: 1.5px solid var(--c-accent); border-radius: var(--r-pill); }
+.slotvoorbeeld__stip.is-gevuld { background: var(--c-accent); }
+.slotvoorbeeld__rooster { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); gap: var(--s-2); width: 100%; }
+.slotvoorbeeld__toets {
+  display: grid;
+  place-items: center;
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
+  box-shadow: var(--shadow-card);
+  font-family: var(--font-display);
+  font-size: var(--fs-body);
+  font-variant-numeric: lining-nums;
+  color: var(--c-text);
+}
+.slotvoorbeeld__faceid {
+  overflow-wrap: break-word;
+  hyphens: auto;
+  width: 100%;
+  padding: var(--s-2) var(--s-3);
+  box-sizing: border-box;
+  border: var(--lijn);
+  border-radius: var(--r-pill);
+  text-align: center;
+  font-size: var(--fs-small);
+  color: var(--c-text);
+}
+
+.slotvoorbeeld__kwijt { font-size: var(--fs-small); color: var(--c-accent-text); text-align: center; }
+
+/* Het slotvoorbeeld groeit mee met zijn deel (.instel__groei in layout.css) tot een maximum. */
+.instel__groei > .slotvoorbeeld { max-width: 400px; }
+.slotvoorbeeld__toets { height: auto; min-height: var(--s-8); }
+
+/* De toetsen van het voorbeeld worden niet reuzengroot: ze groeien tot een maximum, de rest verdeelt de ruimte. */
+
+/* Het voorbeeld is niet hoger dan nodig: de toetsen groeien tot een bescheiden maximum. */
+.instel__groei > .slotvoorbeeld { justify-content: flex-start; }
+
+/* Toetsen van minstens 44 px die meegroeien met de hoogte van het voorbeeld, tot de maximale hoogte van het mini-scherm. */
+.slotvoorbeeld__rooster { flex: 1 1 auto; grid-auto-rows: minmax(44px, 1fr); }
+.instel__groei > .slotvoorbeeld { max-height: 560px; gap: var(--s-3); }
+
+/* Een cijfertoets heeft geen icoon: bij hover komt de toets zelf licht omhoog (geen kleurverandering). */
+@media (hover: hover) { .cijferblok__toets:hover:not(:disabled) { transform: translateY(-1px); } }
+
+/* ---------- De keuze Pincode of Face ID onder de schakelaar (BESLISSING 194): twee keuzerijen, precies één gekozen ---------- */
+.slot__keuze { display: flex; flex-direction: column; gap: var(--s-2); width: 100%; }
+
+/* BESLISSING 234: de keuzes horen bij de schakelaar Bloei vergrendelen. Ze staan ingesprongen onder het kopje Openen met, met een
+   lijn die aansluit op het midden van het icoon van de schakelaar. Staat het slot uit, dan zijn ze gedempt maar nog aantikbaar. */
+.slot__groep {
+  margin: var(--s-1) 0 var(--s-4) calc(var(--tile-size) / 2 - 1px);
+  padding: var(--s-1) 0 var(--s-1) var(--s-5);
+  border-left: 2px solid var(--c-line);
+  border-bottom-left-radius: var(--r-md);
+  display: flex;
+  flex-direction: column;
+  gap: var(--s-2);
+}
+.slot__groepkop { margin: 0; color: var(--c-text-muted); }
+.slot__groep.is-uit .slot__optie { opacity: .6; }
+.slot__groep.is-uit .slot__groepkop { opacity: .7; }
+
+.slot__optie {
+  display: flex;
+  align-items: center;
+  gap: var(--s-3);
+  width: 100%;
+  min-height: var(--tap-min);
+  padding: var(--s-2) var(--s-3);
+  border: var(--lijn);
+  border-radius: var(--r-sm);
+  background: var(--c-surface);
+  color: var(--c-text);
+  text-align: left;
+  touch-action: manipulation;
+}
+.slot__optie[aria-checked="true"] { border-color: var(--c-accent); }
+.slot__optie:disabled { opacity: .5; cursor: not-allowed; }
+.slot__optie:focus-visible { outline: var(--focus); outline-offset: 2px; }
+/* Op Android heet de methode "Vingerafdruk of schermslot" (BESLISSING 439): op een smal scherm breekt het lange woord af in plaats van uit zijn rij te lopen. */
+.slot__optietekst { display: flex; flex-direction: column; gap: 2px; flex: 1; min-width: 0; overflow-wrap: break-word; hyphens: auto; }
+.slot__optielabel { font-size: var(--fs-body); line-height: 1.3; }
+.slot__optiehint { font-size: var(--fs-small); line-height: 1.4; color: var(--c-text-muted); }
+.slot__radio {
+  flex: none;
+  width: 22px;
+  height: 22px;
+  border-radius: var(--r-pill);
+  border: 2px solid var(--c-text-muted);
+  position: relative;
+}
+.slot__optie[aria-checked="true"] .slot__radio { border-color: var(--c-accent); }
+.slot__optie[aria-checked="true"] .slot__radio::after { content: ""; position: absolute; inset: 3px; border-radius: var(--r-pill); background: var(--c-accent); }
+
+/* ---------- Herstellen (BESLISSING 518): de herstelcode één keer tonen, het toestel als hulp, de herstelcode ingeven ---------- */
+.herstel { gap: var(--s-3); }
+.herstel__titel { margin: 0; outline: none; }
+/* De code groot en goed leesbaar: Jost (duidelijke 2, 5, 8, Z, S, B), cijfers op één lijn, ruime letterafstand, op één regel. */
+.herstel__code {
+  margin: 0;
+  padding: var(--s-2) var(--s-4);
+  border: var(--lijn);
+  border-radius: var(--r-md);
+  background: var(--c-surface);
+  color: var(--c-text);
+  font-family: var(--font-ui);
+  font-size: 1.5rem;
+  font-weight: 500;
+  font-variant-numeric: lining-nums tabular-nums;
+  letter-spacing: .08em;
+  line-height: 1.3;
+  white-space: nowrap;
+  user-select: all;
+}
+@media (max-width: 359.98px) { .herstel__code { font-size: 1.25rem; padding-inline: var(--s-3); } }
+.herstel__uitleg { margin: 0; font-size: var(--fs-small); line-height: 1.45; }
+/* Kopiëren en Bewaren als bestand naast elkaar, even hoog; een lange tekst breekt in de knop in plaats van eruit te lopen. */
+/* BESLISSING 525 en 537: Kopiëren en Bewaren als bestand zijn even breed; hun zachte achtergrond is de gewone regel voor een omrande knop */
+.herstel__knoppen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-2); width: 100%; }
+.herstel__knoppen .knop { min-width: 0; height: auto; min-height: var(--tap-min); padding: var(--s-1) var(--s-3); white-space: normal; line-height: 1.2; text-align: center; }
+.herstel__knoppen .knop__tekst { min-width: 0; overflow-wrap: break-word; }
+.herstel .slot__boodschap:empty { display: none; }
+.herstel__vink { align-self: center; }
+/* De herstelcode ingeven op het slotscherm */
+.herstel__formulier { display: flex; flex-direction: column; align-items: stretch; gap: var(--s-2); width: 100%; }
+.herstel__label { text-align: left; color: var(--c-text-muted); }
+.herstel__veld { text-align: center; text-transform: uppercase; letter-spacing: .08em; font-variant-numeric: lining-nums tabular-nums; }
+.herstel__formulier .slot__boodschap { margin: 0; }
+/* Een open punt op het scherm Vergrendeling (nog geen bevestigde herstelcode): de uitleg in de accenttekst, zonder nieuwe kleur. */
+.slot-scherm [data-open-punt] .rij__sub { color: var(--c-accent-text); }
+/* BESLISSING 522: knoppenrijen van het slot. Knoppen die bij elkaar horen staan gecentreerd en zijn onderling even breed, niet van rand tot rand.
+   - Twee gelijkwaardige knoppen (het toestel als hulp, opnieuw proberen): naast elkaar, even breed (hoogstens 11rem), samen in het midden. Een lange tekst breekt in de knop.
+   - De wegen op "Je code niet meer weten": een kolom van knoppen met de breedte van de langste tekst plus de gewone binnenruimte (hoogstens de houder), in het midden.
+   - Een enkele hoofdknop (Verder, Doorgaan, Alles wissen, de code of het toestel): gewone knopbreedte (13rem), in het midden; de tekstknop staat gecentreerd eronder. */
+.slot__binnen.slot__kwijt { max-width: 30rem; }
+/* De meldingsregel en de knoppen van een slotscherm (slot.js): telt niet mee als vak (staand verandert er niets); liggend de rechterkolom (BESLISSING 654). */
+.slot__kant { display: contents; }
+.herstel__keuze { display: grid; grid-template-columns: repeat(2, minmax(0, 11rem)); justify-content: center; gap: var(--s-2); width: 100%; }
+@media (max-width: 339.98px) { .herstel__keuze { grid-template-columns: minmax(0, 11rem); } }
+.herstel__keuze > .knop { width: 100%; min-width: 0; height: auto; min-height: var(--tap-min); padding: var(--s-2) var(--s-3); white-space: normal; line-height: 1.25; text-align: center; align-self: stretch; }
+.herstel__keuze .knop__tekst, .slot__acties--kwijt .knop__tekst { min-width: 0; overflow-wrap: break-word; hyphens: auto; }
+/* de wegen en de laatste uitweg delen een kolom (de houder van de wegen telt niet mee als vak) */
+.slot__acties--kwijt { display: grid; grid-template-columns: minmax(0, max-content); justify-content: center; align-items: stretch; gap: var(--s-2); }
+.slot__acties--kwijt .slot__wegen { display: contents; }
+.slot__acties--kwijt > .knop, .slot__acties--kwijt .slot__wegen > .knop { width: auto; min-width: 0; justify-self: stretch; align-self: auto; }
+.slot__acties--kwijt > .knop--tekst { justify-self: center; }
+/* een enkele hoofdknop: gewone knopbreedte in het midden; een lange tekst ("Bevestig met Face ID") maakt hem breder, nooit breder dan de houder */
+.slot__instel > .knop--breed, .slot__instel > .slot__kant > .knop--breed, .herstel__formulier > .knop--breed, .slot__acties:not(.slot__acties--kwijt) > .knop--breed { width: fit-content; min-width: min(100%, 13rem); max-width: 100%; align-self: center; }
+/* BESLISSING 536: het cijferblok van het slotscherm is kleiner, op telefoon en desktop: toetsen 52 px hoog (ruim boven het tikdoel van 44 px), een smaller rooster
+   en een kleiner cijfer. Het compactere blok in het welkomscherm (46 px, BESLISSING 514) blijft zoals het is. */
+.slot__binnen .cijferblok { gap: var(--s-4); }
+.slot__binnen .cijferblok__rooster { max-width: 228px; gap: var(--s-2); }
+.slot__binnen .cijferblok__toets, .slot__binnen .cijferblok__vrij { min-height: 52px; }
+.slot__binnen .cijferblok__toets { font-size: 1.375rem; }
+.slot__binnen .slot__titel { font-size: var(--fs-h2); }
+/* BESLISSING 539: het cijferblok dat opent bij Wijzigen, Maken en Koppelen (Algemeen onder Vergrendeling) is even compact als het slotscherm (BESLISSING 536),
+   op telefoon, tablet en desktop: toetsen 52 px hoog, een smal rooster en een kleiner cijfer. */
+#scherm :not(.welkom__bediening, .welkom__slotvak) > .slot__instel { max-width: 22rem; gap: var(--s-3); }
+/* BESLISSING 540: het blok staat lager, meer in het midden van de pagina, in plaats van tegen de kop */
+#scherm :not(.welkom__bediening, .welkom__slotvak) > .slot__instel { margin-top: clamp(var(--s-5), calc((100dvh - 34rem) / 2), 10rem); }
+#scherm :not(.welkom__bediening, .welkom__slotvak) > .slot__instel .cijferblok { gap: var(--s-4); }
+#scherm :not(.welkom__bediening, .welkom__slotvak) > .slot__instel .cijferblok__rooster { max-width: 228px; gap: var(--s-2); }
+#scherm :not(.welkom__bediening, .welkom__slotvak) > .slot__instel .cijferblok__toets, #scherm :not(.welkom__bediening, .welkom__slotvak) > .slot__instel .cijferblok__vrij { min-height: 52px; }
+#scherm :not(.welkom__bediening, .welkom__slotvak) > .slot__instel .cijferblok__toets { font-size: 1.375rem; }
+
+/* BESLISSING 644: op een lage telefoon (de zichtbare hoogte met de balken van de browser, 360x560 en 320x480) past elk scherm van het slot zonder
+   scrollen: kleinere marges, een kleiner logo, kleinere tussenruimtes, iets minder regelafstand en tikvlakken van 44 px (het minimum; de cijfertoetsen
+   46 px, zoals in het welkomscherm, BESLISSING 514). Alleen binnen #slot en alleen staand: vanaf 601 px hoogte (390x660, 390x844, desktop) en
+   liggend (BESLISSING 308, het cijferblok naast de titel) verandert er niets.
+   BESLISSING 654: dezelfde regels gelden ook in een laag venster op laptop of tablet liggend (breed, tussen 500 en 600 px hoog, 1280x560 en
+   1024x560): dezelfde compacte marges, logo en tussenruimtes, zodat elk slotscherm in beeld staat. Liggend onder 500 px: het blok verderop. */
+@media (max-height: 600px) and (max-aspect-ratio: 1/1), (min-aspect-ratio: 1/1) and (min-height: 500.02px) and (max-height: 600px) {
+  #slot { --knop-h: 44px; padding-block: calc(var(--s-2) + var(--safe-top)) calc(var(--s-2) + var(--safe-bottom)); }
+  #slot .slot__binnen { gap: var(--s-2); }
+  #slot:not(.slot--gordijn) .slot__binnen > .logo { --logo-t: 26px !important; }
+  #slot .slot__binnen .slot__titel { margin-top: 0; }
+  #slot .slot__uitleg, #slot .slot__eerlijk, #slot .slot__boodschap { line-height: 1.4; }
+  #slot .slot__acties .knop { padding-block: var(--s-2); }
+  #slot .slot__acties, #slot .slot__acties--kwijt { gap: var(--s-1); }
+  #slot .slot__binnen .cijferblok { gap: var(--s-2); }
+  #slot .slot__binnen .cijferblok__toets, #slot .slot__binnen .cijferblok__vrij { min-height: 46px; }
+  #slot .slot__instel { gap: var(--s-2); }
+}
+/* Op de laagste (320x480) is "Je code niet meer weten" zelfs zo te hoog: drie alinea's, de meldingsregel, drie knoppen en Terug vragen in 16 px samen
+   meer dan 480 px (op Android met de langere zinnen en een knop op twee regels nog meer). Daar staat de uitleg van dat scherm in de kleine tekstmaat van
+   de app (--fs-small, 14 px, zoals de uitleg van het herstel in het welkomscherm en de meldingsregel zelf), met nog wat minder marge en ruimte; de
+   cijfertoetsen 44 px, het minimum voor een tikvlak. */
+@media (max-height: 500px) and (max-aspect-ratio: 1/1) {
+  #slot .slot__wegenscherm .slot__uitleg { font-size: var(--fs-small); }
+  #slot { padding: calc(var(--s-1) + var(--safe-top)) max(var(--s-4), var(--safe-right)) calc(var(--s-1) + var(--safe-bottom)) max(var(--s-4), var(--safe-left)); }
+  #slot .slot__binnen { gap: 6px; }
+  #slot .slot__wegenscherm { gap: var(--s-1); }
+  #slot .slot__wegenscherm .slot__uitleg, #slot .slot__wegenscherm .slot__boodschap { line-height: 1.35; }
+  #slot:not(.slot--gordijn) .slot__binnen > .logo { --logo-t: 24px !important; }
+  #slot .slot__binnen .cijferblok__toets, #slot .slot__binnen .cijferblok__vrij { min-height: 44px; }
+}
+
+/* BESLISSING 654: liggende telefoon (844x390, 667x375, 568x320). Onder elkaar passen "Je code niet meer weten" en de andere slotschermen niet in de
+   hoogte; ze krijgen twee kolommen, zoals het cijferblok liggend (BESLISSING 308, zelfde voorwaarden): links het logo, de titel en de tekst, rechts
+   wat je doet. Rechts staat de houder .slot__kant (de meldingsregel en de knoppen; slot.js en herstelscherm.js; staand telt hij niet mee), het
+   formulier van de herstelcode, of het cijferblok van "Een nieuwe code" (de zinnen en Annuleren staan dan links, zoals op het slotscherm).
+   Dezelfde compacte maten als op de lage staande telefoon (BESLISSING 644): knoppen van 44 px, logo 26 px, cijfertoetsen 46 px. De knoppen blijven
+   een groep: even breed, gecentreerd, in dezelfde zachte tint. Het slotscherm met het cijferblok zelf (BESLISSING 308) blijft zoals het was. */
+/* BESLISSING 660 tot 662: elk slotscherm liggend (ook het slotscherm met het cijferblok, BESLISSING 308) volgt dezelfde vaste regels, geen maten per scherm:
+   - twee kolommen van gelijke breedte (--slot-kol: 21rem, kleiner als het venster smaller is) met een vaste tussenruimte (--s-8), samen in het midden;
+   - beide kolommen op dezelfde middenlijn: de eerste en de laatste rij zijn flexibel (1fr) en vangen het verschil in hoogte op, links via ::before en ::after;
+   - een tussenruimte (--s-2) tussen alle delen: logo, titel, alinea's, meldingsregel, knoppen en tekstknop;
+   - elke brede knop vult zijn kolom: de groep, de knop die alleen staat en het paar Kopiëren en Bewaren zijn op elk scherm even breed;
+   - tekst vult de kolom (geen balance), zodat tussen de tekst en de knoppen geen groter leeg vlak staat dan de tussenruimte van de kolommen;
+   - dezelfde letter, hetzelfde logo (26 px), knoppen van 44 px en cijfertoetsen van 46 px (zoals elk slotscherm onder 600 px hoogte). */
+@media (min-aspect-ratio: 1/1) and (max-height: 500px) {
+  #slot { padding-block: calc(var(--s-2) + var(--safe-top)) calc(var(--s-2) + var(--safe-bottom)); }
+  #slot .slot__binnen:is(.slot__kwijt, :has(> .cijferblok)) {
+    --knop-h: 44px;
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 21rem));
+    grid-template-rows: 1fr repeat(10, auto) 1fr;
+    column-gap: var(--s-8);
+    row-gap: 0;
+    justify-content: center;
+    align-content: center;
+    align-items: center;
+    justify-items: center;
+    max-width: none;
+  }
+  /* met het cijferblok rechts (het slotscherm en "Een nieuwe code"): de linkerkolom is even breed als op de andere slotschermen, de rechterkolom zo breed als
+     het cijferblok (BESLISSING 536), zodat er tussen de tekst en de toetsen geen groter leeg vlak staat dan de tussenruimte (BESLISSING 661) */
+  #slot .slot__binnen:is(:has(> .cijferblok), .slot__kwijt:has(> .slot__instel > .cijferblok)) { grid-template-columns: minmax(0, min(21rem, calc((100% - var(--s-8)) / 2))) 228px; }
+  /* "Een nieuwe code" heeft links geen brede knop en korte zinnen: de linkerkolom is niet breder dan haar langste zin (hoogstens 21rem en wat naast het
+     cijferblok past), het blok blijft compact in het midden */
+  #slot .slot__binnen.slot__kwijt:has(> .slot__instel > .cijferblok) { grid-template-columns: fit-content(min(21rem, calc(100% - var(--s-8) - 228px))) 228px; }
+  #slot .slot__binnen:is(.slot__kwijt, :has(> .cijferblok))::before { content: ""; grid-column: 1; }
+  #slot .slot__binnen:is(.slot__kwijt, :has(> .cijferblok))::after { content: ""; grid-column: 1; grid-row: -2 / -1; }
+  /* het cijferblok van "Een nieuwe code" en de stap met de nieuwe herstelcode: hun onderdelen worden zelf vakken van de twee kolommen */
+  #slot .slot__kwijt > .slot__instel:is(:has(> .cijferblok), [data-herstelstap]) { display: contents; }
+  /* links, onder elkaar; de tussenruimte als marge, zodat de lege rijen naast de rechterkolom niets kosten */
+  #slot .slot__binnen:is(.slot__kwijt, :has(> .cijferblok)) > *, #slot .slot__kwijt > .slot__instel:is(:has(> .cijferblok), [data-herstelstap]) > * { grid-column: 1; margin: var(--s-2) 0 0; }
+  #slot .slot__binnen:is(.slot__kwijt, :has(> .cijferblok)) > :first-child { margin-top: 0; }
+  /* rechts, over de hele hoogte, verticaal in het midden */
+  #slot .slot__binnen.slot__kwijt > :is(.slot__kant, .herstel--invoer), #slot .slot__kwijt > .slot__instel > :is(.cijferblok, .slot__kant), #slot .slot__binnen > .cijferblok { grid-column: 2; grid-row: 1 / -1; margin-top: 0; width: 100%; }
+  #slot .slot__binnen.slot__kwijt > :is(.slot__kant, .herstel--invoer), #slot .slot__kwijt > .slot__instel > .slot__kant { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
+  #slot:not(.slot--gordijn) .slot__binnen:is(.slot__kwijt, :has(> .cijferblok)) > .logo { --logo-t: 26px !important; }
+  /* een lege meldingsregel neemt geen plaats (geen leeg vlak boven de knoppen, BESLISSING 661); ze blijft wel bestaan, zodat een schermlezer de melding hoort */
+  #slot .slot__binnen .slot__boodschap:empty { min-height: 0; margin: 0 0 calc(var(--s-2) * -1); }
+  #slot .slot__binnen:is(.slot__kwijt, :has(> .cijferblok)) > .slot__boodschap:empty, #slot .slot__kwijt > .slot__instel > .slot__boodschap:empty { margin: 0; }
+  #slot .slot__binnen :is(.slot__uitleg, .slot__eerlijk, .slot__boodschap, .herstel__uitleg) { line-height: 1.4; text-wrap: pretty; }
+  /* de knoppen: elke brede knop vult zijn kolom; tussen de knoppen en naar de tekstknop dezelfde tussenruimte */
+  #slot .slot__binnen :is(.slot__acties, .slot__acties--kwijt, .herstel__formulier) { gap: var(--s-2); width: 100%; }
+  #slot .slot__binnen .slot__acties--kwijt { grid-template-columns: minmax(0, 1fr); }
+  #slot .slot__binnen .knop--breed { width: 100%; min-width: 0; max-width: none; justify-self: stretch; align-self: stretch; }
+  #slot .slot__binnen .slot__acties .knop { padding-block: var(--s-2); }
+  #slot .slot__binnen .slot__acties > .knop--tekst { align-self: center; }
+  #slot .slot__binnen .herstel__vink { align-self: center; }
+  #slot .slot__binnen .cijferblok, #slot .slot__binnen .cijferblok__rooster { gap: var(--s-2); }
+  #slot .slot__binnen .cijferblok__toets, #slot .slot__binnen .cijferblok__vrij { min-height: 46px; }
+  /* de uitleg bij een nieuwe herstelcode in de letter van de andere teksten (op 568x320 de kleine letter, hieronder) */
+  #slot .slot__binnen .herstel__uitleg { font-size: var(--fs-body); }
+}
+/* De laagste liggende telefoon (568x320): ook in twee kolommen is de tekst van "Je code niet meer weten" (op Android de langere zinnen) te hoog.
+   Daar staat die hele uitleg in de kleine letter van de app (14 px, zoals staand onder 500 px, BESLISSING 649). Op 667x375 en 844x390 blijft de
+   gewone letter. De tussenruimtes blijven dezelfde als op de andere slotschermen (BESLISSING 661). */
+@media (min-aspect-ratio: 1/1) and (max-height: 360px) {
+  #slot .slot__wegenscherm .slot__uitleg, #slot .slot__binnen .herstel__uitleg { font-size: var(--fs-small); }
+}
+/* BESLISSING 660 tot 662: een laag breed venster (laptop of tablet liggend, tussen 500 en 600 px hoog, 1280x560 en 1024x560). Eén kolom met de breedte en de
+   letter van het gewone slotscherm op 1280x800 en de compacte marges van BESLISSING 654. Dezelfde vaste regels als liggend: een tussenruimte (--s-2) tussen
+   alle delen, ook tussen de knoppen en naar de tekstknop, en een knopbreedte (21rem, hoogstens de houder) voor elke brede knop en voor het paar Kopiëren
+   en Bewaren, op elk slotscherm. */
+@media (min-aspect-ratio: 1/1) and (min-height: 500.02px) and (max-height: 600px) {
+  #slot .slot__binnen:has(> .cijferblok) { max-width: max(360px, 21rem); }
+  #slot .slot__binnen :is(.slot__acties, .slot__acties--kwijt, .herstel__formulier) { gap: var(--s-2); }
+  #slot .slot__binnen .slot__acties--kwijt { grid-template-columns: minmax(0, 21rem); width: 100%; }
+  #slot .slot__binnen .knop--breed { width: min(100%, 21rem); min-width: 0; max-width: 100%; justify-self: center; align-self: center; }
+  #slot .slot__binnen .herstel__knoppen { width: min(100%, 21rem); align-self: center; }
+  #slot .slot__binnen .herstel { gap: var(--s-2); }
+  #slot .slot__binnen .slot__boodschap:empty { min-height: 0; margin: 0 0 calc(var(--s-2) * -1); }
+}
+/* BESLISSING 660 tot 664: dezelfde vaste regels voor de staande telefoon, de tablet en de desktop (alles behalve de liggende telefoon en het lage brede
+   venster hierboven, die niet veranderen). Per weergave een set, op elk slotscherm dezelfde:
+   - een knopbreedte (--slot-knop: 21rem, hoogstens de houder) voor elke brede knop, in een groep of alleen, en voor het paar Kopiëren en Bewaren; ook het
+     veld van de herstelcode staat in die kolom, zodat label, veld en knop op een lijn staan; op het slotscherm met het cijferblok de breedte van het blok;
+   - twee tussenruimtes uit de huisstijl: --slot-t tussen de delen (titel, alinea's, de code, het veld, de meldingsregel, het cijferblok, de knoppen) en
+     --slot-n binnen een groep (knoppen onderling, de laatste knop naar de tekstknop, het label naar zijn veld); --slot-logo komt bij de ruimte van het logo
+     naar de titel. Hoog (vanaf 601 px): 16, 8 en 24; lage staande telefoon (501 tot 600 px): 8, 4 en 8; de laagste (tot 500 px, 320x480): 4, 4 en 4;
+   - een lege meldingsregel neemt geen plaats (wel aanwezig voor de schermlezer); verschijnt er een melding, dan schuift wat eronder staat een regel op;
+   - de uitleg bij de nieuwe herstelcode in de letter van de andere teksten van het slot;
+   - "Verder" onder de nieuwe herstelcode staat alleen en is gevuld (componenten.css). */
+@media (max-aspect-ratio: 1/1), (min-height: 600.02px) {
+  #slot { --slot-max: 21rem; --slot-knop: min(100%, var(--slot-max)); --slot-t: var(--s-4); --slot-n: var(--s-2); --slot-logo: var(--s-2); --slot-lh: var(--lh-body); }
+  #slot:not(.slot--gordijn) .slot__binnen, #slot .slot__binnen .slot__instel, #slot .slot__binnen .herstel__formulier { gap: var(--slot-t); }
+  #slot .slot__binnen .slot__instel.herstel--invoer, #slot .slot__binnen :is(.slot__acties, .slot__acties--kwijt) { gap: var(--slot-n); }
+  #slot .slot__binnen .slot__titel { margin-top: var(--slot-logo); }
+  #slot .slot__binnen .herstel__label { margin-bottom: calc(var(--slot-n) - var(--slot-t)); }
+  #slot .slot__binnen .slot__boodschap:empty { min-height: 0; margin: 0 0 calc(var(--slot-t) * -1); }
+  #slot .slot__binnen .slot__acties--kwijt { grid-template-columns: minmax(0, var(--slot-max)); width: 100%; }
+  #slot .slot__binnen .knop--breed { width: var(--slot-knop); min-width: 0; max-width: 100%; justify-self: center; align-self: center; }
+  /* het slotscherm met het cijferblok: de knop eronder (Face ID) is zo breed als het cijferblok (228 px, BESLISSING 536), een kolom met de toetsen;
+     de knopbreedte van de andere slotschermen (21rem) staat daar breder dan de toetsen en oogt onrustig (getoond in slot662).
+     BESLISSING 676: bewuste uitzondering op "een knop die alleen staat is gevuld": Face ID gebruiken blijft zacht (niet gevuld) */
+  #slot .slot__binnen:has(> .cijferblok) > .slot__acties > .knop--breed { width: min(100%, 228px); }
+  #slot .slot__binnen :is(.herstel__knoppen, .herstel__formulier) { width: var(--slot-knop); align-self: center; }
+  #slot .slot__binnen .herstel__uitleg { font-size: var(--fs-body); line-height: var(--slot-lh); }
+}
+@media (max-height: 600px) and (max-aspect-ratio: 1/1) {
+  #slot { --slot-t: var(--s-2); --slot-n: var(--s-1); --slot-logo: 0px; --slot-lh: 1.4; }
+}
+@media (max-height: 500px) and (max-aspect-ratio: 1/1) {
+  #slot { --slot-t: var(--s-1); --slot-n: var(--s-1); }
+}
+/* BESLISSING 676 (1): op de staande telefoon (tot 480 px breed) zijn de brede knoppen 324 px (20,25rem) en blijven ze onder de grens van 330 px van BESLISSING 522
+   ("niet van rand tot rand"); geldt voor elke brede knop, alleen of in een groep, het paar Kopiëren en Bewaren en het veld van de herstelcode. Op 320 en 360 px breed
+   vullen ze al de houder. Tablet en desktop (vanaf 481 px breed), de liggende telefoon en het lage brede venster (BESLISSING 671) blijven op 21rem. */
+@media (max-width: 480px) and (max-aspect-ratio: 1/1) {
+  #slot { --slot-max: 20.25rem; }
+}
+/* BESLISSING 676 (3): op 320x480 staat tussen de delen van de korte slotschermen 8 px; alleen "Je code niet meer weten" (.slot__wegenscherm) houdt 4 px.
+   Binnen een groep blijft het 4 px. */
+@media (max-height: 500px) and (max-aspect-ratio: 1/1) {
+  #slot { --slot-t: var(--s-2); }
+  #slot .slot__wegenscherm { --slot-t: var(--s-1); }
+}

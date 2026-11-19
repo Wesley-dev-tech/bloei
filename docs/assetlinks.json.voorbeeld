@@ -1,0 +1,10 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "PLAATSHOUDER.PAKKETNAAM.VAN.DE.APP",
+      "sha256_cert_fingerprints": ["PLAATSHOUDER:SHA-256:VINGERAFDRUK:VAN:JE:SLEUTEL"]
+    }
+  }
+]

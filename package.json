@@ -1,0 +1,40 @@
+{
+  "name": "bloei",
+  "version": "0.1.0",
+  "private": true,
+  "license": "UNLICENSED",
+  "author": "Wesley Bogaerts",
+  "type": "module",
+  "scripts": {
+    "dev": "vite",
+    "dev:demo": "vite --mode demo --port 5230 --strictPort",
+    "build": "vite build",
+    "build:demo": "vite build --mode demo",
+    "preview": "vite preview",
+    "preview:demo": "vite preview --mode demo --port 4174 --strictPort",
+    "og-beeld": "node scripts/maak-og-beeld.mjs",
+    "test": "vitest run",
+    "e2e": "node tests/rondes.mjs gewoon",
+    "e2e:demo": "node tests/rondes.mjs demo",
+    "e2e:push": "node tests/rondes.mjs push",
+    "e2e:alles": "node tests/rondes.mjs alles",
+    "test:alles": "node tests/rondes.mjs vitest alles",
+    "huisstijl": "node scripts/kopieer-huisstijl.mjs"
+  },
+  "dependencies": {
+    "bootstrap": "^5.3.9",
+    "dexie": "^4.4.7",
+    "fflate": "^0.8.3"
+  },
+  "devDependencies": {
+    "@fontsource-variable/jost": "^5.3.0",
+    "@fontsource/cormorant-garamond": "^5.3.0",
+    "@fontsource/jost": "^5.3.0",
+    "@fortawesome/fontawesome-free": "^6.7.2",
+    "@playwright/test": "^1.65.0",
+    "fake-indexeddb": "^6.2.8",
+    "vite": "^8.3.8",
+    "vite-plugin-pwa": "^2.0.0",
+    "vitest": "^5.1.0"
+  }
+}

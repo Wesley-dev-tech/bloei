@@ -1,0 +1,203 @@
+/* ============================================================
+   BLOEI: design tokens
+   Enige bron voor kleur, type, ruimte, radius en schaduw.
+   Gebruik in componenten ALLEEN var(--...), nooit losse hexwaarden.
+   Palet: https://coolors.co/3b2a3c-b5707c-eed9d6-8ea58c-9fbdbf-fbf7f4
+   ============================================================ */
+
+/* Lettertypes: lokaal meegeleverd (geen externe calls).
+   Bron: Google Fonts → Cormorant Garamond + Jost, als woff2 in /fonts. */
+@font-face { font-family: "Cormorant Garamond"; src: url("../fonts/cormorant-garamond-500.woff2") format("woff2"); font-weight: 500; font-style: normal; font-display: swap; }
+@font-face { font-family: "Cormorant Garamond"; src: url("../fonts/cormorant-garamond-600.woff2") format("woff2"); font-weight: 600; font-style: normal; font-display: swap; }
+@font-face { font-family: "Cormorant Garamond"; src: url("../fonts/cormorant-garamond-500-italic.woff2") format("woff2"); font-weight: 500; font-style: italic; font-display: swap; }
+@font-face { font-family: "Jost"; src: url("../fonts/jost-variable.woff2") format("woff2"); font-weight: 300 600; font-style: normal; font-display: swap; }
+
+:root {
+  /* ---- Merkpalet (vast) ---- */
+  --bloei-aubergine: #3B2A3C;
+  --bloei-oudroze:   #B5707C;
+  --bloei-poeder:    #EED9D6;
+  --bloei-salie:     #8EA58C;
+  --bloei-mist:      #9FBDBF;
+  --bloei-porselein: #FBF7F4;
+
+  /* ---- Rollen: licht (standaard, thema "Poeder") ---- */
+  --c-bg:            #FBF7F4;  /* app-achtergrond */
+  --c-surface:       #FFFFFF;  /* kaarten */
+  --c-surface-soft:  #F6ECE9;  /* zachte vlakken, chips, invoer */
+  --c-line:          #EADFDB;  /* 1px lijnen */
+  --c-text:          #3B2A3C;  /* hoofdtekst (12.5:1) */
+  --c-text-muted:    #756573;  /* secundaire tekst (4.6:1 op de slechtste zachte achtergrond); bijgesteld voor contrast */
+  --c-accent:        #B5707C;  /* iconen, actieve tab, grafieklijn */
+  --c-accent-text:   #9A5A66;  /* accent als tekst (4.9:1) */
+  --c-accent-text-op-soft: #8D4F5B; /* accenttekst op --c-accent-soft (profielletter): 4.6:1; bijgesteld voor contrast */
+  --c-focus:         #AD6874;  /* focusring (3.1:1 op --c-accent-soft); bijgesteld voor contrast */
+  --c-accent-soft:   #EED9D6;  /* actieve achtergrond, voortgangsbaan */
+  --c-health:        #8EA58C;  /* doel gehaald, streak, positief */
+  --c-health-soft:   #E3EBE1;
+  --c-health-gevuld: #7D937B;  /* salie als vlak met licht erop (vinkvak, schakelaar aan): 3.1:1; bijgesteld voor contrast */
+  --c-health-text:   #546F52;  /* salie als tekst: 4.6:1 op --c-health-soft; bijgesteld voor contrast */
+  --c-on-health:     #3B2A3C;  /* tekst op het volle salievlak (chip, teller): 5.0:1 */
+  --c-water:        #9FBDBF;  /* drinken */
+  --c-water-soft:    #E4EEEE;
+  --c-water-vol:     #38777C;  /* Drinken als vol vlak met lichte tekst (BESLISSING 531): het blauwgroen van de iconen (#5F8C90, tint 202 graden) donkerder gemaakt tot 4,8:1 met --c-on-primary; vervangt het leigrijze mengsel met aubergine */
+  --c-day:          #8C5A92;  /* Vandaag: pruim */
+  --c-day-soft:      #EFE6F1;
+  --c-book:          #DE9B76;  /* Dagboek: abrikoos (BESLISSING 368; was kasjmier #A28B78, zacht #F2ECE6) */
+  --c-book-soft:     #FBEDE4;
+  --c-book-icoon:    #B87154;  /* icoon in de boektegel, 3,4:1 op de zachte tint; vinkvak en schakelaar aan (wit teken 3,5:1) */
+  --c-book-gevuld:   #B87154;
+  --c-book-text:     #9D583C;  /* abrikoos als tekst (4,8:1 op de zachte tint, 5,3:1 op de kaart) en als vol vlak met lichte tekst */
+  --c-book-vol:      #9D583C;
+  --c-weight:        #6F86AE;  /* Gewicht: duifblauw */
+  --c-weight-soft:   #E8ECF4;
+  --c-weight-text:   #536A91;  /* duifblauw als tekst: 4.6:1 op --c-weight-soft; bijgesteld voor contrast */
+  --c-share:        #5757A3;  /* Delen en verslag: lavendel, de diepe tint (BESLISSING 369; was aubergine #3B2A3C, zacht #E6E0E7): icoon in de tegel (5,4:1 op de zachte tint) */
+  --c-share-soft:    #ECECF8;  /* tegelvlak, gekozen chip, actieve tab */
+  --c-share-licht:   #7F7FC4;  /* de volle lavendel: vlakken, balken, vinkvak en schakelaar aan (wit teken 3,7:1) */
+  --c-share-text:    #5757A3;  /* lavendel als tekst (6,4:1 op de kaart, 5,4:1 op de zachte tint) */
+  --c-share-vol:     #5757A3;  /* vol vlak met witte tekst: de hoofdknop van Delen (6,4:1) */
+  --c-on-share:      #FFFFFF;  /* teken of tekst op de volle lavendel */
+  --c-primary:       #3B2A3C;  /* primaire knop */
+  --c-on-primary:    #FBF7F4;
+  /* Bewust GEEN rood/waarschuwingskleur voor gewicht. */
+
+  /* ---- Gevoelschaal (gezichtjes + kalenderbolletjes E2) ----
+     Van ingetogen naar bloeiend. Geen rood, geen oranje. */
+  --mood-1: #8983A6;  --mood-1-soft: #ECEBF2;  /* moe        face-tired; Poeder en Salie: bijgesteld voor 3 : 1 op de tint (BESLISSING 414) */
+  --mood-2: #987EB5;  --mood-2-soft: #F1ECF6;  /* gewoon     face-meh */
+  --mood-3: #A3844C;  --mood-3-soft: #F4EDDD;  /* goed       face-smile */
+  --mood-4: #AD812F;  --mood-4-soft: #F7ECD3;  /* blij       face-grin-beam */
+  --mood-5: #A77A27;  --mood-5-soft: #F2E2BE;  /* stralend   face-grin-hearts */
+
+  /* ---- Energieschaal (E2): blaadjes uit het logo ---- */
+  --energy-on:  var(--c-accent);       /* gevuld blaadje */
+  --energy-off: var(--c-accent-soft);  /* leeg blaadje */
+  --energy-gap: 6px;
+  --energy-leaf-h: 24px;               /* hoogste blaadje; de andere 70 - 90% */
+
+  /* ---- Icoontegels ---- */
+  --tile-size: 40px;          /* lijsten; 56px voor de grote drinkknop-iconen */
+  --tile-radius: 14px;        /* zachte "squircle", nooit een perfecte cirkel */
+  --icon-size: 18px;          /* in tegel; 22px in tabbalk */
+  --tile-meal-bg: var(--c-accent-soft);   --tile-meal-fg: var(--c-accent-text);
+  --tile-drink-bg: var(--c-water-soft);   --tile-drink-fg: #5F8C90;
+  --tile-health-bg: var(--c-health-soft); --tile-health-fg: #5E7A5C;
+  --tile-neutral-bg: var(--c-surface-soft); --tile-neutral-fg: var(--c-text-muted);
+  --tile-day-bg: var(--c-day-soft);     --tile-day-fg: var(--c-day);
+  --tile-book-bg: var(--c-book-soft);   --tile-book-fg: var(--c-book-icoon);
+  --tile-weight-bg: var(--c-weight-soft);  --tile-weight-fg: var(--c-weight);
+  --tile-share-bg:  var(--c-share-licht);  --tile-share-fg:  var(--c-on-share);   /* Delen: gevulde tegel, wit icoon op de volle lavendel */
+
+  /* ---- Foto's ---- */
+  --photo-radius: var(--r-md);
+  --photo-ring: inset 0 0 0 1px rgba(59,42,60,.06);
+  --photo-tint: linear-gradient(180deg, rgba(251,247,244,0) 55%, rgba(59,42,60,.28) 100%);
+
+  /* ---- Typografie ---- */
+  --font-display: "Cormorant Garamond", "Times New Roman", serif;   /* titels, grote cijfers */
+  --font-ui:      "Jost", system-ui, -apple-system, "Segoe UI", sans-serif; /* alle UI-tekst */
+
+  --fs-hero:  2.75rem;  /* 44px, begroeting, groot cijfer (display 500) */
+  --fs-h1:    2rem;     /* 32px, schermtitel (display 600) */
+  --fs-h2:    1.375rem; /* 22px, kaarttitel (display 600) */
+  --fs-body:  1rem;     /* 16px, Jost 400; nooit kleiner op iPhone-invoer (zoom) */
+  --fs-small: 0.875rem; /* 14px, Jost 400 */
+  --fs-label: 0.75rem;  /* 12px, Jost 500, uppercase, letter-spacing .12em */
+  --lh-tight: 1.1;
+  --lh-body:  1.5;
+  --ls-label: 0.12em;
+
+  /* ---- Ruimte (4-punt raster) ---- */
+  --s-1: 4px;  --s-2: 8px;  --s-3: 12px; --s-4: 16px;
+  --s-5: 20px; --s-6: 24px; --s-8: 32px; --s-10: 40px; --s-12: 48px;
+
+  /* ---- Vorm ---- */
+  --r-sm: 10px;   /* chips, invoer */
+  --r-md: 16px;   /* kaarten */
+  --r-lg: 24px;   /* sheets, grote kaarten */
+  --r-pill: 999px;
+  --shadow-card: 0 1px 2px rgba(59,42,60,.04), 0 8px 24px -12px rgba(59,42,60,.12);
+  --shadow-float: 0 12px 32px -12px rgba(59,42,60,.28);
+
+  /* ---- Interactie ---- */
+  --tap-min: 48px;
+  --ease: cubic-bezier(.2,.7,.2,1);
+  --dur-fast: 140ms;
+  --dur: 260ms;
+
+  /* ---- Layout ---- */
+  --content-max: 560px;     /* telefoon- en tabletbreedte */
+  --rail-width: 248px;      /* zijnavigatie op desktop (≥ 960px) */
+  --tabbar-h: 64px;
+  --safe-top: env(safe-area-inset-top, 0px);
+  --safe-bottom: env(safe-area-inset-bottom, 0px);
+
+  color-scheme: light;
+}
+
+/* ---- Thema "Salie" (pastelvariant) ---- */
+[data-theme="salie"] {
+  --c-book: #DC9C79;
+  --c-book-soft: #F9EDE3;
+  --c-bg: #F7F8F4;
+  --c-surface-soft: #EDF1EA;
+  --c-line: #DEE5DB;
+  --c-accent: #7E9A7C;
+  --c-accent-text: #546E58;  /* bijgesteld voor contrast (4.6:1 op --c-accent-soft) */
+  --c-accent-soft: #E3EBE1;
+  --c-accent-text-op-soft: var(--c-accent-text);
+  --c-focus: var(--c-accent-text);
+}
+
+/* ---- Thema "Nacht" (donker) ---- */
+[data-theme="nacht"] {
+  --c-bg:           #1F1720;
+  --c-surface:      #2A202B;
+  --c-surface-soft: #342935;
+  --c-line:         #3E3240;
+  --c-text:         #F3E9E6;
+  --c-text-muted:   #B9A9B5;
+  --c-accent:       #D99AA4;
+  --c-accent-text:  #E4B0B8;
+  --c-accent-soft:  #4A3340;
+  --c-health:       #A9C0A6;
+  --c-health-soft:  #2F3A30;
+  --c-water:        #A9C7C9;
+  --c-water-soft:   #283536;
+  --c-water-vol:    #A9C7C9;  /* Nacht: de lichte drinkkleur zelf, met de donkere tekst (7,4:1) */
+  --c-day:          #C3A0C8;
+  --c-day-soft:     #3A2C3D;
+  --c-book:         #D9A68C;  /* was #C9B5A4, zacht #3A322C */
+  --c-book-soft:    #3B2D28;
+  --c-book-icoon:   #D9A68C;
+  --c-book-gevuld:  #D9A68C;
+  --c-book-text:    #EDC2AA;
+  --c-book-vol:     #D9A68C;
+  --c-weight:       #A9B7D1;
+  --c-weight-soft:  #2B303B;
+  --c-share:        #AFB0F0;  /* was #EED9D6, zacht #3A2F3B; lichte, gedempte lavendel */
+  --c-share-soft:   #2B2B41;
+  --c-share-licht:  #A9AAEA;
+  --c-share-text:   #C3C5FB;
+  --c-share-vol:    #AFB0F0;
+  --c-on-share:     #2A202B;
+  --c-primary:      #EED9D6;
+  --c-on-primary:   #3B2A3C;
+  --mood-1-soft: #322F3D; --mood-2-soft: #382F40; --mood-3-soft: #3A3326;
+  --mood-4-soft: #3D3421; --mood-5-soft: #40351C;
+  /* de gezichtjes blijven in Nacht zoals ze waren (haalden het al op de donkere tint) */
+  --mood-1: #9D98B5; --mood-2: #B7A5CB; --mood-3: #B89B66; --mood-4: #CFA24E; --mood-5: #BC8A2C;
+  --tile-drink-fg: #A9C7C9; --tile-health-fg: #A9C0A6;
+  --c-weight-text: var(--c-weight);
+  --c-health-gevuld: var(--c-health);
+  --c-health-text: var(--tile-health-fg);
+  --c-on-health: var(--c-surface);
+  --c-accent-text-op-soft: var(--c-accent-text);
+  --c-focus: var(--c-accent);
+  --photo-ring: inset 0 0 0 1px rgba(255,255,255,.06);
+  --shadow-card: 0 1px 2px rgba(0,0,0,.3);
+  /* De Poeder-schaduw (aubergine, 28%) is op #1F1720 onzichtbaar: diepere zwarte schaduw plus een fijne lichte rand, zodat een zwevend vlak loskomt. */
+  --shadow-float: 0 12px 32px -8px rgba(0,0,0,.6), 0 0 0 1px rgba(243,233,230,.10);
+  color-scheme: dark;
+}

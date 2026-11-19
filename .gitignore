@@ -1,0 +1,50 @@
+node_modules/
+dist/
+dist-*/
+dev-dist/
+# Lokale lijst met woorden die nooit publiek mogen (echte namen); gelezen door tests/logica/publiek.test.js.
+.verboden-woorden.local
+# Echte omgevingsbestanden blijven buiten git (.env, .env.local, .env.production, .env.demo.local, ...).
+# Twee uitzonderingen horen wel in de repo, want ze bevatten geen geheim: .env.example (de lijst met uitleg) en .env.demo
+# (alleen VITE_DEMO=true voor de demoversie, BESLISSING 364).
+.env
+.env.*
+!.env.example
+!.env.demo
+test-results/
+playwright-report/
+worker/.wrangler/
+worker/.dev.vars
+# Map die de Vercel-CLI lokaal aanmaakt (projectkoppeling); hoort niet in git.
+.vercel/
+
+# Projectdocumenten en werkmappen: blijven buiten de repo op GitHub (BESLISSINGEN 319 en 338). De repo is privé, maar
+# privé is niet geheim: wie later toegang krijgt of de code koopt, leest ze, en ze bevatten de naam en gezondheidsgegevens
+# van de gebruiker. Zie HANDLEIDING-PUBLICEREN.md, deel 2 (een verse repo zonder de oude geschiedenis).
+CLAUDE.md
+EISEN.md
+BESLISSINGEN.md
+PLAN.md
+LOGBOEK.md
+ITERATIES.md
+skills-lock.json
+.claude/
+.agents/
+
+# Schermbeelden van de tester en tijdelijke bestanden.
+screenshots/
+tmp-*
+# Tijdelijke schermtests van een teamlid (kunnen een pad van de computer bevatten).
+tests/e2e/zz-tmp-*
+
+# Huisstijl en lettertypes horen bij de repo en worden niet genegeerd.
+!bloei-huisstijl/
+!fonts/
+
+# Android-apk (BESLISSING 515): de ondertekensleutel is geheim en hoort nooit in git. De Bubblewrap-projectmap (android/) blijft buiten
+# git, behalve twa-manifest.json (geen geheim: pakketnaam, adres, alias van de sleutel, geen wachtwoord; controleer dat voor je commit).
+# public/bloei.apk zelf hoort WEL in git: Vercel bouwt uit de repo, en een apk bevat geen geheim.
+*.keystore
+*.jks
+android/*
+!android/twa-manifest.json

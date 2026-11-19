@@ -1,0 +1,155 @@
+/* ============================================================
+   Alleen voor stijl.html (spoor A): de opmaak van de stijlpagina zelf.
+   Alleen var(--...) uit bloei-huisstijl/tokens.css en afgeleid.css.
+   ============================================================ */
+
+.sp { max-width: 1200px; font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; margin: 0 auto; padding: 0 var(--s-5) var(--s-12); }
+
+/* Vaste kop met de themakiezer */
+.sp-kop {
+  position: sticky;
+  top: 0;
+  z-index: 30;
+  background: var(--c-bg);
+  border-bottom: var(--lijn);
+}
+.sp-kop__binnen {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: var(--s-3) var(--s-5);
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: var(--s-3);
+}
+
+.sp-sectie { margin-top: var(--s-12); }
+.sp-sectie__kop { margin-bottom: var(--s-6); display: flex; flex-direction: column; gap: var(--s-2); }
+.sp-sectie__uitleg { max-width: 40em; color: var(--c-text-muted); }
+.sp-sub { margin: var(--s-8) 0 var(--s-4); }
+
+.sp-rij { display: flex; flex-wrap: wrap; gap: var(--s-4); align-items: flex-start; }
+.sp-rij--midden { align-items: center; }
+.sp-grid { display: grid; gap: var(--s-4); grid-template-columns: repeat(auto-fill, minmax(min(100%, 150px), 1fr)); }
+.sp-grid--breed { grid-template-columns: repeat(auto-fill, minmax(min(100%, 260px), 1fr)); }
+.sp-twee { display: grid; gap: var(--s-8); grid-template-columns: minmax(0, 1fr); }
+@media (min-width: 960px) { .sp-twee { grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: start; } }
+.sp-kolom { display: flex; flex-direction: column; gap: var(--s-4); min-width: 0; }
+.sp-bijschrift { font-size: var(--fs-small); color: var(--c-text-muted); line-height: 1.4; }
+.sp-bijschrift code, .sp-code { font-family: var(--font-ui); font-variant-numeric: tabular-nums; font-size: var(--fs-small); color: var(--c-text-muted); }
+.sp-naam { font-size: var(--fs-small); font-weight: 500; line-height: 1.3; }
+
+/* Logo */
+.sp-hero { display: flex; flex-direction: column; gap: var(--s-6); padding: var(--s-10) 0 0; }
+.sp-merk-vlak {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: var(--s-3);
+  min-height: calc(var(--s-12) * 3);
+  padding: var(--s-6);
+  border-radius: var(--r-md);
+  background: var(--c-bg);
+  color: var(--c-text);
+  text-align: center;
+}
+/* Elke variant op haar eigen ondergrond, ongeacht het gekozen thema */
+.sp-merk-vlak--licht { background: var(--bloei-porselein); color: var(--bloei-aubergine); box-shadow: inset 0 0 0 1px var(--c-line); }
+.sp-merk-vlak--nacht { background: var(--c-bg); color: var(--c-text); }
+.sp-merk-vlak--accent { background: var(--bloei-oudroze); color: var(--bloei-porselein); }
+.sp-appicoon { width: calc(var(--s-12) * 2); height: calc(var(--s-12) * 2); border-radius: 22%; display: block; }
+
+/* Voorproefje van een scherm in telefoonbreedte */
+.sp-telefoon {
+  width: 100%;
+  max-width: 390px;
+  background: var(--c-bg);
+  border: var(--lijn);
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+}
+.sp-telefoon__scherm { padding: var(--s-6) var(--s-5) var(--s-8); display: flex; flex-direction: column; gap: var(--s-4); }
+.sp-telefoon__kop { margin-bottom: var(--s-4); }
+.sp-hero-tekst { display: flex; flex-direction: column; gap: var(--s-2); margin-bottom: var(--s-4); }
+.sp-hero-tekst .t-hero { text-wrap: balance; }
+
+/* Kleuren */
+.sp-kleur { display: flex; flex-direction: column; gap: var(--s-2); }
+.sp-kleur__vlak { height: calc(var(--s-12) + var(--s-4)); border-radius: var(--r-sm); box-shadow: inset 0 0 0 1px var(--c-line); }
+.sp-kleur__naam { font-size: var(--fs-small); font-weight: 500; line-height: 1.3; word-break: break-word; }
+.sp-kleur__waarde { font-size: var(--fs-small); color: var(--c-text-muted); font-variant-numeric: tabular-nums; }
+.sp-paar { display: flex; align-items: center; gap: var(--s-3); }
+
+/* Typografie */
+.sp-type { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-2); padding: var(--s-5) 0; }
+.sp-type + .sp-type { border-top: var(--lijn); }
+@media (min-width: 720px) { .sp-type { grid-template-columns: 200px minmax(0, 1fr); gap: var(--s-6); align-items: baseline; } }
+.sp-type__spec { font-size: var(--fs-small); color: var(--c-text-muted); line-height: 1.4; }
+
+/* Iconen */
+.sp-icoon { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); }
+.sp-nav { display: flex; align-items: center; gap: var(--s-3); }
+.sp-nav__icoon { width: var(--tap-min); height: var(--tap-min); display: grid; place-items: center; }
+.sp-nav__icoon--uit { color: var(--c-text-muted); }
+.sp-nav__icoon--aan { color: var(--c-accent); }
+
+/* Componenten */
+.sp-toestanden { display: grid; gap: var(--s-4) var(--s-4); grid-template-columns: repeat(2, minmax(0, 1fr)); align-items: center; }
+@media (min-width: 720px) { .sp-toestanden { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+.sp-toestanden .knop { max-width: 100%; }
+.sp-toestand { display: flex; flex-direction: column; gap: var(--s-2); align-items: flex-start; }
+.sp-veld { display: flex; flex-direction: column; gap: var(--s-2); }
+.sp-veld .label { margin-bottom: 0; }
+
+/* Zijbalk op ware grootte (248 px) in een kader van 1280 x 800; op een telefoon scrolt het kader zijdelings */
+.sp-desktop { width: 100%; overflow-x: auto; border: var(--lijn); border-radius: var(--r-lg); background: var(--c-bg); }
+.sp-desktop__binnen { display: flex; min-width: 960px; height: 800px; }
+.sp-desktop__binnen > .zijbalk { flex: none; min-height: 0; }
+.sp-desktop__inhoud { flex: 1; min-width: 0; padding: var(--s-10) var(--s-12); display: flex; flex-direction: column; gap: var(--s-4); }
+.sp-desktop__inhoud > * { max-width: 720px; }
+.sp-desktop__kolommen { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); }
+
+/* Ritme */
+.sp-ruimte { display: flex; align-items: center; gap: var(--s-4); }
+.sp-ruimte__blok { height: var(--s-4); background: var(--c-accent); border-radius: var(--s-1); flex: none; }
+.sp-hoek { display: flex; flex-direction: column; gap: var(--s-2); align-items: flex-start; }
+.sp-hoek__vlak { width: calc(var(--s-12) * 2); height: calc(var(--s-12) * 1.5); background: var(--c-surface); box-shadow: inset 0 0 0 1px var(--c-line); }
+.sp-schaduw__vlak { width: 100%; height: calc(var(--s-12) * 2); border-radius: var(--r-md); background: var(--c-surface); }
+.sp-schaduw { padding: var(--s-6); background: var(--c-bg); border-radius: var(--r-md); border: var(--lijn); }
+
+/* Op een telefoon loopt het voorproefje tot de schermrand, zoals het scherm zelf. */
+@media (max-width: 430px) {
+  .sp-telefoon { width: auto; max-width: none; margin-inline: calc(var(--s-5) * -1); border-radius: 0; border-inline: 0; }
+}
+
+/* Tokennamen met twee streepjes: geen ligaturen, anders wordt het één lange streep. */
+.sp-kleur__naam, .sp-naam, .sp-code, .sp-bijschrift, .sp-kleur__waarde, .sp-type__spec { font-variant-ligatures: none; font-feature-settings: "liga" 0, "calt" 0; }
+
+/* Technische namen (tokens, bestandsnamen): alleen op de stijlpagina, vaste breedte */
+.sp-mono { font-family: ui-monospace, Consolas, "Courier New", monospace; font-size: .9em; font-weight: 400; letter-spacing: 0; }
+
+.sp-telefoon { color: var(--c-text); }
+.sp-telefoons { display: flex; flex-wrap: wrap; gap: var(--s-8); align-items: flex-start; }
+.sp-telefoons > .sp-kolom { flex: 1 1 390px; max-width: 390px; }
+
+/* Brede schermen: groepen in twee kolommen */
+.sp-groep { margin-bottom: var(--s-8); }
+.sp-groep > .sp-sub:first-child { margin-top: 0; }
+@media (min-width: 960px) {
+  .sp-kolommen, .sp-typekolommen { column-count: 2; column-gap: var(--s-12); }
+  .sp-groep, .sp-type { break-inside: avoid; }
+  .sp-kolommen .sp-twee { grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
+  .sp-kolommen .sp-toestanden { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .sp-typekolommen .sp-type { grid-template-columns: minmax(0, 1fr); gap: var(--s-2); }
+}
+.sp-grid--energie { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
+.sp-merk-vlak--nacht { box-shadow: inset 0 0 0 1px var(--c-line); }
+
+.sp-schuif { flex: 1; min-width: 0; accent-color: var(--c-accent); height: var(--tap-min); }
+
+/* Een venster op de verduisterde achtergrond, zoals een dialoog op desktop eruitziet */
+.sp-scrim { background: var(--scrim); border-radius: var(--r-md); padding: var(--s-10) var(--s-5); display: flex; }
+.sp-scrim > .dialoog { margin: 0 auto; }

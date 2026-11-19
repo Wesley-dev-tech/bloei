@@ -1,0 +1,231 @@
+/* scherm-gewicht: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool. */
+/* Elke selector begint met .gewicht. Opbouw op breed: rij 1 de drie bovenkaarten, rij 2 Verloop (twee kolommen) naast Je wegingen,
+   rij 3 Goed om te weten over de volle breedte. Kaarten van een rij eindigen gelijk; de grafiek heeft een vaste hoogte. */
+
+/* ---------- De drie bovenkaarten: het getal sluit aan op de kop, geen leeg vlak ertussen ---------- */
+.gewicht .gewicht__kern { min-height: 0; padding-top: 0; }
+
+/* ---------- Verloop en Je wegingen ---------- */
+.gewicht .gewichtgrafiek { position: relative; }
+.gewicht .gewichtgrafiek--compact { gap: 0; }
+.gewicht .gewichtgrafiek__uitleg { margin: 0; color: var(--c-text-muted); font-size: var(--fs-body); line-height: 1.4; }
+.gewicht .gewichtgrafiek--compact .gewichtgrafiek__vlak { flex: 1 1 auto; min-height: 0; height: auto; display: flex; flex-direction: column; gap: var(--s-3); }
+.gewicht .gewicht__punt { display: flex; align-items: center; gap: var(--s-3); }
+.gewicht .gewicht__stip { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--c-weight); }
+.gewicht .gewicht__puntkg { font-size: var(--fs-h2); line-height: 1.2; }
+.gewicht .gewicht__puntdatum { color: var(--c-text-muted); } /* BESLISSING 467: een label (.label) */
+.gewicht .gewicht__lijst { display: flex; flex-direction: column; }
+.gewicht .gewicht__rijen { margin-bottom: var(--s-4); }
+.gewicht .gewicht__rijen:has(.gewicht__lijstleeg) { align-items: flex-start; justify-content: flex-start; text-align: left; margin-bottom: 0; }
+.gewicht .gewicht__lijstleeg { margin: 0; font-size: var(--fs-small); line-height: 1.4; }
+.gewicht .gewicht__lijst--weinig .gewicht__rijen { margin-bottom: 0; }
+/* De lijst scrolt, dus ze knipt af wat buiten haar rand valt, ook de focusring van een rij (2 px afstand + 2 px lijn). Zolang een rij de focus heeft met het toetsenbord krijgt de lijst
+   daarom 4 px binnenruimte rondom, die ze met een negatieve marge (en 8 px meer minimum- en maximumhoogte) terugneemt: niets verschuift, de kaart blijft even hoog. Zonder toetsenbordfocus
+   verandert er niets aan de lijst, ook niet aan het stuk van de volgende rij dat onder de rand zichtbaar is. */
+.gewicht .gewicht__rijen:has(> .rij:focus-visible) { padding: 4px; margin: -4px -4px calc(var(--s-4) - 4px); max-height: calc(var(--tap-min) * 3.5 + 8px); scroll-padding: 4px; }
+.gewicht .gewicht__lijst--weinig .gewicht__rijen:has(> .rij:focus-visible) { margin-bottom: -4px; }
+
+/* ---------- Verloop in cijfers, Weg naar je streefgewicht en Weegkalender (BESLISSING 289) ---------- */
+/* De koppen komen van het gedeelde kaartkop-onderdeel: hier staat geen marge op een kop, alleen op de inhoud. */
+.gewicht .gewicht__cijferkaart { container: gewichtcijfers / inline-size; }
+.gewicht .gewicht__kal { container: gewichtkal / inline-size; display: flex; flex-direction: column; }
+.gewicht .gewicht__weg { container: gewichtweg / inline-size; display: flex; flex-direction: column; }
+/* de gebiedsnamen bestaan alleen in de rasters vanaf 960 px; daaronder staan de kaarten onder elkaar in de volgorde van de pagina */
+@media (min-width: 720px) {
+  .gewicht .gewicht__cijferkaart { grid-area: cijfers; }
+  .gewicht .gewicht__kal { grid-area: kal; }
+  .gewicht .gewicht__weg { grid-area: weg; }
+}
+.gewicht .gewicht__leegregel { margin: 0; font-size: var(--fs-body); line-height: 1.4; color: var(--c-text-muted); }
+
+/* Een strak raster van kerncijfers, in de vorm van de maandcijfers in het Dagboek: gelijke kolommen met een dunne lijn ertussen, elk blok gecentreerd
+   op drie vaste lijnen (label, één groot cijfer, één onderregel). Geen kleur die goed of slecht suggereert, geen hover.
+   Twee kolommen op een telefoon, drie op een middelbrede kaart, zes (één rij) als alle labels op één regel passen. */
+.gewicht .gewicht__overzicht { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0; }
+.gewicht .gewicht__kc { min-width: 0; padding: 0 var(--s-2); display: flex; flex-direction: column; align-items: center; text-align: center; gap: var(--s-1); border-left: var(--lijn); cursor: default; }
+.gewicht .gewicht__kc:nth-child(2n+1) { border-left: 0; }
+.gewicht .gewicht__kc:nth-child(n+3) { margin-top: var(--s-3); padding-top: var(--s-3); border-top: var(--lijn); }
+.gewicht .gewicht__kclabel { align-self: stretch; margin: 0; height: 16px; font-size: var(--fs-label); line-height: 16px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--c-text-muted); white-space: nowrap; overflow: hidden; }
+.gewicht .gewicht__kcwaarde { align-self: stretch; margin: 0; display: flex; justify-content: center; align-items: baseline; height: 36px; font-family: var(--font-display); font-weight: 500; font-size: 1.75rem; line-height: 36px; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; color: var(--c-text); }
+.gewicht .gewicht__kceenheid { font-family: var(--font-ui); font-weight: 400; font-size: var(--fs-small); color: var(--c-text-muted); }
+.gewicht .gewicht__kcsub { align-self: stretch; margin: 0; height: 18px; font-size: 0.8125rem; line-height: 18px; color: var(--c-text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+@container gewichtcijfers (min-width: 480px) {
+  .gewicht .gewicht__overzicht { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  .gewicht .gewicht__kc:nth-child(2n+1) { border-left: var(--lijn); }
+  .gewicht .gewicht__kc:nth-child(3n+1) { border-left: 0; }
+  .gewicht .gewicht__kc:nth-child(n+3) { margin-top: 0; padding-top: 0; border-top: 0; }
+  .gewicht .gewicht__kc:nth-child(n+4) { margin-top: var(--s-3); padding-top: var(--s-3); border-top: var(--lijn); }
+}
+@container gewichtcijfers (min-width: 960px) {
+  .gewicht .gewicht__overzicht { grid-template-columns: repeat(6, minmax(0, 1fr)); }
+  .gewicht .gewicht__kc:nth-child(3n+1) { border-left: var(--lijn); }
+  .gewicht .gewicht__kc:nth-child(6n+1) { border-left: 0; }
+  .gewicht .gewicht__kc:nth-child(n+4) { margin-top: 0; padding-top: 0; border-top: 0; }
+}
+
+/* Weg naar je streefgewicht: een rustige balk van het startgewicht (links) naar het streefgewicht (rechts), ongeacht welke hoger is. De vulling loopt tot
+   de markering; --f is de fractie (0 tot 1) die het scherm zet. Daaronder Start, Nu en Streef op één lijn en één neutrale zin. */
+.gewicht .gewicht__wegromp { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-3); }
+.gewicht .gewicht__pad { position: relative; height: var(--s-5); }
+.gewicht .gewicht__pad::before { content: ''; position: absolute; left: 0; right: 0; top: 50%; height: 8px; transform: translateY(-50%); border-radius: var(--r-pill); background: var(--c-surface-soft); }
+.gewicht .gewicht__padvul { position: absolute; left: 0; top: 50%; height: 8px; width: calc((100% - var(--s-5)) * var(--f, 0) + var(--s-5) / 2); transform: translateY(-50%); border-radius: var(--r-pill); background: var(--c-weight-soft); }
+.gewicht .gewicht__padmerk { position: absolute; top: 50%; left: calc((100% - var(--s-5)) * var(--f, 0)); width: var(--s-5); height: var(--s-5); box-sizing: border-box; transform: translateY(-50%); border-radius: var(--r-pill); background: var(--c-weight); box-shadow: 0 0 0 3px var(--c-surface); }
+.gewicht .gewicht__waarden { display: grid; grid-template-columns: repeat(3, minmax(0, 1fr)); column-gap: var(--s-3); }
+.gewicht .gewicht__waarde { min-width: 0; display: flex; flex-direction: column; gap: var(--s-1); align-items: flex-start; text-align: left; }
+.gewicht .gewicht__waarde--nu { align-items: center; text-align: center; }
+.gewicht .gewicht__waarde--streef { align-items: flex-end; text-align: right; }
+.gewicht .gewicht__waarde .gewicht__kclabel, .gewicht .gewicht__waarde .gewicht__kcwaarde, .gewicht .gewicht__waarde .gewicht__kcsub { align-self: stretch; }
+.gewicht .gewicht__waarde--start .gewicht__kcwaarde { justify-content: flex-start; }
+.gewicht .gewicht__waarde--streef .gewicht__kcwaarde { justify-content: flex-end; }
+.gewicht .gewicht__wegzin, .gewicht .gewicht__kalregel { margin: 0; font-size: var(--fs-body); line-height: 1.4; color: var(--c-text); }
+.gewicht .gewicht__wegzin { padding-top: var(--s-3); border-top: var(--lijn); }
+
+/* Weegkalender: de laatste twaalf weken, één bolletje per week met de datum van de weegdag eronder en een maandlabel waar de maand wisselt. Statisch.
+   Op een smalle kaart twee rijen van zes. Gevuld (duifblauw) = gewogen, zachte ring = niet gewogen, ring eromheen = de lopende week, heel licht = vóór de eerste weging. */
+.gewicht .gewicht__kalromp { flex: 1 1 auto; display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-3); }
+.gewicht .gewicht__weken { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(6, minmax(0, 1fr)); row-gap: var(--s-3); }
+.gewicht .gewicht__week { min-width: 0; display: flex; flex-direction: column; align-items: center; gap: var(--s-2); cursor: default; }
+.gewicht .gewicht__weekmaand { height: 16px; line-height: 16px; font-size: var(--fs-label); letter-spacing: .08em; text-transform: uppercase; color: var(--c-text-muted); white-space: nowrap; }
+.gewicht .gewicht__bol { box-sizing: border-box; width: 28px; height: 28px; border-radius: var(--r-pill); border: 2px solid var(--c-line); }
+.gewicht .gewicht__week.is-gevuld .gewicht__bol { background: var(--c-weight); border-color: var(--c-weight); }
+.gewicht .gewicht__week.is-nu .gewicht__bol { box-shadow: 0 0 0 2px var(--c-surface), 0 0 0 4px var(--c-weight); }
+.gewicht .gewicht__weekdatum { font-size: max(11px, calc(var(--fs-small) - 1px)); line-height: 1.2; color: var(--c-text-muted); white-space: nowrap; font-variant-numeric: tabular-nums; }
+.gewicht .gewicht__week.is-nu .gewicht__weekdatum { color: var(--c-text); font-weight: 500; }
+.gewicht .gewicht__week.is-voor .gewicht__bol, .gewicht .gewicht__week.is-voor .gewicht__weekdatum { opacity: .4; }
+.gewicht .gewicht__kalregels { display: flex; flex-direction: column; gap: var(--s-1); padding-top: var(--s-3); border-top: var(--lijn); }
+@container gewichtkal (min-width: 420px) {
+  .gewicht .gewicht__weken { grid-template-columns: repeat(12, minmax(0, 1fr)); }
+}
+@container gewichtkal (min-width: 900px) {
+  /* breed (zonder streefgewicht de volle breedte): de weken links, de twee regels in een eigen kolom rechts */
+  .gewicht .gewicht__kalromp { flex-direction: row; align-items: center; justify-content: flex-start; gap: var(--s-8); }
+  .gewicht .gewicht__weken { flex: 1 1 auto; }
+  .gewicht .gewicht__kalregels { flex: none; justify-content: center; max-width: 36ch; padding: 0 0 0 var(--s-6); border-top: 0; border-left: var(--lijn); }
+}
+
+/* Middelbreed (720 tot 1099, ook een iPad staand, BESLISSING 308): twee kolommen; de nieuwe blokken staan onder elkaar over de volle breedte.
+   De laatste weging en de weegdag staan naast elkaar (een kolom van ± 340 px is genoeg voor hun knop); de rest loopt over de volle breedte. */
+@media (min-width: 720px) {
+  .gewicht .gewicht__raster { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .gewicht .gewichthoofd { grid-area: hoofd; }
+  .gewicht .gewicht__weegdag { grid-area: weegdag; }
+  .gewicht .gewichtstreef { grid-area: streef; }
+  .gewicht .gewichtgrafiek { grid-area: grafiek; }
+  .gewicht .gewicht__lijst { grid-area: lijst; }
+  .gewicht .gewicht__weetjes { grid-area: weetjes; }
+  .gewicht .gewicht__raster, .gewicht .gewicht__raster--weinig {
+    grid-template-areas: "hoofd weegdag" "streef streef" "grafiek grafiek" "lijst lijst" "cijfers cijfers" "kal kal" "weg weg" "weetjes weetjes";
+  }
+  .gewicht .gewicht__raster--zonderweg {
+    grid-template-areas: "hoofd weegdag" "streef streef" "grafiek grafiek" "lijst lijst" "cijfers cijfers" "kal kal" "weetjes weetjes";
+  }
+}
+
+/* ---------- Goed om te weten (dezelfde opbouw als op Drinken) ---------- */
+/* Vier gelijke kolommen over de volle binnenbreedte: de drie weetjes en als vierde "Toon het me" met een icoontegel ervoor, in de linkkleur.
+   Elke tegel staat op de linkerrand van zijn kolom; de tekst staat op dezelfde y (de tegel is 40 px, de regel 20 px). Breed: 4 kolommen,
+   middelbreed: 2x2, telefoon: onder elkaar. Bij hover licht alleen het icoon op (klasse licht-op-icoon). */
+.gewicht .gewicht__weetjes { display: flex; flex-direction: column; }
+.gewicht .gewicht__weetjesrij { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-3) var(--s-4); }
+.gewicht .weetje--link { appearance: none; background: none; border: 0; padding: 0; margin: 0; font: inherit; text-align: left; cursor: pointer; width: 100%; min-height: var(--tap-min); color: var(--c-accent-text); }
+.gewicht .weetje--link .weetje__tekst { color: var(--c-accent-text); font-size: var(--fs-small); }
+@media (min-width: 600px) {
+  .gewicht .gewicht__weetjesrij { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+}
+@media (min-width: 1600px) {
+  .gewicht .gewicht__weetjesrij { grid-template-columns: repeat(3, minmax(0, 1fr)) max-content; column-gap: var(--s-4); align-items: start; }
+  .gewicht .weetje__tekst { white-space: nowrap; }
+  .gewicht .weetje--link { width: auto; }
+}
+/* De datum van de laatste weging achter het label van de kop ("LAATSTE WEGING · ZO 15 NOV"). */
+.gewicht .gewichthoofd .kaartkop__label[data-datum]::after { content: " · " attr(data-datum); }
+
+/* Middelbreed met zijbalk (1100 tot 1399 px, een iPad liggend, BESLISSING 308): de drie bovenkaarten zijn er ± 270 px breed. "LAATSTE WEGING · ZO 15 NOV" brak over
+   twee regels waar de buren er één hebben, dus de datum staat daar in de regel eronder; en de periodekeuze (288 px, rechtsboven in de kaart) liep over de titel
+   "VERLOOP VAN JE GEWICHT" heen: ze staat daar onder de kop, zoals onder 1100 px. Vanaf 1400 px (en dus op 1690 px) verandert er niets. */
+@media (min-width: 1100px) and (max-width: 1399.98px) {
+  .gewicht .gewichthoofd .kaartkop__label[data-datum]::after { content: none; }
+  .gewicht .gewichthoofd .gewicht__regel [data-datum]::before { content: attr(data-datum) " · "; }
+}
+@media (min-width: 1100px) {
+  /* Zes kolommen: de drie bovenkaarten krijgen er elk twee, Verloop vier en Je wegingen twee; de nieuwe blokken lopen over de volle breedte
+     (Verloop in cijfers), of de helft (Weegkalender naast Weg naar je streefgewicht; zonder streefgewicht de volle breedte). */
+  .gewicht .gewicht__raster, .gewicht .gewicht__raster--weinig {
+    grid-template-columns: repeat(6, minmax(0, 1fr));
+    grid-template-areas: "hoofd hoofd weegdag weegdag streef streef" "grafiek grafiek grafiek grafiek lijst lijst" "cijfers cijfers cijfers cijfers cijfers cijfers" "kal kal kal kal kal kal" "weetjes weetjes weetjes weetjes weetjes weetjes";
+    grid-template-rows: auto auto auto auto auto;
+  }
+  .gewicht .gewicht__raster--weg {
+    grid-template-areas: "hoofd hoofd weegdag weegdag streef streef" "grafiek grafiek grafiek grafiek lijst lijst" "cijfers cijfers cijfers cijfers cijfers cijfers" "kal kal kal weg weg weg" "weetjes weetjes weetjes weetjes weetjes weetjes";
+  }
+  .gewicht .gewichthoofd { grid-area: hoofd; }
+  .gewicht .gewicht__weegdag { grid-area: weegdag; }
+  .gewicht .gewichtstreef { grid-area: streef; }
+  .gewicht .gewichtgrafiek { gap: var(--s-4); }
+  .gewicht .gewichtgrafiek--compact { gap: 0; }
+  .gewicht .gewichtgrafiek__vlak { flex: none; height: 260px; min-height: 0; }
+  .gewicht .gewichtgrafiek--ruim .gewichtgrafiek__vlak { height: 310px; }
+  /* met twee of drie wegingen is de lijst ernaast kort (de kerncijfers staan nu in Verloop in cijfers): een lagere grafiek, zodat de rijen er niet ver uit elkaar komen te staan */
+  .gewicht .gewichtgrafiek--twee .gewichtgrafiek__vlak { height: 140px; }
+  .gewicht .gewichtgrafiek--drie .gewichtgrafiek__vlak { height: 200px; }
+  .gewicht .gewichtgrafiek--compact .gewichtgrafiek__vlak { height: auto; }
+  .gewicht .gewichtgrafiek .segment { position: absolute; top: var(--s-5); right: var(--s-6); width: calc(var(--s-12) * 6); }
+  /* de lijst schuift binnen de hoogte van de rij; de kerncijfers staan onderaan de kaart */
+  .gewicht .gewicht__rijen { flex: 1 1 0; min-height: calc(var(--tap-min) * 2); max-height: none; display: flex; flex-direction: column; }
+  .gewicht .gewicht__rijen > .rij { flex: 1 0 auto; }
+  .gewicht .gewicht__rijen:has(.gewicht__lijstleeg), .gewicht .gewicht__lijst--weinig .gewicht__rijen { flex: 0 0 auto; min-height: 0; }
+  .gewicht .gewicht__lijst--weinig .gewicht__rijen { margin-bottom: 0; }
+  /* de ruimte voor de focusring (zie boven): 8 px meer minimumhoogte, geen maximum */
+  .gewicht .gewicht__rijen:has(> .rij:focus-visible) { min-height: calc(var(--tap-min) * 2 + 8px); max-height: none; }
+  .gewicht .gewicht__lijst--weinig .gewicht__rijen:has(> .rij:focus-visible) { min-height: 0; margin-bottom: -4px; }
+}
+/* 1400 tot 1599 px: de bovenkaarten hebben er een gat van 38 px boven de knop (Streefgewicht heeft een regel van twee regels, de andere twee van één); het verschil
+   verdeelt zich over twee plekken. Vanaf 1600 px (en dus op 1690 px) verandert er niets. */
+@media (min-width: 1400px) and (max-width: 1599.98px) {
+  .gewicht .gewicht__bovenkaart .gewicht__regel { margin-top: auto; }
+}
+
+/* Na de regels van 1100 px hierboven, zodat deze winnen (zie het blok "Middelbreed met zijbalk"). */
+@media (min-width: 1100px) and (max-width: 1399.98px) {
+  .gewicht .gewichtgrafiek .segment { position: static; width: auto; }
+  /* De drie bovenkaarten eindigen gelijk: Streefgewicht heeft een regel van twee regels, de andere twee van één. Het verschil (± 20 px) verdeelt zich over twee plekken
+     (boven en onder de regel) in plaats van één gat van 37 px boven de knop. */
+  .gewicht .gewicht__bovenkaart .gewicht__regel { margin-top: auto; }
+  /* Weg naar je streefgewicht naast de Weegkalender (twee rijen van zes weken): de inhoud verdeelt het verschil gelijk over drie plekken (54 px werd 3 x 18 px). */
+  .gewicht .gewicht__wegromp { justify-content: space-evenly; gap: 0; }
+}
+
+/* BESLISSING 469: het blad "Streefgewicht" (openStreefBlad in schermen/gewicht.js) staat in body, niet in .gewicht: de knoppen en de regel staan gecentreerd onder het gecentreerde veld. */
+.streefblad__knoppen { justify-content: center; }
+.streefblad__regel { margin: 0; text-align: center; }
+
+/* BESLISSING 477, 478 en 479: de weekdagknoppen staan overal in de labelvorm van de app (Jost, hoofdletters via css, gespatieerd): in het blad "Weegdag" (dezelfde rij als bij Algemeen, Gewicht), bij Algemeen, Gewicht (links de keuze, rechts de voorbeeldweek) en op het welkomscherm (zelfde .weegdagen). De DOM-tekst blijft gewoon geschreven. */
+.weegdagen .chip span, .gewvoorbeeld__dag { font-family: var(--font-ui); letter-spacing: var(--ls-label); text-transform: uppercase; }
+/* BESLISSING 482: de dag op de kaart Weegdag in het grote cijferlettertype met een beginhoofdletter ("Maandag"); het is één woord, dus capitalize volstaat. */
+.gewicht .gewicht__weegdagnaam { text-transform: capitalize; }
+
+/* BESLISSING 494: de knop op de kaarten Streefgewicht en Weegdag toont vanaf 390 px de volle tekst en op smallere telefoons de korte (twee spans, css kiest). */
+.gewicht .knop__kort { display: none; }
+@media (max-width: 389.98px) {
+  .gewicht .knop__vol { display: none; }
+  .gewicht .knop__kort { display: inline; }
+}
+
+/* BESLISSING 493: Instellingen Gewicht, het streefgewicht met een invoerveld tussen min en plus. Het veld staat op de plek van het getal (zelfde klasse stapper__waarde:
+   dezelfde breedte en lettergrootte, de rij verandert niet van maat); de oude uitvoer blijft als verborgen live-gebied voor de schermlezer. */
+.stapper__lees { position: absolute; width: 1px; height: 1px; margin: -1px; padding: 0; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
+.streefveld { display: inline-flex; align-items: center; justify-content: center; align-self: stretch; box-sizing: border-box; border-radius: var(--r-md, 8px); cursor: text; }
+.streefveld__invoer { flex: 0 1 auto; min-width: 0; max-width: 100%; box-sizing: content-box; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; font: inherit; letter-spacing: inherit; text-align: right; outline: none; appearance: none; }
+.streefveld:focus-within { outline: 2px solid var(--c-accent); outline-offset: -2px; }
+.streefveld .stapper__eenheid { margin-left: .25em; white-space: nowrap; }
+/* BESLISSING 494: op de smalste telefoons (360 px) breekt de regel van Streefgewicht over twee regels en die van de andere twee over een. Het verschil (een halve regelhoogte
+   boven en onder) gaat daar naar de regel van de andere twee, zodat de kaart Streefgewicht niet hoger is dan haar buren en er geen groot leeg vlak ontstaat. Vanaf 370 px past de regel op een regel en verandert er niets. */
+@media (max-width: 369.98px) {
+  .gewicht .gewicht__bovenkaart:not(.gewichtstreef) .gewicht__regel { margin-top: calc(var(--s-2) + var(--fs-small) * .7); margin-bottom: calc(var(--s-4) + var(--fs-small) * .7); }
+}
+/* BESLISSING 520: op de telefoon zijn de knoppen op de drie kaarten (Weging noteren, Weegdag aanpassen, Streefgewicht) zo breed als hun tekst, links in de kaart,
+   zoals op tablet en desktop, in plaats van over de volle breedte. */
+/* de drie knoppen zijn onderling even breed: de breedte van de langste tekst ("Streefgewicht aanpassen"; onder 390 px, met de korte teksten, "Weging noteren") */
+/* BESLISSING 552: kleiner in verhouding met de pagina: 44 px hoog (de ondergrens voor een tikvlak), een kleinere letter, smaller; onderling even breed */
+@media (max-width: 719px) { .gewicht .gewicht__actie > .knop.knop--breed { display: inline-flex; width: 11.5rem; max-width: 100%; height: 44px; min-height: 44px; padding-inline: var(--s-3); font-size: var(--fs-small); } }
+@media (max-width: 389.98px) { .gewicht .gewicht__actie > .knop.knop--breed { width: 8.5rem; } }

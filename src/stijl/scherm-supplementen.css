@@ -1,0 +1,18 @@
+/* scherm-supplementen: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool. */
+
+/* De naam in het dagschema is een knop van één regel (24 px hoog). Binnenruimte met een even grote negatieve marge (10 px erboven en eronder, in de ruimte van de cel, en 10 px opzij,
+   zodat ook een korte naam als "Kurkuma" 44 px breed wordt) maakt het tikvlak minstens 44 x 44 px zonder dat de tabel of de tekst verschuift; de hele rij opent dezelfde kaart al met een tik. */
+.supplementen .schema__knop { padding: 10px; margin: -10px; }
+/* Een gewoon woord in de naam breekt nooit af (het mag in een smalle kolom over de rand lopen, zoals altijd). Alleen een naam met een uitzonderlijk lang woord
+   (klasse is-langwoord, src/kern/langwoord.js) breekt af binnen de cel: de knop mag dan 20 px breder zijn dan de cel, net zijn binnenruimte die in de negatieve marge valt,
+   zodat de tekst de hele kolom houdt. */
+.supplementen .schema__knop.is-langwoord { max-width: calc(100% + 20px); }
+
+/* Het dagschema tot 1100 px (BESLISSING 308): een lange naam zonder spaties ("Kurkumaextractmetzwartepeper") liep op een iPad (720 tot 1099 px) tot tegen de volgende
+   kolom, omdat de hoeveelheid 28 % en elk momentkolom 104 px nam. De momentkolommen worden smaller en de hoeveelheid iets smaller, zodat de naam ruimte houdt.
+   Een proef met twee kolommen voor de momenten op een iPad staand gaf kolommen die ongelijk eindigen (de ruimte is te smal om de lengte vooraf te schatten:
+   de aanwijzing breekt over drie regels); daarom blijft het daar één kolom (zie het rapport bij BESLISSING 308). */
+@media (min-width: 720px) and (max-width: 1099.98px) {
+  .schema--dag .schema__hoeveelkop, .schema--dag .schema__hoeveel { width: 26%; }
+  .schema--dag .schema__moment, .schema--dag .schema__teken { width: 80px; }
+}
