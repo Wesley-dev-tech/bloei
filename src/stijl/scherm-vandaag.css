@@ -106,7 +106,7 @@
    en "Genomen om 8.36 uur" past op één regel. Vanaf 1440 px blijft de verdeling 2 : 1 die de eigenaar goedkeurde. */
 @media (min-width: 1100px) and (max-width: 1439.98px) {
   .vandaag__rij2, .vandaag__rij3 { grid-template-columns: minmax(0, 3fr) minmax(330px, 2fr); }
-  /* "Iets anders" past in een dranktegel van 3 per rij niet altijd op één regel: de namen blijven op één regel en steken desnoods een paar pixel in de tussenruimte. */
+  /* "Glas water" past in een dranktegel van 3 per rij niet altijd op één regel: de namen blijven op één regel en steken desnoods een paar pixel in de tussenruimte. */
   .vandaag .drankknop__naam { white-space: nowrap; }
 }
 /* "Naar het Dagboek" blijft op één regel (in de smalle kalender brak het af en stond het pijltje ver van de tekst). */

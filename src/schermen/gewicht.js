@@ -500,7 +500,7 @@ export function toon(houder) {
           h(
             'div',
             { class: 'gewichtgrafiek__vlak', role: 'group', 'aria-label': t('gewicht.grafiek') },
-            h('p', { class: 'gewichtgrafiek__uitleg' }, t(wegingen.length === 0 ? 'gewicht.leeg' : 'gewicht.leegTwee')),
+            h('p', { class: 'gewichtgrafiek__uitleg leegzin t-cursief t-gedempt' }, t(wegingen.length === 0 ? 'gewicht.leeg' : 'gewicht.leegTwee')),
             laatste
               ? h(
                   'div',
@@ -548,7 +548,7 @@ export function toon(houder) {
       { klasse: weinig ? 'gewicht__lijst kaart--licht-op gewicht__lijst--weinig' : 'gewicht__lijst kaart--licht-op' },
       kaartkop({ tegel: begripOpties('gewicht'), label: t('gewicht.lijst') }),
       h('div', { class: 'gewicht__rijen' }, ...(wegingen.length === 0
-        ? [h('p', { class: 'gewicht__lijstleeg t-cursief' }, t('gewicht.lijstLeeg'))]
+        ? [h('p', { class: 'gewicht__lijstleeg leegzin t-cursief t-gedempt' }, t('gewicht.lijstLeeg'))]
         : [...wegingen].reverse().slice(0, 60).map((w) =>
             rij({
               titel: opmaakDatum(w.datum, 'lang'),
@@ -596,7 +596,7 @@ export function toon(houder) {
             kc('maand', t('gewicht.kcMaand'), cijfers.maand ? opmaakKg(cijfers.maand.gemiddelde) : null, cijfers.maand ? t(cijfers.maand.aantal === 1 ? 'gewicht.kcEenWeging' : 'gewicht.kcAantalWegingen', { aantal: cijfers.maand.aantal, maand: MAANDEN_KORT[Number(vandaagDatum.slice(5, 7)) - 1] }) : t('gewicht.kcSubGeenMaand', { maand: MAANDEN_KORT[Number(vandaagDatum.slice(5, 7)) - 1] })),
             kc('aantal', t('gewicht.aantal'), String(cijfers.aantal), t('gewicht.kcSubSinds', { datum: kortMetJaar(cijfers.eerste.datum) })),
           )
-        : h('p', { class: 'gewicht__leegregel' }, t('gewicht.cijfersLeeg')),
+        : h('p', { class: 'gewicht__leegregel leegzin t-cursief t-gedempt' }, t('gewicht.cijfersLeeg')),
     );
 
     // ---- Weg naar je streefgewicht: alleen met een streefgewicht en een eerste weging. Een rustige balk van het startgewicht (de eerste
@@ -661,7 +661,7 @@ export function toon(houder) {
               h('p', { class: 'gewicht__kalregel gewicht__kalregel--volgende t-gedempt' }, dagenTot === 0 ? t('gewicht.kalVandaag') : t('gewicht.kalVolgende', { datum: opmaakDatum(volgende, 'lang') })),
             ),
           )
-        : h('p', { class: 'gewicht__leegregel' }, t('gewicht.kalLeeg')),
+        : h('p', { class: 'gewicht__leegregel leegzin t-cursief t-gedempt' }, t('gewicht.kalLeeg')),
     );
 
     // ---- Goed om te weten: dezelfde opbouw als op Drinken: drie gelijke kolommen, "Toon het me" rechts in de kop

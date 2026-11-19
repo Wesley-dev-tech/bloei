@@ -107,7 +107,7 @@
 /* Een rij Eten is zelf 44 px hoog (zie bij Eten hierboven). */
 /* "1 van 3 >" in de kop van Supplementen is een klein stuk tekst (63 x 14 px): de knop zelf is 44 px hoog; een negatieve marge houdt haar op de indeling 14 px en de tekst op zijn plaats. */
 .dag .dag__supplementen .dag__meer { position: relative; box-sizing: border-box; height: calc(var(--tap-min) - var(--s-1)); margin-block: calc((var(--fs-small) - (var(--tap-min) - var(--s-1))) / 2); }
-/* De zes dranken: "Kan water" en "Iets anders" stonden op twee regels naast vier labels op één regel (labels van 12 px kleiner maken kan niet). Alle zes labels krijgen nu de hoogte van twee regels
+/* De zes dranken: "Kan water" en "Glas water" stonden op twee regels naast vier labels op één regel (labels van 12 px kleiner maken kan niet). Alle zes labels krijgen nu de hoogte van twee regels
    (met de breedte van hun tegel, ze raken elkaar niet): evenveel ruimte onder elke tegel. Vanaf 1440 px blijven de labels op één regel zoals ze waren. */
 
 /* ---------- Stemming en energie over de volle breedte: de twee delen naast elkaar, gescheiden door een verticale lijn ---------- */

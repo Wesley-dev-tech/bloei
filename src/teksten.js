@@ -398,7 +398,7 @@ export const TEKSTEN = {
     koffie: 'Koffie',
     sap: 'Sap',
     frisdrank: 'Frisdrank',
-    anders: 'Iets anders',
+    anders: 'Glas water',
   },
 
   gewicht: {
@@ -1503,6 +1503,12 @@ export const TEKSTEN = {
         menu: { titel: "Via het menu van je browser", tekst: "Open het menu van je browser en kies Installeren of Toevoegen aan startscherm. Daarna opent Bloei als een gewone app." },
       },
     },
+  },
+
+  // Wat er in deze versie veranderde (het blad na een update en de ingang bij Over). De punten zelf staan in src/data/wijzigingen.js.
+  watnieuw: {
+    titel: 'Nieuw in Bloei {versie}',
+    knop: 'Wat is er nieuw',
   },
 
   algemeen: {

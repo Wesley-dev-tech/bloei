@@ -42,6 +42,7 @@ export const STANDAARD = {
   // Delen (stap 19): welke onderdelen in het verslag komen. Gewicht en notities staan standaard uit.
   'delen.onderdelen': { eten: true, drinken: true, gewicht: false, notities: false },
   'installatie.strookWeg': false,
+  'versie.gezien': null, // de laatste versie waarvan het blad "Nieuw in Bloei" getoond werd (src/ui/watisnieuw.js)
 };
 
 // Een kopie, zodat niemand per ongeluk de standaardwaarden zelf wijzigt.

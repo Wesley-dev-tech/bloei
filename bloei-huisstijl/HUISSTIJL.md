@@ -83,7 +83,7 @@ Geen emoji in de interface. Iconen 20px in lijsten, 24px in de tabbalk, kleur `c
 | Vieruurtje | `solid/cookie-bite` |
 | Avondmaal | `solid/utensils` |
 | Late snack | `solid/moon` |
-| Drank water / thee / koffie / sap / andere | `glass-water` / `mug-hot` / `mug-saucer` / `lemon` / `bottle-water` |
+| Drank kan water / glas water / thee / koffie / sap / frisdrank | `glass-water` / `glass-water` / `mug-hot` / `mug-saucer` / `lemon` / `bottle-water` |
 | Energie | eigen blaadjes, zie §5.3 (geen FA-icoon) |
 | Streak | `solid/seedling` |
 | Badge | `solid/award` |

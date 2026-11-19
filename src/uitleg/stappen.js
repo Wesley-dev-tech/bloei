@@ -356,7 +356,7 @@ export const STUKKEN = {
       { bij: '.drinkkaart > .kaartkop', eigen: true, titel: 'Drinken', tekst: 'De kaart Drinken heeft twee delen: wat je vandaag dronk en de dranken die je met één tik toevoegt.' },
       { bij: '.drinkkaart .drinkkaart__links', titel: 'Je drinken vandaag', tekst: 'Hier zie je hoeveel je vandaag dronk. Met Laatste weghalen zet je een vergissing recht.', kort: 'Zoveel dronk je vandaag. Laatste weghalen zet een vergissing recht.' },
       { bij: '.drinkkaart .drankrij > :first-child', titel: 'Een kan water erbij', tekst: 'Tik op een drank om ze toe te voegen. Eén tik op Kan water voegt een kan van 800 ml toe.' },
-      { bij: '.drinkkaart .drankrij > :nth-child(4)', alleen: true, titel: 'Nog meer dranken', tekst: 'Ook sap, frisdrank en iets anders voeg je met één tik toe.' },
+      { bij: '.drinkkaart .drankrij > :nth-child(4)', alleen: true, titel: 'Nog meer dranken', tekst: 'Ook sap, frisdrank en een glas water voeg je met één tik toe.' },
     ],
   },
   'vandaag.afvinken': {

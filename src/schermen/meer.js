@@ -21,6 +21,7 @@ import { leesThemaKeuze, zetThema } from '../thema/thema.js';
 import { version as appVersie } from '../../package.json';
 import { begripOpties, begripTegel, begripIcoon, ICOON } from '../ui/iconenkaart.js';
 import { haakUitleg } from '../ui/uitleghaken.js';
+import { openWatIsNieuw } from '../ui/watisnieuw.js';
 import { DEMO } from '../kern/demo.js';
 
 const THEMAS = ['poeder', 'salie', 'nacht', 'auto'];
@@ -343,8 +344,16 @@ export function toon(houder) {
         h('span', { class: 'over__punt', 'aria-hidden': 'true' }, ' - '),
         h('a', { href: './licenties-derden.txt', target: '_blank', rel: 'noopener' }, t('meer.licentiesLink')),
       ),
+      // BESLISSING 701: "Wat is er nieuw" (dezelfde lijst die na een update één keer vanzelf opengaat) en Alles wissen staan samen op de
+      // onderste regel van de kaart. Op een breed scherm naast elkaar: de kaart wordt er geen regel hoger van en blijft even hoog als
+      // "Jouw instellingen" ernaast. Op een telefoon onder elkaar, zoals de wisknop er altijd stond.
       // Alles wissen: rustig onderaan, met twee bevestigingen (privacy: ze kan haar gegevens altijd van dit toestel halen).
-      Object.assign(knop(t('wissen.knop'), { soort: 'tekst', icoon: ICOON.verwijderen.naam, opKlik: (e) => wisAllesMetVraag(e.currentTarget) }), { className: 'knop knop--tekst knop--wis' }),
+      h(
+        'div',
+        { class: 'over__acties' },
+        Object.assign(knop(t('watnieuw.knop'), { soort: 'tekst', icoon: ICOON.uitleg.naam, opKlik: () => openWatIsNieuw() }), { className: 'knop knop--tekst over__nieuw' }),
+        Object.assign(knop(t('wissen.knop'), { soort: 'tekst', icoon: ICOON.verwijderen.naam, opKlik: (e) => wisAllesMetVraag(e.currentTarget) }), { className: 'knop knop--tekst knop--wis' }),
+      ),
     );
 
     // ---- Privacy: wat de app met je gegevens doet, in zes korte regels (BESLISSING 339)

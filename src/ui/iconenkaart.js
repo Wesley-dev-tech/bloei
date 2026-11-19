@@ -88,7 +88,7 @@ export const ICOON = {
 // De vijf stappen van de stemming: het gezichtje (regular) in de stapkleur --mood-n op een ronde tegel in --mood-n-soft (HUISSTIJL §5.2).
 export const STEMMING_STAP = ['face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'];
 
-// Welke begrippen een icoon delen, bewust: de huisstijl zelf (koffie en ontbijt delen mug-saucer, frisdrank en iets anders bottle-water; die staan
+// Welke begrippen een icoon delen, bewust: de huisstijl zelf (koffie en ontbijt delen mug-saucer, "Kan water" en "Glas water" glass-water; die staan
 // in beeld.js), vergrendeling en pincode zijn één begrip, en het potlood is zowel de notitie als de actie bewerken.
 export const UITZONDERINGEN = [
   ['vergrendeling', 'pincode'], // lock: één begrip

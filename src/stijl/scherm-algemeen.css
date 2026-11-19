@@ -44,6 +44,18 @@
 .over.over > .over__liefde { margin-bottom: var(--s-2); }
 .over.over > .over__liefde ~ .cijfer { margin-bottom: var(--s-4); }
 .over.over > .knop.knop--wis { margin-top: 0; }
+/* BESLISSING 701: de onderste regel van de kaart Over draagt "Wat is er nieuw" en "Alles wissen". Vanaf 720 px naast elkaar op één regel,
+   zodat de kaart precies even hoog blijft als voordien (en dus als "Jouw instellingen" ernaast in dezelfde rasterrij); past dat niet,
+   dan wikkelt de regel zoals elke flexrij. Op een telefoon onder elkaar, links uitgelijnd, zoals de wisknop er altijd stond. */
+.over__acties { display: flex; flex-direction: column; align-items: flex-start; gap: var(--s-2); }
+.over.over > .over__acties { margin-top: 0; }
+.over__nieuw { align-self: flex-start; padding-left: 0; }
+@media (hover: hover) { .over__nieuw:hover:not(:disabled) { text-decoration: none; } .over__nieuw:hover .icoon { filter: brightness(1.35); } }
+@media (min-width: 720px) {
+  .over__acties { flex-direction: row; flex-wrap: wrap; align-items: center; gap: var(--s-2) var(--s-5); }
+  .meer__raster > .over.over > .over__acties { margin-top: auto; }
+  .over__acties > .knop { margin-top: 0; }
+}
 /* BESLISSING 427 en 436: de licentielink staat naast de versie op één regel (zelfde ruimte eronder als de versieregel vroeger had);
    tikvlak van de link ≥ 44 px, de negatieve marge houdt de regel even hoog (alleen het tikvlak groeit). */
 .over.over > .over__licenties { margin-bottom: var(--s-4); }
@@ -552,7 +564,7 @@
 .instelscherm .slot__groep.is-uit .slot__radio, .instelscherm .slot__groep.is-uit .slot__optie .tegel { opacity: .5; }
 .instelscherm .slot__groep.is-uit .slot__optiehint, .instelscherm .slot__groep.is-uit .slot__groepkop { color: var(--c-text-muted); }
 
-/* Drinken, "Zo ziet het eruit": in een smal voorbeeld (iPad liggend, 960 tot 1100 px) staan de dranken 2 x 3 (anders breekt "Iets anders" over twee regels naast
+/* Drinken, "Zo ziet het eruit": in een smal voorbeeld (iPad liggend, 960 tot 1100 px) staan de dranken 2 x 3 (anders breekt "Glas water" over twee regels naast
    buren op één regel) en vervalt de herhaling "dagdoel 2,5 l" in de kop van de week (staat al in de zin erboven). */
 .drinkvoorbeeld { container: drinkvoorbeeld / inline-size; }
 @container drinkvoorbeeld (max-width: 269px) {
@@ -587,10 +599,13 @@
   .meer__medailles { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .meer__medailles > :nth-child(3) { display: none; }
 }
-@media (min-width: 720px) and (max-width: 1439.98px) { .meer__raster > .meer__menu.meer__menu { justify-content: space-between; } }
-/* 960 tot 1024 px: Favorieten en Badges staan naast elkaar en de menukaart rekt mee tot 610 px (rijen blijven 80 px). Met space-between kwam de hele restruimte tussen tegel en
-   eerste rij (38 px, grens 34); space-evenly verdeelt ze ook boven en onder de rijen (33 px). Daaronder en daarboven blijft het zoals het was. */
-@media (min-width: 960px) and (max-width: 1023.98px) { .meer__raster > .meer__menu.meer__menu { justify-content: space-evenly; } }
+/* BESLISSING 701: "Jouw instellingen" verdeelt zijn restruimte overal gelijk. Met space-between kwam alles wat overbleef tussen de kop en de eerste rij te staan
+   (op 960 tot 1024 px 38 px, grens 34); space-evenly geeft boven, tussen en onder de rijen dezelfde ruimte. Dat gold al tussen 960 en 1024 px en geldt nu op elk
+   breed scherm, ook vanaf 1440 px, waar de restruimte vroeger onderaan bleef liggen. De eigen marge boven een rij vervalt dan: anders telt die bij één gat op. */
+@media (min-width: 720px) {
+  .meer__raster > .meer__menu.meer__menu { justify-content: space-evenly; }
+  .meer__raster > .meer__menu.meer__menu > .rij { margin-top: 0; }
+}
 /* Badges, het blad bij een tik op een medaille, op een telefoon liggend (390 px hoog of minder): het blad was 443 px hoog (een medaille van 132 px, ruime tussenruimte) en scrolde in het
    venster. Nu 303 px: medaille 72 px, kleinere tussenruimte, en het kadertje houdt 8 px rand boven en onder in plaats van 16 px plus 8 % onderaan (telefoon.css). Titel, kruisje en Sluiten staan zonder scrollen in beeld. */
 @media (orientation: landscape) and (max-height: 480px) and (max-width: 959.98px) { /* dezelfde telefoon liggend als in telefoon.css */

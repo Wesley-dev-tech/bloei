@@ -6,8 +6,8 @@ import { icoon } from './iconen.js';
 import { t } from '../teksten.js';
 import { initiaalVan } from '../logica/naam.js';
 
-// Maaltijdmoment en drank naar icoon (HUISSTIJL §5). De lijst kent geen eigen icoon voor frisdrank:
-// frisdrank en "iets anders" delen bottle-water (open punt voor de eigenaar).
+// Maaltijdmoment en drank naar icoon (HUISSTIJL §5). De lijst kent geen eigen icoon voor frisdrank: frisdrank houdt bottle-water.
+// "Kan water" en "Glas water" delen glass-water: één begrip water, twee groottes (800 ml en 250 ml).
 export const MAALTIJDICOON = {
   ontbijt: 'mug-saucer',
   tussendoortje: 'apple-whole',
@@ -22,7 +22,7 @@ export const DRANKICOON = {
   koffie: 'mug-saucer',
   sap: 'lemon',
   frisdrank: 'bottle-water',
-  anders: 'bottle-water',
+  anders: 'glass-water',
 };
 
 // Maaltijdfoto in de kaart: 4:3, object-fit cover, radius --photo-radius, haarlijn --photo-ring.

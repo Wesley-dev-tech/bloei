@@ -374,7 +374,7 @@ function maakIconen() {
       tegelItem('mug-hot', 'drank', t('drank.thee')),
       tegelItem('mug-saucer', 'drank', t('drank.koffie')),
       tegelItem('lemon', 'drank', t('drank.sap')),
-      tegelItem('bottle-water', 'drank', t('drank.anders')),
+      tegelItem('glass-water', 'drank', t('drank.anders')),
     ),
     sub('Gezondheid'),
     h(
@@ -496,7 +496,7 @@ function maakComponenten() {
     h('div', { class: 'sp-rij', style: { marginTop: 'var(--s-4)' } }, knop('Foto erbij', { soort: 'primair', icoon: 'camera' }), knop('Favoriet', { soort: 'secundair', icoon: 'heart' }), icoonknop('rotate-left', { label: t('algemeen.ja'), opKlik: wijzig })),
     sub('Chips en segment'),
     h('div', { class: 'sp-kolom' },
-      chips({ label: 'Soort drank', keuzes: [{ id: 'water', label: 'Water' }, { id: 'thee', label: 'Thee' }, { id: 'koffie', label: 'Koffie' }, { id: 'sap', label: 'Sap' }, { id: 'anders', label: 'Iets anders' }], actief: 'water' }),
+      chips({ label: 'Soort drank', keuzes: [{ id: 'water', label: 'Water' }, { id: 'thee', label: 'Thee' }, { id: 'koffie', label: 'Koffie' }, { id: 'sap', label: 'Sap' }, { id: 'anders', label: 'Glas water' }], actief: 'water' }),
       h('div', { class: 'sp-rij sp-rij--midden' }, segment({ label: 'Periode', keuzes: [{ id: '1m', label: '1M' }, { id: '3m', label: '3M' }, { id: '1j', label: '1J' }], actief: '3m' }), segment({ label: 'Weergave', keuzes: [{ id: 'dag', label: 'Dag' }, { id: 'week', label: 'Week' }, { id: 'maand', label: 'Maand' }], actief: 'week' })),
       h('div', { class: 'sp-rij sp-rij--midden' }, chip('Niet gekozen'), chip('Gekozen', { actief: true }), chip('Uitgeschakeld', { uitgeschakeld: true })),
     ),
