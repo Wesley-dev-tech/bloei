@@ -1508,6 +1508,8 @@ export const TEKSTEN = {
   // Wat er in deze versie veranderde (het blad na een update en de ingang bij Over). De punten zelf staan in src/data/wijzigingen.js.
   watnieuw: {
     titel: 'Nieuw in Bloei {versie}',
+    versieKop: 'Versie {versie}',
+    datumTijd: '{datum} om {tijd} uur',
     knop: 'Wat is er nieuw',
   },
 

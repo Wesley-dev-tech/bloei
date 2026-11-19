@@ -1527,7 +1527,7 @@ a.week__link { min-height: 48px; justify-content: center; }
 .gewicht__typveld { width: calc(var(--s-12) * 4); text-align: center; font-family: var(--font-display); font-size: var(--fs-h1); }
 .gewicht__hint { text-align: center; }
 .gewicht__raster .gewicht__hint { margin-top: var(--s-3); text-align: left; }
-.gewicht__lijstleeg { color: var(--c-text-muted); font-size: var(--fs-body); line-height: 1.4; }
+.gewicht__lijstleeg { color: var(--c-text-muted); font-size: var(--fs-small); line-height: 1.4; }
 /* De drie kaarten bovenaan hebben dezelfde bouw: kaartkop, een kern op dezelfde basislijn, een regel tekst en een actie onderaan */
 .gewicht__bovenkaart { display: flex; flex-direction: column; }
 .gewicht__kern { display: flex; align-items: flex-end; padding-bottom: var(--s-1); min-height: calc(var(--tile-size-groot) + var(--s-6)); }

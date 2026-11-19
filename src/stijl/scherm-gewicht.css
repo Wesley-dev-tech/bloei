@@ -8,7 +8,7 @@
 /* ---------- Verloop en Je wegingen ---------- */
 .gewicht .gewichtgrafiek { position: relative; }
 .gewicht .gewichtgrafiek--compact { gap: 0; }
-.gewicht .gewichtgrafiek__uitleg { margin: 0; color: var(--c-text-muted); font-size: var(--fs-body); line-height: 1.4; } /* dezelfde lege zin als .gewicht__lijstleeg en .gewicht__leegregel: zie .leegzin */
+.gewicht .gewichtgrafiek__uitleg { margin: 0; color: var(--c-text-muted); font-size: var(--fs-small); line-height: 1.4; } /* dezelfde lege zin als .gewicht__lijstleeg en .gewicht__leegregel: zie .leegzin */
 .gewicht .gewichtgrafiek--compact .gewichtgrafiek__vlak { flex: 1 1 auto; min-height: 0; height: auto; display: flex; flex-direction: column; gap: var(--s-3); }
 .gewicht .gewicht__punt { display: flex; align-items: center; gap: var(--s-3); }
 .gewicht .gewicht__stip { flex: none; width: 12px; height: 12px; border-radius: 50%; background: var(--c-weight); }
@@ -17,7 +17,7 @@
 .gewicht .gewicht__lijst { display: flex; flex-direction: column; }
 .gewicht .gewicht__rijen { margin-bottom: var(--s-4); }
 .gewicht .gewicht__rijen:has(.gewicht__lijstleeg) { align-items: flex-start; justify-content: flex-start; text-align: left; margin-bottom: 0; }
-.gewicht .gewicht__lijstleeg { margin: 0; font-size: var(--fs-body); line-height: 1.4; }
+.gewicht .gewicht__lijstleeg { margin: 0; font-size: var(--fs-small); line-height: 1.4; }
 .gewicht .gewicht__lijst--weinig .gewicht__rijen { margin-bottom: 0; }
 /* De lijst scrolt, dus ze knipt af wat buiten haar rand valt, ook de focusring van een rij (2 px afstand + 2 px lijn). Zolang een rij de focus heeft met het toetsenbord krijgt de lijst
    daarom 4 px binnenruimte rondom, die ze met een negatieve marge (en 8 px meer minimum- en maximumhoogte) terugneemt: niets verschuift, de kaart blijft even hoog. Zonder toetsenbordfocus
@@ -36,7 +36,11 @@
   .gewicht .gewicht__kal { grid-area: kal; }
   .gewicht .gewicht__weg { grid-area: weg; }
 }
-.gewicht .gewicht__leegregel { margin: 0; font-size: var(--fs-body); line-height: 1.4; color: var(--c-text-muted); }
+.gewicht .gewicht__leegregel { margin: 0; font-size: var(--fs-small); line-height: 1.4; color: var(--c-text-muted); }
+/* BESLISSING 701: de datum van de volgende weging staat op de regel van de kaart Weegdag, waar de andere bovenkaarten gewone tekst hebben.
+   Ze blijft in drukletters (het is een bijschrift, BESLISSING 467), maar krijgt de maat, het gewicht, de kleur en de regelhoogte van die regel,
+   zodat de drie bovenkaarten op dezelfde regel hetzelfde beeld geven. */
+.gewicht .gewicht__weegdag .gewicht__regel .label { font-size: var(--fs-small); font-weight: 400; line-height: 1.4; color: var(--c-text-muted); }
 
 /* Een strak raster van kerncijfers, in de vorm van de maandcijfers in het Dagboek: gelijke kolommen met een dunne lijn ertussen, elk blok gecentreerd
    op drie vaste lijnen (label, één groot cijfer, één onderregel). Geen kleur die goed of slecht suggereert, geen hover.

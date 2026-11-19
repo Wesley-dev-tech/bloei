@@ -598,14 +598,19 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
 .leeg__merk { width: calc(var(--s-12) + var(--s-4)); height: calc(var(--s-12) + var(--s-4)); }
 .beeldmerk-paar { display: inline-flex; flex: none; }
 .leeg__tekst { max-width: 18em; font-size: var(--fs-h2); line-height: 1.25; text-wrap: balance; }
-/* Een lege zin in een kaart (zonder beeldmerk): overal dezelfde opmaak - Cormorant cursief, gedempt, body-maat. Zet .leegzin naast t-cursief en t-gedempt. */
-.leegzin { margin: 0; font-size: var(--fs-body); line-height: 1.4; }
+/* Een lege zin in een kaart (zonder beeldmerk): overal dezelfde opmaak als een regel in "Goed om te weten" (.weetje__tekst):
+   Jost 400 op 14 px, regelhoogte 1,4, gedempt. Zet .leegzin naast t-gedempt; nooit cursief. */
+.leegzin { margin: 0; font-family: inherit; font-style: normal; font-weight: 400; font-size: var(--fs-small); line-height: 1.4; }
 
 /* Blad "Nieuw in Bloei" (BESLISSING 701): een rij per punt, de tegel van het onderwerp links, de zin ernaast. */
 .watnieuw__datum { margin: 0; }
 .watnieuw__lijst { list-style: none; margin: 0; padding: 0; display: flex; flex-direction: column; gap: var(--s-3); }
 .watnieuw__punt { display: flex; align-items: flex-start; gap: var(--s-3); text-align: left; }
 .watnieuw__tekst { margin: 0; font-size: var(--fs-body); line-height: var(--lh-body); }
+/* Meer dan één versie in één blad (wie een update oversloeg): elk blok krijgt een kopje met zijn versie en datum. */
+.watnieuw--meer .watnieuw__lijst { margin-bottom: var(--s-2); }
+.watnieuw__versie { margin: 0; }
+.watnieuw__versie .watnieuw__datum { letter-spacing: 0; text-transform: none; }
 
 /* ---------- Logo (§2) ---------- */
 .logo {
