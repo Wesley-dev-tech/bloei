@@ -8,6 +8,12 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.2.3',
+    datum: '2026-11-20',
+    tijd: '10:15',
+    punten: [{ begrip: 'drinken', tekst: 'Bij de grootte van je dranken kom je nu op ronde maten uit, zoals 500 ml voor frisdrank. De standaardmaat blijft een halte.' }],
+  },
+  {
     versie: '0.2.2',
     datum: '2026-11-19',
     tijd: '23:05',

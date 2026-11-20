@@ -13,7 +13,7 @@ import { bloeiOp, eersteToon, komOp, telOp } from '../ui/beweging.js';
 import { beheerScherm, terugKnop, uitgesteldBewaren } from './hulp.js';
 import { t } from '../teksten.js';
 import { opmaakLiter, opmaakMl } from '../kern/getal.js';
-import { GRENZEN, leesInstelling, zetInstelling } from '../data/instellingen.js';
+import { GRENZEN, STANDAARD, leesInstelling, zetInstelling } from '../data/instellingen.js';
 import { begripOpties } from '../ui/iconenkaart.js';
 import { haakUitleg } from '../ui/uitleghaken.js';
 
@@ -147,6 +147,10 @@ export function toon(houder) {
               stap: GRENZEN.drankMl.stap,
               min: GRENZEN.drankMl.min,
               max: GRENZEN.drankMl.max,
+              // BESLISSING 705: frisdrank begint op 330 ml, naast het raster van 50. Op een raster kom je wel op 500 uit, en de
+              // standaardmaat van de drank blijft een halte, zodat je er altijd naar terug kan.
+              raster: true,
+              stops: [STANDAARD['drinken.groottes'][soort]],
               opmaak: opmaakMl,
               label: t('drank.' + soort),
               opWijzig: (n) => {

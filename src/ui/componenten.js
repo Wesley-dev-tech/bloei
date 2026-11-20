@@ -2,6 +2,7 @@
 // src/stijl/componenten.css; kleuren, maten en lettertypes komen uit bloei-huisstijl/tokens.css.
 // Geen Bootstrap-componentklassen: elk onderdeel is eigen werk.
 import { h, svg } from './dom.js';
+import { volgendeStapwaarde } from '../logica/stapwaarde.js';
 import { icoon } from './iconen.js';
 import { t } from '../teksten.js';
 import { ICOON, begripIcoon } from './iconenkaart.js';
@@ -437,7 +438,9 @@ export function tijdveld(opties = {}) {
 // Stapper: min, waarde, plus. Ingedrukt houden herhaalt. Waarde in Cormorant (groot cijfer).
 // stapper({ waarde, stap, min, max, opmaak: (n) => string, opWijzig, label })
 export function stapper(opties = {}) {
-  const { waarde = 0, stap = 1, min = -Infinity, max = Infinity, opmaak = String, opWijzig, label } = opties;
+  // raster (BESLISSING 705): de stap brengt je naar het volgende veelvoud van de stap in plaats van de stap op te tellen, en houdt halt op
+  // de waarden in stops. Zonder raster werkt de stapper zoals altijd.
+  const { waarde = 0, stap = 1, min = -Infinity, max = Infinity, opmaak = String, opWijzig, label, raster = false, stops = [] } = opties;
   let huidig = waarde;
   const getal = h('output', { class: 'stapper__waarde cijfer', 'aria-live': 'polite' });
   const afronden = (n) => Math.round(n * 1e6) / 1e6;
@@ -457,7 +460,7 @@ export function stapper(opties = {}) {
     plusKnop.disabled = huidig >= max;
   }
   function verander(richting) {
-    const nieuw = Math.min(max, Math.max(min, afronden(huidig + richting * stap)));
+    const nieuw = raster ? volgendeStapwaarde(huidig, richting, { stap, min, max, stops }) : Math.min(max, Math.max(min, afronden(huidig + richting * stap)));
     if (nieuw === huidig) return false;
     huidig = nieuw;
     teken();
