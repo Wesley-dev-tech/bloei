@@ -142,7 +142,8 @@ export function toon(houder) {
       : kaart({ klasse: 'favorieten__lijst' }, kaartkop({ tegel: begripOpties('favoriet'), label: t('meer.favorieten') }), legeToestand({ tekst: t('favorieten.leeg') }));
 
     // ---- Zo ziet het eruit: een maaltijdregel met de favorieten als chips onder de maaltijden, zoals op Vandaag
-    const chipTekst = favorieten.length ? favorieten.slice(0, 4).map((f) => f.tekst) : TEKSTEN.favorieten.voorbeeld;
+    // Alle favorieten staan in het voorbeeld; vanaf vijf scrol je binnen het vak (schermen.css), zodat de kaart niet blijft groeien.
+    const chipTekst = favorieten.length ? favorieten.map((f) => f.tekst) : TEKSTEN.favorieten.voorbeeld;
     const maaltijdRegel = (soort) =>
       rij({ tegel: { naam: MAALTIJDICOON[soort], familie: ICOON.eten.familie }, titel: t('maaltijd.' + soort), eind: h('span', { class: 'maaltijd__invullen' }, t('maaltijd.invullen')) });
     // BESLISSING 345: onder 1440 px (960 en breder) toont het voorbeeld zoveel maaltijden als er plaats voor is; er staan er altijd minstens twee (ontbijt, middagmaal).
@@ -176,7 +177,7 @@ export function toon(houder) {
             'div',
             { class: 'eten__favorieten favorietvoorbeeld__chips', 'aria-hidden': 'true' },
             h('span', { class: 'label' }, t('vandaag.favorieten')),
-            ...chipTekst.map((tekstje) => h('span', { class: 'favorietvoorbeeld__chip' }, tekstje)),
+            h('div', { class: 'favorietenlijst' }, ...chipTekst.map((tekstje) => h('span', { class: 'favorietvoorbeeld__chip' }, tekstje))),
           ),
           h('p', { class: 't-klein t-gedempt' }, favorieten.length ? t('favorieten.hoeUitleg') : t('favorieten.voorbeeldNoot')),
         ),

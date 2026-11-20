@@ -346,7 +346,8 @@
 .maaltijd__invullen { display: inline-flex; align-items: center; gap: var(--s-1); padding: var(--s-1) var(--s-3); border-radius: var(--r-pill); font-size: var(--fs-small); font-weight: 500; color: var(--c-text-muted); white-space: nowrap; }
 .maaltijd__invullen.is-uitgelicht { background: var(--c-accent-soft); color: var(--c-accent-text); }
 .eten__favorieten { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-2); margin-top: var(--s-4); padding-top: var(--s-2); border-top: var(--lijn); }
-.eten__favorieten .label { margin-right: var(--s-2); }
+/* Het woord Favorieten staat boven de rij, niet naast de eerste favoriet: een volle regel duwt de chips naar de regel eronder. */
+.eten__favorieten .label { flex: 0 0 100%; margin-right: 0; }
 @media (min-width: 720px) {
   .vandaag .uitklap__samenvatting { display: block; }
 }
@@ -1570,3 +1571,35 @@ a.week__link { min-height: 48px; justify-content: center; }
   .gewicht__raster--weinig .gewicht__weetjes > .rij { border-top: 0; }
 }
 
+/* De favorieten zitten in een eigen lijstje binnen de rij. Op een breed scherm doet display: contents alsof dat lijstje er niet is, zodat
+   alles blijft zoals het was. */
+.favorietenlijst { display: contents; }
+
+/* Op een telefoon staan de favorieten twee aan twee onder elkaar, even breed, elk op EEN regel. Vanaf vijf favorieten blijft het vak even
+   hoog (twee rijen) en scrol je binnenin; het woord Favorieten staat erboven en scrolt niet mee. */
+@media (max-width: 719.98px) {
+  .eten__favorieten,
+  .favorietvoorbeeld__chips { display: block; }
+  .eten__favorieten > .label,
+  .favorietvoorbeeld__chips > .label { display: block; margin: 0 0 var(--s-2); }
+  .favorietenlijst {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: var(--s-2);
+    align-items: stretch;
+    max-height: calc(2 * var(--tap-min) + var(--s-2));
+    overflow-y: auto;
+    overscroll-behavior: contain;
+  }
+  /* Elke favoriet is even breed en even hoog en houdt haar naam op een regel; past hij niet, dan eindigt hij met drie puntjes. */
+  .favorietenlijst > * {
+    min-width: 0;
+    min-height: var(--tap-min);
+    padding-inline: var(--s-3);
+    font-size: calc(var(--fs-small) * 0.95);
+  }
+  /* De voorbeeldchip is een span met kale tekst erin; als blok met een regelhoogte gelijk aan de hoogte van het vakje staat de naam
+     mooi in het midden en zorgen de drie puntjes voor het afkappen (in een flexvak werkt text-overflow niet). */
+  .favorietenlijst > .favorietvoorbeeld__chip { display: block; line-height: var(--tap-min); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+  .favorietenlijst > .chip span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
+}

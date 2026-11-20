@@ -254,7 +254,10 @@ export function toon(houder) {
             'div',
             { class: 'eten__favorieten' },
             h('span', { class: 'label' }, t('vandaag.favorieten')),
-            ...favorieten.slice(0, 4).map((f) =>
+            h(
+              'div',
+              { class: 'favorietenlijst' },
+              ...favorieten.slice(0, 4).map((f) =>
               chip(f.tekst, {
                 opKlik: async () => {
                   // BESLISSING 435: meteen invullen, het blad blijft dicht; Ongedaan maken zet maaltijd en favoriet terug zoals ze waren,
@@ -276,7 +279,8 @@ export function toon(houder) {
                 },
               }),
             ),
-            favorieten.length > 4 ? chip(t('vandaag.favorietenMeer'), { opKlik: () => ga('#/meer/favorieten') }) : null,
+              favorieten.length > 4 ? chip(t('vandaag.favorietenMeer'), { opKlik: () => ga('#/meer/favorieten') }) : null,
+            ),
           )
         : null;
     const eten = kaart(
