@@ -8,6 +8,17 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.2.4',
+    datum: '2026-11-20',
+    tijd: '13:30',
+    punten: [
+      {
+        begrip: 'delen',
+        tekst: 'De knop Delen staat in het Dagboek nu bovenaan, naast het huisje, net als op de andere tabbladen. Ze deelt nog altijd de dag, week of maand die je op dat moment bekijkt.',
+      },
+    ],
+  },
+  {
     versie: '0.2.3',
     datum: '2026-11-20',
     tijd: '10:15',
