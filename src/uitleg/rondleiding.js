@@ -1254,7 +1254,7 @@ export function nieuweStappen(sleutel, gezien) {
 let actief = null;
 const telefoon = () => window.matchMedia('(max-width: 719px)').matches;
 // Het soort toestel voor de teksten (BESLISSING 590): het menu links (breed) of de balk onderaan, en een muis of aanraking.
-const toestel = () => ({ breed: window.matchMedia('(min-width: 960px)').matches, muis: window.matchMedia('(hover: hover) and (pointer: fine)').matches });
+const toestel = () => ({ breed: window.matchMedia('(min-width: 960px)').matches, telefoon: window.matchMedia('(max-width: 719px)').matches, muis: window.matchMedia('(hover: hover) and (pointer: fine)').matches });
 
 // De kleurfamilie van het scherm waarop de uitleg staat (BESLISSING 523; de families staan in src/stijl/tabkleur.css): Vandaag pruim,
 // Dagboek abrikoos, Drinken mist, Supplementen salie, Gewicht duifblauw, Algemeen en de instellingen het accent van het thema, Delen lavendel.

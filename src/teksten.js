@@ -1361,9 +1361,9 @@ export const TEKSTEN = {
       // in de kop maar in de zijbalk: TOESTEL_TEKST geeft dan de tekst zonder Delen.
       kopSub: { titel: "De knoppen bovenaan", tekst: "Met Algemeen ga je terug naar het tabblad Algemeen. Het vraagteken start de rondleiding van dit scherm, met Delen maak je een verslag en het huisje brengt je naar Vandaag." },
       vandaag: {
-        menu: { titel: "Het menu", tekst: "In het menu kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen en Gewicht. Algemeen vind je bij het tandwiel. Bij het tabblad waar je bent, licht het icoon op." },
-        kop: { titel: "Rondleiding, Delen en home", tekst: "Bovenaan staan Rondleiding en Delen. Met Rondleiding start je deze rondleiding opnieuw, met Delen maak je een verslag. Op andere schermen staat daarnaast een huisje dat je terugbrengt naar Vandaag." },
-        instellingen: { titel: "Algemeen", tekst: "Tussen Rondleiding en Delen staat een tandwiel. Daarachter zit Algemeen: je profiel, je favoriete maaltijden, je badges en alle instellingen." },
+        menu: { titel: "De balk onderaan", tekst: "Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Bij het tabblad waar je bent, licht het icoon op met een bolletje eronder." },
+        kop: { titel: "Rondleiding", tekst: "Bovenaan staat een vraagteken. Daarmee start je deze rondleiding opnieuw, wanneer je maar wil. Je vindt het op elk scherm terug." },
+        instellingen: { titel: "Algemeen", tekst: "Naast Delen staat een tandwiel. Daarachter zit Algemeen: je profiel, je favoriete maaltijden, je badges en alle instellingen." },
         dag: { titel: "Je dag in één blik", tekst: "Bovenaan staan vier tegels met hoe je dag ervoor staat: eten, drinken, supplementen en stemming. Ze zijn om naar te kijken, de cijfers lopen vanzelf mee." },
         glas: { titel: "Een kan water erbij", tekst: "Tik op een drank om ze toe te voegen. Eén tik op Kan water voegt een kan van 800 ml toe, en met Laatste weghalen zet je een vergissing recht." },
         spuit: { titel: "Een spuit vandaag", tekst: "Staat er vandaag een spuit gepland, dan zie je ze als extra rij in de kaart Supplementen. Vink ze af als je ze zette, en tik nog eens om ze terug te zetten." },
@@ -1427,8 +1427,8 @@ export const TEKSTEN = {
         profiel: { titel: "Je profiel", tekst: "Tik op je profiel om je naam en foto aan te passen." },
         favorieten: { titel: "Je favorieten", tekst: "Hier staan de maaltijden die je als favoriet bewaarde. Tik op Favoriet toevoegen om er een bij te zetten, of op Alle favorieten om ze te beheren." },
         instellingen: { titel: "Je instellingen", tekst: "Elke rij brengt je naar een eigen instelling: je dagdoel en de grootte van je dranken, je weegdag en streefgewicht, je herinneringen, je pincode en de rondleiding." },
-        uitleg: { titel: "Rondleiding", tekst: "Onder Rondleiding vind je alle rondleidingen en handleidingen terug en start je ze opnieuw." },
         badges: { titel: "Je medailles", tekst: "Bij Badges zie je de medailles die je verzamelde en wat ze betekenen." },
+        nieuw: { titel: "Wat is er nieuw", tekst: "Onderaan, bij Over, opent Wat is er nieuw de lijst met wat er in elke versie van Bloei veranderde. Na een update gaat die lijst ook één keer vanzelf open." },
         wissen: { titel: "Profiel verwijderen", tekst: "Onderaan, bij Over, wis je met Profiel verwijderen alles van dit toestel. Je krijgt eerst twee keer de vraag of je het zeker weet, en daarna begin je opnieuw met het welkomscherm." },
         privacy: { titel: "Privacy", tekst: "Onder Privacy lees je wat er met je gegevens gebeurt. Alles wat je bijhoudt blijft op dit toestel." },
       },

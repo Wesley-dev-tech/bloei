@@ -545,7 +545,7 @@ test('Supplementen afvinken: de handeling start op Vandaag, bij de momenten', as
 const GEEN = null; // stap zonder onderdeel (een kaartje midden op het scherm): niets te controleren
 const VERWACHT = {
   'vandaag.menu': { sel: '#zijbalk, #tabbalk' },
-  'vandaag.kop': { tag: 'button', naam: /Rondleiding/ }, // BESLISSING 593: de knop heet Rondleiding (met Delen erbij, ook)
+  'vandaag.kop': { tag: 'button', naam: /Rondleiding/ }, // BESLISSING 593: de knop heet Rondleiding; Delen en het tandwiel hebben een eigen stap
   'vandaag.dag': { sel: '.voortgang' },
   'vandaag.badges': { haak: 'badges' },
   'vandaag.week': { haak: 'week' },
@@ -600,8 +600,8 @@ const VERWACHT = {
   'meer.thema': { haak: 'thema', sel: '.kaart.meer__themakaart' }, // BESLISSING 645: dezelfde stap als de handleiding Een thema kiezen
   'meer.favorieten': { sel: '.meer__favorieten' },
   'meer.instellingen': { sel: '.meer__menu' },
-  'meer.uitleg': { naam: /^Rondleiding/ }, // BESLISSING 600: de rij heet Rondleiding
   'meer.badges': { haak: 'badges' },
+  'meer.nieuw': { sel: '.over__nieuw', naam: /Wat is er nieuw/ },
   'meer.wissen': { sel: '.knop--wis' },
   'meer.privacy': { sel: '.privacy' },
   'delen.periode': { haak: 'delen-periode' },

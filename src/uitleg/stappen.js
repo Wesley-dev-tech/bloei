@@ -41,7 +41,7 @@ const THEMA_KAART = { doel: '[data-uitleg="thema"], .meer__themakaart', stukken:
 export const STAPPEN = {
   vandaag: [
     { id: 'menu', doel: '#tabbalk, #zijbalk' },
-    { id: 'kop', doel: '.begroeting__uitleg', ook: 'a.begroeting__delen', marge: 0 }, // twee knoppen: het gat sluit ze precies in, zonder lichte pil eromheen
+    { id: 'kop', doel: '.begroeting__uitleg' }, // alleen het vraagteken: Delen en het tandwiel hebben elk een eigen stap
     // Alleen op een telefoon: daar staat Algemeen niet in de balk onderaan, maar achter dit tandwiel. Vanaf 720 px staat het weer
     // gewoon in het menu en slaat de rondleiding deze stap vanzelf over (de knop staat er niet).
     { id: 'instellingen', doel: '.begroeting__instellingen' },
@@ -135,8 +135,8 @@ export const STAPPEN = {
     { id: 'thema', ...THEMA_KAART }, // dezelfde stap en tekst als de handleiding Een thema kiezen (h:thema)
     { id: 'favorieten', doel: '.meer__favorieten' },
     { id: 'instellingen', doel: '[data-uitleg="menu-instellingen"], .meer__menu > .rij, .meer__menu' },
-    { id: 'uitleg', doel: '.meer__menu > .rij:last-child' },
     { id: 'badges', doel: '[data-uitleg="badges"], .meer__badges' },
+    { id: 'nieuw', doel: '.over__nieuw' }, // de tekstknop Wat is er nieuw, onder Over
     { id: 'wissen', doel: '.knop--wis' },
     { id: 'privacy', doel: '.privacy' }, // de kaart Privacy, onder Over
   ],
@@ -651,15 +651,21 @@ export const heeftUitleg = (sleutel) => Boolean(STAPPEN[sleutel]);
 
 // ---- Tekst per soort toestel (BESLISSING 590) ----
 // Een tekst zegt niets over een ander toestel of een andere bediening dan die van wie leest. Twee kenmerken, zoals de app ze zelf gebruikt:
-//   breed: het menu staat links (vanaf 960 px, layout.css); smal: de balk onderaan;
+//   breed: het menu staat links (vanaf 960 px, layout.css); smal: de balk onderaan, met telefoon (onder 720 px) en tablet als fijnere maat;
 //   muis: een muis of touchpad met hover ((hover: hover) and (pointer: fine)); anders aanraking.
 // TOESTEL_TEKST geeft per tekst (deel van de teksten + id) de varianten; een variant vervangt titel of tekst. Met een muis wordt "tik" daarna
 // "klik" (en aantikken, getikt, tikte), behalve in de teksten over iets op de telefoon zelf (Bloei op het beginscherm) of over het intikken
 // van een code (ZONDER_KLIK).
 export const TOESTEL_TEKST = {
   'stap.vandaag.menu': {
-    smal: { tekst: 'Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Bij het tabblad waar je bent, licht het icoon op met een bolletje eronder.' },
-    breed: { tekst: 'Links kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Het tabblad waar je bent, staat in een zacht vlak.' },
+    // telefoon: vijf tabbladen, Algemeen zit achter het tandwiel bovenaan; tablet: zes tabbladen in dezelfde balk; breed: het menu links.
+    telefoon: { titel: 'De balk onderaan', tekst: 'Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen en Gewicht. Algemeen opent met het tandwiel bovenaan. Bij het tabblad waar je bent, licht het icoon op met een bolletje eronder.' },
+    smal: { titel: 'De balk onderaan', tekst: 'Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Bij het tabblad waar je bent, licht het icoon op met een bolletje eronder.' },
+    breed: { titel: 'Het menu links', tekst: 'Links kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Het tabblad waar je bent, staat in een zacht vlak.' },
+  },
+  // Het tandwiel naar Algemeen staat alleen op een telefoon; op een tablet en een computer slaat de rondleiding die stap over.
+  'stap.vandaag.instellingen': {
+    telefoon: { tekst: 'Rechts naast Delen staat een tandwiel. Daarachter zit Algemeen: je profiel, je favoriete maaltijden, je badges en alle instellingen.' },
   },
   // kort: een kortere tekst met dezelfde inhoud, alleen als het blok met de gewone tekst niet naast de kaart past (BESLISSING 591).
   'stap.vandaag.dag': {
@@ -685,9 +691,12 @@ export const TOESTEL_TEKST = {
 const ZONDER_KLIK = ['stap.beginscherm', 'handeling.beginscherm', 'stap.vergrendeling.code'];
 const KLIK = [[/\baantikken\b/g, 'aanklikken'], [/\bAantikken\b/g, 'Aanklikken'], [/\bgetikt\b/g, 'geklikt'], [/\btikte\b/g, 'klikte'], [/\btik\b/g, 'klik'], [/\bTik\b/g, 'Klik']];
 const naarKlik = (x) => KLIK.reduce((a, [re, door]) => a.replace(re, door), String(x ?? ''));
-function variant(sleutel, { muis = false, breed = false } = {}) {
+function variant(sleutel, { muis = false, breed = false, telefoon = false } = {}) {
   const v = TOESTEL_TEKST[sleutel];
-  return v ? { ...(breed ? v.breed : v.smal), ...(muis ? v.muis : v.aanraak) } : {};
+  if (!v) return {};
+  // breed: het menu links (vanaf 960 px). Daaronder de balk onderaan: telefoon (onder 720 px) of tablet, met smal als gedeelde terugval.
+  const maat = breed ? v.breed : { ...v.smal, ...(telefoon ? v.telefoon : v.tablet) };
+  return { ...maat, ...(muis ? v.muis : v.aanraak) };
 }
 // ---- Tekst bij een leeg profiel (BESLISSING 694) ----
 // Dezelfde stap, op hetzelfde onderdeel, maar het scherm toont nog niets van de gebruiker. Staat `als` op het scherm wanneer de stap getoond wordt

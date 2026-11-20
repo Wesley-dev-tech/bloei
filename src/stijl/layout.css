@@ -412,10 +412,11 @@
   .vandaag > .vandaag__begroeting > .vandaag__logo { order: -4; position: sticky; top: calc(var(--safe-top, 0px) + var(--s-2)); z-index: 15; isolation: isolate; }
   .vandaag > .vandaag__begroeting > .vandaag__logo::before { content: ""; position: absolute; z-index: -1; top: calc((var(--safe-top, 0px) + var(--s-2)) * -1); bottom: calc(var(--s-2) * -1); left: calc(max(var(--s-5), var(--safe-left, 0px)) * -1); right: calc(max(var(--s-5), var(--safe-right, 0px)) * -1); background: var(--c-bg); border-bottom: 1px solid var(--c-line); pointer-events: none; }
   .vandaag > .vandaag__begroeting > .knop.begroeting__delen { position: sticky; top: calc(var(--safe-top, 0px) + var(--s-2)); z-index: 16; align-self: flex-end; margin-top: calc(-48px - var(--s-4)); margin-left: 0; }
-  /* Drie ronde knoppen in de balk bovenaan: Rondleiding, het tandwiel naar Algemeen en Delen. Elke knop wordt apart in de rij van
-     het logo getrokken; de rechtermarges zetten ze naast elkaar, telkens een knopbreedte (48 px) uit elkaar. */
+  /* Drie ronde knoppen in de balk bovenaan: Rondleiding, Delen en het tandwiel naar Algemeen. Elke knop wordt apart in de rij van
+     het logo getrokken; de rechtermarges zetten ze naast elkaar, telkens een knopbreedte (48 px) uit elkaar.
+     Het tandwiel staat helemaal rechts, na Delen (de :not() houdt de regels uit elkaar, ook tegenover .begroeting__delen:last-child elders). */
   .vandaag > .vandaag__begroeting > .knop.begroeting__uitleg { order: -3; margin-right: 90px; }
-  .vandaag > .vandaag__begroeting > .knop.begroeting__instellingen { order: -2; margin-right: 42px; }
-  .vandaag > .vandaag__begroeting > .knop.begroeting__delen:last-child { order: -2; margin-right: -6px; }
+  .vandaag > .vandaag__begroeting > .knop.begroeting__delen:not(.begroeting__instellingen):not(.begroeting__uitleg) { order: -2; margin-right: 42px; }
+  .vandaag > .vandaag__begroeting > .knop.begroeting__instellingen:last-child { order: -2; margin-right: -6px; }
   .vandaag > .vandaag__begroeting > .begroeting__tekst { order: -1; margin-top: var(--s-3); margin-bottom: var(--s-3); }
 }
