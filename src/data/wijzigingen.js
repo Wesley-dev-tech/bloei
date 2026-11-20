@@ -8,6 +8,17 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.2.5',
+    datum: '2026-11-20',
+    tijd: '13:52',
+    punten: [
+      {
+        begrip: 'dagboek',
+        tekst: 'Een tekst die net niet bewaard raakte, komt bij de volgende start terug, ook als je daarna nog iets anders aantikte bij dezelfde maaltijd of dag.',
+      },
+    ],
+  },
+  {
     versie: '0.2.4',
     datum: '2026-11-20',
     tijd: '13:30',

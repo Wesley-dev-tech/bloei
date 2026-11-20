@@ -33,6 +33,10 @@ function nieuweMaaltijd(datum, soort) {
     gevoel: null,
     voorbeeld: false,
     gewijzigdOp: 0,
+    // Wanneer de tekst zelf het laatst geschreven is (ms); 0 = nog nooit. Alleen bewaarMaaltijd zet dit, en alleen als de wijziging
+    // tekst bevat: het vangnet (data/vangnet.js) vergelijkt hiermee, niet met gewijzigdOp, dat voor het hele record geldt.
+    // Een record van voor deze stempel heeft het veld niet. Niet geindexeerd: geen nieuwe versie van de database.
+    tekstOp: 0,
   };
 }
 
@@ -75,7 +79,10 @@ export async function bewaarMaaltijd(datum, soort, wijziging = {}) {
   const resultaat = await db.transaction('rw', db.maaltijden, async () => {
     const nieuw = { ...((await db.maaltijden.get([datum, soort])) ?? nieuweMaaltijd(datum, soort)) };
     if (wijziging.tijd !== undefined) nieuw.tijd = wijziging.tijd;
-    if (wijziging.tekst !== undefined) nieuw.tekst = begrens(wijziging.tekst, MAX_LENGTE.maaltijd);
+    if (wijziging.tekst !== undefined) {
+      nieuw.tekst = begrens(wijziging.tekst, MAX_LENGTE.maaltijd);
+      nieuw.tekstOp = Date.now();
+    }
     if (gevoel !== undefined) nieuw.gevoel = gevoel;
     return schrijf(nieuw);
   });

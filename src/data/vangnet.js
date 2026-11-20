@@ -38,12 +38,16 @@ export function wisVangnet() {
   }
 }
 
-// Staat er in de database al een record dat na het typen van dit item nog gewijzigd is? Dan is het vangnet-item ouder dan wat er staat
-// (een vangnet dat bleef liggen terwijl ze later verder typte) en mag het die nieuwere stand niet overschrijven.
+// Staat er in de database al een tekst die na het typen van dit item nog geschreven is? Dan is het vangnet-item ouder dan wat er staat
+// (een vangnet dat bleef liggen terwijl ze later verder typte) en mag het die nieuwere tekst niet overschrijven.
+// De vergelijking loopt met tekstOp, de stempel van het tekstveld zelf (maaltijden.js, dagen.js): gewijzigdOp geldt voor het hele record
+// en verandert ook door gevoel, uur, stemming, energie of het drinkdoel, wat de nog niet bewaarde tekst zou tegenhouden.
+// Een record van voor die stempel heeft geen tekstOp: daar beslist gewijzigdOp, zoals voorheen.
 async function recordIsNieuwer(item) {
   if (typeof item.op !== 'number') return false;
   const record = item.soort === 'maaltijd' ? (await leesMaaltijden(item.datum))[item.maaltijd] : await leesDag(item.datum);
-  return (record?.gewijzigdOp ?? 0) > item.op;
+  const stempel = typeof record?.tekstOp === 'number' ? record.tekstOp : (record?.gewijzigdOp ?? 0);
+  return stempel > item.op;
 }
 
 // Bij het opstarten: bewaart wat er nog in het vangnet staat en wist het meteen. Geeft het aantal bewaarde items.

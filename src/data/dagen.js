@@ -13,6 +13,10 @@ export function legeDag(datum) {
     doelGehaald: false,
     voorbeeld: false,
     gewijzigdOp: 0,
+    // Wanneer de notitie zelf het laatst geschreven is (ms); 0 = nog nooit. Alleen zetNotitie zet dit: het vangnet (data/vangnet.js)
+    // vergelijkt hiermee, niet met gewijzigdOp, dat ook door stemming, energie en het drinkdoel verandert.
+    // Een record van voor deze stempel heeft het veld niet. Niet geindexeerd: geen nieuwe versie van de database.
+    tekstOp: 0,
   };
 }
 
@@ -40,7 +44,7 @@ export async function leesDag(datum) {
 }
 
 export async function zetNotitie(datum, tekst) {
-  await wijzig(datum, { notitie: begrens(tekst, MAX_LENGTE.notitie) });
+  await wijzig(datum, { notitie: begrens(tekst, MAX_LENGTE.notitie), tekstOp: Date.now() });
 }
 
 export async function zetStemming(datum, waarde) {

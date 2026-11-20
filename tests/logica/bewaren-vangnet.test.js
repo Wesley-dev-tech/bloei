@@ -353,6 +353,131 @@ describe('tweede nalezing: N1, N2 en A', () => {
   });
 });
 
+// BESLISSING 748, open punt: gewijzigdOp geldt voor het hele record. Een ander veld dat na het typen bewaard wordt (gevoel, uur, stemming,
+// energie, het behaalde drinkdoel) mag de tekst uit het vangnet niet tegenhouden. Daarom draagt het record een eigen stempel tekstOp.
+describe('een eigen stempel per tekstveld (tekstOp)', () => {
+  let db, V, maaltijden, dagen, dranken, herstelVangnet;
+  beforeEach(async () => {
+    const data = await import('../../src/data/db.js');
+    db = data.db;
+    await db.delete();
+    await data.openDb();
+    V = (await import('../../src/kern/datum.js')).vandaag();
+    maaltijden = await import('../../src/data/maaltijden.js');
+    dagen = await import('../../src/data/dagen.js');
+    dranken = await import('../../src/data/dranken.js');
+    ({ herstelVangnet } = await import('../../src/data/vangnet.js'));
+  });
+  const leg = (...items) => localStorage.setItem(SLEUTEL, JSON.stringify(items));
+  // Een tijdstip dat zeker na het vorige schrijven en voor het volgende ligt.
+  const tijdstip = async () => {
+    await tik(3);
+    const op = Date.now();
+    await tik(3);
+    return op;
+  };
+
+  test('maaltijd: tekst niet bewaard, daarna gevoel en uur gewijzigd: de tekst komt bij de start toch terug', async () => {
+    await maaltijden.bewaarMaaltijd(V, 'ontbijt', { tekst: 'Hav' });
+    const op = await tijdstip();
+    await maaltijden.bewaarMaaltijd(V, 'ontbijt', { gevoel: 4 });
+    await maaltijden.bewaarMaaltijd(V, 'ontbijt', { tijd: '07:45' });
+    leg({ soort: 'maaltijd', datum: V, maaltijd: 'ontbijt', tekst: 'Havermout', op });
+    expect(await herstelVangnet()).toBe(1);
+    expect((await maaltijden.leesMaaltijden(V)).ontbijt).toMatchObject({ tekst: 'Havermout', gevoel: 4, tijd: '07:45' });
+  });
+
+  test('maaltijd: nog geen tekst bewaard, het record ontstaat door het gevoel: de tekst komt bij de start terug', async () => {
+    const op = await tijdstip();
+    await maaltijden.bewaarMaaltijd(V, 'middagmaal', { gevoel: 2 });
+    leg({ soort: 'maaltijd', datum: V, maaltijd: 'middagmaal', tekst: 'Soep', op });
+    expect(await herstelVangnet()).toBe(1);
+    expect((await maaltijden.leesMaaltijden(V)).middagmaal).toMatchObject({ tekst: 'Soep', gevoel: 2 });
+  });
+
+  test('notitie: tekst niet bewaard, daarna stemming, energie en het drinkdoel gewijzigd: de notitie komt bij de start toch terug', async () => {
+    await dagen.zetNotitie(V, 'Rust');
+    const op = await tijdstip();
+    await dagen.zetStemming(V, 4);
+    await dagen.zetEnergie(V, 2);
+    await dranken.voegDrankToe(V, 'water', 5000); // het dagdoel is gehaald: ook dat schrijft het record van de dag
+    expect((await dagen.leesDag(V)).doelGehaald).toBe(true);
+    leg({ soort: 'notitie', datum: V, tekst: 'Rustige dag', op });
+    expect(await herstelVangnet()).toBe(1);
+    expect(await dagen.leesDag(V)).toMatchObject({ notitie: 'Rustige dag', stemming: 4, energie: 2, doelGehaald: true });
+  });
+
+  test('notitie: nog geen notitie bewaard, het record ontstaat door de stemming of door het drinkdoel: de notitie komt terug', async () => {
+    const op = await tijdstip();
+    await dagen.zetStemming(V, 3);
+    leg({ soort: 'notitie', datum: V, tekst: 'Eerste zin', op });
+    expect(await herstelVangnet()).toBe(1);
+    expect(await dagen.leesDag(V)).toMatchObject({ notitie: 'Eerste zin', stemming: 3 });
+    await db.dagen.clear();
+    const op2 = await tijdstip();
+    await dranken.voegDrankToe(V, 'water', 5000);
+    leg({ soort: 'notitie', datum: V, tekst: 'Tweede zin', op: op2 });
+    expect(await herstelVangnet()).toBe(1);
+    expect(await dagen.leesDag(V)).toMatchObject({ notitie: 'Tweede zin', doelGehaald: true });
+  });
+
+  test('alleen het schrijven van de tekst zelf zet tekstOp; een ander veld raakt het niet aan', async () => {
+    const voor = Date.now();
+    const m1 = await maaltijden.bewaarMaaltijd(V, 'ontbijt', { tekst: 'Brood' });
+    expect(m1.tekstOp).toBeGreaterThanOrEqual(voor);
+    await tik(5);
+    const m2 = await maaltijden.bewaarMaaltijd(V, 'ontbijt', { gevoel: 5 });
+    expect(m2.tekstOp).toBe(m1.tekstOp);
+    expect(m2.gewijzigdOp).toBeGreaterThan(m1.tekstOp);
+    await dagen.zetNotitie(V, 'abc');
+    const d1 = await dagen.leesDag(V);
+    expect(d1.tekstOp).toBeGreaterThanOrEqual(voor);
+    await tik(5);
+    await dagen.zetStemming(V, 1);
+    await dranken.voegDrankToe(V, 'water', 5000);
+    const d2 = await dagen.leesDag(V);
+    expect(d2.tekstOp).toBe(d1.tekstOp);
+    expect(d2.gewijzigdOp).toBeGreaterThan(d1.tekstOp);
+  });
+
+  test('een nieuwere tekst in de database wordt niet overschreven door een ouder item, ook niet als er daarna een ander veld wijzigde', async () => {
+    const op = await tijdstip();
+    await maaltijden.bewaarMaaltijd(V, 'ontbijt', { tekst: 'nieuw ontbijt' });
+    await maaltijden.bewaarMaaltijd(V, 'ontbijt', { gevoel: 3 });
+    await dagen.zetNotitie(V, 'nieuwe notitie');
+    await dagen.zetEnergie(V, 3);
+    leg({ soort: 'maaltijd', datum: V, maaltijd: 'ontbijt', tekst: 'oud ontbijt', op }, { soort: 'notitie', datum: V, tekst: 'oude notitie', op });
+    expect(await herstelVangnet()).toBe(0);
+    expect((await maaltijden.leesMaaltijden(V)).ontbijt.tekst).toBe('nieuw ontbijt');
+    expect((await dagen.leesDag(V)).notitie).toBe('nieuwe notitie');
+  });
+
+  test('een record zonder tekstOp (van voor deze wijziging) gedraagt zich als voorheen: gewijzigdOp beslist', async () => {
+    const op = Date.now();
+    const maaltijd = (soort, gewijzigdOp) => ({ datum: V, soort, tijd: '08:00', tekst: 'in de database', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp });
+    await db.maaltijden.put(maaltijd('ontbijt', op + 1000)); // nieuwer dan het item: overslaan
+    await db.maaltijden.put(maaltijd('avondmaal', op - 1000)); // ouder dan het item: terugzetten
+    await db.dagen.put({ datum: V, notitie: 'in de database', stemming: null, energie: null, doelGehaald: false, voorbeeld: false, gewijzigdOp: op + 1000 });
+    leg(
+      { soort: 'maaltijd', datum: V, maaltijd: 'ontbijt', tekst: 'uit het vangnet', op },
+      { soort: 'maaltijd', datum: V, maaltijd: 'avondmaal', tekst: 'uit het vangnet', op },
+      { soort: 'notitie', datum: V, tekst: 'uit het vangnet', op },
+    );
+    expect(await herstelVangnet()).toBe(1);
+    const na = await maaltijden.leesMaaltijden(V);
+    expect(na.ontbijt.tekst).toBe('in de database');
+    expect(na.avondmaal.tekst).toBe('uit het vangnet');
+    expect((await dagen.leesDag(V)).notitie).toBe('in de database');
+    // Een ander veld van zo een oud record wijzigen, geeft het geen tekstOp: het blijft bij gewijzigdOp.
+    await maaltijden.bewaarMaaltijd(V, 'ontbijt', { gevoel: 2 });
+    expect((await maaltijden.leesMaaltijden(V)).ontbijt.tekstOp).toBeUndefined();
+    await db.dagen.put({ datum: V, notitie: 'in de database', stemming: null, energie: null, doelGehaald: false, voorbeeld: false, gewijzigdOp: op - 1000 });
+    leg({ soort: 'notitie', datum: V, tekst: 'uit het vangnet', op });
+    expect(await herstelVangnet()).toBe(1);
+    expect((await dagen.leesDag(V)).notitie).toBe('uit het vangnet');
+  });
+});
+
 describe('bevinding 4: de wachters in src/app.js', () => {
   test('elke bewaarAlles() in src/app.js vangt een mislukt bewaren op', () => {
     const bron = readFileSync('src/app.js', 'utf8');
