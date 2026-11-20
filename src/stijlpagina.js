@@ -579,7 +579,7 @@ function maakSchalen() {
 
 function maakNavigatie() {
   const { el: balk } = tabbalk({ actief: 'dagboek', voorbeeld: true });
-  const { el: balk2 } = tabbalk({ actief: 'meer', voorbeeld: true });
+  const { el: balk2 } = tabbalk({ actief: 'gewicht', voorbeeld: true });
   const { el: rail } = zijbalk({ actief: 'vandaag', voorbeeld: true });
 
   const binnen = h(

@@ -42,8 +42,8 @@ export const ICOON = {
   // tabbladen
   vandaag: { naam: 'sun', familie: 'dag', stijl: 'solid' },
   dagboek: { naam: 'book-open', familie: 'dagboek', stijl: 'solid' },
-  meer: { naam: 'sliders', familie: 'neutraal', stijl: 'solid' }, // oude naam van het tabblad Algemeen; blijft staan tot niemand het nog opvraagt
-  algemeen: { naam: 'sliders', familie: 'neutraal', stijl: 'solid' }, // het tabblad Algemeen (route #/meer) en de kop "Jouw instellingen"
+  meer: { naam: 'gear', familie: 'neutraal', stijl: 'solid' }, // oude naam van het tabblad Algemeen; blijft staan tot niemand het nog opvraagt
+  algemeen: { naam: 'gear', familie: 'neutraal', stijl: 'solid' }, // het tabblad Algemeen (route #/meer), het tandwiel op Vandaag en de kop "Jouw instellingen"
   // de onderdelen van de dag
   eten: { naam: 'utensils', familie: 'maaltijd', stijl: 'solid' },
   drinken: { naam: 'glass-water', familie: 'drank', stijl: 'solid' }, // ook het dagdoel en de dranktegel "Glas water" (de kan heeft haar eigen tekening, BESLISSING 702)
@@ -58,7 +58,7 @@ export const ICOON = {
   badge: { naam: 'award', familie: 'gezondheid', stijl: 'solid' },
   favoriet: { naam: 'heart', familie: 'maaltijd', stijl: 'regular' }, // bij een maaltijd roze; in lijsten en uitleg neutraal (zelfde icoon)
   // instellingen en hulp (neutraal)
-  instellingen: { naam: 'sliders', familie: 'neutraal', stijl: 'solid' },
+  instellingen: { naam: 'gear', familie: 'neutraal', stijl: 'solid' },
   profiel: { naam: 'user', familie: 'neutraal', stijl: 'solid' },
   thema: { naam: 'palette', familie: 'neutraal', stijl: 'solid' },
   weegdag: { naam: 'calendar-day', familie: 'gewicht', stijl: 'solid' },
@@ -92,7 +92,7 @@ export const STEMMING_STAP = ['face-tired', 'face-meh', 'face-smile', 'face-grin
 // in beeld.js), vergrendeling en pincode zijn één begrip, en het potlood is zowel de notitie als de actie bewerken.
 export const UITZONDERINGEN = [
   ['vergrendeling', 'pincode'], // lock: één begrip
-  ['algemeen', 'meer', 'instellingen'], // sliders: het tabblad Algemeen (ook onder zijn oude naam meer) en de instellingen zijn één begrip
+  ['algemeen', 'meer', 'instellingen'], // gear: het tabblad Algemeen (ook onder zijn oude naam meer) en de instellingen zijn één begrip
   ['notitie', 'bewerken'], // pen
 ];
 

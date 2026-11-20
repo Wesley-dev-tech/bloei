@@ -93,7 +93,7 @@ Geen emoji in de interface. Iconen 20px in lijsten, 24px in de tabbalk, kleur `c
 | Herinnering | `solid/bell` |
 | Vorige / volgende dag | `solid/chevron-left` / `solid/chevron-right` |
 | Ongedaan maken | `solid/rotate-left` |
-| Instellingen | `solid/sliders` |
+| Instellingen | `solid/gear` |
 | Vergrendeling | `solid/lock` |
 
 ### 5.1 Hoe een icoon er in Bloei uitziet

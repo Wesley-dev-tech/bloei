@@ -48,7 +48,9 @@ describe('huisstijl', () => {
         // Toegevoegd op vraag van de eigenaar (BESLISSING 251): het spuitje van een geplande beurt van een periodiek supplement.
         'syringe',
         // Toegevoegd op vraag van de eigenaar (BESLISSING 320): het belletje van Herinneringen is gevuld, zoals zijn buren op Algemeen.
-        'bell'],
+        'bell',
+        // Toegevoegd op vraag van de eigenaar: het tandwiel van Algemeen, op Vandaag en in de zijbalk, nu Algemeen geen tabblad meer is op de telefoon.
+        'gear'],
       regular: ['heart', 'bell', 'face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'],
     };
     // BESLISSING 606: een eigen bestand, op vraag van de eigenaar: het teken voor Face ID; de gratis iconenset heeft er geen.

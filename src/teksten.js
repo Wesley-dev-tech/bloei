@@ -1361,8 +1361,9 @@ export const TEKSTEN = {
       // in de kop maar in de zijbalk: TOESTEL_TEKST geeft dan de tekst zonder Delen.
       kopSub: { titel: "De knoppen bovenaan", tekst: "Met Algemeen ga je terug naar het tabblad Algemeen. Het vraagteken start de rondleiding van dit scherm, met Delen maak je een verslag en het huisje brengt je naar Vandaag." },
       vandaag: {
-        menu: { titel: "Het menu", tekst: "Onderaan (op een computer links) kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Bij het tabblad waar je bent, licht het icoon op met een bolletje eronder; op een computer staat het in een zacht vlak." },
+        menu: { titel: "Het menu", tekst: "In het menu kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen en Gewicht. Algemeen vind je bij het tandwiel. Bij het tabblad waar je bent, licht het icoon op." },
         kop: { titel: "Rondleiding, Delen en home", tekst: "Bovenaan staan Rondleiding en Delen. Met Rondleiding start je deze rondleiding opnieuw, met Delen maak je een verslag. Op andere schermen staat daarnaast een huisje dat je terugbrengt naar Vandaag." },
+        instellingen: { titel: "Algemeen", tekst: "Tussen Rondleiding en Delen staat een tandwiel. Daarachter zit Algemeen: je profiel, je favoriete maaltijden, je badges en alle instellingen." },
         dag: { titel: "Je dag in één blik", tekst: "Bovenaan staan vier tegels met hoe je dag ervoor staat: eten, drinken, supplementen en stemming. Ze zijn om naar te kijken, de cijfers lopen vanzelf mee." },
         glas: { titel: "Een kan water erbij", tekst: "Tik op een drank om ze toe te voegen. Eén tik op Kan water voegt een kan van 800 ml toe, en met Laatste weghalen zet je een vergissing recht." },
         spuit: { titel: "Een spuit vandaag", tekst: "Staat er vandaag een spuit gepland, dan zie je ze als extra rij in de kaart Supplementen. Vink ze af als je ze zette, en tik nog eens om ze terug te zetten." },

@@ -17,7 +17,7 @@ Er is ook een demoversie uit dezelfde code, met eigen voorbeeldgegevens, zonder 
 - **Drinken**: één tik voor de kan water (800 ml), een instelbaar dagdoel, een weekoverzicht per soort drank en een weghaalknop voor een tik te veel.
 - **Supplementen**: een afvinklijst per dag, met schema, begin- en einddatum en een eigen kaart per supplement.
 - **Gewicht**: een weging per week op een instelbare weegdag, een grafiek en een optioneel streefgewicht. Het verschil met de vorige weging staat er als gewoon getal.
-- **Algemeen**: profiel, favoriete maaltijden, badges, instellingen (drinken, gewicht, herinneringen, vergrendeling, thema), de kaarten Over en Privacy.
+- **Algemeen** (op een telefoon achter het tandwiel bovenaan Vandaag, elders gewoon in het menu): profiel, favoriete maaltijden, badges, instellingen (drinken, gewicht, herinneringen, vergrendeling, thema), de kaarten Over en Privacy.
 - **Badges**: medailles voor wat er bijgehouden is. Een gemiste dag kost niets.
 - **Delen**: een verslag van gisteren, een week of een eigen periode, met alleen eten, drinken, gewicht en notities als keuze. Het verslag staat op het scherm en gaat als pdf naar het deelmenu, naar een bestand of naar de printer. De pdf wordt in de app zelf geschreven, met fflate voor compressie.
 - **Uitleg**: een rondleiding die per scherm op de knoppen wijst.

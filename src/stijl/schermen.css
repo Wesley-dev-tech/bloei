@@ -946,10 +946,18 @@ a.week__link { min-height: 48px; justify-content: center; }
 @media (min-width: 960px) { .vandaag__begroeting { --begroet-gap: var(--s-8); } }
 .vandaag__begroeting .begroeting__delen { margin-left: auto; }
 .vandaag__begroeting .begroeting__uitleg + .begroeting__delen.knop { margin-left: calc(var(--s-2) - var(--begroet-gap)); }
+/* Het tandwiel naar Algemeen staat alleen op een telefoon (onder 720 px), tussen Rondleiding en Delen, als rond icoon zonder woord.
+   Vanaf 720 px staat Algemeen weer gewoon in de balk onderaan, en vanaf 960 px in de zijbalk: tablet en computer blijven zoals ze waren. */
+.begroeting__instellingen { display: none; }
+@media (max-width: 719px) {
+  .begroeting__instellingen { display: inline-flex; min-width: 48px; width: 48px; min-height: 48px; padding: 0; justify-content: center; }
+  .begroeting__instellingen .knop__tekst { display: none; }
+}
 .vandaag__begroeting .begroeting__uitleg, .vandaag__begroeting .begroeting__delen { align-self: center; min-height: 48px; }
 /* BESLISSING 594: Rondleiding en Delen zijn even breed (de breedte van de langste, Rondleiding met haar icoon); op de telefoon zijn het twee even grote ronde knoppen */
 /* BESLISSING 595: smaller (8rem, minder binnenruimte) en optisch in het midden van de begroeting ernaast: het midden van de knop ligt tussen het midden van de hoofdletters en dat van de kleine letters (6 px onder het midden van het regelvak) */
 @media (min-width: 720px) { .vandaag__begroeting .knop.begroeting__delen { min-width: 8rem; padding-inline: var(--s-4); justify-content: center; translate: 0 6px; } }
+
 
 /* BESLISSING 191: alle vier de vakken van de motivator geven bij een tik dezelfde korte drukschaal van het icoon. */
 .motiv__vak:active .motiv__tegel { transform: scale(.94); }

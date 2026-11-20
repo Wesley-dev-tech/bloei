@@ -55,8 +55,12 @@
   padding-right: max(var(--safe-right), calc((100% - var(--content-max)) / 2));
 }
 
-/* Smalle telefoon (BESLISSING 308 en 325): "Supplementen" is 66,6 px breed in de lettermaat van alle tabs (11 px) en past niet in een tab van 60 px
-   (360 px breed, zes tabs); kleiner dan 10,5 px is onleesbaar en past ook nog niet. Tot 440 px krijgt daarom elke tab de breedte van zijn label plus een
+/* Telefoon: de balk onderaan toont vijf tabbladen. Algemeen valt weg, want zes maakten de keuze druk en de labels krap; het tandwiel in de
+   kop van Vandaag is daar de ingang. Vanaf 720 px (tablet) en in de zijbalk staat Algemeen gewoon op zijn plaats. */
+@media (max-width: 719px) { #tabbalk .tabbalk__item--meer { display: none; } }
+
+/* Smalle telefoon (BESLISSING 308 en 325): "Supplementen" is 66,6 px breed in de lettermaat van alle tabs (11 px). Met vijf tabs is een tab op 360 px
+   72 px breed en past het label, maar deze regel blijft staan voor de smalste toestellen. Tot 440 px krijgt elke tab de breedte van zijn label plus een
    gelijk deel van de overgebleven ruimte (flex 1 1 auto): alle labels hebben dezelfde lettermaat, staan op één regel, binnen hun eigen tab en raken hun buren
    niet, en elke tab blijft minstens 48 px breed (tikdoel). Vanaf 440 px zijn de tabs gelijk van breedte (geen label is er breder dan 72 px). */
 @media (max-width: 439.98px) {
@@ -85,6 +89,14 @@
 /* ---------- Tablet: iets breder ---------- */
 @media (min-width: 720px) {
   #scherm { max-width: var(--content-max-tablet); }
+  /* De balk onderaan loopt even breed als de kaarten erboven en begint op dezelfde lijn: dezelfde maximumbreedte als
+     het scherm, en een inzet zo groot als de schermmarge (--s-5), zodat het afgeronde vlak precies onder de kaarten valt. */
+  #tabbalk {
+    --tb-rand: calc(max(var(--safe-left), (100% - var(--content-max-tablet)) / 2) + var(--s-5));
+    --tb-inzet: var(--tb-rand);
+    padding-left: var(--tb-rand);
+    padding-right: var(--tb-rand);
+  }
 }
 
 /* ---------- Desktop: zijbalk links ---------- */
@@ -400,7 +412,10 @@
   .vandaag > .vandaag__begroeting > .vandaag__logo { order: -4; position: sticky; top: calc(var(--safe-top, 0px) + var(--s-2)); z-index: 15; isolation: isolate; }
   .vandaag > .vandaag__begroeting > .vandaag__logo::before { content: ""; position: absolute; z-index: -1; top: calc((var(--safe-top, 0px) + var(--s-2)) * -1); bottom: calc(var(--s-2) * -1); left: calc(max(var(--s-5), var(--safe-left, 0px)) * -1); right: calc(max(var(--s-5), var(--safe-right, 0px)) * -1); background: var(--c-bg); border-bottom: 1px solid var(--c-line); pointer-events: none; }
   .vandaag > .vandaag__begroeting > .knop.begroeting__delen { position: sticky; top: calc(var(--safe-top, 0px) + var(--s-2)); z-index: 16; align-self: flex-end; margin-top: calc(-48px - var(--s-4)); margin-left: 0; }
-  .vandaag > .vandaag__begroeting > .knop.begroeting__uitleg { order: -3; margin-right: 42px; }
+  /* Drie ronde knoppen in de balk bovenaan: Rondleiding, het tandwiel naar Algemeen en Delen. Elke knop wordt apart in de rij van
+     het logo getrokken; de rechtermarges zetten ze naast elkaar, telkens een knopbreedte (48 px) uit elkaar. */
+  .vandaag > .vandaag__begroeting > .knop.begroeting__uitleg { order: -3; margin-right: 90px; }
+  .vandaag > .vandaag__begroeting > .knop.begroeting__instellingen { order: -2; margin-right: 42px; }
   .vandaag > .vandaag__begroeting > .knop.begroeting__delen:last-child { order: -2; margin-right: -6px; }
   .vandaag > .vandaag__begroeting > .begroeting__tekst { order: -1; margin-top: var(--s-3); margin-bottom: var(--s-3); }
 }

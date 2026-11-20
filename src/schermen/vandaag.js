@@ -133,6 +133,9 @@ export function toon(houder) {
         h('h1', { class: 't-hero begroeting__titel' }, h('span', { class: 'begroeting__groet' }, groet), ...(voornaam ? [' ', h('span', { class: 'begroeting__naam' }, voornaam)] : [])),
         h('p', { class: 'label begroeting__datum' }, opmaakDatum(datum, 'lang', new Date(0))), // referentie 1970: het jaar staat er altijd bij
       ),
+      // Algemeen: op een telefoon staat het niet meer in de balk onderaan (vijf tabbladen), maar hier als tandwiel, vóór Delen.
+      // Vanaf 720 px verbergt de css deze knop: op een tablet staat Algemeen weer in de balk en vanaf 960 px in de zijbalk.
+      h('a', { class: 'knop knop--secundair begroeting__delen begroeting__instellingen', href: '#/meer', 'aria-label': t('tab.meer') }, begripIcoon('instellingen'), h('span', { class: 'knop__tekst' }, t('tab.meer'))),
       // De knop Delen (naar het verslag voor bv. de diëtiste) staat alleen als het icoon bestaat; op een telefoon alleen het icoon.
       ICOONNAMEN.some((n) => n.endsWith('/arrow-up-from-bracket'))
         ? h('a', { class: 'knop knop--secundair begroeting__delen', href: '#/delen', 'aria-label': t('vandaag.delen') }, begripIcoon('delen'), h('span', { class: 'knop__tekst' }, t('vandaag.delen')))

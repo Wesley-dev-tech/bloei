@@ -42,6 +42,9 @@ export const STAPPEN = {
   vandaag: [
     { id: 'menu', doel: '#tabbalk, #zijbalk' },
     { id: 'kop', doel: '.begroeting__uitleg', ook: 'a.begroeting__delen', marge: 0 }, // twee knoppen: het gat sluit ze precies in, zonder lichte pil eromheen
+    // Alleen op een telefoon: daar staat Algemeen niet in de balk onderaan, maar achter dit tandwiel. Vanaf 720 px staat het weer
+    // gewoon in het menu en slaat de rondleiding deze stap vanzelf over (de knop staat er niet).
+    { id: 'instellingen', doel: '.begroeting__instellingen' },
     { id: 'dag', doel: '.voortgang' },
     { id: 'badges', doel: '[data-uitleg="badges"], .vc--motivatie .medaille, .vc--motivatie' },
     { id: 'week', doel: '[data-uitleg="week"], .vandaag__week, .weekbolletjes' },
@@ -53,7 +56,7 @@ export const STAPPEN = {
     // De tekst gaat over de hele kolom Eten: de hele kaart, met haar kop (BESLISSING 570); op een telefoon in delen.
     { id: 'maaltijd', doel: '.etenkaart, .maaltijd', stukken: 'vandaag.maaltijd' },
     { id: 'kalender', doel: '[data-uitleg="vandaag-kalender"], .kalkaart', stukken: 'vandaag.kalender' },
-    { id: 'delen', doel: '.begroeting__delen:not(.begroeting__uitleg), .schermkop__delen' },
+    { id: 'delen', doel: '.begroeting__delen:not(.begroeting__uitleg):not(.begroeting__instellingen), .schermkop__delen' },
   ],
   // Het Dagboek heeft drie weergaven; de stappen van een andere weergave dan de huidige slaat de rondleiding vanzelf over (het onderdeel ontbreekt).
   dagboek: [

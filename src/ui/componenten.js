@@ -990,7 +990,7 @@ function navLinks(klasse, { actief, voorbeeld }) {
   for (const tab of TABS) {
     const a = h(
       'a',
-      { class: klasse + '__item', href: '#/' + tab, 'data-kleur': NAV_KLEUR[tab], 'aria-current': tab === actief ? 'page' : null },
+      { class: [klasse + '__item', klasse + '__item--' + tab], href: '#/' + tab, 'data-kleur': NAV_KLEUR[tab], 'aria-current': tab === actief ? 'page' : null },
       // Het tabblad met route 'meer' heet Algemeen; zijn begrip in de iconenkaart is 'algemeen' (noodherstel teamlead, 13 nov).
       navIcoon(tab),
       h('span', { class: klasse + '__label' }, tabLabel(tab)),
@@ -1001,7 +1001,8 @@ function navLinks(klasse, { actief, voorbeeld }) {
   return links;
 }
 
-// Tabbalk voor de telefoon: wit met 1 px bovenlijn, 5 tabs, icoon + label 11 px; actief = oudroze icoon
+// Tabbalk voor de telefoon: wit met 1 px bovenlijn, icoon + label 11 px; actief = oudroze icoon. Onder 720 px laat layout.css
+// Algemeen weg (vijf tabs, het tandwiel op Vandaag is daar de ingang); op een tablet staan alle zes de tabs er gewoon.
 // en een stipje van 4 px eronder. Hoogte 64 + safe-area. Geeft { el, links } (links per tabnaam).
 // tabbalk({ actief: 'vandaag'|...|null, voorbeeld?: boolean }), voorbeeld: tikken navigeert niet
 export function tabbalk({ actief = null, voorbeeld = false } = {}) {
@@ -1010,7 +1011,7 @@ export function tabbalk({ actief = null, voorbeeld = false } = {}) {
   return { el, links };
 }
 
-// Zijbalk vanaf 960 px: dezelfde 5 items verticaal, logo bovenaan, breedte 248 (--rail-width).
+// Zijbalk vanaf 960 px: dezelfde zes items verticaal, logo bovenaan, breedte 248 (--rail-width).
 // zijbalk({ actief, voorbeeld }) → { el, links }
 export function zijbalk({ actief = null, voorbeeld = false } = {}) {
   const links = navLinks('zijbalk', { actief, voorbeeld });
