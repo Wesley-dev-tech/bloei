@@ -562,8 +562,9 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
 @media (max-width: 719.98px) {
   /* De strook rekent zonder box-sizing haar binnenruimte bij haar breedte op; met border-box is 100% precies het vlak van de balk.
      De maximumbreedtes vallen weg: op een telefoon volgt elke melding dat vlak, ook op een breed toestel in liggende stand. */
-  .strook, .strook--vast { box-sizing: border-box; max-width: none; padding-inline: 10px; gap: var(--s-2); }
-  .strook .strook__tekst { font-size: calc(var(--fs-small) * 0.85); }
+  /* De lettermaat staat op de strook zelf, zodat de zin links en de knop rechts even groot zijn (de knop blijft wel vetter). */
+  .strook, .strook--vast { box-sizing: border-box; max-width: none; padding-inline: 10px; gap: var(--s-2); font-size: calc(var(--fs-small) * 0.85); }
+  .strook .strook__tekst { font-size: inherit; }
   .strook .strook__actie { padding-inline: 6px; }
 }
 

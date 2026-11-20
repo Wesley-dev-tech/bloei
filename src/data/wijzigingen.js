@@ -8,6 +8,14 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.3.1',
+    datum: '2026-11-20',
+    tijd: '19:09',
+    punten: [
+      { begrip: 'algemeen', tekst: 'In een melding zijn de tekst links en de knop rechts nu even groot.' },
+    ],
+  },
+  {
     versie: '0.3.0',
     datum: '2026-11-20',
     tijd: '19:05',
