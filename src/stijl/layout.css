@@ -69,7 +69,8 @@
 }
 /* BESLISSING 504: de balk onderaan is een zwevend, afgerond vlak dat niet van rand tot rand loopt. Het element zelf houdt zijn plaats en maat (niets in de
    indeling verschuift); zijn achtergrond is doorzichtig en het zichtbare vlak is een afgeronde vorm erbinnen (::before). De tabs staan binnen dat vlak.
-   Op een telefoon is de ruimte links en rechts zo groot als past: zes labels op één regel vragen ongeveer 346 px. */
+   Op een telefoon is de ruimte links en rechts zo groot als past: vijf labels op één regel vragen ongeveer 300 px (de zesde, Algemeen, staat
+   sinds 0.2.6 achter het tandwiel). De balk is daardoor smaller dan voorheen, en de labels houden nog altijd lucht tussen zich. */
 #tabbalk { --tb-inzet: var(--s-3); background: transparent; border-top: 0; isolation: isolate; pointer-events: none; }
 #tabbalk > * { pointer-events: auto; }
 /* de tabs (en het vlak van de actieve tab) blijven binnen het afgeronde vlak: 2 px lucht boven en onder; een tab blijft 48 px hoog (tikdoel) */
@@ -78,7 +79,7 @@
    die verdeling en staat los onder het label. */
 #tabbalk .tabbalk__item::after { position: absolute; left: 50%; bottom: 1px; margin-left: calc(var(--stip) / -2); }
 #tabbalk::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: max(var(--safe-bottom), 6px); left: var(--tb-inzet); right: var(--tb-inzet); border-radius: var(--r-lg); background: var(--c-surface); border: var(--lijn); box-shadow: var(--shadow-float); }
-@media (max-width: 719.98px) { #tabbalk { --tb-pad: clamp(5px, calc((100vw - 346px) / 2), 20px); --tb-inzet: calc(var(--tb-pad) - 4px); padding-inline: var(--tb-pad); } }
+@media (max-width: 719.98px) { #tabbalk { --tb-pad: clamp(5px, calc((100vw - 300px) / 2), 40px); --tb-inzet: calc(var(--tb-pad) - 4px); padding-inline: var(--tb-pad); } }
 /* BESLISSING 505: de actieve tab heeft geen eigen achtergrondvlak; haar icoon licht op (iets groter met een zachte schaduw, zoals de iconen bij aanwijzen).
    Het bolletje eronder en de heldere tekst blijven. */
 #tabbalk .tabbalk__item[aria-current="page"] { background: transparent; }

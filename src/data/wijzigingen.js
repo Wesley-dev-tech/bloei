@@ -8,6 +8,14 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.2.9',
+    datum: '2026-11-20',
+    tijd: '18:48',
+    punten: [
+      { begrip: 'algemeen', tekst: 'De balk onderaan is smaller geworden, met evenveel lucht tussen de tabbladen.' },
+    ],
+  },
+  {
     versie: '0.2.8',
     datum: '2026-11-20',
     tijd: '18:36',
