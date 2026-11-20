@@ -39,7 +39,7 @@ const blokken = (page) =>
       return r.width > 1 && r.height > 1 && s.display !== 'none' && s.visibility !== 'hidden';
     };
     const naam = (e) => String(e.className).split(' ').filter(Boolean).slice(0, 2).join('.') || e.tagName.toLowerCase();
-    const kies = '.kaart, .instel__weetjes, .instel__voorbeeld, .badgehero, .badgegroep, .meldingen .instel__lijst, .meldingen__goed, .delen__uitleg, .wk__samenvatting, .week__delen, .bladerkop, .dag__naarvandaag, .sup-knoprij, .suppraster, .drinken__lijst, .drinken__week, .drinken__cijfers, .vandaag__begroeting, .schermkop, .dagboek__kop, .maand__kolommen';
+    const kies = '.kaart, .instel__weetjes, .instel__voorbeeld, .badgehero, .badgegroep, .meldingen .instel__lijst, .meldingen__goed, .delen__uitleg, .wk__samenvatting, .bladerkop, .dag__naarvandaag, .sup-knoprij, .suppraster, .drinken__lijst, .drinken__week, .drinken__cijfers, .vandaag__begroeting, .schermkop, .dagboek__kop, .maand__kolommen';
     const alle = [...document.querySelectorAll('#scherm ' + kies.split(', ').join(', #scherm '))].filter(zicht);
     let lijst = alle.filter((e) => !alle.some((o) => o !== e && o.contains(e) && !o.matches('.instelscherm')));
     lijst = lijst.filter((e) => !lijst.some((o) => o !== e && o.contains(e)));

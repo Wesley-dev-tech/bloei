@@ -574,8 +574,9 @@ test('Maand: de afstand van de bladerkop tot de overzichtskaart is gelijk aan di
     await wachtOpRust(page);
     const m = await page.evaluate(() => {
       const r = (s) => document.querySelector(s).getBoundingClientRect();
-      // BESLISSING 372: onder de bladerkop staat de regel met "Delen"; de afstand tussen die regel en de overzichtskaart is die van de week (8 px meer dan tussen de kaarten)
-      return { boven: r('.maand__cijferkaart').top - r('.week__delen').bottom - 8, tussen: r('.maand__kalkaart').top - r('.maand__cijferkaart').bottom };
+      // BESLISSING 372 (herzien): Delen staat nu in de kop, dus onder de bladerkop volgt meteen de overzichtskaart; die afstand is
+      // dezelfde als tussen de kaarten.
+      return { boven: r('.maand__cijferkaart').top - r('.bladerkop').bottom, tussen: r('.maand__kalkaart').top - r('.maand__cijferkaart').bottom };
     });
     expect(Math.abs(m.boven - m.tussen), `${maand}: ${m.boven} tegen ${m.tussen}`).toBeLessThanOrEqual(1);
     if (maand !== nu) await expect(page.getByRole('button', { name: 'Naar deze maand' })).toBeVisible();

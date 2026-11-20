@@ -42,7 +42,6 @@
 }
 .maand .dag__naarvandaag.is-stil { visibility: hidden; }
 /* BESLISSING 372: de regel met "Delen" heeft in de maand dezelfde afstand boven en onder als in de week en de dag (daar is de tussenruimte van het scherm 24 px, hier 16 px) */
-@media (min-width: 960px) { .maand > .week__delen { margin-block: var(--s-2); } }
 .mk { --mk-kolomtus: var(--s-1); --mk-rij: max(44px, calc((100cqw - 6 * var(--mk-kolomtus)) / 7)); flex: none; justify-content: flex-start; gap: var(--s-1); height: calc(24px + 6 * var(--mk-rij) + 6 * var(--s-1)); }
 .mk__week { column-gap: var(--mk-kolomtus); }
 .mk__kop { flex: none; height: 24px; }

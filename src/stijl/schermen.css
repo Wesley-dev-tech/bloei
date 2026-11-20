@@ -53,12 +53,14 @@
 .kaart__inhoud { margin-top: var(--s-3); }
 
 /* ---------- Dagboek ---------- */
-/* De kop van het Dagboek: de titel en de home-knop op één lijn; het segment Dag · Week · Maand eronder op een telefoon en
-   op één lijn met de titel vanaf 720 px */
-.dagboek__kop { display: grid; grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "titel uitleg home" "segment segment segment"; align-items: center; gap: var(--s-4) var(--s-3); }
+/* De kop van het Dagboek: de titel links, rechts dezelfde actierij als op de andere tabbladen (Rondleiding, Delen,
+   huisje); het segment Dag · Week · Maand eronder op een telefoon en op één lijn met de titel vanaf 720 px. */
+.dagboek__kop { display: grid; grid-template-columns: minmax(0, 1fr) auto; grid-template-areas: "titel acties" "segment segment"; align-items: center; gap: var(--s-4) var(--s-3); }
 .dagboek__titel { grid-area: titel; margin: 0; }
-.dagboek__kop > .schermkop__uitleg { grid-area: uitleg; }
-.dagboek__home { grid-area: home; margin-right: calc(var(--s-3) * -1); }
+.dagboek__acties { grid-area: acties; }
+/* Anders dan op de andere tabbladen blijft Delen hier ook vanaf 960 px staan: de knop in de kop deelt de dag, week of
+   maand die je op dat moment ziet, terwijl Delen in de zijbalk zonder periode opent. */
+@media (min-width: 960px) { .dagboek__acties > .dagboek__delen { display: inline-flex; } }
 .dagboek__segment { grid-area: segment; width: 100%; }
 .dagboek__segment .segment__deel { flex: 1 1 0; }
 /* BESLISSING 254: Dag, Week en Maand zijn drie gelijke knoppen in de kleur van het tabblad: het gekozen deel gevuld (--knop-bg met --knop-fg), de andere in de zachte tint */
@@ -68,7 +70,7 @@
 .dagboek__segment .segment__deel.is-actief { background: var(--knop-bg); box-shadow: none; color: var(--knop-fg); }
 @media (min-width: 720px) {
   .dagboek__segment { grid-auto-columns: calc(var(--s-12) * 2); }
-  .dagboek__kop { grid-template-columns: minmax(0, 1fr) auto auto auto; grid-template-areas: "titel segment uitleg home"; gap: var(--s-4); }
+  .dagboek__kop { grid-template-columns: minmax(0, 1fr) auto auto; grid-template-areas: "titel segment acties"; gap: var(--s-4); }
   .dagboek__segment { display: inline-grid; width: auto; }
   .dagboek__segment .segment__deel { flex: none; }
 }
@@ -587,7 +589,6 @@ a.week__link { min-height: 48px; justify-content: center; }
   .afdruk__blad { display: block; break-after: page; break-inside: avoid; overflow: hidden; }
   .afdruk__blad:last-child { break-after: auto; }
 }
-.week__delen { display: flex; justify-content: flex-end; }
 /* Delen: periode en onderdelen onder elkaar (het segment met vier keuzes is breed) */
 .delen__raster { grid-template-columns: minmax(0, 1fr); }
 .delen__periode .chips { flex-wrap: wrap; }

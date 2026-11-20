@@ -96,7 +96,7 @@ export const TEKSTEN = {
     5: 'vol',
   },
 
-  // De toegankelijke naam van de knop Delen in het Dagboek (BESLISSING 372)
+  // De toegankelijke naam van de knop Delen in de kop van het Dagboek (BESLISSING 372, herzien)
   dagboek: {
     delen: { dag: 'Deze dag delen', week: 'Deze week delen', maand: 'Deze maand delen' },
   },
@@ -1375,10 +1375,10 @@ export const TEKSTEN = {
         delen: { titel: "Een verslag delen", tekst: "Met Delen maak je een verslag van je dagboek om te bewaren of te versturen. Je kiest zelf de periode." },
       },
       dagboek: {
-        kop: { titel: "Rondleiding en home", tekst: "Bovenaan staan Rondleiding en het huisje. Met Rondleiding start je deze rondleiding opnieuw, het huisje brengt je terug naar het tabblad Vandaag." },
+        kop: { titel: "Rondleiding en home", tekst: "Bovenaan staan Rondleiding, Delen en het huisje. Met Rondleiding start je deze rondleiding opnieuw, het huisje brengt je terug naar het tabblad Vandaag." },
         weergave: { titel: "Dag, week of maand", tekst: "Wissel bovenaan tussen dag, week en maand. Wat je hieronder leest, hangt af van de weergave die je koos." },
         bladeren: { titel: "Naar een andere dag", tekst: "Met de pijlen blader je naar vorige of volgende dagen, weken of maanden. Ook op een dag uit het verleden kan je nog iets bijschrijven, aanpassen of weghalen." },
-        delen: { titel: "Een verslag delen", tekst: "Onder de datum staat Delen. Met een tik maak je meteen een verslag van de dag, week of maand die je ziet." },
+        delen: { titel: "Een verslag delen", tekst: "Bovenaan, naast het huisje, staat Delen. Met een tik maak je meteen een verslag van de dag, week of maand die je ziet." },
         eten: { titel: "Eten", tekst: "Hier staat je eten, per moment van de dag. Tik op een moment om te noteren of aan te passen wat je at." },
         notitie: { titel: "Een notitie", tekst: "In het vak Notitie schrijf je iets over deze dag. Het wordt vanzelf bewaard." },
         drinken: { titel: "Drinken", tekst: "Tik op een drank om er één bij te zetten. Per soort zie je wat je dronk, en met het kruisje erbij haal je er één weg." },

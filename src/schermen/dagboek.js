@@ -1,10 +1,11 @@
-// Tab Dagboek: de kop (titel, het segment Dag · Week · Maand en de home-knop op één lijn) en de gekozen weergave.
+// Tab Dagboek: de kop (titel, het segment Dag · Week · Maand en rechts Delen en de home-knop op één lijn) en de gekozen weergave.
 // Bladeren (vorige en volgende dag, week of maand) werkt ook met de pijltjestoetsen.
 import { h } from '../ui/dom.js';
 import { segment } from '../ui/componenten.js';
 import { t } from '../teksten.js';
 import { vandaag, weekStart, weekDagen, plusDagen } from '../kern/datum.js';
 import { geldigeDatum, geldigeMaand, zetHashRecht } from './hulp.js';
+import { dagPeriode, weekPeriode, maandPeriode } from './dagboek-delen.js';
 import * as dag from './dagboek-dag.js';
 import * as week from './dagboek-week.js';
 import * as maand from './dagboek-maand.js';
@@ -85,12 +86,26 @@ export function toon(houder, params = {}) {
   schakelaar.classList.add('dagboek__segment');
 
   const inhoud = h('div', { class: 'dagboek__inhoud' });
+  // Delen staat in de kop, naast het huisje, net als op de andere tabbladen (BESLISSING 372, herzien):
+  // de knop deelt de periode die je op dat moment ziet, dus de dag, de week of de maand van deze weergave.
+  const periode = weergave === 'week' ? weekPeriode(sleutel) : weergave === 'maand' ? maandPeriode(sleutel) : dagPeriode(sleutel);
   const kop = h(
     'header',
     { class: 'dagboek__kop' },
     h('h1', { class: 't-h1 schermkop__titel dagboek__titel' }, t('tab.dagboek')),
     schakelaar,
-    h('a', { class: 'icoonknop schermkop__home dagboek__home', href: '#/vandaag', 'aria-label': t('dag.naarVandaag') }, begripIcoon('home', { grootte: 24 })),
+    // Dezelfde rij als op de andere tabbladen (.schermkop__acties): Rondleiding schuift ervoor, dan Delen en het huisje,
+    // met de afstand van de schermkop zelf.
+    h(
+      'div',
+      { class: 'schermkop__acties dagboek__acties' },
+      h(
+        'a',
+        { class: 'icoonknop schermkop__delen dagboek__delen', href: `#/delen/${periode.van}/${periode.tot}`, 'aria-label': t('dagboek.delen.' + weergave) },
+        begripIcoon('delen', { grootte: 24 }),
+      ),
+      h('a', { class: 'icoonknop schermkop__home dagboek__home', href: '#/vandaag', 'aria-label': t('dag.naarVandaag') }, begripIcoon('home', { grootte: 24 })),
+    ),
   );
   houder.replaceChildren(h('div', { class: 'stapel stapel--sectie dagboek' }, kop, inhoud));
 

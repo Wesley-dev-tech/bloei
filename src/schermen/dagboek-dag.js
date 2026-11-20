@@ -7,7 +7,6 @@ import { maaltijdenRijen } from '../ui/maaltijdregel.js';
 import { DRANKICOON } from '../ui/beeld.js';
 import { bloeiOp, eersteToon, komOp, vervaag } from '../ui/beweging.js';
 import { beheerScherm, uitgesteldBewaren, drinkbaan, drankErbij } from './hulp.js';
-import { delenRegel, dagPeriode } from './dagboek-delen.js';
 import { t } from '../teksten.js';
 import { opmaakDatum, plusDagen, vandaag, isToekomst, DAGDEEL_UREN, datumVoluit, datumKortDag } from '../kern/datum.js';
 import { opmaakLiter } from '../kern/getal.js';
@@ -318,7 +317,6 @@ export function toon(houder, params = {}) {
       'div',
       { class: 'stapel dag' },
       kop,
-      delenRegel('dag', dagPeriode(datum)),
       datum !== vandaag() ? h('div', { class: 'dag__naarvandaag' }, knop(t('dag.naarVandaag'), { soort: 'tekst', opKlik: () => ga('#/dagboek/dag/' + vandaag()) })) : null,
       toekomst ? h('p', { class: 'dag__toekomst t-cursief' }, t('dag.toekomst')) : null,
       raster,

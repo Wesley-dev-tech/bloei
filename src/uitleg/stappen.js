@@ -57,12 +57,12 @@ export const STAPPEN = {
   ],
   // Het Dagboek heeft drie weergaven; de stappen van een andere weergave dan de huidige slaat de rondleiding vanzelf over (het onderdeel ontbreekt).
   dagboek: [
-    // De knoppen Rondleiding en home in de kop, niet de hele kopband: die loopt op een telefoon van rand tot rand (het vak viel buiten
-    // het scherm) en bevat ook Dag, Week en Maand, de volgende stap. Delen staat op het Dagboek niet in de kop maar onder de datum.
+    // De knoppen Rondleiding, Delen en home in de kop, niet de hele kopband: die loopt op een telefoon van rand tot rand
+    // (het vak viel buiten het scherm) en bevat ook Dag, Week en Maand, de volgende stap.
     { id: 'kop', doel: '.dagboek__kop .schermkop__uitleg', ook: '.dagboek__kop .schermkop__home' },
     { id: 'weergave', doel: '.segment' },
     { id: 'bladeren', doel: '.bladerkop' },
-    { id: 'delen', doel: '.week__delen .knop' }, // in dag, week en maand: de knop onder de datum
+    { id: 'delen', doel: '.dagboek__delen' }, // in dag, week en maand: de knop in de kop, naast het huisje
     // dagweergave
     { id: 'eten', doel: '.dag__eten' },
     { id: 'notitie', doel: '.dag__notitie' },

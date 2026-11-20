@@ -559,7 +559,7 @@ const VERWACHT = {
   'dagboek.kop': { tag: 'button', sel: '.dagboek__kop .schermkop__uitleg', naam: /Rondleiding/ }, // BESLISSING 629: het vraagteken en het huisje (ook)
   'dagboek.weergave': { rol: 'radiogroup', naam: /Weergave/ },
   'dagboek.bladeren': { sel: '.bladerkop' },
-  'dagboek.delen': { sel: '.week__delen .knop' },
+  'dagboek.delen': { sel: '.dagboek__delen' },
   'dagboek.eten': { sel: '.dag__eten' },
   'dagboek.notitie': { sel: '.dag__notitie' },
   'dagboek.drinken': { sel: '.dag__drinken' },

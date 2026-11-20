@@ -8,7 +8,6 @@ import { kaart, bladerkop, knop, energieschaal } from '../ui/componenten.js';
 import { gevoelIcoon } from '../ui/maaltijdregel.js';
 import { eersteToon, komOp, vervaag } from '../ui/beweging.js';
 import { beheerScherm } from './hulp.js';
-import { delenRegel, weekPeriode } from './dagboek-delen.js';
 import { weekPeriodeTekst } from '../logica/drinken-week.js';
 import { t, warmeZin } from '../teksten.js';
 import { kiesWeekZin } from '../logica/motivatie.js';
@@ -382,7 +381,6 @@ export function toon(houder, params = {}) {
       'div',
       { class: 'stapel week wk' },
       kop,
-      delenRegel('week', weekPeriode(start)),
       start !== weekStart(vandaag()) ? h('div', { class: 'dag__naarvandaag' }, knop(t('week.naarDezeWeek'), { soort: 'tekst', opKlik: () => ga('#/dagboek/week/' + weekStart(vandaag())) })) : null,
       samenvatting,
       schema,

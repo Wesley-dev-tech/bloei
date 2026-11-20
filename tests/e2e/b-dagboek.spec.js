@@ -1294,7 +1294,8 @@ for (const [breedte, hoogte, rijKlasse] of [[1690, 1230, '.wk__rij'], [390, 844,
   });
 }
 
-// BESLISSING 372: de knop "Delen" staat in dag, week en maand op dezelfde plaats onder de datumregel en opent Delen met precies die periode.
+// BESLISSING 372 (herzien): de knop "Delen" staat in de kop van het Dagboek, tussen Rondleiding en het huisje, net als op de andere
+// tabbladen. In dag, week en maand staat ze op dezelfde plaats en opent ze Delen met precies de periode die je ziet.
 const dagenTussen = (a, b) => Math.round((Date.UTC(+b.slice(0, 4), +b.slice(5, 7) - 1, +b.slice(8, 10)) - Date.UTC(+a.slice(0, 4), +a.slice(5, 7) - 1, +a.slice(8, 10))) / 86400000) + 1;
 const weekStartVan = (page, datum) =>
   page.evaluate((d) => {
@@ -1303,7 +1304,7 @@ const weekStartVan = (page, datum) =>
     const t = (n) => String(n).padStart(2, '0');
     return `${x.getFullYear()}-${t(x.getMonth() + 1)}-${t(x.getDate())}`;
   }, datum);
-const delenKnop = (page, soort) => page.getByRole('button', { name: `Deze ${soort} delen` });
+const delenKnop = (page, soort) => page.getByRole('link', { name: `Deze ${soort} delen` });
 
 for (const [breedte, hoogte] of [[1690, 1230], [820, 1180], [390, 844]]) {
   test.describe(`Dagboek: knop Delen (${breedte} px)`, () => {
@@ -1316,25 +1317,28 @@ for (const [breedte, hoogte] of [[1690, 1230], [820, 1180], [390, 844]]) {
         await page.goto(route);
         const knop = delenKnop(page, soort);
         await expect(knop).toBeVisible();
-        await expect(knop).toContainText('Delen');
+        await expect(knop).toHaveClass(/dagboek__delen/);
         await expect(knop.locator('svg')).toHaveCount(1);
-        await expect(knop).toHaveClass(/knop--tekst/);
         if (soort === 'dag') await expect(page.locator('.dag__raster')).not.toHaveClass(/is-meet/);
         await wachtOpRust(page);
         boxen[soort] = await knop.boundingBox();
+        // In de kop: na Rondleiding en voor het huisje, en de volgende sectie begint gewoon onder de kop.
         regels[soort] = await page.evaluate((sel) => {
-          const rij = document.querySelector('.week__delen');
-          const kop = document.querySelector('.bladerkop').getBoundingClientRect();
-          const r = rij.getBoundingClientRect();
-          const k = rij.querySelector('.knop').getBoundingClientRect();
+          const d = document.querySelector('.dagboek__delen').getBoundingClientRect();
+          const uitleg = document.querySelector('.dagboek__kop .schermkop__uitleg');
+          const home = document.querySelector('.dagboek__home').getBoundingClientRect();
           const na = document.querySelector(sel).getBoundingClientRect();
-          return { boven: r.top - kop.bottom, onder: na.top - r.bottom, rechts: r.right - k.right, kleur: getComputedStyle(rij.querySelector('.knop')).color };
+          return {
+            naUitleg: uitleg ? d.left - uitleg.getBoundingClientRect().right : 0,
+            voorHome: home.left - d.right,
+            onder: na.top - document.querySelector('.dagboek__kop').getBoundingClientRect().bottom,
+            kleur: getComputedStyle(document.querySelector('.dagboek__delen')).color,
+          };
         }, volgende);
         expect(boxen[soort].width).toBeGreaterThanOrEqual(44);
         expect(boxen[soort].height).toBeGreaterThanOrEqual(44);
-        expect(regels[soort].boven).toBeLessThanOrEqual(32);
-        expect(regels[soort].onder).toBeLessThanOrEqual(32);
-        expect(Math.abs(regels[soort].rechts)).toBeLessThanOrEqual(1); // rechts uitgelijnd
+        expect(regels[soort].naUitleg).toBeGreaterThanOrEqual(0);
+        expect(regels[soort].voorHome).toBeGreaterThanOrEqual(0);
         if (soort === 'dag' && breedte >= 1100) {
           const eind = await page.evaluate(() => [...document.querySelectorAll('.dag__links, .dag__zij')].map((k) => k.getBoundingClientRect().bottom));
           expect(Math.abs(eind[0] - eind[1])).toBeLessThanOrEqual(2);
@@ -1348,7 +1352,6 @@ for (const [breedte, hoogte] of [[1690, 1230], [820, 1180], [390, 844]]) {
         expect(Math.abs(boxen[soort].x - boxen.dag.x)).toBeLessThanOrEqual(1);
         expect(Math.abs(boxen[soort].y - boxen.dag.y)).toBeLessThanOrEqual(1);
         expect(regels[soort].kleur).toBe(regels.dag.kleur);
-        expect(Math.abs(regels[soort].boven - regels.dag.boven)).toBeLessThanOrEqual(1);
         expect(Math.abs(regels[soort].onder - regels.dag.onder)).toBeLessThanOrEqual(1);
       }
       // De kalender van de maand houdt dezelfde maat in een andere maand (BESLISSING 272)

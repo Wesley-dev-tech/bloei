@@ -8,7 +8,6 @@ import { maandkalender } from '../ui/maandkalender.js';
 import { gevoelIcoon } from '../ui/maaltijdregel.js';
 import { eersteToon, komOp, vervaag } from '../ui/beweging.js';
 import { beheerScherm } from './hulp.js';
-import { delenRegel, maandPeriode } from './dagboek-delen.js';
 import { t } from '../teksten.js';
 import { naarDatum, naarSleutel, opmaakDatum, vandaag } from '../kern/datum.js';
 import { opmaakLiter, opmaakKg } from '../kern/getal.js';
@@ -294,7 +293,6 @@ export function toon(houder, params = {}) {
         opVolgende: () => ga(`#/dagboek/maand/${volgende}`),
         volgendeUit: false,
       }),
-      delenRegel('maand', maandPeriode(jaarMaand)),
       // Zweeft binnen de ruimte van de bladerkop en neemt dus nooit hoogte in: de kalender verspringt niet bij het bladeren (in de huidige maand onzichtbaar)
       h('div', { class: ['dag__naarvandaag', vandaag().startsWith(jaarMaand) && 'is-stil'] }, knop(t('maand.naarDezeMaand'), { soort: 'tekst', opKlik: () => ga('#/dagboek/maand/' + vandaag().slice(0, 7)) })),
       h('div', { class: 'maand__kolommen' }, cijferkaart, kalkaart, dagkaart, gepkaart),
