@@ -79,7 +79,11 @@
    die verdeling en staat los onder het label. */
 #tabbalk .tabbalk__item::after { position: absolute; left: 50%; bottom: 1px; margin-left: calc(var(--stip) / -2); }
 #tabbalk::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: max(var(--safe-bottom), 6px); left: var(--tb-inzet); right: var(--tb-inzet); border-radius: var(--r-lg); background: var(--c-surface); border: var(--lijn); box-shadow: var(--shadow-float); }
-@media (max-width: 719.98px) { #tabbalk { --tb-pad: clamp(5px, calc((100vw - 300px) / 2), 40px); --tb-inzet: calc(var(--tb-pad) - 4px); padding-inline: var(--tb-pad); } }
+/* De maten staan op :root, zodat een melding onderaan (.strokenhouder in componenten.css) precies even breed kan zijn als het vlak van de balk. */
+@media (max-width: 719.98px) {
+  :root { --tb-pad: clamp(5px, calc((100vw - 300px) / 2), 40px); --tb-inzet: calc(var(--tb-pad) - 4px); }
+  #tabbalk { --tb-inzet: calc(var(--tb-pad) - 4px); padding-inline: var(--tb-pad); }
+}
 /* BESLISSING 505: de actieve tab heeft geen eigen achtergrondvlak; haar icoon licht op (iets groter met een zachte schaduw, zoals de iconen bij aanwijzen).
    Het bolletje eronder en de heldere tekst blijven. */
 #tabbalk .tabbalk__item[aria-current="page"] { background: transparent; }

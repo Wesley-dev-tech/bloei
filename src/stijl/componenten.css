@@ -524,6 +524,9 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
   padding: 0 var(--s-5);
   pointer-events: none;
 }
+/* Op een telefoon is een melding even breed als het vlak van de balk onderaan: dezelfde zijruimte (--tb-inzet, layout.css), zodat de twee
+   vormen recht onder elkaar staan. Dat geldt ook voor de vaste melding van een nieuwe versie (.strook--vast). */
+@media (max-width: 719.98px) { .strokenhouder { padding-inline: var(--tb-inzet, var(--s-5)); } }
 /* Op een breed scherm: compact, onderaan in het midden van het inhoudsvlak (rechts van de zijbalk) */
 @media (min-width: 960px) {
   /* dezelfde zijmarge als #scherm (layout.css), zodat een vaste melding precies onder de kaarten uitlijnt */
@@ -553,11 +556,15 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
 .strook--vast { max-width: calc(var(--content-max) - var(--s-5) * 2); }
 @media (min-width: 720px) and (max-width: 959.98px) { .strook--vast { max-width: calc(var(--content-max-tablet) - var(--s-5) * 2); } }
 @media (min-width: 960px) { .strook--vast { max-width: var(--content-max-breed); } }
-/* Op een smalle telefoon (onder 420 px) moet de zin van de updatebalk naast de knop op EEN regel passen: iets minder zijruimte en een
-   haartje kleiner. Een tweede regel zou de balk dubbel zo hoog maken, vlak boven de tabbalk. */
-@media (max-width: 419.98px) {
-  .strook--vast { padding-inline: var(--s-4); }
-  .strook--vast .strook__tekst { font-size: calc(var(--fs-small) * 0.9); }
+/* Op elke telefoon zien alle meldingen er hetzelfde uit en zijn ze even groot: even breed als het vlak van de balk onderaan, even hoog, met
+   dezelfde zijruimte, tussenruimte, letter en knop. De zin van de updatebalk moet daarbij naast de knop op EEN regel passen; een tweede regel
+   zou die melding hoger maken dan de andere. Daarom tot 720 px een haartje kleiner, en niet meer alleen onder 420 px. */
+@media (max-width: 719.98px) {
+  /* De strook rekent zonder box-sizing haar binnenruimte bij haar breedte op; met border-box is 100% precies het vlak van de balk.
+     De maximumbreedtes vallen weg: op een telefoon volgt elke melding dat vlak, ook op een breed toestel in liggende stand. */
+  .strook, .strook--vast { box-sizing: border-box; max-width: none; padding-inline: 10px; gap: var(--s-2); }
+  .strook .strook__tekst { font-size: calc(var(--fs-small) * 0.85); }
+  .strook .strook__actie { padding-inline: 6px; }
 }
 
 .strook__actie {
