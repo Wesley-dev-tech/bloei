@@ -602,18 +602,24 @@ test('Maaltijd: Klaar is uit bij een leeg veld; Klaar bewaart, sluit het blad en
   await expect(maaltijd(page, 'ontbijt').locator('> .rij')).toContainText('havermout met appel');
 });
 
-test('Maaltijd: Enter bewaart ook, en de haken van het maaltijdblad staan er', async ({ page }) => {
+test('Maaltijd: Enter maakt een nieuwe regel, ctrl+Enter bewaart, en de haken van het maaltijdblad staan er', async ({ page }) => {
   await page.goto('./#/vandaag');
   const regel = maaltijd(page, 'middagmaal');
   await regel.locator('> .rij').click();
   const blad = maaltijdblad(page, 'middagmaal');
   await blad.locator('textarea').fill('soep');
   for (const haak of ['maaltijd-bewaren', 'maaltijd-favoriet', 'maaltijd-verwijderen']) await expect(blad.locator(`[data-uitleg="${haak}"]`)).toHaveCount(1);
+  // Enter zet een nieuwe regel in het vak en laat het blad openstaan
   await blad.locator('textarea').press('Enter');
+  await blad.locator('textarea').pressSequentially('met brood');
+  await expect(blad).toHaveCount(1);
+  await expect(blad.locator('textarea')).toHaveValue('soep\nmet brood');
+  // Bewaren en sluiten met het toetsenbord gaat met ctrl+Enter
+  await blad.locator('textarea').press('Control+Enter');
   await expect(blad).toHaveCount(0);
   await expect(regel.locator('> .rij')).toContainText('soep');
   const records = await leesMaaltijdRecords(page);
-  expect(records.find((r) => r.soort === 'middagmaal').tekst).toBe('soep');
+  expect(records.find((r) => r.soort === 'middagmaal').tekst).toBe('soep\nmet brood');
 });
 
 for (const breedte of [390, 360]) {

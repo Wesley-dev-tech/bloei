@@ -426,8 +426,10 @@ export function maaltijdregel(opties) {
       },
     });
     annuleerKnop.classList.add('maaltijd__annuleer');
+    // Enter maakt een nieuwe regel in het tekstvak, zodat je een maaltijd over meerdere regels kunt noteren; het blad blijft open.
+    // Bewaren en sluiten met het toetsenbord gaat met ctrl of cmd samen met Enter, naast de knop Klaar.
     vak.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && !e.shiftKey && !e.isComposing) {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey) && !e.isComposing) {
         e.preventDefault();
         if (state.tekst.trim()) bewaarEnSluit();
       }
