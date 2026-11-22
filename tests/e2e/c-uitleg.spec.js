@@ -663,12 +663,17 @@ const VERWACHT = {
   'h:lijst.rij': { haak: 'supplement-rij' },
   'h:lijst.naam': { haak: 'kaart-naam', naam: /Naam/ },
   'h:lijst.hoeveelheid': { haak: 'kaart-hoeveelheid', naam: /Hoeveelheid/ },
+  'h:lijst.aanwijzing': { haak: 'kaart-aanwijzing', naam: /Hoe neem je het/ },
   'h:lijst.ritme': { haak: 'kaart-ritme', naam: /Ritme/ },
-  'h:lijst.momenten': { haak: 'kaart-momenten', naam: /Momenten/ },
+  // Deze drie hangen af van het gekozen ritme: Momenten bij Elke dag, de twee andere bij Om de ... dagen of Elke maand.
+  'h:lijst.momenten': { haak: 'kaart-momenten', naam: /Momenten/, optioneel: true },
+  'h:lijst.dagen': { haak: 'kaart-dagen', naam: /Aantal dagen/, optioneel: true },
+  'h:lijst.volgende': { haak: 'kaart-volgende', naam: /Volgende keer op/, optioneel: true },
   // BESLISSING 703: Periode in twee stappen: de kop met Begint op, daarna Stopt na (geen haken: klassen).
   'h:lijst.periode': { sel: '.supplementkaart__periodekop' },
   'h:lijst.einde': { sel: '.supplementkaart__periode .supplementkaart__velden > :nth-child(2)' },
   'h:lijst.bewaren': { tag: 'button', naam: /^Bewaren$/ /* BESLISSING 561; de naam is de tekst van de hele knoppengroep */ },
+  'h:lijst.annuleren': { haak: 'kaart-annuleren' },
   'h:lijst.weg': { tag: 'button', naam: /^Verwijderen$/ },
   'h:lijst.nieuw': { tag: 'button', naam: /Supplement toevoegen/ },
   'h:gewicht.knop': { tag: 'button', naam: /Weging noteren/ },

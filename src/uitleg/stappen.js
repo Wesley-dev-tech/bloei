@@ -240,17 +240,24 @@ export const STAPPEN = {
     { id: 'terug', doel: '.vc--supp .momentrij[data-moment="ochtend"]' },
     { id: 'periodiek', doel: '.vc--supp .momentrij[data-moment="beurt"]' },
   ],
+  // De kaart van een supplement, stap voor stap in de volgorde waarin ze op het scherm staat (ui/supplementkaart.js). Drie stappen
+  // verschijnen alleen als het gekozen ritme ze toont: De momenten bij Elke dag, Om de hoeveel dagen en Volgende keer op bij de andere twee.
   'h:lijst': [
     { id: 'rij', doel: '[data-uitleg="supplement-rij"], .overzicht__rij' },
     { id: 'naam', doel: '[data-uitleg="kaart-naam"]', voor: 'openBewerkSupplement' },
     { id: 'hoeveelheid', doel: '[data-uitleg="kaart-hoeveelheid"]', voor: 'openBewerkSupplement' },
+    { id: 'aanwijzing', doel: '[data-uitleg="kaart-aanwijzing"]', voor: 'openBewerkSupplement' },
     { id: 'ritme', doel: '[data-uitleg="kaart-ritme"]', voor: 'openBewerkSupplement' },
-    { id: 'momenten', doel: '[data-uitleg="kaart-momenten"]', voor: 'openBewerkSupplement' },
+    { id: 'momenten', doel: '[data-uitleg="kaart-momenten"]', voor: 'openBewerkSupplement', als: '[data-uitleg="kaart-momenten"]' },
+    { id: 'dagen', doel: '[data-uitleg="kaart-dagen"]', voor: 'openBewerkSupplement', als: '[data-uitleg="kaart-dagen"]' },
+    { id: 'volgende', doel: '[data-uitleg="kaart-volgende"]', voor: 'openBewerkSupplement', als: '[data-uitleg="kaart-volgende"]' },
     // BESLISSINGEN 698, 702 en 703: Periode in twee stappen, elk over wat uitgelicht is: de kop met de zin en Begint op, daarna Stopt na. Het
     // hele blok paste op een telefoon niet naast de uitlegkaart in het blad (Stopt na viel buiten het vak terwijl de tekst het noemde).
     { id: 'periode', doel: '.supplementkaart__periodekop', ook: '.supplementkaart__periode .supplementkaart__velden > :first-child', voor: 'openBewerkSupplement', klein: [{ doel: '.supplementkaart__periode .supplementkaart__velden > :first-child' }] },
     { id: 'einde', doel: '.supplementkaart__periode .supplementkaart__velden > :nth-child(2)', voor: 'openBewerkSupplement' },
     { id: 'bewaren', doel: '[data-uitleg="kaart-bewaren"]', voor: 'openBewerkSupplement' },
+    // Alleen Annuleren aanduiden: het kruisje staat helemaal bovenaan, samen zou het vak de hele kaart beslaan. De tekst noemt het kruisje.
+    { id: 'annuleren', doel: '[data-uitleg="kaart-annuleren"]', voor: 'openBewerkSupplement' },
     // Zonder supplement opent openBewerkSupplement het lege kaartje (BESLISSING 694): daar staat geen Verwijderen.
     { id: 'weg', doel: '[data-uitleg="kaart-weghalen"]', voor: 'openBewerkSupplement', als: '.overzicht__rij' },
     { id: 'nieuw', doel: '[data-uitleg="toevoegen"], .supplementen__toevoegen, .supplementen__leegkaart .knop' },

@@ -67,7 +67,7 @@ async function bouw({ id, opener, staat, klaar }) {
   const naamV = veld('naam', t('supplementkaart.naam'), naamInv, { haak: 'kaart-naam' });
   const hoeveelV = veld('hoeveelheid', t('supplementkaart.hoeveelheid'), hoeveelInv, { haak: 'kaart-hoeveelheid' });
   const aanwijsV = veld('aanwijzing', t('supplementkaart.aanwijzing'), aanwijsInv, { breed: true, haak: 'kaart-aanwijzing' });
-  const dagenV = veld('dagen', t('supplementkaart.dagen'), dagenInv);
+  const dagenV = veld('dagen', t('supplementkaart.dagen'), dagenInv, { haak: 'kaart-dagen' });
   const startV = veld('start', t('supplementkaart.volgende'), startInv, { haak: 'kaart-volgende' });
   const vanafV = veld('vanaf', t('supplementkaart.vanaf'), vanafInv);
   const totV = veld('tot', t('supplementkaart.tot'), totInv);
