@@ -265,7 +265,7 @@ for (const [breedte, hoogte] of BREEDTES) {
       await sluitPopups(page);
       await zaaiFavorieten(page, 4);
       for (const [route, naam] of [
-        ['meer/profiel', 'Naam en profielfoto'],
+        ['meer/profiel', 'Naam en foto'],
         ['meer/instellingen', 'Drinken'],
         ['meer/gewicht', 'Gewicht'],
         ['meer/meldingen', 'Herinneringen'],

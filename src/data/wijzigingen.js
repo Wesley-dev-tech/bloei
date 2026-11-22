@@ -8,6 +8,15 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.3.5',
+    datum: '2026-11-22',
+    tijd: '19:42',
+    punten: [
+      { begrip: 'algemeen', tekst: 'Bovenaan een scherm staan de titel, Algemeen en de knoppen weer samen op een regel.' },
+      { begrip: 'profiel', tekst: 'Naam en profielfoto heet voortaan Naam en foto.' },
+    ],
+  },
+  {
     versie: '0.3.4',
     datum: '2026-11-22',
     tijd: '19:30',

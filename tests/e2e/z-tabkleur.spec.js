@@ -34,7 +34,7 @@ const SCHERMEN = [
   ['meer/instellingen', 'Instellingen Drinken'],
   ['meer/gewicht', 'Instellingen Gewicht'],
   ['meer/vergrendeling', 'Vergrendeling'],
-  ['meer/profiel', 'Naam en profielfoto'],
+  ['meer/profiel', 'Naam en foto'],
   ['meer/favorieten', 'Favorieten'],
   ['meer/badges', 'Badges'],
   ['meer/meldingen', 'Herinneringen'],

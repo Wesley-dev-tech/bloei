@@ -641,13 +641,13 @@ export const TEKSTEN = {
     reeks: '{reeks} op rij',
     badgesLeeg: 'Je badges komen hier te staan.',
     inhoud: 'Inhoud',
-    profiel: 'Naam en profielfoto',
+    profiel: 'Naam en foto',
     drinkenEnGewicht: 'Drinken en gewicht',
     favorieten: 'Favorieten',
     badges: 'Badges',
     herinneringen: 'Herinneringen',
     vergrendeling: 'Vergrendeling',
-    bijProfiel: 'Naam en profielfoto',
+    bijProfiel: 'Naam en foto',
     over: 'Over',
     overTekst: 'Bloei is je persoonlijke dagboek voor wat je eet en drinkt, je supplementen en je gewicht. Onderweg moedigt Bloei je aan met een woord dat bij jouw dag past, en je verslag deel je met wie je wil, bijvoorbeeld met je diëtiste. Zo groei je elke dag een beetje, op je eigen tempo.',
     gemaaktDoor: 'Met liefde bedacht en gebouwd door Wesley Bogaerts',
@@ -727,7 +727,7 @@ export const TEKSTEN = {
   },
 
   profiel: {
-    titel: 'Naam en profielfoto',
+    titel: 'Naam en foto',
     naam: 'Je naam',
     naamPlaats: 'Je voornaam',
     foto: 'Je profielfoto',
@@ -1473,7 +1473,7 @@ export const TEKSTEN = {
         faceid: { titel: "Pincode of vingerafdruk", tekst: "Kies hoe Bloei opent: met je pincode of met je vingerafdruk of schermslot. Lukt dat even niet, dan gebruik je je code. Kan je toestel het niet, dan kan je die keuze niet maken." },
       },
       profiel: {
-        kaart: { titel: "Naam en profielfoto", tekst: "Typ je voornaam: Bloei begroet je ermee op Vandaag, zet hem op je verslag en bewaart hem vanzelf. Met Foto kiezen kies je een foto op je toestel. Staat er een foto, dan haal je ze weg met Foto weghalen en zie je weer je initiaal." },
+        kaart: { titel: "Naam en foto", tekst: "Typ je voornaam: Bloei begroet je ermee op Vandaag, zet hem op je verslag en bewaart hem vanzelf. Met Foto kiezen kies je een foto op je toestel. Staat er een foto, dan haal je ze weg met Foto weghalen en zie je weer je initiaal." },
         voorbeeld: { titel: "Zo begroet Bloei je", tekst: "Zo staat je begroeting op Vandaag, met je voornaam en je foto, boven de vier vakken van je dag. Het voorbeeld verandert meteen mee terwijl je typt. Hier tik je niets aan." },
         weetjes: { titel: "Goed om te weten", tekst: "Hier staan twee weetjes: in de begroeting staat alleen je voornaam, en je foto blijft op je toestel." },
       },
