@@ -196,7 +196,7 @@ export const STAPPEN = {
   // In de volgorde van het scherm. De drie stappen over de lijst verschijnen alleen als er al een favoriet staat.
   'meer/favorieten': [
     { id: 'toevoegen', doel: '[data-uitleg="favoriet-nieuw"], .favoriet__nieuw' },
-    { id: 'lijst', doel: '[data-uitleg="favoriet-lijst"], .favorieten__lijst', als: '.favorieten__lijst .rij' },
+    { id: 'lijst', doel: '[data-uitleg="favoriet-lijst"], .favorieten__lijst' }, // ook zonder favorieten: dan met de tekst uit LEEG_TEKST
     { id: 'aanpassen', doel: '[data-uitleg="favoriet-bewerk"], .favoriet__bewerk', als: '.favoriet__bewerk' },
     { id: 'weghalen', doel: '[data-uitleg="favoriet-weg"], .drank__weg', als: '.drank__weg' },
     { id: 'gebruiken', doel: '.instel__voorbeeld' },
@@ -718,6 +718,7 @@ function variant(sleutel, { muis = false, breed = false, telefoon = false } = {}
 // (na de actie van de stap, voor), dan geldt de tekst onder uitleg.<tekst> (en de titel, als die er is). De gewone tekst blijft voor een gevuld profiel.
 export const LEEG_TEKST = {
   'stap.supplementen.toevoegen': { als: '.supplementen__leegkaart', tekst: 'leeg.supplementen' },
+  'stap.favorieten.lijst': { als: '.favorieten__lijst .leeg', tekst: 'leeg.favorieten' },
   // Het lege kaartje heeft geen Verwijderen; dat van een bestaand supplement altijd.
   'handeling.lijst.bewaren': { als: 'dialog[open].supplementkaart:not(:has([data-uitleg="kaart-weghalen"]))', tekst: 'leeg.bewaren' },
   'handeling.lijst.nieuw': { als: '.supplementen__leegkaart', tekst: 'leeg.nieuw' },

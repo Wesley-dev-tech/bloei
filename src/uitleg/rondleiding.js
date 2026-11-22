@@ -1746,6 +1746,13 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
       // Een laatste redmiddel (stappen.js, klein met laatste: true) telt alleen als het doel ervoor afgesneden zou worden: de rand van het vak
       // snijdt nooit door een element. Staat dat doel in zijn geheel in beeld, dan blijft het.
       if (k0.laatste && beste && !gesneden) continue;
+      // Een onderdeel in een open blad dat onder de onderrand van dat blad staat (Begint op en Stopt na in de supplementkaart): eerst in
+      // beeld schuiven. Zonder dat is het blok nooit heel (het valt half buiten beeld) en groeit blokVan door tot de hele inhoud van het
+      // blad, waardoor de stap het hele kaartje aanduidt in plaats van dat ene vak.
+      if (inBlad) {
+        const vooraf = vindDoel(k0.ook) || vindDoel(k0.doel);
+        if (vooraf?.closest('dialog')) vooraf.scrollIntoView({ block: window.innerHeight < 560 ? 'start' : 'nearest', inline: 'nearest', behavior: 'instant' });
+      }
       const b = blokVan(stap, k0);
       if (!b) continue;
       const k = { ...k0, els: b.els, zijden: b.zijden, lucht: b.lucht };

@@ -1243,6 +1243,7 @@ export const TEKSTEN = {
       supplementen: { titel: "Nog geen supplementen", tekst: "Je hebt nog geen supplementen. Voeg er eerst een toe, dan kan je ze op Vandaag afvinken. Heb je je lijst al als bestand, bijvoorbeeld van een ander toestel? Met Lijst importeren haal je ze binnen." },
       bewaren: { tekst: "Tik op Bewaren om het supplement in je lijst te zetten. Met Annuleren sluit je het kaartje zonder iets te bewaren." },
       nieuw: { tekst: "Tik op Eerste supplement toevoegen en vul het kaartje in dat je net zag." },
+      favorieten: { titel: "Nog geen favorieten", tekst: "Hier komen je favorieten te staan. Schrijf er hierboven een op, of bewaar een maaltijd met het hartje op Vandaag." },
       niets: { titel: "Nog niets te zien", tekst: "Wat deze stappen tonen, staat nog niet op je scherm. Probeer het opnieuw zodra je er iets hebt bijgehouden." },
     },
     handeling: {
