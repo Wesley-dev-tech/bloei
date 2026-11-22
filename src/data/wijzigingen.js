@@ -8,6 +8,14 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.3.4',
+    datum: '2026-11-22',
+    tijd: '19:30',
+    punten: [
+      { begrip: 'algemeen', tekst: 'Bovenaan een scherm onder Algemeen staat de terugknop boven de titel, zodat de knoppen rechts op hun plaats blijven.' },
+    ],
+  },
+  {
     versie: '0.3.3',
     datum: '2026-11-21',
     tijd: '13:25',

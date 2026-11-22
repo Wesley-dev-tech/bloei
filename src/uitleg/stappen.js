@@ -157,13 +157,13 @@ export const STAPPEN = {
     { id: 'kaart', doel: '.instellingen__drinken', stukken: 'meer/instellingen.kaart' },
     { id: 'voorbeeld', doel: '.instel__voorbeeld', stukken: 'meer/instellingen.voorbeeld' },
     { id: 'weetjes', doel: '.instel__weetjes' },
-    { id: 'kop', doel: '.schermkop__acties', tekstVan: 'stap.kopSub' },
+    { id: 'kop', doel: '.schermkop__acties', ook: '.schermkop__terugrij', tekstVan: 'stap.kopSub' }, // Algemeen staat boven de titel, de rest rechts
   ],
   'meer/gewicht': [
     { id: 'kaart', doel: '.instellingen__gewicht', stukken: 'meer/gewicht.kaart' },
     { id: 'voorbeeld', doel: '.instel__voorbeeld', stukken: 'meer/gewicht.voorbeeld' },
     { id: 'weetjes', doel: '.instel__weetjes' },
-    { id: 'kop', doel: '.schermkop__acties', tekstVan: 'stap.kopSub' },
+    { id: 'kop', doel: '.schermkop__acties', ook: '.schermkop__terugrij', tekstVan: 'stap.kopSub' }, // Algemeen staat boven de titel, de rest rechts
   ],
   'meer/vergrendeling': [
     { id: 'aanzetten', doel: '[data-uitleg="slot-schakelaar"], .slot-scherm .schakelaar' },
@@ -190,7 +190,7 @@ export const STAPPEN = {
     { id: 'kaart', doel: '.instellingen__profiel', stukken: 'meer/profiel.kaart' },
     { id: 'voorbeeld', doel: '.instel__voorbeeld', stukken: 'meer/profiel.voorbeeld' },
     { id: 'weetjes', doel: '.instel__weetjes' },
-    { id: 'kop', doel: '.schermkop__acties', tekstVan: 'stap.kopSub' },
+    { id: 'kop', doel: '.schermkop__acties', ook: '.schermkop__terugrij', tekstVan: 'stap.kopSub' }, // Algemeen staat boven de titel, de rest rechts
   ],
   'meer/favorieten': [
     { id: 'toevoegen', doel: '.favoriet__nieuw' },

@@ -419,7 +419,10 @@ export function beheerScherm(houder, bouw, opties = {}) {
 
 // Terug naar Meer: een tekstknop met de chevron-left.
 export function terugKnop(naar = '#/meer') {
-  return knop(t('meer.terug'), { soort: 'tekst', icoon: ICOON.terug.naam, opKlik: () => (window.location.hash = naar) });
+  const el = knop(t('meer.terug'), { soort: 'tekst', icoon: ICOON.terug.naam, opKlik: () => (window.location.hash = naar) });
+  // De schermkop zet een knop met deze klasse boven de titel in plaats van naast de icoonknoppen (zie schermkop in ui/componenten.js).
+  el.classList.add('schermkop__terug');
+  return el;
 }
 
 // ------------------------------------------------------------------ drinken: voortgangsbaan en tikken

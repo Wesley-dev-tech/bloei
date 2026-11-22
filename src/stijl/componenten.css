@@ -606,6 +606,11 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
 /* ---------- Schermkop ---------- */
 .schermkop { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); margin-bottom: var(--s-6); }
 .schermkop__tekst { min-width: 0; }
+/* De terugknop staat op een eigen regeltje boven de titel, links uitgelijnd met de titel. Zo houden de icoonknoppen hun plaats naast
+   de titel, ook als die lang is, en schuift er niets naar een tweede regel. */
+.schermkop--terug { align-items: flex-end; }
+.schermkop__terugrij { display: flex; margin-bottom: calc(var(--s-1) * -1); }
+.schermkop__terugrij .knop--tekst { margin-left: calc(var(--s-2) * -1); }
 .schermkop__titel { text-wrap: balance; }
 .schermkop__acties { flex: none; display: flex; align-items: center; gap: var(--s-2); margin-right: calc(var(--s-3) * -1); }
 /* De huisje-knop: navigatie-icoon zonder tegel, gedempt; bij hover, focus en indrukken in de accentkleur */

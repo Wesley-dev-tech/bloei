@@ -776,15 +776,24 @@ export function schermkop({ titel, label, home = true, delen = true, acties = []
     if (a?.tagName === 'BUTTON' && !a.hasAttribute('aria-label') && a.textContent.trim() === t('meer.terug')) a.setAttribute('aria-label', `${t('meer.terugNaar')} ${a.textContent.trim()}`);
   }
   const titelEl = h('h1', { class: 't-h1 schermkop__titel' }, titel);
+  // De terugknop staat boven de titel, niet bij de icoonknoppen: zo blijven de icoonknoppen naast de titel staan, ook bij een lange titel.
+  const terug = acties.filter((a) => a?.classList?.contains('schermkop__terug'));
+  const rest = acties.filter((a) => !terug.includes(a));
   const el = h(
     'header',
-    { class: 'schermkop' },
-    h('div', { class: 'schermkop__tekst' }, label ? h('p', { class: 'label' }, label) : null, titelEl),
-    acties.length || home || delen
+    { class: ['schermkop', terug.length && 'schermkop--terug'] },
+    h(
+      'div',
+      { class: 'schermkop__tekst' },
+      terug.length ? h('div', { class: 'schermkop__terugrij' }, ...terug) : null,
+      label ? h('p', { class: 'label' }, label) : null,
+      titelEl,
+    ),
+    rest.length || home || delen
       ? h(
           'div',
           { class: 'schermkop__acties' },
-          ...acties,
+          ...rest,
           // Delen: op een telefoon een icoonknop (geen zevende tab); vanaf 960 px staat het in de zijbalk (CSS verbergt deze dan)
           delen ? h('a', { class: 'icoonknop schermkop__delen', href: '#/delen', 'aria-label': t('delen.titel') }, begripIcoon('delen', { grootte: 24 })) : null,
           home ? h('a', { class: 'icoonknop schermkop__home', href: '#/vandaag', 'aria-label': t('dag.naarVandaag') }, begripIcoon('home', { grootte: 24 })) : null,
