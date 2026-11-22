@@ -1281,7 +1281,7 @@ export const TEKSTEN = {
         momenten: { titel: "De momenten", tekst: "Bij Elke dag kies je de momenten: ochtend, middag of avond. Zo staat het op Vandaag klaar om af te vinken." },
         dagen: { titel: "Om de hoeveel dagen", tekst: "Bij Om de ... dagen vul je hier in om de hoeveel dagen het terugkomt." },
         volgende: { titel: "Volgende keer op", tekst: "Hier staat wanneer het weer aan de beurt is. Op die dag komt het als extra rij op Vandaag." },
-        periode: { titel: "Begint op", tekst: "Zonder datum telt een supplement vanaf de dag dat je het toevoegt. Vul bij Begint op een datum in om vroeger of later te beginnen." },
+        periode: { titel: "Begint op", tekst: "Tik op het vak en kies de eerste dag. Tot dan staat het supplement nog niet bij je momenten op Vandaag. Een dag in het verleden kan ook, bijvoorbeeld als je er vorige week al mee begon." },
         einde: { titel: "Stopt na", tekst: "Neem je het maar een tijdje, vul dan bij Stopt na de laatste dag in. Laat je het leeg, dan loopt het gewoon door." },
         bewaren: { titel: "Bewaren", tekst: "Tik op Bewaren om je wijziging te bewaren. Je komt dan terug in je schema." },
         annuleren: { titel: "Annuleren of sluiten", tekst: "Met Annuleren sluit je het kaartje zonder iets te wijzigen, net als met het kruisje rechtsboven. Veranderde je iets, dan vraagt Bloei eerst of je het wil bewaren." },
