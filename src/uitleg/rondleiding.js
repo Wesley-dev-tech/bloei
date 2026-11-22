@@ -1703,6 +1703,29 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
     }
     return false;
   }
+  // Schuift de houder van een open blad zo dat els er helemaal in staan, met ruimte eromheen: de lucht van het vak (margeTelefoon) plus de rand
+  // tot de houder (randGatTelefoon). Staat een onderdeel tegen de onderrand van de houder (wat scrollIntoView doet), dan staat het tegen de
+  // voet van het blad: de knoppen daar tellen als buren in de lucht, het blok is nooit heel en groeit door tot de hele inhoud van het blad.
+  function brengInBlad(els) {
+    if (!els.length || !els[0].closest('dialog')) return;
+    let houder = null;
+    for (let e = els[0].parentElement; e && e !== document.body; e = e.parentElement) {
+      const st = getComputedStyle(e);
+      if (/(auto|scroll)/.test(st.overflowY) && e.scrollHeight > e.clientHeight + 1) {
+        houder = e;
+        break;
+      }
+      if (e.tagName === 'DIALOG') break;
+    }
+    if (!houder) return;
+    const ruimte = MAAT.margeTelefoon + MAAT.randGatTelefoon;
+    const hr = houder.getBoundingClientRect();
+    const dozen = els.map((e) => e.getBoundingClientRect());
+    const top = Math.min(...dozen.map((r) => r.top));
+    const bottom = Math.max(...dozen.map((r) => r.bottom));
+    if (bottom > hr.bottom - ruimte) houder.scrollTop += bottom - (hr.bottom - ruimte);
+    else if (top < hr.top + ruimte) houder.scrollTop -= hr.top + ruimte - top;
+  }
   // Het doel van de stap: het gewone onderdeel, of op een klein scherm het eerste kleinere deel dat volledig vrij past (stappen.js, `klein`).
   // Past niets volledig, dan het kleinste. De kaart heeft dan al haar tekst (haar hoogte telt mee).
   // inBlad: bij het begin van een stap mag een blad (dialog) eerst schuiven tot het onderdeel erin in beeld staat; bij het volgen niet.
@@ -1749,10 +1772,7 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
       // Een onderdeel in een open blad dat onder de onderrand van dat blad staat (Begint op en Stopt na in de supplementkaart): eerst in
       // beeld schuiven. Zonder dat is het blok nooit heel (het valt half buiten beeld) en groeit blokVan door tot de hele inhoud van het
       // blad, waardoor de stap het hele kaartje aanduidt in plaats van dat ene vak.
-      if (inBlad) {
-        const vooraf = vindDoel(k0.ook) || vindDoel(k0.doel);
-        if (vooraf?.closest('dialog')) vooraf.scrollIntoView({ block: window.innerHeight < 560 ? 'start' : 'nearest', inline: 'nearest', behavior: 'instant' });
-      }
+      if (inBlad) brengInBlad([vindDoel(k0.doel), vindDoel(k0.ook)].filter(Boolean));
       const b = blokVan(stap, k0);
       if (!b) continue;
       const k = { ...k0, els: b.els, zijden: b.zijden, lucht: b.lucht };

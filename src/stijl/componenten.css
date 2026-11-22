@@ -1132,7 +1132,9 @@ html.heeft-supplementkaart { overflow: hidden; }
 .supplementkaart__kop { flex: none; display: flex; align-items: center; gap: var(--s-3); padding: var(--s-4) var(--s-4) var(--s-3) var(--s-5); border-bottom: var(--lijn); }
 .supplementkaart__titel { flex: 1; min-width: 0; margin: 0; overflow-wrap: anywhere; }
 .supplementkaart__kruis { flex: none; }
-.supplementkaart__lijst { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--s-4) var(--s-5); }
+/* Onderaan iets meer ruimte dan bovenaan: het laatste vak (Stopt na) moet ver genoeg boven de knoppen kunnen schuiven dat de rondleiding er
+   een vak omheen kan zetten (12 px lucht plus 12 px tot de rand van de schuivende houder, rondleiding.js MAAT). */
+.supplementkaart__lijst { flex: 1 1 auto; min-height: 0; overflow-y: auto; padding: var(--s-4) var(--s-5) calc(var(--s-6) + var(--s-1)); }
 .supplementkaart__binnen { display: flex; flex-direction: column; gap: var(--s-4); }
 .supplementkaart__velden { display: grid; grid-template-columns: minmax(0, 1fr); gap: var(--s-4); }
 @media (min-width: 720px) { .supplementkaart__velden { grid-template-columns: repeat(2, minmax(0, 1fr)); } }
