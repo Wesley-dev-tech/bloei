@@ -1248,7 +1248,7 @@ export const TEKSTEN = {
     handeling: {
       maaltijd: {
         regel: { titel: "Kies een moment", tekst: "Elk moment van de dag heeft een eigen regel: ontbijt, tussendoortje, middagmaal, vieruurtje, avondmaal en late snack. Tik op een regel om hem te openen." },
-        open: { titel: "Schrijf wat je at", tekst: "Typ in het vak wat je at. Kort is genoeg." },
+        open: { titel: "Schrijf wat je at", tekst: "Typ in het vak wat je at. Kort is genoeg, en met Enter begin je een nieuwe regel." },
         uur: { titel: "Het uur", tekst: "Het uur staat al ingevuld. Pas het aan als je later noteert wanneer je at." },
         gevoel: { titel: "Hoe voelde het?", tekst: "Kies een gezichtje voor hoe je je erna voelde. Dat hoeft niet, en je kan het later nog wijzigen." },
         bewaard: { titel: "Klaar", tekst: "Tik op Klaar als je klaar bent. Bloei bewaart ook vanzelf terwijl je schrijft. Met Annuleren zet je de maaltijd terug zoals ze was." },
@@ -1440,7 +1440,7 @@ export const TEKSTEN = {
         voorbeeld: { titel: "Het voorbeeld lezen", tekst: "In het voorbeeld zie je hoe je verslag eruitziet, ook als pdf, met jouw keuzes. Je kan er binnenin in scrollen en het nalezen voor je iets bewaart of verstuurt." },
         periode: { titel: "Kies de periode", tekst: "Hier stel je je verslag samen. Kies gisteren, vandaag, deze week, vorige week, twee weken, een maand of Aangepast voor je eigen datums; de gekozen periode staat er in woorden bij." },
         inhoud: { titel: "Wat erin komt", tekst: "Je kiest uit vier onderdelen: eten, drinken, gewicht en notities, elk met hoeveel er in de periode staat. Gewicht en notities staan uit tot jij ze aanzet." },
-        bewaren: { titel: "Bewaren of versturen", tekst: "Met Versturen deel je het verslag via mail of een berichtenapp, met Bewaren zet je het op je toestel en met Afdrukken maak je een papieren versie. Zolang er niets in de periode staat, zijn de knoppen uit." },
+        bewaren: { titel: "Bewaren of versturen", tekst: "Met Versturen deel je het verslag via mail of een berichtenapp, met Bewaren zet je het op je toestel en met Afdrukken maak je een papieren versie. De zin eronder zegt wat er na je tik gebeurt. Zolang er niets in de periode staat, zijn de knoppen uit." },
       },
       // BESLISSING 645: de rondleiding van elk instelscherm is ook de handleiding van dat scherm (een tekst, twee ingangen: het vraagteken en de
       // rij op het scherm Rondleiding). Op een telefoon krijgt elk deel van een kaart zijn eigen tekst uit STUKKEN (stappen.js); deze teksten
@@ -1483,8 +1483,10 @@ export const TEKSTEN = {
       },
       favorieten: {
         toevoegen: { titel: "Een favoriet toevoegen", tekst: "Schrijf op wat je vaak eet en tik op Erbij schrijven. Zo staat het klaar als je een maaltijd noteert." },
+        lijst: { titel: "Je favorieten", tekst: "Hier staan al je favorieten, met de maaltijd waarbij je ze het laatst gebruikte." },
+        aanpassen: { titel: "Een favoriet aanpassen", tekst: "Met het potloodje wijzig je de tekst van een favoriet. Tik daarna op Klaar." },
+        weghalen: { titel: "Een favoriet weghalen", tekst: "Met het vuilbakje haal je een favoriet weg. Je krijgt meteen de kans om dat ongedaan te maken." },
         gebruiken: { titel: "Een favoriet gebruiken", tekst: "Bij een maaltijd tik je op een favoriet om hem in te vullen, zonder te typen." },
-        weghalen: { titel: "Een favoriet weghalen", tekst: "Gebruik het icoon naast een favoriet om hem weg te halen." },
       },
       badges: {
         groepen: { titel: "De groepen", tekst: "De medailles staan in groepen bij elkaar. Zo zie je meteen waar je het meest aan werkte." },

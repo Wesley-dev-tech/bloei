@@ -113,6 +113,7 @@ export function toon(houder) {
           bewerkt
             ? knop(t('supplementen.klaarMet'), { soort: 'tekst', label: t('favorieten.klaarBewerken'), opKlik: () => opnieuw() })
             : icoonknop(ICOON.bewerken.naam, {
+                klasse: 'favoriet__bewerk',
                 label: t('favorieten.bewerk', { tekst: f.tekst }),
                 opKlik: () => {
                   staat.bewerkId = f.id;
@@ -190,7 +191,7 @@ export function toon(houder) {
     ctx.opruim(balans.stop);
     return h('div', { class: 'stapel stapel--sectie meer-sub' }, schermkop({ titel: t('favorieten.titel'), acties: [terugKnop()] }), scherm);
   }, { lichtOp: true });
-  const stopHaken = haakUitleg(houder, { haken: [['.favoriet__nieuw', 'favoriet-nieuw'], ['.favorieten__lijst', 'favoriet-lijst'], ['.drank__weg', 'favoriet-weg']] });
+  const stopHaken = haakUitleg(houder, { haken: [['.favoriet__nieuw', 'favoriet-nieuw'], ['.favorieten__lijst', 'favoriet-lijst'], ['.favoriet__bewerk', 'favoriet-bewerk'], ['.drank__weg', 'favoriet-weg']] });
   return () => {
     stopHaken();
     opruimScherm();

@@ -48,8 +48,8 @@ export const STAPPEN = {
     // gewoon in het menu en slaat de rondleiding deze stap vanzelf over (de knop staat er niet).
     { id: 'instellingen', doel: '.begroeting__instellingen' },
     { id: 'dag', doel: '.voortgang' },
-    { id: 'badges', doel: '[data-uitleg="badges"], .vc--motivatie .medaille, .vc--motivatie' },
-    { id: 'week', doel: '[data-uitleg="week"], .vandaag__week, .weekbolletjes' },
+    { id: 'badges', doel: '[data-uitleg="badges"]' },
+    { id: 'week', doel: '[data-uitleg="week"]' },
     { id: 'gevoel', doel: '.stemmingkaart, .gevoel, .energiekaart', stukken: 'vandaag.gevoel' },
     // BESLISSINGEN 548 en 570: de hele kaart Drinken; past ze niet, dan verdeelt de rondleiding ze in afgeronde delen (zie STUKKEN).
     { id: 'glas', doel: '.drinkkaart', stukken: 'vandaag.glas' },
@@ -112,7 +112,7 @@ export const STAPPEN = {
     // dus het kleinste doel loopt van de zin tot en met die knop (de knop Eerste supplement toevoegen ligt ertussen).
     // laatste: past ook dat niet boven de uitlegkaart (320x480), dan zou het vak afgesneden worden, dwars door het merk van de kaart. Alleen dan
     // wordt het doel de knop Eerste supplement toevoegen (waar de tekst naartoe leidt), een geheel dat wel past (rondleiding.js, kiesDoelMetLucht).
-    { id: 'toevoegen', doel: '[data-uitleg="toevoegen"], .supplementen__toevoegen, .supplementen__leegkaart', klein: [{ doel: '.supplementen__leegkaart .leeg' }, { doel: '.supplementen__leegkaart .leeg__tekst', ook: '.supplementen__leegkaart .lijstbestand' }, { doel: '.supplementen__leegkaart .leeg > .knop', laatste: true }] },
+    { id: 'toevoegen', doel: '[data-uitleg="toevoegen"], .supplementen__leegkaart', klein: [{ doel: '.supplementen__leegkaart .leeg' }, { doel: '.supplementen__leegkaart .leeg__tekst', ook: '.supplementen__leegkaart .lijstbestand' }, { doel: '.supplementen__leegkaart .leeg > .knop', laatste: true }] },
     { id: 'aanpassen', doel: '[data-uitleg="supplement-rij"], .overzicht__rij' },
     // BESLISSINGEN 696 en 718: de knoppen Lijst bewaren en Lijst overnemen onderaan Mijn supplementen. Bij een lege lijst staat daar alleen de
     // tekstknop in de lege kaart (is-leeg); die legt de stap toevoegen uit, dus dan valt deze stap weg.
@@ -147,7 +147,8 @@ export const STAPPEN = {
     // de vinkjes zelf (eerste doel, de haak), met hun label erboven (ook): samen het hele blok Onderdelen
     { id: 'inhoud', doel: '[data-uitleg="delen-onderdelen"], .delen__vinkjes', ook: '.delen__onderdelen > .delen__groeplabel', stukken: 'delen.inhoud' },
     { id: 'voorbeeld', doel: '[data-uitleg="delen-voorbeeld"], .verslagvel' },
-    { id: 'bewaren', doel: '[data-uitleg="delen-knoppen"], .delen__knoppen' },
+    // De knoppen met de zin eronder die zegt wat er na een tik gebeurt (delen-standaard); samen een geheel, anders bleef die zin onbesproken.
+    { id: 'bewaren', doel: '[data-uitleg="delen-knoppen"], .delen__knoppen', ook: '[data-uitleg="delen-standaard"]' },
   ],
   // BESLISSINGEN 579, 627 en 645: de rondleiding van elk instelscherm is ook de handleiding van dat scherm. Het vraagteken start ze, en de rij
   // op het scherm Rondleiding start dezelfde stappen (ONDERWERPEN: de sleutel is de route); een tekst, twee ingangen. Elke stap licht een hele
@@ -192,10 +193,13 @@ export const STAPPEN = {
     { id: 'weetjes', doel: '.instel__weetjes' },
     { id: 'kop', doel: '.schermkop__acties', tekstVan: 'stap.kopSub' },
   ],
+  // In de volgorde van het scherm. De drie stappen over de lijst verschijnen alleen als er al een favoriet staat.
   'meer/favorieten': [
-    { id: 'toevoegen', doel: '.favoriet__nieuw' },
+    { id: 'toevoegen', doel: '[data-uitleg="favoriet-nieuw"], .favoriet__nieuw' },
+    { id: 'lijst', doel: '[data-uitleg="favoriet-lijst"], .favorieten__lijst', als: '.favorieten__lijst .rij' },
+    { id: 'aanpassen', doel: '[data-uitleg="favoriet-bewerk"], .favoriet__bewerk', als: '.favoriet__bewerk' },
+    { id: 'weghalen', doel: '[data-uitleg="favoriet-weg"], .drank__weg', als: '.drank__weg' },
     { id: 'gebruiken', doel: '.instel__voorbeeld' },
-    { id: 'weghalen', doel: '.drank__weg' },
   ],
   'meer/badges': [
     { id: 'betekenis', doel: '.medaillekaart, .medailleraster > *' },
@@ -248,9 +252,12 @@ export const STAPPEN = {
     { id: 'hoeveelheid', doel: '[data-uitleg="kaart-hoeveelheid"]', voor: 'openBewerkSupplement' },
     { id: 'aanwijzing', doel: '[data-uitleg="kaart-aanwijzing"]', voor: 'openBewerkSupplement' },
     { id: 'ritme', doel: '[data-uitleg="kaart-ritme"]', voor: 'openBewerkSupplement' },
-    { id: 'momenten', doel: '[data-uitleg="kaart-momenten"]', voor: 'openBewerkSupplement', als: '[data-uitleg="kaart-momenten"]' },
-    { id: 'dagen', doel: '[data-uitleg="kaart-dagen"]', voor: 'openBewerkSupplement', als: '[data-uitleg="kaart-dagen"]' },
-    { id: 'volgende', doel: '[data-uitleg="kaart-volgende"]', voor: 'openBewerkSupplement', als: '[data-uitleg="kaart-volgende"]' },
+    // Geen 'als': die voorwaarde wordt gewogen voor het kaartje opengaat, en dan bestaan deze drie vakken nog niet, waardoor ze alle drie
+    // wegvielen. Ze hangen af van het ritme en vallen vanzelf weg zodra het kaartje open is en het vak er niet staat (zie toon() in
+    // rondleiding.js: een stap met 'voor' zonder onderdeel gaat uit de lijst en de teller telt alleen wat getoond wordt).
+    { id: 'momenten', doel: '[data-uitleg="kaart-momenten"]', voor: 'openBewerkSupplement' },
+    { id: 'dagen', doel: '[data-uitleg="kaart-dagen"]', voor: 'openBewerkSupplement' },
+    { id: 'volgende', doel: '[data-uitleg="kaart-volgende"]', voor: 'openBewerkSupplement' },
     // BESLISSINGEN 698, 702 en 703: Periode in twee stappen, elk over wat uitgelicht is: de kop met de zin en Begint op, daarna Stopt na. Het
     // hele blok paste op een telefoon niet naast de uitlegkaart in het blad (Stopt na viel buiten het vak terwijl de tekst het noemde).
     { id: 'periode', doel: '.supplementkaart__periodekop', ook: '.supplementkaart__periode .supplementkaart__velden > :first-child', voor: 'openBewerkSupplement', klein: [{ doel: '.supplementkaart__periode .supplementkaart__velden > :first-child' }] },
@@ -260,7 +267,7 @@ export const STAPPEN = {
     { id: 'annuleren', doel: '[data-uitleg="kaart-annuleren"]', voor: 'openBewerkSupplement' },
     // Zonder supplement opent openBewerkSupplement het lege kaartje (BESLISSING 694): daar staat geen Verwijderen.
     { id: 'weg', doel: '[data-uitleg="kaart-weghalen"]', voor: 'openBewerkSupplement', als: '.overzicht__rij' },
-    { id: 'nieuw', doel: '[data-uitleg="toevoegen"], .supplementen__toevoegen, .supplementen__leegkaart .knop' },
+    { id: 'nieuw', doel: '[data-uitleg="toevoegen"], .supplementen__leegkaart .knop' },
   ],
   'h:gewicht': [
     { id: 'knop', doel: '[data-uitleg="weging-knop"]' },
