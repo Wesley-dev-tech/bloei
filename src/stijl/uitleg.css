@@ -311,3 +311,8 @@
   .uitleg-scherm .rij:has(> .rij__eind > .knop) > .rij__eind { flex: 1 0 100%; padding-top: 0; }
   .uitleg-scherm .rij:has(> .rij__eind > .knop) > .rij__eind > .knop { width: 100%; justify-content: center; margin-block: 0; } /* tussenruimte tekst en knop: var(--s-3), zoals .dialoog__acties */
 }
+
+/* De rondleiding opent een blad een keer onzichtbaar om te zien welke onderdelen erin staan (rondleiding.js, meetVooraf): zo klopt de teller
+   van bij de eerste stap. Het blad is er, maar je ziet het niet en er komt geen beweging. */
+.uitleg-meet dialog[open] { opacity: 0 !important; transition: none !important; animation: none !important; }
+.uitleg-meet dialog[open]::backdrop { opacity: 0 !important; transition: none !important; animation: none !important; }

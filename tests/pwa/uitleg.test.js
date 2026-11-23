@@ -233,8 +233,8 @@ describe('stappen en teksten', () => {
       const lijst = stappenVoor(sleutel);
       expect(lijst.length, sleutel).toBeGreaterThanOrEqual(KORT.has(sleutel) ? 1 : 2);
       // Het Dagboek telt de stappen van drie weergaven (dag, week, maand); een gebruiker ziet er hoogstens negen tegelijk (de andere weergaven vallen weg).
-      // Zestien sinds de maand een eigen stap De tekens heeft (BESLISSING 703).
-      expect(lijst.length, sleutel).toBeLessThanOrEqual(16);
+      // Zestien sinds de maand een eigen stap De tekens heeft (BESLISSING 703); zeventien sinds de knop Dag openen een eigen stap heeft.
+      expect(lijst.length, sleutel).toBeLessThanOrEqual(17);
       for (const s of lijst) {
         expect(s.titel.split(/\s+/).length, `${sleutel}.${s.id}: ${s.titel}`).toBeLessThanOrEqual(5);
         expect((s.tekst.match(/[.?]\s|[.?]$/g) || []).length, `${sleutel}.${s.id}`).toBeLessThanOrEqual(3);
@@ -375,7 +375,21 @@ describe('de namen in de uitleg bestaan echt in de app', () => {
     ['Bewaren', 'delen.pdfBewaren'],
     ['Afdrukken', 'delen.afdrukken'],
     ['Naar vandaag', 'dag.naarVandaag'],
-    ['Nog iets over vandaag?', 'dag.notitie'],
+    ['Notitie', 'dag.notitieTitel'], // de zichtbare titel van het vak (dag.notitie is alleen de naam voor een schermlezer)
+    // Controle van 22 november: de namen die de nieuwe en herschreven stappen noemen.
+    ['Noteren', 'gewicht.bewaar'],
+    ['Zelfde als gisteren', 'maaltijd.zelfde'],
+    ['Dag openen', 'maand.openen'],
+    ['Dagdoel en groottes aanpassen', 'drinken.instellingen'],
+    ['Alle favorieten', 'meer.alleFavorieten'],
+    ['Favoriet toevoegen', 'meer.favorietToevoegen'],
+    ['Alle badges bekijken', 'meer.alleBadgesTonen'],
+    ['Licenties van gebruikte onderdelen', 'meer.licentiesLink'],
+    ['Wat is er nieuw', 'watnieuw.knop'],
+    ['Profiel verwijderen', 'wissen.knop'],
+    ['Je gegevens', 'meldingen.gegevens'],
+    ['Tijdstip toevoegen', 'meldingen.tijdstipToevoegen'],
+    ['Toon het me', 'uitleg.toonHet'],
     ['Ik ken mijn code niet meer', 'slot.codeKwijt'],
     ['Wijzigen', 'slot.wijzigen'],
     ['Klaar', 'maaltijd.bewaren'], // BESLISSING 412

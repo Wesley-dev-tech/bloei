@@ -95,8 +95,8 @@ describe('stukken uit de zinnen van de staptekst (uitZinnen)', () => {
       expect(stukken.map((s) => s.tekst).join(' '), reeks).toBe(stap.tekst);
       // elk stuk is een of meer hele zinnen
       for (const s of stukken) expect(s.tekst, reeks).toMatch(/^[A-ZÉ].*[.?!]$/u);
-      // geen vervolgtekst en geen kortere tekst: alleen de zinnen zelf
-      expect(STUKKEN[reeks].vervolg, reeks).toBeUndefined();
+      // geen kortere tekst: alleen de zinnen zelf. Een vervolg mag (controle van 22 november): op een kleine telefoon krijgt een deel zonder
+      // eigen stuk zo een eigen zin, in plaats van de vultekst "Hier staat ook ..." die de rondleiding er anders zelf bij maakte.
       for (const s of stukken) expect(s.kort, reeks).toBeUndefined();
     }
   });

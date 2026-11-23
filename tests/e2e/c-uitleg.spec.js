@@ -546,6 +546,7 @@ const GEEN = null; // stap zonder onderdeel (een kaartje midden op het scherm): 
 const VERWACHT = {
   'vandaag.menu': { sel: '#zijbalk, #tabbalk' },
   'vandaag.kop': { tag: 'button', naam: /Rondleiding/ }, // BESLISSING 593: de knop heet Rondleiding; Delen en het tandwiel hebben een eigen stap
+  'vandaag.instellingen': { sel: '.begroeting__instellingen', optioneel: true }, // alleen op een telefoon: het tandwiel naar Algemeen
   'vandaag.dag': { sel: '.voortgang' },
   'vandaag.badges': { haak: 'badges' },
   'vandaag.week': { haak: 'week' },
@@ -571,21 +572,25 @@ const VERWACHT = {
   'dagboek.maand': { sel: '.maand__kalkaart' },
   'dagboek.tekens': { sel: '.maand__legenda' }, // BESLISSING 703: de legenda van de maandweergave heeft een eigen stap (alleen in maand)
   'dagboek.paneel': { sel: '.maand__dag' },
+  'dagboek.dagOpenen': { tag: 'button', sel: '.maand__paneel > .knop', naam: /Dag openen/ }, // controle van 22 november: de knop viel buiten het vak van het paneel
   'dagboek.beurt': { sel: '.maand__gepkaart' },
   'drinken.voortgang': { sel: '.drinkhoofd' },
   'drinken.tegels': { sel: '.drankrij' },
   'drinken.laatste': { sel: '.drinken__laatste' },
   'drinken.lijst': { sel: '.drinken__lijst' },
   'drinken.week': { haak: 'week' },
-  'drinken.instellingen': { tag: 'button', haak: 'drinken-instellingen', naam: /Dagdoel en groottes aanpassen/ },
+  'drinken.cijfers': { sel: '.drinken__cijferkaart' }, // de kerncijfers en wat je het meest drinkt
+  'drinken.instellingen': { sel: '.drinken__weetjes', naam: /Dagdoel en groottes aanpassen/ }, // de hele kaart Goed om te weten, met de link
+  'drinken.kop': { sel: '.schermkop__acties' },
   'supplementen.week': { sel: '.weekkaart--supp' },
   'supplementen.moment': { haak: 'momenten' },
   'supplementen.beurt': { haak: 'aan-de-beurt' },
   'supplementen.later': { haak: 'later', optioneel: true },
-  'supplementen.lijst': { sel: '.overzichtkaart > .kaartkop' }, // de kop en het schema, zonder het blok Lijst bewaren en overnemen (eigen stap)
+  'supplementen.lijst': { sel: '.overzichtkaart' }, // de kaart met het schema (op een telefoon in delen, zonder het blok Lijst bewaren en overnemen)
   'supplementen.toevoegen': { tag: 'button', naam: /Supplement toevoegen/ },
   'supplementen.aanpassen': { haak: 'supplement-rij' },
   'supplementen.bestand': { sel: '.lijstbestand' }, // BESLISSING 703: het blok Lijst bewaren en overnemen, alleen bij een gevulde lijst
+  'supplementen.kop': { sel: '.schermkop__acties' },
   'gewicht.weging': { tag: 'button', naam: /Weging noteren/ },
   'gewicht.weegdag': { sel: '.gewicht__weegdag' },
   'gewicht.streef': { haak: 'streefgewicht' },
@@ -596,18 +601,28 @@ const VERWACHT = {
   'gewicht.kalender': { sel: '.gewicht__kal' },
   'gewicht.weg': { sel: '.gewicht__weg' }, // alleen met een streefgewicht
   'gewicht.weetjes': { sel: '.gewicht__weetjes' },
+  'gewicht.kop': { sel: '.schermkop__acties' },
   'meer.profiel': { haak: 'profiel' },
   'meer.thema': { haak: 'thema', sel: '.kaart.meer__themakaart' }, // BESLISSING 645: dezelfde stap als de handleiding Een thema kiezen
   'meer.favorieten': { sel: '.meer__favorieten' },
-  'meer.instellingen': { sel: '.meer__menu' },
+  // Jouw instellingen: elke rij een eigen stap (controle van 22 november; de kaart paste op een telefoon niet in een vak).
+  'meer.instDrinken': { tag: 'button', sel: '.meer__menu > .rij', naam: /^Drinken/ },
+  'meer.instGewicht': { tag: 'button', sel: '.meer__menu > .rij', naam: /^Gewicht/ },
+  'meer.instMeldingen': { tag: 'button', sel: '.meer__menu > .rij', naam: /^Herinneringen/ },
+  'meer.instSlot': { tag: 'button', sel: '.meer__menu > .rij', naam: /^Vergrendeling/ },
+  'meer.instUitleg': { tag: 'button', sel: '.meer__menu > .rij', naam: /^Rondleiding/ },
   'meer.badges': { haak: 'badges' },
+  'meer.licenties': { sel: '.over__licenties', naam: /Licenties van gebruikte onderdelen/ },
   'meer.nieuw': { sel: '.over__nieuw', naam: /Wat is er nieuw/ },
   'meer.wissen': { sel: '.knop--wis' },
   'meer.privacy': { sel: '.privacy' },
+  'meer.kop': { sel: '.schermkop__acties' },
   'delen.periode': { haak: 'delen-periode' },
   'delen.inhoud': { haak: 'delen-onderdelen' },
   'delen.voorbeeld': { haak: 'delen-voorbeeld' },
   'delen.bewaren': { haak: 'delen-knoppen', naam: /Versturen.*Bewaren.*Afdrukken/ /* BESLISSING 561; de naam is de tekst van de hele knoppengroep */ }, // de knop Versturen kan even "Even geduld" heten
+  'delen.weetjes': { sel: '.delen__weetjes' },
+  'delen.kop': { sel: '.schermkop__acties' }, // hier zonder Delen
   // BESLISSINGEN 579, 627 en 645: de rondleiding van een instelscherm is ook zijn handleiding; elke stap een hele kaart met haar kop, of de knoppen bovenaan.
   'meer/instellingen.kaart': { sel: '.kaart.instellingen__drinken' },
   'meer/instellingen.voorbeeld': { sel: '.instel__voorbeeld:has(.drinkvoorbeeld)' },
@@ -618,10 +633,13 @@ const VERWACHT = {
   'meer/gewicht.weetjes': { sel: '.instel__weetjes' },
   'meer/gewicht.kop': { sel: '.schermkop__acties', naam: /Algemeen/ },
   'meer/vergrendeling.aanzetten': { haak: 'slot-schakelaar', naam: /Bloei vergrendelen/ },
-  'meer/vergrendeling.code': { naam: /Bloei vergrendelen|Pincode/ },
+  'meer/vergrendeling.code': { sel: '.slotvoorbeeld' }, // het hele voorbeeld van het slotscherm (vroeger opnieuw de schakelaar)
   'meer/vergrendeling.faceid': { rol: 'radiogroup', haak: 'slot-keuze', naam: /Face ID/ },
+  'meer/vergrendeling.wijzigen': { haak: 'slot-pin', optioneel: true }, // alleen als het slot aan staat
   'meer/vergrendeling.herstel': { haak: 'slot-herstel', naam: /Herstelcode/, optioneel: true }, // alleen met het slot aan (BESLISSING 531)
   'meer/vergrendeling.voorbeeld': { sel: '.slotvoorbeeld' },
+  'meer/vergrendeling.weetjes': { sel: '.instel__weetjes' },
+  'meer/vergrendeling.kop': { sel: '.schermkop__acties', naam: /Algemeen/ },
   // Herinneringen: in de ontwikkelversie is de dienst er niet ("niet beschikbaar"): dan staat alleen het voorbeeld op het scherm, de rest valt weg.
   'meer/meldingen.installeren': { sel: '.meldingen__stappen', optioneel: true },
   'meer/meldingen.hoofd': { sel: '.meldingen__hoofd', optioneel: true },
@@ -630,32 +648,42 @@ const VERWACHT = {
   'meer/meldingen.toevoegen': { sel: '.meldingen__toevoegen', optioneel: true },
   'meer/meldingen.details': { sel: '.meldingen__details', optioneel: true }, // BESLISSING 710: de schakelaar Details tonen, net als de andere onderdelen alleen als de dienst er is
   'meer/meldingen.voorbeeld': { sel: '.meldingen__voorbeeldkaart, .instel__voorbeeld' },
+  'meer/meldingen.weetjes': { sel: '.meldingen__goed:not(.meldingen__goed--gegevens)' },
+  'meer/meldingen.gegevens': { sel: '.meldingen__goed--gegevens' },
+  'meer/meldingen.kop': { sel: '.schermkop__acties', naam: /Algemeen/ },
   'meer/profiel.kaart': { sel: '.kaart.instellingen__profiel' },
   'meer/profiel.voorbeeld': { sel: '.instel__voorbeeld:has(.profielvoorbeeld)' }, // het zichtbare vlak rond de kaart (op desktop getint)
   'meer/profiel.weetjes': { sel: '.instel__weetjes' },
   'meer/profiel.kop': { sel: '.schermkop__acties', naam: /Algemeen/ },
   'meer/favorieten.toevoegen': { sel: '.favoriet__nieuw' },
+  'meer/favorieten.lijst': { sel: '.favorieten__lijst' },
+  'meer/favorieten.aanpassen': { sel: '.favoriet__bewerk', optioneel: true },
   'meer/favorieten.gebruiken': { sel: '.instel__voorbeeld' },
   'meer/favorieten.weghalen': { sel: '.drank__weg', optioneel: true },
-  'meer/badges.betekenis': { sel: '.medaillekaart' },
+  'meer/favorieten.weetjes': { sel: '.instel__weetjes' },
+  'meer/favorieten.kop': { sel: '.schermkop__acties', naam: /Algemeen/ },
+  'meer/badges.stand': { sel: '.badgehero' }, // de bovenste kaart: laatst behaald, de volgende en de aantallen
   'meer/badges.ring': { sel: '.medaille.is-open' },
   'meer/badges.groepen': { sel: '.badgegroep' },
   'meer/badges.aantikken': { sel: '.medaillekaart, .medailleraster button' },
+  'meer/badges.kop': { sel: '.schermkop__acties', naam: /Algemeen/ },
   'h:maaltijd.regel': { sel: '.maaltijd' },
   'h:maaltijd.open': { tag: 'textarea' },
   'h:maaltijd.uur': { haak: 'maaltijd-uur', naam: /Uur/ },
   'h:maaltijd.gevoel': { haak: 'maaltijd-gevoel', naam: /Hoe voelde/ },
   'h:maaltijd.bewaard': { tag: 'button', haak: 'maaltijd-bewaren', naam: new RegExp(`^${BEWAAR_MAALTIJD_TEKST}$`) }, // BESLISSING 226
+  'h:maaltijd.annuleer': { tag: 'button', sel: '.maaltijd__annuleer', naam: /Annuleren/ }, // Klaar, Annuleren en Verwijderen: elk een eigen stap
   'h:maaltijd.later': { sel: '.maaltijd' },
   'h:maaltijd.weg': { tag: 'button', haak: 'maaltijd-verwijderen', naam: /^Verwijderen$/ }, // BESLISSING 223: de knop Verwijderen, niet het hartje van favoriet
   'h:maaltijd.favoriet': { tag: 'button', haak: 'maaltijd-favoriet', naam: /favoriet/ },
+  'h:maaltijd.snel': { sel: '.maaltijd__chips', optioneel: true }, // Zelfde als gisteren, de favorieten en de voorstellen
   'h:maaltijd.gebruik': { sel: '.eten__favorieten', optioneel: true },
   'h:drinken.tik': { sel: '.drankknop' },
   'h:drinken.melding': { sel: '.strook', naam: /Ongedaan maken/ },
   'h:drinken.laatste': { sel: '.drinken__laatste, .drinkkaart__acties' },
   'h:drinken.regel': { sel: '.drinken__lijst' },
   'h:drinken.doel': { haak: 'voortgang' },
-  'h:drinken.vorigeDag': GEEN,
+  'h:drinken.vorigeDag': { tag: 'a', sel: '.tabbalk__item--dagboek, .zijbalk__item--dagboek', naam: /Dagboek/ },
   'h:supplementen.vandaag': { haak: 'momenten' },
   'h:supplementen.stand': { sel: '.vc--supp .kaartkop__eind' }, // BESLISSING 563: elke stap een eigen onderdeel
   'h:supplementen.terug': { sel: '.momentrij[data-moment="ochtend"]' },
@@ -687,11 +715,11 @@ const VERWACHT = {
   'h:stemming.gezicht': { rol: 'radiogroup', sel: '.gevoel' },
   'h:stemming.energie': { rol: 'radiogroup', sel: '.energie' },
   'h:stemming.wissen': { sel: '.gevoel .is-gekozen' },
-  'h:stemming.terug': GEEN,
+  'h:stemming.terug': { tag: 'a', sel: '.tabbalk__item--dagboek, .zijbalk__item--dagboek', naam: /Dagboek/ },
   'h:dagboek.weergave': { rol: 'radiogroup', naam: /Weergave/ },
   'h:dagboek.bladeren': { sel: '.bladerkop' },
   'h:dagboek.vandaag': { sel: '.dagboek__home', naam: /Naar vandaag|Vandaag/ },
-  'h:dagboek.dag': GEEN,
+  'h:dagboek.dag': { tag: 'button', sel: '.dagboek__segment .segment__deel:last-child', naam: /Maand/ },
   'h:dagboek.notitie': { sel: '.dag__notitie' },
   'h:slot.aanzetten': { haak: 'slot-schakelaar', naam: /Bloei vergrendelen/ },
   'h:slot.code': { sel: '.slotvoorbeeld__rooster' },
@@ -731,7 +759,7 @@ const VARIANTEN = [
   ...SCHERM_SLEUTELS.map((s) => ({ naam: s, sleutel: s, hash: s })),
   { naam: 'dagboek (dag)', sleutel: 'dagboek', hash: 'dagboek', alleen: ['kop', 'weergave', 'bladeren', 'delen', 'eten', 'notitie', 'drinken', 'supplementen', 'stemming'] },
   { naam: 'dagboek (week)', sleutel: 'dagboek', hash: 'dagboek/week', alleen: ['kop', 'weergave', 'bladeren', 'delen', 'weekcijfers', 'weekschema'] },
-  { naam: 'dagboek (maand)', sleutel: 'dagboek', hash: 'dagboek/maand', alleen: ['kop', 'weergave', 'bladeren', 'delen', 'cijfers', 'maand', 'tekens', 'paneel', 'beurt'] }, // BESLISSING 703: tekens alleen in maand
+  { naam: 'dagboek (maand)', sleutel: 'dagboek', hash: 'dagboek/maand', alleen: ['kop', 'weergave', 'bladeren', 'delen', 'cijfers', 'maand', 'tekens', 'paneel', 'dagOpenen', 'beurt'] }, // BESLISSING 703: tekens alleen in maand
   // Zonder spuit staat er op Vandaag geen rij voor een spuit.
   { naam: 'vandaag (zonder spuit)', sleutel: 'vandaag', hash: 'vandaag', zaai: { spuit: false }, zonder: ['spuit'] },
   // Minder dan twee wegingen: geen periodekeuze. Zonder streefgewicht: geen "Weg naar je streefgewicht".

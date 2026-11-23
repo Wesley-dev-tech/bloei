@@ -761,28 +761,8 @@ export function bladerkop(opties) {
     h('div', { class: 'bladerkop__midden' }, label ? h('p', { class: 'label' }, label) : null, titelEl),
     icoonknop('chevron-right', { label: t('algemeen.volgende'), opKlik: opVolgende, uit: volgendeUit }),
   );
-  // Alles op EEN regel: Algemeen, de titel en de icoonknoppen. Op een telefoon blijft er voor een lange titel weinig over, dus krimpt de
-  // titel precies genoeg om naast de knoppen te passen (nooit kleiner dan TITEL_MIN; dan kapt de css hem af met drie puntjes).
-  const TITEL_MIN = 15;
-  function pasTitelAan() {
-    if (!el.isConnected) return;
-    titelEl.style.removeProperty('font-size');
-    const basis = parseFloat(getComputedStyle(titelEl).fontSize);
-    const ruimte = titelEl.clientWidth;
-    const nodig = titelEl.scrollWidth;
-    if (!basis || !ruimte || nodig <= ruimte + 0.5) return;
-    titelEl.style.fontSize = Math.max(TITEL_MIN, Math.floor((basis * ruimte) / nodig)) + 'px';
-  }
-  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(pasTitelAan);
-  if (typeof document !== 'undefined' && document.fonts?.ready) document.fonts.ready.then(pasTitelAan).catch(() => {});
-  if (typeof ResizeObserver === 'function') {
-    // De waarnemer kijkt naar de kop zelf; pasTitelAan verandert alleen de letter van de titel, dus er ontstaat geen kringetje.
-    const waarnemer = new ResizeObserver(() => pasTitelAan());
-    requestAnimationFrame(() => el.isConnected && waarnemer.observe(el));
-  }
   el.zetTitel = (tekst) => {
     titelEl.textContent = tekst;
-    pasTitelAan();
   };
   return el;
 }
@@ -792,8 +772,12 @@ export function bladerkop(opties) {
 // schermkop({ titel, label, home = true, acties = [Node] }) → header met .zetTitel(tekst)
 export function schermkop({ titel, label, home = true, delen = true, acties = [] } = {}) {
   // De terugknop van een subscherm heet zichtbaar alleen "Algemeen", net als het tabblad: de naam zegt dat hij teruggaat.
+  // Elke terugknop krijgt hier ook de klasse schermkop__terug (kleine letter, smal): Vergrendeling en Rondleiding maken hun eigen knop en misten
+  // die, waardoor er daar minder plaats bleef voor de titel.
   for (const a of acties) {
-    if (a?.tagName === 'BUTTON' && !a.hasAttribute('aria-label') && a.textContent.trim() === t('meer.terug')) a.setAttribute('aria-label', `${t('meer.terugNaar')} ${a.textContent.trim()}`);
+    if (a?.tagName !== 'BUTTON' || a.textContent.trim() !== t('meer.terug')) continue;
+    a.classList.add('schermkop__terug');
+    if (!a.hasAttribute('aria-label')) a.setAttribute('aria-label', `${t('meer.terugNaar')} ${a.textContent.trim()}`);
   }
   const titelEl = h('h1', { class: 't-h1 schermkop__titel' }, titel);
   const el = h(
@@ -811,8 +795,28 @@ export function schermkop({ titel, label, home = true, delen = true, acties = []
         )
       : null,
   );
+  // Alles op EEN regel: Algemeen, de titel en de icoonknoppen. Op een telefoon blijft er voor een lange titel weinig over, dus krimpt de
+  // titel precies genoeg om naast de knoppen te passen (nooit kleiner dan TITEL_MIN; dan kapt de css hem af met drie puntjes).
+  const TITEL_MIN = 15;
+  function pasTitelAan() {
+    if (!el.isConnected) return;
+    titelEl.style.removeProperty('font-size');
+    const basis = parseFloat(getComputedStyle(titelEl).fontSize);
+    const ruimte = titelEl.clientWidth;
+    const nodig = titelEl.scrollWidth;
+    if (!basis || !ruimte || nodig <= ruimte + 0.5) return;
+    titelEl.style.fontSize = Math.max(TITEL_MIN, Math.floor((basis * ruimte) / nodig)) + 'px';
+  }
+  if (typeof requestAnimationFrame === 'function') requestAnimationFrame(pasTitelAan);
+  if (typeof document !== 'undefined' && document.fonts?.ready) document.fonts.ready.then(pasTitelAan).catch(() => {});
+  if (typeof ResizeObserver === 'function') {
+    // De waarnemer kijkt naar de kop zelf; pasTitelAan verandert alleen de letter van de titel, dus er ontstaat geen kringetje.
+    // Meteen waarnemen, ook als de kop nog niet in de pagina staat: de waarnemer meldt zich zodra de kop een maat krijgt.
+    new ResizeObserver(() => pasTitelAan()).observe(el);
+  }
   el.zetTitel = (tekst) => {
     titelEl.textContent = tekst;
+    pasTitelAan();
   };
   return el;
 }

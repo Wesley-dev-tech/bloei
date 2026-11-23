@@ -935,7 +935,34 @@ function blokVan(stap, k) {
   // Alleen het gewone doel groeit tot de hele kaart; een kleiner doel uit stappen.js (klein) is een uitdrukkelijke keuze en blijft zichzelf.
   const gewoon = k.doel === stap.doel;
   // (de toelichting eerst: neemt het blok met haar meer dan de helft van de kaart in, dan wordt het de hele kaart met haar kop, metKop)
-  if (!stap.zelf) els = !gewoon ? maakHeel(els) : stap.zonderKopGroei ? metNoot(maakHeel(els), stap) : metKop(metNoot(maakHeel(els), stap));
+  // zelf: ook niet groeien tot de kaart eromheen. Een rij die tegen haar buren aan staat (het tijdstip van een herinnering, de knop Maand in
+  // Dag, Week, Maand) is nooit "heel"; vroeger groeide ze dan toch tot de hele kaart, die op een telefoon in delen viel met een vultekst.
+  if (stap.zelf) {
+    const a = afgerond(els, margeVoor({ ...stap, ...k }, els));
+    // Het vak blijft binnen de eigen lijnen: een rij met een lijntje erboven (.rij + .rij) wordt aangeduid zonder dat lijntje, en ook zonder
+    // het lijntje van de rij eronder, dat maar een paar pixels verder staat.
+    const z = { ...a.zijden };
+    // Opzij overal dezelfde smalle lucht: zo zijn de vakken van rijen onder elkaar even breed.
+    z.l = Math.min(z.l, MAAT.margeKrap);
+    z.r = Math.min(z.r, MAAT.margeKrap);
+    // (alleen een scheidingslijn: een rand boven of onder zonder rand opzij. Een knop met een rand rondom houdt zijn rand in het vak.)
+    const lijn = (e, kant) => {
+      const st = getComputedStyle(e);
+      return (parseFloat(st.borderLeftWidth) || 0) === 0 ? parseFloat(st[kant]) || 0 : 0;
+    };
+    const boven = lijn(els[0], 'borderTopWidth');
+    if (boven > 0) z.t = Math.min(z.t, -(boven + 1));
+    const laatste = els[els.length - 1];
+    const onder = lijn(laatste, 'borderBottomWidth');
+    if (onder > 0) z.b = Math.min(z.b, -(onder + 1));
+    const buur = laatste.nextElementSibling;
+    if (buur && zichtbaar(buur) && lijn(buur, 'borderTopWidth') > 0) {
+      const afstand = buur.getBoundingClientRect().top - laatste.getBoundingClientRect().bottom;
+      if (afstand >= 0) z.b = Math.min(z.b, Math.max(0, afstand - 1));
+    }
+    return { els, ...a, zijden: z };
+  }
+  els = !gewoon ? maakHeel(els) : stap.zonderKopGroei ? metNoot(maakHeel(els), stap) : metKop(metNoot(maakHeel(els), stap));
   return groei(els, margeVoor({ ...stap, ...k }, els));
 }
 // Een toelichting vlak onder het doel hoort bij het blok (telefoon): een korte zin in kleine letter, zonder bediening of beeld, in dezelfde
@@ -1214,8 +1241,15 @@ function tekstenVoorDelen(stap, delen) {
       // ookBijStuk: wat er in dit deel nog staat (de dagen, de momenten), in een zin erachter, zodat de tekst het hele deel beschrijft.
       const v = st?.vervolg;
       const namen = v?.ookBijStuk && typeof v.maak === 'function' && delen.length > 1 ? namenIn(delen[i], v.naam) : [];
-      const erbij = namen.length ? ' ' + v.maak(namen).tekst : '';
-      return { titel: lijst[0].titel, tekst: lijst.map((x) => x.tekst).join(' ') + erbij, bron: 'stuk', ...(lijst.length === 1 && lijst[0].kort && !erbij ? { kort: lijst[0].kort } : {}) };
+      const vervolg = namen.length ? v.maak(namen) : null;
+      const erbij = vervolg ? ' ' + vervolg.tekst : '';
+      // na: een stuk waarvan de zin achter de zin over de rest van het deel komt (de favorieten onder Late snack). Staan er alleen zulke
+      // stukken in het deel, dan is de titel die van de rest (Late snack), niet die van het stuk.
+      const eerst = lijst.filter((x) => !x.na);
+      const daarna = lijst.filter((x) => x.na);
+      const titel = eerst.length || !vervolg ? lijst[0].titel : vervolg.titel;
+      const tekst = [eerst.map((x) => x.tekst).join(' '), erbij.trim(), daarna.map((x) => x.tekst).join(' ')].filter(Boolean).join(' ');
+      return { titel, tekst, bron: 'stuk', ...(lijst.length === 1 && lijst[0].kort && !erbij ? { kort: lijst[0].kort } : {}) };
     }
     if (i === 0) return { titel: stap.titel, tekst: stap.tekst, bron: 'heel' };
     return { ...vervolgTekst(stap, delen[i]), bron: 'vervolg' };
@@ -1847,7 +1881,7 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
     return v.b - v.t + (rl?.t ?? marge) + (rl?.b ?? marge);
   };
   function verdeel(stap) {
-    if (!kleinScherm() || stap.midden || stap.voor || !stap.doel) return [stap];
+    if (!kleinScherm() || stap.midden || stap.voor || !stap.doel || stap.zelf) return [stap]; // zelf: het doel blijft zoals het is, dus ook niet in delen
     const marge = telefoon() ? MAAT.margeTelefoon : MAAT.marge;
     // Past een doel van de stap (het gewone of een kleiner, klein) in één keer naast de kaart met deze tekst?
     let eerste = null;
@@ -2184,7 +2218,48 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
     }
   }
   const bovenop = () => leg([...document.querySelectorAll('dialog[open]')].pop() || document.body);
+  // vooraf (stappen.js): een stap die eerst iets opent (voor) en waarvan het onderdeel er niet altijd is (De momenten bij een supplement dat je
+  // niet elke dag neemt). Voor de eerste stap opent de rondleiding dat blad een keer onzichtbaar (css: .uitleg-meet), kijkt welke onderdelen er
+  // staan en sluit het weer. Wat er niet is, gaat nu al uit de lijst: de teller zegt van bij stap 1 het juiste aantal, in plaats van halverwege te
+  // verspringen. Mislukt het meten, dan blijft alles zoals het was (de stap valt dan weg op het moment zelf, zie toon()).
+  let voorafGemeten = false;
+  async function meetVooraf() {
+    const namen = [...new Set(lijst.filter((s) => s.vooraf && s.voor && s.doel && !s.midden).map((s) => s.voor))];
+    if (!namen.length) return;
+    const hier = lijst[gang.index];
+    document.documentElement.classList.add('uitleg-meet');
+    try {
+      for (const naam of namen) {
+        let sluitFn = null;
+        try {
+          sluitFn = await vindActie(naam)?.({ kijkstand: true });
+          await new Promise((klaar) => requestAnimationFrame(() => requestAnimationFrame(klaar)));
+          const weg = new Set(lijst.filter((s) => s.vooraf && s.voor === naam && !vindDoel(s.doel)));
+          // (staat er niets van dit blad, dan opende de actie niets: dat regelt toon() zelf, met het vangnet)
+          if (weg.size && lijst.some((s) => s.voor === naam && s.doel && vindDoel(s.doel))) lijst = lijst.filter((s) => !weg.has(s));
+        } catch {
+          /* niet gemeten: de stap valt weg wanneer ze aan de beurt is */
+        }
+        try {
+          if (typeof sluitFn === 'function') await sluitFn();
+        } catch {
+          /* een sluitfunctie die faalt mag de rondleiding niet breken */
+        }
+      }
+      // Het blad sluit soms met een korte beweging: onzichtbaar blijven tot het echt dicht is (hoogstens een halve seconde).
+      for (let i = 0; i < 30 && document.querySelector('dialog[open]'); i++) await new Promise((klaar) => requestAnimationFrame(klaar));
+    } finally {
+      document.documentElement.classList.remove('uitleg-meet');
+    }
+    gang = verloop(lijst.length, Math.max(0, lijst.indexOf(hier)));
+  }
   async function toon() {
+    if (!voorafGemeten && gang) {
+      voorafGemeten = true;
+      const mijnStart = slag;
+      await meetVooraf();
+      if (mijnStart !== slag || actief !== handvat) return;
+    }
     if (!lijst.length) {
       // Alles viel weg (verdeeld of zonder onderdeel): het vangnet, of dicht als er geen vangnet is.
       if (!vangnet) return sluit(false);

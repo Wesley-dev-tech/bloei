@@ -37,6 +37,11 @@
 .over.over.over { gap: 0; }
 .meer__raster > .meer__menu.meer__menu > .rij { min-height: 0; height: 64px; padding-top: 0; padding-bottom: 0; margin-top: var(--s-1); align-items: center; box-sizing: border-box; }
 .meer__raster > .meer__menu.meer__menu > .rij:first-of-type { margin-top: 0; }
+/* Op een telefoon loopt de ondertitel van een rij soms over twee regels ("Je dagdoel en de grootte van je dranken"). Een vaste 64 px liet die tekst
+   dan tegen de scheidingslijn plakken. De rij groeit nu mee: minstens 64 px, met boven en onder altijd 10 px lucht, in elke rij gelijk. */
+@media (max-width: 719.98px) {
+  .meer__raster > .meer__menu.meer__menu > .rij { height: auto; min-height: 64px; padding-top: 10px; padding-bottom: 10px; }
+}
 .meer__raster > .meer__menu.meer__menu, .meer__raster > .over.over { align-self: stretch; height: auto; }
 .over.over > .over__logo { margin-bottom: var(--s-3); }
 .over.over > .over__tekst { margin-bottom: 20px; }

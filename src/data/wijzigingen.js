@@ -8,6 +8,20 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.4.1',
+    datum: '2026-11-23',
+    tijd: '08:46',
+    punten: [
+      { begrip: 'uitleg', tekst: 'Alle rondleidingen en handleidingen zijn nagekeken. De knoppen bovenaan en elk blok Goed om te weten hebben nu overal een eigen stap.' },
+      { begrip: 'uitleg', tekst: 'Een stap toont het hele onderdeel waar de tekst over gaat, of verdeelt het in delen. Geen half vak meer.' },
+      { begrip: 'eten', tekst: 'Een maaltijd noteren volgt het blad van boven naar onder, met Zelfde als gisteren en je favorieten erbij.' },
+      { begrip: 'gewicht', tekst: 'In Een weging noteren heet de knop juist: Noteren. Aanpassen of verwijderen duidt de lijst Je wegingen aan.' },
+      { begrip: 'herinneringen', tekst: 'De stap Het uur kiezen duidt het tijdstip zelf aan.' },
+      { begrip: 'vergrendeling', tekst: 'De titels Vergrendeling en Herinneringen staan weer volledig bovenaan.' },
+      { begrip: 'instellingen', tekst: 'Onder Jouw instellingen heeft elke rij nu evenveel ruimte boven en onder de tekst, ook als die over twee regels loopt.' },
+    ],
+  },
+  {
     versie: '0.4.0',
     datum: '2026-11-22',
     tijd: '21:10',
