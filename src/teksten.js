@@ -1316,7 +1316,7 @@ export const TEKSTEN = {
       },
       slot: {
         aanzetten: { titel: "Het slot aanzetten", tekst: "Zet Bloei vergrendelen aan om te beginnen. Uitzetten doe je met dezelfde schakelaar en je code: Pincode en Face ID gaan dan allebei uit." },
-        code: { titel: "Een code van zes cijfers", tekst: "Kies een code van zes cijfers en geef hem twee keer in." },
+        code: { titel: "Een code van zes cijfers", tekst: "Kies een code van zes cijfers en geef hem twee keer in. Dat doe je op een slotscherm zoals dit voorbeeld." },
         faceid: { titel: "Pincode of Face ID", tekst: "Kies onder de schakelaar Pincode of Face ID. Bij Face ID kies je eerst een code, en daarna vraagt je toestel om Face ID. Lukt dat later even niet, dan open je Bloei met je code." },
         terugkeer: { titel: "Telkens je terugkeert", tekst: "Bloei vraagt je code of Face ID telkens je de app opent of ernaar terugkeert." },
         wijzigen: { titel: "De code wijzigen", tekst: "Wil je een andere code? Tik op Wijzigen en geef eerst je huidige code in." },
@@ -1482,9 +1482,8 @@ export const TEKSTEN = {
         gegevens: { titel: "Je gegevens", tekst: "Onder Je gegevens lees je wat er voor een herinnering naar de meldingsdienst gaat: alleen het adres voor de melding en de uren. Je dagboek blijft op je toestel." },
       },
       vergrendeling: {
-        voorbeeld: { titel: "Zo ziet het slot eruit", tekst: "Dit is het slotscherm in het klein, met je code van zes cijfers. Het verandert mee met wat je instelt. Met Ik ken mijn code niet meer kies je op het echte slotscherm een nieuwe code." },
+        voorbeeld: { titel: "Zo ziet het slot eruit", tekst: "Dit voorbeeld van het slotscherm verandert mee met wat je instelt. Een nieuwe code geef je twee keer in. Met Ik ken mijn code niet meer kies je op het echte slotscherm een nieuwe." },
         aanzetten: { titel: "Het slot aanzetten", tekst: "Zet Bloei vergrendelen aan en kies een code van zes cijfers. Daarna vraagt Bloei je code of Face ID telkens je de app opent of ernaar terugkeert. Uitzetten kan altijd." },
-        code: { titel: "Een code van zes cijfers", tekst: "Je kiest een code van zes cijfers en geeft hem twee keer in. Zo weet je zeker dat je hem juist tikte. Je tikt hem in op een slotscherm zoals dit voorbeeld." },
         faceid: { titel: "Pincode of Face ID", tekst: "Kies hoe Bloei opent: met je pincode of met Face ID. Lukt Face ID even niet, dan gebruik je je code. Kan je toestel het niet, dan kan je Face ID niet kiezen." },
         herstel: { titel: "Als je je code vergeet", tekst: "Ken je je code niet meer, dan kies je een nieuwe met je toestel of met je herstelcode. Hier maak je een nieuwe herstelcode als je de oude kwijt bent." },
         weetjes: { titel: "Goed om te weten", tekst: "Hier lees je in drie regels hoe het slot werkt. Met Toon het me start je deze rondleiding opnieuw." },

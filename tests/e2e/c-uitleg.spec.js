@@ -633,7 +633,6 @@ const VERWACHT = {
   'meer/gewicht.weetjes': { sel: '.instel__weetjes' },
   'meer/gewicht.kop': { sel: '.schermkop__acties', naam: /Algemeen/ },
   'meer/vergrendeling.aanzetten': { haak: 'slot-schakelaar', naam: /Bloei vergrendelen/ },
-  'meer/vergrendeling.code': { sel: '.slotvoorbeeld' }, // het hele voorbeeld van het slotscherm (vroeger opnieuw de schakelaar)
   'meer/vergrendeling.faceid': { rol: 'radiogroup', haak: 'slot-keuze', naam: /Face ID/ },
   'meer/vergrendeling.wijzigen': { haak: 'slot-pin', optioneel: true }, // alleen als het slot aan staat
   'meer/vergrendeling.herstel': { haak: 'slot-herstel', naam: /Herstelcode/, optioneel: true }, // alleen met het slot aan (BESLISSING 531)
@@ -722,7 +721,7 @@ const VERWACHT = {
   'h:dagboek.dag': { tag: 'button', sel: '.dagboek__segment .segment__deel:last-child', naam: /Maand/ },
   'h:dagboek.notitie': { sel: '.dag__notitie' },
   'h:slot.aanzetten': { haak: 'slot-schakelaar', naam: /Bloei vergrendelen/ },
-  'h:slot.code': { sel: '.slotvoorbeeld__rooster' },
+  'h:slot.code': { sel: '.slotvoorbeeld' }, // het hele voorbeeld, niet alleen de toetsen
   'h:slot.faceid': { haak: 'slot-keuze', naam: /Face ID/ },
   'h:slot.terugkeer': { sel: '.instel__weetjes, .meldingen__goed' },
   'h:slot.wijzigen': { haak: 'slot-pin', optioneel: true }, // alleen als het slot aan staat

@@ -189,14 +189,14 @@ export const STAPPEN = {
   ],
   'meer/vergrendeling': [
     { id: 'aanzetten', doel: '[data-uitleg="slot-schakelaar"], .slot-scherm .schakelaar' },
-    // Het hele voorbeeld van het slotscherm (vroeger wees deze stap opnieuw de schakelaar van de stap erboven aan).
-    { id: 'code', doel: '.slotvoorbeeld' },
     { id: 'faceid', doel: '[data-uitleg="slot-keuze"]' },
     // De rij Pincode met de knop Wijzigen bestaat alleen met het slot aan; anders valt de stap weg. Dezelfde tekst als in de handleiding.
     { id: 'wijzigen', doel: '[data-uitleg="slot-pin"]', tekstVan: 'handeling.slot.wijzigen' },
     // BESLISSINGEN 531, 538 en 541: één stap over een vergeten code. Ze wijst de rij Herstelcode aan (de rij van het toestel verdwijnt: herstel met
     // het toestel kan zonder koppelen). De rij bestaat alleen met het slot aan; anders valt de stap weg.
     { id: 'herstel', doel: '[data-uitleg="slot-herstel"]' },
+    // Eén stap over het voorbeeld van het slotscherm, op de plaats waar het op het scherm staat. Vroeger wees ook een stap
+    // "Een code van zes cijfers" (de tweede) dit voorbeeld aan: twee keer hetzelfde vak. Haar zin over de code staat nu hier.
     { id: 'voorbeeld', doel: '.slotvoorbeeld' },
     { id: 'weetjes', doel: '.instel__weetjes' },
     { id: 'kop', doel: '.schermkop__acties', tekstVan: 'stap.kopSub' },
@@ -336,7 +336,8 @@ export const STAPPEN = {
   ],
   'h:slot': [
     { id: 'aanzetten', doel: '[data-uitleg="slot-schakelaar"], .slot-scherm .schakelaar' },
-    { id: 'code', doel: '.slotvoorbeeld__rooster' },
+    // Het hele voorbeeld van het slotscherm, niet alleen de toetsen: daar tik je de code in. Past het niet naast de uitlegkaart, dan een kleiner deel (KLEIN).
+    { id: 'code', doel: '.slotvoorbeeld' },
     { id: 'faceid', doel: '[data-uitleg="slot-keuze"], .slotvoorbeeld__faceid' },
     { id: 'terugkeer', doel: '.instel__weetjes, .meldingen__goed' }, // de weetjes van Vergrendeling (Herinneringen heeft .meldingen__goed)
     { id: 'wijzigen', doel: '[data-uitleg="slot-pin"]' },
@@ -374,7 +375,7 @@ const KLEIN = {
   'delen.voorbeeld': VERSLAG_KLEIN,
   'meer/vergrendeling.faceid': [{ doel: '.slot__optie[data-methode="pin"]' }],
   'h:slot.faceid': [{ doel: '.slot__optie[data-methode="pin"]' }],
-  'meer/vergrendeling.code': [{ doel: '.slotvoorbeeld > .logo', ook: '.slotvoorbeeld__kwijt' }, { doel: '.slotvoorbeeld > .logo', ook: '.slotvoorbeeld__rooster' }, { doel: '.slotvoorbeeld__rooster' }],
+  'h:slot.code': [{ doel: '.slotvoorbeeld > .logo', ook: '.slotvoorbeeld__kwijt' }, { doel: '.slotvoorbeeld > .logo', ook: '.slotvoorbeeld__rooster' }, { doel: '.slotvoorbeeld__rooster' }],
   'meer/vergrendeling.voorbeeld': [{ doel: '.slotvoorbeeld > .logo', ook: '.slotvoorbeeld__kwijt' }, { doel: '.slotvoorbeeld > .logo', ook: '.slotvoorbeeld__rooster' }, { doel: '.slotvoorbeeld__rooster' }],
   'h:slot.terugkeer': [{ doel: '.instel__weetjesrij' }, { doel: '.instel__weetjesrij > .weetje:first-child', ook: '.instel__weetjesrij > .weetje:nth-child(3)' }],
   'meer/favorieten.gebruiken': [{ doel: '.favorietvoorbeeld__maaltijden', ook: '.favorietvoorbeeld__chips' }, { doel: '.favorietvoorbeeld__chips' }],
@@ -778,8 +779,7 @@ export const heeftUitleg = (sleutel) => Boolean(STAPPEN[sleutel]);
 //   breed: het menu staat links (vanaf 960 px, layout.css); smal: de balk onderaan, met telefoon (onder 720 px) en tablet als fijnere maat;
 //   muis: een muis of touchpad met hover ((hover: hover) and (pointer: fine)); anders aanraking.
 // TOESTEL_TEKST geeft per tekst (deel van de teksten + id) de varianten; een variant vervangt titel of tekst. Met een muis wordt "tik" daarna
-// "klik" (en aantikken, getikt, tikte), behalve in de teksten over iets op de telefoon zelf (Bloei op het beginscherm) of over het intikken
-// van een code (ZONDER_KLIK).
+// "klik" (en aantikken, getikt, tikte), behalve in de teksten over iets op de telefoon zelf (Bloei op het beginscherm; ZONDER_KLIK).
 export const TOESTEL_TEKST = {
   'stap.vandaag.menu': {
     // telefoon: vijf tabbladen, Algemeen zit achter het tandwiel bovenaan; tablet: zes tabbladen in dezelfde balk; breed: het menu links.
@@ -816,7 +816,7 @@ export const TOESTEL_TEKST = {
     aanraak: { tekst: 'Je slaat een rondleiding over met Overslaan.' },
   },
 };
-const ZONDER_KLIK = ['stap.beginscherm', 'handeling.beginscherm', 'stap.vergrendeling.code'];
+const ZONDER_KLIK = ['stap.beginscherm', 'handeling.beginscherm'];
 const KLIK = [[/\baantikken\b/g, 'aanklikken'], [/\bAantikken\b/g, 'Aanklikken'], [/\bgetikt\b/g, 'geklikt'], [/\btikte\b/g, 'klikte'], [/\btik\b/g, 'klik'], [/\bTik\b/g, 'Klik']];
 const naarKlik = (x) => KLIK.reduce((a, [re, door]) => a.replace(re, door), String(x ?? ''));
 function variant(sleutel, { muis = false, breed = false, telefoon = false } = {}) {

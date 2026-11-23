@@ -8,6 +8,15 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.4.2',
+    datum: '2026-11-23',
+    tijd: '09:06',
+    punten: [
+      { begrip: 'vergrendeling', tekst: 'De rondleiding van Vergrendeling toont het voorbeeld van het slotscherm nog maar een keer, met een nieuwe tekst.' },
+      { begrip: 'vergrendeling', tekst: 'In Bloei vergrendelen duidt de stap Een code van zes cijfers het hele voorbeeld aan, niet alleen de cijfers.' },
+    ],
+  },
+  {
     versie: '0.4.1',
     datum: '2026-11-23',
     tijd: '08:46',
