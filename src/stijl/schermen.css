@@ -634,8 +634,9 @@ a.week__link { min-height: 48px; justify-content: center; }
 .badgehero__naam { font-family: 'Cormorant Garamond', serif; }
 .badgehero__reeks { display: flex; flex-direction: column; gap: var(--s-4); }
 .medailleraster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-4); align-items: stretch; }
-.medaillekaart { display: flex; flex-direction: column; align-items: center; justify-content: flex-start; gap: var(--s-3); padding: var(--s-5) var(--s-3); text-align: center; height: 100%; }
-.medaillekaart .medaille-bijschrift { flex: 1; justify-content: flex-start; }
+/* Elke kaart heeft drie rijen (de medaille, de naam, de regel eronder) en deelt die met de kaarten naast haar (subgrid): zo beginnen in
+   een rij alle namen op dezelfde hoogte en alle regels eronder ook, of een naam nu over een, twee of drie regels loopt. */
+.medaillekaart { display: grid; grid-row: span 3; grid-template-rows: subgrid; grid-template-columns: minmax(0, 1fr); justify-items: center; align-items: start; row-gap: var(--s-3); padding: var(--s-5) var(--s-3); text-align: center; }
 .medaillekaart__naam { font-size: var(--fs-h2); line-height: 1.15; }
 @media (hover: hover) { .medaillekaart:hover .medaille { transform: scale(1.07); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); } }
 .medaillekaart:active .medaille { transform: scale(.96); }

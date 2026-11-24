@@ -8,7 +8,18 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
-    versie: '0.5.0',
+    versie: '0.4.4',
+    datum: '2026-11-24',
+    tijd: '21:27',
+    punten: [
+      { begrip: 'algemeen', tekst: 'Er zijn nu 100 medailles in plaats van 33, met twee nieuwe groepen: Bloei leren kennen en Je verzameling.' },
+      { begrip: 'algemeen', tekst: 'Wat je al deed, telt mee: de medailles die je daardoor al hebt, staan er met de dag waarop je ze verdiende.' },
+      { begrip: 'algemeen', tekst: 'Elke nieuwe medaille heeft haar eigen zin op Vandaag op de dag dat je ze behaalt.' },
+      { begrip: 'delen', tekst: 'Bloei telt vanaf nu je verslagen, voor de medailles Vijf verslagen en Tien verslagen.' },
+    ],
+  },
+  {
+    versie: '0.4.3', // ging op 24 november eerst uit als 0.5.0: een fout nummer, hersteld in 0.4.4 (zie gezienVersie hieronder)
     datum: '2026-11-24',
     tijd: '21:01',
     punten: [
@@ -242,6 +253,13 @@ export function vergelijkVersies(a, b) {
     if (verschil !== 0) return verschil;
   }
   return 0;
+}
+
+// Versie 0.4.3 ging eerst uit met het nummer 0.5.0, tegen de afspraak in dat elke versie één hoger is op het laatste cijfer. Een toestel
+// dat toen '0.5.0' onthield, zag in feite 0.4.3: zonder deze correctie zou het blad "Nieuw in Bloei" daar zwijgen tot er echt een 0.5.1 is.
+// Alleen zolang de app zelf onder 0.5.0 zit: komt de echte 0.5.0 er, dan betekent dat nummer weer gewoon wat het zegt.
+export function gezienVersie(gezien, huidige) {
+  return gezien === '0.5.0' && vergelijkVersies(huidige, '0.5.0') < 0 ? '0.4.3' : gezien;
 }
 
 // Alles wat nieuwer is dan de versie die de gebruiker al zag, tot en met de versie die nu draait, nieuwste eerst.

@@ -154,7 +154,10 @@ const geheel = { scroll: await horizontaleScroll(page), buiten: (await buitenVen
       const voor = k.getBoundingClientRect().height;
       const oud = k.style.cssText;
       k.style.alignSelf = 'start';
-      k.style.height = 'auto'; // .medaillekaart heeft height: 100% van haar rastercel
+      k.style.height = 'auto';
+      // .medaillekaart deelt haar drie rijen met haar buren (subgrid): met eigen rijen heeft ze haar eigen hoogte
+      k.style.gridTemplateRows = 'none';
+      k.style.gridRow = 'auto';
       const eigen = k.getBoundingClientRect().height;
       k.style.cssText = oud;
       return Math.max(0, voor - eigen);

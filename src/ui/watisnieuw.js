@@ -14,7 +14,7 @@ import { begripTegel } from './iconenkaart.js';
 import { t } from '../teksten.js';
 import { opmaakDatum } from '../kern/datum.js';
 import { leesInstelling, zetInstelling, isStartKlaar } from '../data/instellingen.js';
-import { WIJZIGINGEN, wijzigingenSinds } from '../data/wijzigingen.js';
+import { WIJZIGINGEN, gezienVersie, wijzigingenSinds } from '../data/wijzigingen.js';
 import { DEMO } from '../kern/demo.js';
 import { version as appVersie } from '../../package.json';
 
@@ -74,7 +74,8 @@ export function openWatIsNieuw(lijst) {
 export async function toonWatIsNieuwBijStart() {
   if (DEMO) return false;
   try {
-    const gezien = await leesInstelling('versie.gezien');
+    // (gezienVersie: een toestel dat het foute nummer 0.5.0 onthield, zag 0.4.3)
+    const gezien = gezienVersie(await leesInstelling('versie.gezien'), appVersie);
     if (gezien === appVersie) return false;
     const lijst = wijzigingenSinds(gezien, appVersie);
     await zetInstelling('versie.gezien', appVersie);

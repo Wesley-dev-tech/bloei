@@ -114,8 +114,8 @@ describe('teksten', () => {
   });
 
   it('heeft voor elke badge een naam en een uitleg, en geen herstelvragen meer', () => {
-    expect(Object.keys(TEKSTEN.badge.namen)).toHaveLength(33);
-    expect(Object.keys(TEKSTEN.badge.voorwaarden)).toHaveLength(33);
+    expect(Object.keys(TEKSTEN.badge.namen)).toHaveLength(100);
+    expect(Object.keys(TEKSTEN.badge.voorwaarden)).toHaveLength(100);
     expect(Object.keys(TEKSTEN.badge.namen).sort()).toEqual(Object.keys(TEKSTEN.badge.voorwaarden).sort());
     expect(TEKSTEN.slot.herstelVragen).toBeUndefined();
   });

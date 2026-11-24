@@ -2,12 +2,12 @@
 // verschil, nooit "minder" van iets. Voorbeelddata telt nooit mee (de data-laag geeft alleen eigen gegevens door). Een badge wordt nooit afgenomen:
 // de regels worden alleen nagekeken om nieuwe toe te kennen (data/badges.js). De elf oorspronkelijke badges staan in logica/badges.js.
 import { BADGES } from './badges.js';
-import { plusDagen } from '../kern/datum.js';
+import { plusDagen, weekStart } from '../kern/datum.js';
 import { ETEN_KLAAR, isDagRond } from './motivatie.js';
 import { rooster, telMomenten } from './supplementen.js';
 
 // De groepen op het badgescherm, in volgorde. De sleutel hoort bij badge.groepen.<sleutel> in teksten.js.
-export const GROEPEN = ['bijhouden', 'eten', 'drinken', 'supplementen', 'stemming', 'gewicht', 'dag', 'delen'];
+export const GROEPEN = ['bijhouden', 'eten', 'drinken', 'supplementen', 'stemming', 'gewicht', 'dag', 'delen', 'kennen', 'verzameling'];
 
 // De nieuwe badges. stats komt uit leesBadgeStats() (data/badges.js): de oude stats plus de velden hieronder.
 export const NIEUWE_BADGES = [
@@ -42,6 +42,80 @@ export const NIEUWE_BADGES = [
   // Delen: het event verslag:gemaakt (data/verslag.js) zet een instelling; zie leesBadgeStats
   { id: 'eerste-verslag', groep: 'delen', voorwaarde: (s) => (s.verslagen ?? 0) >= 1 },
 ];
+
+// De uitbreiding naar honderd medailles (0.4.4): elke regel is "een teller haalt een drempel". [id, groep, teller, drempel, eenheid]
+// De tellers komen uit leesBadgeStats (data/badges.js). Nog altijd alleen gedrag: geen medaille voor een stemming, voor wat ze at of voor
+// een getal van de weegschaal. De medailles van Je verzameling tellen de behaalde medailles zelf (teller medailles).
+export const DREMPELS = [
+  ['tweehonderd', 'bijhouden', 'dagenBijgehouden', 200, 'dagen'],
+  ['vijfhonderd', 'bijhouden', 'dagenBijgehouden', 500, 'dagen'],
+  ['twee-maanden-op-rij', 'bijhouden', 'lopendeReeks', 60, 'dagen'],
+  ['honderd-op-rij', 'bijhouden', 'lopendeReeks', 100, 'dagen'],
+  ['volle-week', 'bijhouden', 'volleWeken', 1, 'weken'],
+  ['volle-maand', 'bijhouden', 'volleMaanden', 1, 'maanden'],
+  ['altijd-welkom', 'bijhouden', 'terugDagen', 3, 'keer'],
+  ['vijf-op-rij', 'bijhouden', 'lopendeReeks', 5, 'dagen'],
+  ['tien-op-rij', 'bijhouden', 'lopendeReeks', 10, 'dagen'],
+  ['drie-weken-op-rij', 'bijhouden', 'lopendeReeks', 21, 'dagen'],
+  ['vijftig-op-rij', 'bijhouden', 'lopendeReeks', 50, 'dagen'],
+  ['jaar-op-rij', 'bijhouden', 'lopendeReeks', 365, 'dagen'],
+  ['duizend-dagen', 'bijhouden', 'dagenBijgehouden', 1000, 'dagen'],
+  ['vier-volle-weken', 'bijhouden', 'volleWeken', 4, 'weken'],
+  ['honderd-maaltijden', 'eten', 'maaltijden', 100, 'maaltijden'],
+  ['vijfhonderd-maaltijden', 'eten', 'maaltijden', 500, 'maaltijden'],
+  ['vijf-favorieten', 'eten', 'favorieten', 5, 'favorieten'],
+  ['drie-op-een-dag', 'eten', 'etenKlaarDagen', 1, 'dagen'],
+  ['tien-gevoel', 'eten', 'gevoelMaaltijden', 10, 'maaltijden'],
+  ['tien-maaltijden', 'eten', 'maaltijden', 10, 'maaltijden'],
+  ['tien-favorieten', 'eten', 'favorieten', 10, 'favorieten'],
+  ['zeven-drie-maaltijden', 'eten', 'etenKlaarDagen', 7, 'dagen'],
+  ['vijftig-dagdoelen', 'drinken', 'doelDagen', 50, 'dagen'],
+  ['honderd-dagdoelen', 'drinken', 'doelDagen', 100, 'dagen'],
+  ['twee-weken-water', 'drinken', 'langsteDoelReeks', 14, 'dagen'],
+  ['maand-water', 'drinken', 'langsteDoelReeks', 30, 'dagen'],
+  ['eerste-slok', 'drinken', 'dranken', 1, 'dranken'],
+  ['drie-dagen-water', 'drinken', 'langsteDoelReeks', 3, 'dagen'],
+  ['honderd-liter', 'drinken', 'liters', 100, 'liter'],
+  ['drie-soorten', 'drinken', 'drankSoorten', 3, 'soorten'],
+  ['vijftig-vol', 'supplementen', 'volledigeMomentDagen', 50, 'dagen'],
+  ['honderd-vol', 'supplementen', 'volledigeMomentDagen', 100, 'dagen'],
+  ['op-ritme', 'supplementen', 'periodiekInnames', 1, 'keer'],
+  ['tien-ritme', 'supplementen', 'periodiekInnames', 10, 'keer'],
+  ['eigen-lijst', 'supplementen', 'supplementenAantal', 1, 'supplementen'],
+  ['honderd-vinkjes', 'supplementen', 'innames', 100, 'vinkjes'],
+  ['zeven-op-rij-afgevinkt', 'supplementen', 'langsteVolReeks', 7, 'dagen'],
+  ['vijftig-notities', 'stemming', 'notitieDagen', 50, 'dagen'],
+  ['honderd-stemmingen', 'stemming', 'stemmingDagen', 100, 'dagen'],
+  ['dertig-energie', 'stemming', 'energieDagen', 30, 'dagen'],
+  ['week-gezichtjes', 'stemming', 'langsteStemmingReeks', 7, 'dagen'],
+  ['honderd-notities', 'stemming', 'notitieDagen', 100, 'dagen'],
+  ['maand-gezichtjes', 'stemming', 'langsteStemmingReeks', 30, 'dagen'],
+  ['gezichtje-en-blaadje', 'stemming', 'beideDagen', 7, 'dagen'],
+  ['twaalf-wegingen', 'gewicht', 'wegingen', 12, 'wegingen'],
+  ['halfjaar-wegen', 'gewicht', 'wegingen', 26, 'wegingen'],
+  ['jaar-wegen', 'gewicht', 'wegingen', 52, 'wegingen'],
+  ['vier-weken-wegen', 'gewicht', 'langsteWeegReeks', 4, 'weken'],
+  ['drie-rond-op-rij', 'dag', 'langsteRondReeks', 3, 'dagen'],
+  ['week-rond', 'dag', 'langsteRondReeks', 7, 'dagen'],
+  ['dertig-rond', 'dag', 'dagRondDagen', 30, 'dagen'],
+  ['twee-weken-rond', 'dag', 'langsteRondReeks', 14, 'dagen'],
+  ['vijftig-rond', 'dag', 'dagRondDagen', 50, 'dagen'],
+  ['volledige-dag', 'dag', 'helemaalDagen', 1, 'dagen'],
+  ['vijf-verslagen', 'delen', 'verslagen', 5, 'verslagen'],
+  ['tien-verslagen', 'delen', 'verslagen', 10, 'verslagen'],
+  ['eerste-rondleiding', 'kennen', 'rondleidingen', 1, 'rondleidingen'],
+  ['eigen-kleur', 'kennen', 'themaGekozen', 1, 'keer'],
+  ['seintje-aan', 'kennen', 'herinneringAan', 1, 'keer'],
+  ['achter-slot', 'kennen', 'slotAan', 1, 'keer'],
+  ['op-beginscherm', 'kennen', 'opBeginscherm', 1, 'keer'],
+  ['eigen-profiel', 'kennen', 'eigenProfiel', 1, 'keer'],
+  ['vijf-rondleidingen', 'kennen', 'rondleidingen', 5, 'rondleidingen'],
+  ['tien-medailles', 'verzameling', 'medailles', 10, 'medailles'],
+  ['vijfentwintig-medailles', 'verzameling', 'medailles', 25, 'medailles'],
+  ['vijftig-medailles', 'verzameling', 'medailles', 50, 'medailles'],
+  ['verzameling-compleet', 'verzameling', 'medailles', 99, 'medailles'],
+];
+for (const [id, groep, teller, drempel] of DREMPELS) NIEUWE_BADGES.push({ id, groep, voorwaarde: (s) => (s[teller] ?? 0) >= drempel });
 
 // De groep van de elf oorspronkelijke badges.
 const OUDE_GROEP = {
@@ -114,6 +188,7 @@ export const DOEL = {
   'zeven-dagen-rond': ['dagRondDagen', 7, 'dagen'],
   'eerste-verslag': ['verslagen', 1, 'verslag'],
 };
+for (const [id, , teller, drempel, eenheid] of DREMPELS) DOEL[id] = [teller, drempel, eenheid];
 
 // { aantal (afgekapt op het doel), doel, fractie 0 tot 1, eenheid } of null als de badge geen voortgang heeft.
 export function voortgangVan(id, stats) {
@@ -137,6 +212,35 @@ export function langsteReeks(datums) {
     vorige = d;
   }
   return beste;
+}
+
+// De langste reeks opeenvolgende weken in een lijst maandagen (voor de wegingen).
+export function langsteWeekReeks(weken) {
+  const lijst = [...new Set(weken)].sort();
+  let beste = 0;
+  let lopend = 0;
+  let vorige = null;
+  for (const w of lijst) {
+    lopend = vorige && plusDagen(vorige, 7) === w ? lopend + 1 : 1;
+    if (lopend > beste) beste = lopend;
+    vorige = w;
+  }
+  return beste;
+}
+
+// Hoeveel kalenderweken (maandag tot zondag) en kalendermaanden volledig bijgehouden zijn.
+export function volleWekenUit(datums) {
+  const perWeek = new Map();
+  for (const d of new Set(datums)) perWeek.set(weekStart(d), (perWeek.get(weekStart(d)) ?? 0) + 1);
+  return [...perWeek.values()].filter((n) => n === 7).length;
+}
+export function volleMaandenUit(datums) {
+  const perMaand = new Map();
+  for (const d of new Set(datums)) perMaand.set(d.slice(0, 7), (perMaand.get(d.slice(0, 7)) ?? 0) + 1);
+  return [...perMaand].filter(([maand, n]) => {
+    const [j, m] = maand.split('-').map(Number);
+    return n === new Date(j, m, 0).getDate();
+  }).length;
 }
 
 // Hoe vaak ze terugkwam na stilte: een bijgehouden dag minstens `minVerschil` dagen na de vorige (standaard 5, dus vier lege dagen).
@@ -168,6 +272,6 @@ export function rondeDagenUit({ maaltijden = [], dranken = [], innames = [], sup
   for (const d of dranken) mlPerDag.set(d.datum, (mlPerDag.get(d.datum) ?? 0) + d.ml);
   return [...soortenPerDag].map(([datum, soorten]) => {
     const { klaar, totaal } = telMomenten(rooster(datum, supplementen, innames));
-    return { etenKlaar: ETEN_KLAAR.every((s) => soorten.has(s)), supplementen: { genomen: klaar, totaal }, ml: mlPerDag.get(datum) ?? 0, doelMl };
+    return { datum, etenKlaar: ETEN_KLAAR.every((s) => soorten.has(s)), supplementen: { genomen: klaar, totaal }, ml: mlPerDag.get(datum) ?? 0, doelMl };
   });
 }

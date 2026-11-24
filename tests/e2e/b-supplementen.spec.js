@@ -314,7 +314,7 @@ test('E12: zonder supplementen in de lijst telt dat onderdeel niet mee, en het w
   await page.goto('./#/dagboek');
   await page.getByRole('radio', { name: 'Week' }).click();
   await expect(page.locator('.week__zin')).toBeVisible();
-  await expect(page.locator('.week__zin')).not.toContainText(/vergeten|gemist|!/); // (een gunstige vergelijking met vorige week mag sinds 0.5.0)
+  await expect(page.locator('.week__zin')).not.toContainText(/vergeten|gemist|!/); // (een gunstige vergelijking met vorige week mag sinds 0.4.3)
   const zin = await page.locator('.week__zin').textContent();
   await page.reload();
   await expect(page.locator('.week__zin')).toHaveText(zin);

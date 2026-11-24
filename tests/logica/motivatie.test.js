@@ -1,4 +1,4 @@
-// De warme zin van de dag en van de week (PLAN.md §15.2, uitgebreid in 0.5.0): pure functies, vaste keuze per dag.
+// De warme zin van de dag en van de week (PLAN.md §15.2, uitgebreid in 0.4.3): pure functies, vaste keuze per dag.
 import { describe, expect, test } from 'vitest';
 import { GROEPEN, MIJLPALEN, WEEKGROEPEN, isDagRond, kiesMotivatie, kiesWeekMotivatie, kiesWeekZin, kiesZin, reactieUit } from '../../src/logica/motivatie.js';
 import { besteEerdereReeks, verledenUit, weekVerledenUit } from '../../src/logica/verleden.js';

@@ -41,13 +41,81 @@ const REGELS = [
   ['dag-rond', 'dagRondDagen', 1],
   ['zeven-dagen-rond', 'dagRondDagen', 7],
   ['eerste-verslag', 'verslagen', 1],
+  // de uitbreiding naar honderd medailles (DREMPELS)
+  ['tweehonderd', 'dagenBijgehouden', 200],
+  ['vijfhonderd', 'dagenBijgehouden', 500],
+  ['twee-maanden-op-rij', 'lopendeReeks', 60],
+  ['honderd-op-rij', 'lopendeReeks', 100],
+  ['volle-week', 'volleWeken', 1],
+  ['volle-maand', 'volleMaanden', 1],
+  ['altijd-welkom', 'terugDagen', 3],
+  ['vijf-op-rij', 'lopendeReeks', 5],
+  ['tien-op-rij', 'lopendeReeks', 10],
+  ['drie-weken-op-rij', 'lopendeReeks', 21],
+  ['vijftig-op-rij', 'lopendeReeks', 50],
+  ['jaar-op-rij', 'lopendeReeks', 365],
+  ['duizend-dagen', 'dagenBijgehouden', 1000],
+  ['vier-volle-weken', 'volleWeken', 4],
+  ['honderd-maaltijden', 'maaltijden', 100],
+  ['vijfhonderd-maaltijden', 'maaltijden', 500],
+  ['vijf-favorieten', 'favorieten', 5],
+  ['drie-op-een-dag', 'etenKlaarDagen', 1],
+  ['tien-gevoel', 'gevoelMaaltijden', 10],
+  ['tien-maaltijden', 'maaltijden', 10],
+  ['tien-favorieten', 'favorieten', 10],
+  ['zeven-drie-maaltijden', 'etenKlaarDagen', 7],
+  ['vijftig-dagdoelen', 'doelDagen', 50],
+  ['honderd-dagdoelen', 'doelDagen', 100],
+  ['twee-weken-water', 'langsteDoelReeks', 14],
+  ['maand-water', 'langsteDoelReeks', 30],
+  ['eerste-slok', 'dranken', 1],
+  ['drie-dagen-water', 'langsteDoelReeks', 3],
+  ['honderd-liter', 'liters', 100],
+  ['drie-soorten', 'drankSoorten', 3],
+  ['vijftig-vol', 'volledigeMomentDagen', 50],
+  ['honderd-vol', 'volledigeMomentDagen', 100],
+  ['op-ritme', 'periodiekInnames', 1],
+  ['tien-ritme', 'periodiekInnames', 10],
+  ['eigen-lijst', 'supplementenAantal', 1],
+  ['honderd-vinkjes', 'innames', 100],
+  ['zeven-op-rij-afgevinkt', 'langsteVolReeks', 7],
+  ['vijftig-notities', 'notitieDagen', 50],
+  ['honderd-stemmingen', 'stemmingDagen', 100],
+  ['dertig-energie', 'energieDagen', 30],
+  ['week-gezichtjes', 'langsteStemmingReeks', 7],
+  ['honderd-notities', 'notitieDagen', 100],
+  ['maand-gezichtjes', 'langsteStemmingReeks', 30],
+  ['gezichtje-en-blaadje', 'beideDagen', 7],
+  ['twaalf-wegingen', 'wegingen', 12],
+  ['halfjaar-wegen', 'wegingen', 26],
+  ['jaar-wegen', 'wegingen', 52],
+  ['vier-weken-wegen', 'langsteWeegReeks', 4],
+  ['drie-rond-op-rij', 'langsteRondReeks', 3],
+  ['week-rond', 'langsteRondReeks', 7],
+  ['dertig-rond', 'dagRondDagen', 30],
+  ['twee-weken-rond', 'langsteRondReeks', 14],
+  ['vijftig-rond', 'dagRondDagen', 50],
+  ['volledige-dag', 'helemaalDagen', 1],
+  ['vijf-verslagen', 'verslagen', 5],
+  ['tien-verslagen', 'verslagen', 10],
+  ['eerste-rondleiding', 'rondleidingen', 1],
+  ['eigen-kleur', 'themaGekozen', 1],
+  ['seintje-aan', 'herinneringAan', 1],
+  ['achter-slot', 'slotAan', 1],
+  ['op-beginscherm', 'opBeginscherm', 1],
+  ['eigen-profiel', 'eigenProfiel', 1],
+  ['vijf-rondleidingen', 'rondleidingen', 5],
+  ['tien-medailles', 'medailles', 10],
+  ['vijfentwintig-medailles', 'medailles', 25],
+  ['vijftig-medailles', 'medailles', 50],
+  ['verzameling-compleet', 'medailles', 99],
 ];
 
 describe('badgeregels (puur)', () => {
   test('alle badges hebben een unieke sleutel, een groep, een naam, een uitleg en een voortgang', () => {
     const ids = ALLE_BADGES.map((b) => b.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toHaveLength(33);
+    expect(ids).toHaveLength(100);
     expect(ids).not.toContain('veilig');
     for (const b of ALLE_BADGES) {
       expect(GROEPEN, b.id).toContain(b.groep);
@@ -106,10 +174,10 @@ describe('badgeregels (puur)', () => {
   });
 
   test('telBadges: behaald is nooit groter dan het totaal; een oude bewaarde rij "veilig" telt niet mee', () => {
-    expect(telBadges([])).toEqual({ behaald: 0, totaal: 33 });
-    expect(telBadges(['veilig', 'week-vol'])).toEqual({ behaald: 1, totaal: 33 });
+    expect(telBadges([])).toEqual({ behaald: 0, totaal: 100 });
+    expect(telBadges(['veilig', 'week-vol'])).toEqual({ behaald: 1, totaal: 100 });
     const alle = ALLE_BADGES.map((b) => b.id);
-    expect(telBadges(alle)).toEqual({ behaald: 33, totaal: 33 });
+    expect(telBadges(alle)).toEqual({ behaald: 100, totaal: 100 });
     expect(telBadges(['onbekend']).behaald).toBe(0);
   });
 

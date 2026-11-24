@@ -130,9 +130,5 @@
 @media (max-width: 369.98px) {
   .supplementen .schema__knop { position: relative; z-index: 1; }
 }
-/* Algemeen > Badges, op een telefoon smaller dan 390 px: staat in een rij een naam op twee regels (bijv. "Zeven stemmingen") naast een naam op een regel, dan is de kaart met de korte naam even
-   hoog en blijft er 67 px leeg onder haar voortgang ("4 van 5 dagen"). De voortgang staat dan in het midden van de ruimte onder de naam (automatische marge): de leegte is verdeeld over twee
-   plaatsen van 30 px. Een kaart zonder extra ruimte verandert niet; vanaf 390 px verandert er niets. */
-@media (max-width: 389.98px) {
-  .medaillekaart > .t-klein { margin-block: auto; }
-}
+/* (Algemeen > Badges: de regel onder de naam stond op een smalle telefoon in het midden van de ruimte eronder. Sinds 0.4.4 staan de namen en
+   de regels eronder per rij op dezelfde hoogte, schermen.css .medaillekaart.) */
