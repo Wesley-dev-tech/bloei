@@ -165,7 +165,7 @@ describe('sleutels in de code', () => {
 });
 
 // De warme zinnen van de motivatie (BESLISSING 114): per groep precies het afgesproken aantal.
-import { GROEPEN, WEEKGROEPEN, kiesZin, kiesWeekZin } from '../../src/logica/motivatie.js';
+import { GROEPEN, VOORBEELD_WAARDEN, WEEKGROEPEN, kiesZin, kiesWeekZin } from '../../src/logica/motivatie.js';
 
 describe('motivatie', () => {
   const alle = { ...GROEPEN, ...WEEKGROEPEN };
@@ -180,10 +180,11 @@ describe('motivatie', () => {
     expect(Object.keys(TEKSTEN.motivatie).sort()).toEqual(Object.keys(alle).sort());
   });
 
-  it('heeft zinnen zonder gewicht, eten, schuld of bevel (naast de algemene zwarte lijst)', () => {
+  it('heeft zinnen zonder gewicht, eten, schuld of bevel (naast de algemene zwarte lijst), en alleen met de plekken die de motivator invult', () => {
     for (const [sleutel, tekst] of ALLES.filter(([k]) => k.startsWith('motivatie.'))) {
       expect(tekst, sleutel).not.toMatch(/gewicht|kilo|afgevallen|bijgekomen|je hebt nog niet|nog niet genoeg|moet|\bzou\b/i);
       expect(tekst.length, sleutel).toBeLessThan(110);
+      for (const [, plek] of tekst.matchAll(/\{(\w+)\}/g)) expect(['naam', 'aantal', 'badge', 'periode'], sleutel).toContain(plek);
     }
   });
 
@@ -191,8 +192,9 @@ describe('motivatie', () => {
     for (const [sleutel, tekst] of ALLES.filter(([k]) => k.startsWith('motivatie.'))) {
       // {naam} komt alleen voor in de vorm ", {naam}", nooit aan het begin of los
       expect(tekst.replaceAll(', {naam}', '').includes('{naam}'), sleutel).toBe(false);
-      const met = warmeZin(sleutel, 'Testnaam Achternaam');
-      const zonder = warmeZin(sleutel, '');
+      // {aantal}, {badge} en {periode} vult de motivator in (logica/motivatie.js); hier met een voorbeeld
+      const met = warmeZin(sleutel, 'Testnaam Achternaam', VOORBEELD_WAARDEN);
+      const zonder = warmeZin(sleutel, '', VOORBEELD_WAARDEN);
       expect(met, sleutel).not.toContain('{');
       expect(zonder, sleutel).not.toContain('{');
       expect(zonder, sleutel).not.toMatch(/ ,|,\s*[.!?]|,$/);

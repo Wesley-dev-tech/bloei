@@ -15,7 +15,7 @@ import { maaltijdenRijen, eerstvolgendeOpen } from '../ui/maaltijdregel.js';
 import { haakUitleg } from '../ui/uitleghaken.js';
 import { registreerUitleg } from '../uitleg/rondleiding.js';
 import { dagBinder, beheerScherm, toonOngedaanMelding, drankErbij, laatsteWeghalen, drinkbaan } from './hulp.js';
-import { kiesZin } from '../logica/motivatie.js';
+import { isDagRond, kiesMotivatie } from '../logica/motivatie.js';
 import { voornaamVan, groetVoor } from '../logica/naam.js';
 import { schemaVanDag, zetMoment, zetInname, momentVanNu, innameTijdstippen } from '../data/supplementen.js';
 import { isSpuit } from '../logica/supplementen.js';
@@ -29,7 +29,7 @@ import { leesBadges, leesBadgeStats } from '../data/badges.js';
 import { luister } from '../kern/bus.js';
 import { invoerBezig } from '../kern/invoer.js';
 import { installatiestrook } from '../pwa/installatie.js';
-import { t, warmeZin } from '../teksten.js';
+import { motivatieZin, t } from '../teksten.js';
 import { DAGDEEL_UREN, dagdeel, naarSleutel, nuAlsTijd, opmaakDatum, vandaag, weekStart } from '../kern/datum.js';
 import { opmaakLiter, opmaakMl } from '../kern/getal.js';
 import { leesInstelling } from '../data/instellingen.js';
@@ -38,6 +38,9 @@ import { bewaarMaaltijd, leesMaaltijden, zetMaaltijdTerug, MAALTIJDSOORTEN } fro
 import { leesFavorieten, markeerGebruikt, zetFavorietTerug } from '../data/favorieten.js';
 import { totaalMl, leesDranken } from '../data/dranken.js';
 import { leesReeks, dagStatus, leesWeekoverzicht, leesMaand, leesMomentopname, dagenSindsVorigeUit } from '../data/statistiek.js';
+import { leesVerleden } from '../data/verleden.js';
+import { reactieVoor } from '../data/motivatiestand.js';
+import { telMomenten } from '../logica/supplementen.js';
 
 const GEZICHTEN = STEMMING_STAP;
 
@@ -518,20 +521,47 @@ export function toon(houder) {
     staat.klaar = Object.fromEntries(delen.map((d) => [d.sleutel, d.klaar]));
     if (netKlaar.has('drinken')) na.push(() => bloeiOp(baan)); // de baan bloeit één keer op bij het halen van het dagdoel
 
-    const zin = warmeZin(
-      kiesZin({
+    // De motivator (logica/motivatie.js): de zin kijkt naar de stand van de dag, naar het verleden in het dagboek (data/verleden.js) en naar
+    // wat ze net deed (data/motivatiestand.js vergelijkt de stand van vandaag met die van de vorige tekening).
+    const weekBijgehouden = week.dagen.filter((d) => isBijgehouden({ maaltijden: d.maaltijden, ml: d.ml, innames: d.supplementen?.genomen ?? 0, stemming: d.stemming, energie: d.energie, notitie: d.notitie, weging: d.weging })).length;
+    const verleden = await leesVerleden({ datum, rijen, badgeStats, badges: bewaardeBadges, doelMl: doel, weekDagen: weekBijgehouden });
+    const dagStand = { maaltijden: status.maaltijdenIngevuld.length, etenKlaar, ml, doelMl: doel, supplementen: status.supplementen };
+    const wegingNu = rijen.wegingen.find((w) => w.week === weekStart(datum) && !w.voorbeeld);
+    const tel = {
+      maaltijden: status.maaltijdenIngevuld.length,
+      gevoel: Object.values(maaltijden).filter((m) => m && m.gevoel != null).length,
+      tekst: Object.values(maaltijden).map((m) => m?.tekst ?? '').join('|'),
+      ml,
+      genomen: status.supplementen.genomen,
+      periodiek: schema.periodiek.filter((p) => p.genomen).length,
+      momentenKlaar: telMomenten(schema).klaar,
+      stemming: dag.stemming ?? null,
+      energie: dag.energie ?? null,
+      notitie: (dag.notitie ?? '').trim(),
+      weging: wegingNu ? `${wegingNu.datum}|${wegingNu.kg}` : '',
+      favorieten: favorieten.length,
+      iets: status.bijgehouden,
+      rond: isDagRond(dagStand),
+      etenOk: etenKlaar,
+      suppOk: status.supplementen.totaal > 0 && status.supplementen.genomen >= status.supplementen.totaal,
+      doelOk: gehaald,
+      badges: bewaardeBadges.map((b) => b.id),
+      volgende: verleden.badges.volgende ? { id: verleden.badges.volgende.id, aantal: verleden.badges.volgende.aantal } : null,
+    };
+    const zin = motivatieZin(
+      kiesMotivatie({
         dagdeel: deel,
-        maaltijden: status.maaltijdenIngevuld.length,
-        etenKlaar,
-        ml,
-        doelMl: doel,
-        supplementen: status.supplementen,
+        ...dagStand,
         stemming: dag.stemming,
+        energie: dag.energie ?? null,
+        drankenAantal: dranken.length,
         lopendeReeks: reeks.lopendeReeks,
         dagenBijgehouden: reeks.dagenBijgehouden,
-        dagenSindsVorige: sindsVorige,
+        dagenSindsVorige: sindsVorige ?? verleden.dagenSinds,
         datum,
         iets: status.bijgehouden,
+        reactie: reactieVoor(datum, tel),
+        verleden,
       }),
       voornaam,
     );

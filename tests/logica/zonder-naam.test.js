@@ -5,6 +5,7 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import { db, openDb } from '../../src/data/db.js';
 import { leesInstelling, STANDAARD } from '../../src/data/instellingen.js';
 import { groetVoor, initiaalVan, voornaamVan } from '../../src/logica/naam.js';
+import { VOORBEELD_WAARDEN } from '../../src/logica/motivatie.js';
 import { TEKSTEN, t, warmeZin } from '../../src/teksten.js';
 import { bouwVerslagModel } from '../../src/ui/verslag-model.js';
 import { kiesMelding } from '../../src/meldingen/tekst.js';
@@ -54,7 +55,7 @@ describe('motivator', () => {
     expect(sleutels.length).toBeGreaterThan(50);
     for (const sleutel of sleutels) {
       for (const n of GEEN_NAMEN) {
-        const zin = warmeZin(sleutel, n);
+        const zin = warmeZin(sleutel, n, VOORBEELD_WAARDEN);
         expect(zin, sleutel).not.toContain('{');
         expect(zin, sleutel).not.toMatch(/ ,|,\s*[.!?]|,$|\s{2}/);
         expect(zin, sleutel).toMatch(/[.?]$/);

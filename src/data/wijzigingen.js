@@ -8,6 +8,18 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.5.0',
+    datum: '2026-11-24',
+    tijd: '21:01',
+    punten: [
+      { begrip: 'algemeen', tekst: 'De warme zin op Vandaag reageert nu op wat je net deed: een maaltijd, een drank, een vinkje, je stemming, een notitie of een weging.' },
+      { begrip: 'algemeen', tekst: 'De zin kent je dagboek: je reeks, je totaal aantal dagen en hoe lang je Bloei al gebruikt.' },
+      { begrip: 'algemeen', tekst: 'Elke medaille heeft haar eigen zin op de dag dat je ze behaalt, en de zin zegt het als een medaille dichtbij is.' },
+      { begrip: 'dagboek', tekst: 'De zin boven de week vertelt het ook als je week voller is dan de vorige.' },
+      { begrip: 'algemeen', tekst: 'Er zijn nu 500 zinnen in plaats van 52, en ze zijn allemaal positief.' },
+    ],
+  },
+  {
     versie: '0.4.2',
     datum: '2026-11-23',
     tijd: '09:06',

@@ -9,8 +9,9 @@ import { gevoelIcoon } from '../ui/maaltijdregel.js';
 import { eersteToon, komOp, vervaag } from '../ui/beweging.js';
 import { beheerScherm } from './hulp.js';
 import { weekPeriodeTekst } from '../logica/drinken-week.js';
-import { t, warmeZin } from '../teksten.js';
-import { kiesWeekZin } from '../logica/motivatie.js';
+import { motivatieZin, t } from '../teksten.js';
+import { kiesWeekMotivatie } from '../logica/motivatie.js';
+import { leesWeekVerleden } from '../data/verleden.js';
 import { leesAgenda } from '../data/agenda.js';
 import { leesDag } from '../data/dagen.js';
 import { leesDranken } from '../data/dranken.js';
@@ -314,12 +315,13 @@ export function toon(houder, params = {}) {
   const volgendeStart = plusDagen(start, 7);
 
   return beheerScherm(houder, async (ctx) => {
-    const [overzicht, agenda, doelInstelling, weging, naam] = await Promise.all([
+    const [overzicht, agenda, doelInstelling, weging, naam, weekVerleden] = await Promise.all([
       leesWeekoverzicht(start),
       leesAgenda(start, plusDagen(start, 6)),
       leesInstelling('drinken.dagdoelMl'),
       wegingVanWeek(start),
       leesInstelling('profiel.naam'),
+      leesWeekVerleden(start), // voor de zin van de week: hoe ze zich verhoudt tot de weken ervoor (alleen als dat gunstig is)
     ]);
     // BESLISSING 501: het verschil met de vorige weging vult de brede tegel Gewicht op een telefoon
     const vorige = weging ? await vorigeWeging(weging) : null;
@@ -367,7 +369,7 @@ export function toon(houder, params = {}) {
     ];
     const samenvatting = h('div', { class: 'wk__samenvatting' }, ...kaartjes);
 
-    const zin = h('p', { class: 'week__zin t-cursief' }, overzicht.ingevuldeDagen > 0 || overzicht.stemming || overzicht.energie ? warmeZin(kiesWeekZin(overzicht.ingevuldeDagen, start), naam) : t('week.leeg'));
+    const zin = h('p', { class: 'week__zin t-cursief' }, overzicht.ingevuldeDagen > 0 || overzicht.stemming || overzicht.energie ? motivatieZin(kiesWeekMotivatie(overzicht.ingevuldeDagen, start, weekVerleden), naam) : t('week.leeg'));
     const schema = kaart(
       { klasse: 'wk__schemakaart' },
       h('div', { class: 'wk__tabelhouder' }, tabel(dagen, doel, agenda)),

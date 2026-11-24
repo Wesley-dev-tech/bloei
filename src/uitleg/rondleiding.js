@@ -11,7 +11,7 @@ import { h } from '../ui/dom.js';
 import { zetScroll } from '../kern/scroll.js';
 import { icoonknop, knop } from '../ui/componenten.js';
 import { ICOON } from '../ui/iconenkaart.js';
-import { luister } from '../kern/bus.js';
+import { luister, zend } from '../kern/bus.js';
 import { t } from '../teksten.js';
 import { AANBOD, BIJ_LEEG, HANDELING_SCHERM, ONDERWERPEN, doelKeuzes, heeftKort, heeftUitleg, isKleinScherm, stappenVoor, tekstVoorToestel, zetApkBron } from './stappen.js';
 import { vulKleuren } from './kleurnamen.js';
@@ -2393,7 +2393,10 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
     richtingNu = richting;
     const gelukt = richting > 0 ? gang.volgende() : gang.vorige();
     if (!gelukt) {
-      if (richting > 0) sluit(true); // Klaar
+      if (richting > 0) {
+        zend('uitleg:klaar', { sleutel }); // de motivator reageert op een rondleiding die tot het einde gevolgd is (data/motivatiestand.js)
+        sluit(true); // Klaar
+      }
       return;
     }
     toon();
