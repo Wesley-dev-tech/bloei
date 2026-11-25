@@ -58,6 +58,12 @@ describe('de naam van de gemeente', () => {
     expect(leesPlaats({ city: '', locality: 'Olmen' })).toBe('Olmen');
     expect(leesPlaats({ city: '  Heist-op-den-Berg ' })).toBe('Heist-op-den-Berg');
     expect(leesPlaats({ locality: "'s-Hertogenbosch" })).toBe("'s-Hertogenbosch");
+    // Zonder city en locality: de gemeente uit de bestuurlijke gebieden (niveau 8), niet de provincie of het land.
+    const bestuur = { localityInfo: { administrative: [{ name: 'België', adminLevel: 2 }, { name: 'Antwerpen', adminLevel: 6 }, { name: 'Balen', adminLevel: 8 }] } };
+    expect(leesPlaats({ city: '', locality: '', ...bestuur })).toBe('Balen');
+    expect(leesPlaats({ city: 'Mol', ...bestuur })).toBe('Mol');
+    expect(leesPlaats({ localityInfo: { administrative: 'geen lijst' } })).toBeNull();
+    expect(leesPlaats({ localityInfo: { administrative: [{ name: 'Antwerpen', adminLevel: 6 }] } })).toBeNull();
   });
 
   test('iets anders dan een gewone naam geeft null, nooit een fout', () => {

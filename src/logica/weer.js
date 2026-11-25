@@ -22,10 +22,13 @@ export function plaatsAdres(breedte, lengte) {
   return `${PLAATS_ORIGIN}/data/reverse-geocode-client?latitude=${b.toFixed(2)}&longitude=${l.toFixed(2)}&localityLanguage=nl`;
 }
 
-// Het antwoord → de naam van de gemeente (city), anders van het kleinste benoemde gebied (locality), of null. Alleen gewone tekst van
-// redelijke lengte: de naam komt van buiten en gaat zo op het scherm (als tekst, nooit als opmaak).
+// Het antwoord → de naam van de gemeente (city), anders van het kleinste benoemde gebied (locality), anders de gemeente uit de lijst
+// van bestuurlijke gebieden (niveau 8: een gemeente in België en Nederland), of null. Alleen gewone tekst van redelijke lengte: de naam
+// komt van buiten en gaat zo op het scherm (als tekst, nooit als opmaak).
 export function leesPlaats(json) {
-  for (const kandidaat of [json?.city, json?.locality]) {
+  const bestuur = Array.isArray(json?.localityInfo?.administrative) ? json.localityInfo.administrative : [];
+  const niveau8 = bestuur.find((g) => g?.adminLevel === 8)?.name;
+  for (const kandidaat of [json?.city, json?.locality, niveau8]) {
     if (typeof kandidaat !== 'string') continue;
     const naam = kandidaat.replace(/\s+/g, ' ').trim();
     if (naam.length >= 2 && naam.length <= 40 && !/[<>{}\u0000-\u001f]/.test(naam)) return naam;

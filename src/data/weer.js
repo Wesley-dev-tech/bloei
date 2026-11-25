@@ -3,7 +3,9 @@
 // dan komt er gewoon geen zin over het weer. Wat er het toestel verlaat: alleen de plaats, afgerond op ongeveer een kilometer. Voor het
 // weer naar Open-Meteo, voor de naam van de gemeente naar BigDataCloud. Geen naam, geen dagboek, geen cookie.
 // Bewaard wordt alleen het weer van daarnet met de naam van de gemeente (instelling 'weer.laatste'); de coördinaten zelf nooit.
-// De gemeente wordt één keer per opening van de app opgezocht, en opnieuw als ze zich meer dan ongeveer een kilometer verplaatste.
+// De gemeente wordt bij elke opening van de app meteen opgezocht, ook als het weer van daarnet nog vers is (0.5.1 deed dat pas bij de
+// volgende verversing van het weer: wie de app kort opende, kreeg nooit een plaatsnaam). Daarna opnieuw als ze zich meer dan ongeveer
+// een kilometer verplaatste, of bij de volgende verversing als het opzoeken mislukte.
 //
 // Vandaag wacht nooit op het netwerk: het krijgt het weer dat er al is (hoogstens drie uur oud) en op de achtergrond wordt het ververst.
 // Het weerbericht is live (houdLive): zolang de app in beeld is, haalt Bloei om de tien minuten nieuw weer op, en meteen als ze terugkomt
@@ -26,6 +28,7 @@ let geweigerd = false; // ze zei nee tegen de locatie: deze sessie niet opnieuw 
 let live = false; // de wachter van houdLive loopt
 let hadWeer = false; // er stond weer in beeld
 let gemeente = null; // { b, l, naam }: waar de gemeente het laatst opgezocht is (alleen in het geheugen, deze sessie)
+let gemeenteGevraagd = false; // deze sessie is er al een keer naar de gemeente gevraagd
 
 const lees = async () => {
   try {
@@ -68,6 +71,7 @@ async function ververs() {
   // komt het weer er gewoon zonder plaatsnaam (liever geen naam dan een naam die niet meer klopt).
   const zoekGemeente = async () => {
     if (!isVerplaatst(gemeente, breedte, lengte)) return gemeente.naam;
+    gemeenteGevraagd = true;
     try {
       const antwoord = await fetch(plaatsAdres(breedte, lengte), metTijd(6000));
       const naam = antwoord.ok ? leesPlaats(await antwoord.json()) : null;
@@ -120,7 +124,9 @@ export async function weerNu(datum, nu = Date.now()) {
   houdLive();
   const rij = await lees();
   const oud = !rij || nu - rij.tijd > VERS_MS || rij.tijd > nu;
-  if (oud && !bezig && !geweigerd && nu - laatstePoging > OPNIEUW_MS) {
+  // Bij elke opening één keer meteen: de gemeente opzoeken (met vers weer erbij), ook als het weer van daarnet nog vers is.
+  const gemeenteNodig = !gemeenteGevraagd;
+  if ((oud || gemeenteNodig) && !bezig && !geweigerd && nu - laatstePoging > OPNIEUW_MS) {
     laatstePoging = nu;
     bezig = ververs()
       .catch(() => {})
