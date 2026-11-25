@@ -8,6 +8,16 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.4.6',
+    datum: '2026-11-25',
+    tijd: '09:52',
+    punten: [
+      { begrip: 'profiel', tekst: 'De vraag naar je geboortedatum ziet er nu uit zoals elke andere vraag in Bloei, met de twee knoppen naast elkaar.' },
+      { begrip: 'profiel', tekst: 'Onder Naam en foto staan dag, maand en jaar in drie kaders onder de tekst, even groot als het naamveld.' },
+      { begrip: 'badge', tekst: 'De melding van een nieuwe medaille staat nu op de plaats van een gewone melding, net boven de balk onderaan.' },
+    ],
+  },
+  {
     versie: '0.4.5',
     datum: '2026-11-25',
     tijd: '08:50',

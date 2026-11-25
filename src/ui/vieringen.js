@@ -1,10 +1,11 @@
 // Vieringen (HUISSTIJL §7 en §8): ingetogen en kort. Een nieuwe badge (`badge:behaald`) verschijnt als een
-// rustige kaart met de salie-badgetegel en de naam, boven de tabbalk. Nooit confetti, nooit geluid.
+// rustige kaart met de salie-badgetegel en de naam, op de plaats van een gewone melding boven de tabbalk. Nooit confetti, nooit geluid.
 // Het gehaalde drinkdoel zit al in de watervulling zelf (de vulling wordt salie en het beeldmerk bloeit).
 // Meerdere badges komen na elkaar, nooit tegelijk. Bij prefers-reduced-motion verschijnt de kaart zonder beweging
 // (dat regelt basis.css voor alle animaties).
 import { h } from './dom.js';
 import { medaille } from './medaille.js';
+import { meldingenhouder } from './componenten.js';
 import { opmaakDatum, naarSleutel } from '../kern/datum.js';
 import { luister } from '../kern/bus.js';
 import { markeerGezien } from '../data/badges.js';
@@ -27,9 +28,10 @@ export function startVieringen() {
     if (bezig || !wachtrij.length) return;
     bezig = true;
     const id = wachtrij.shift();
-    if (!houder) {
-      houder = h('div', { class: 'vieringhouder', role: 'status', 'aria-live': 'polite' });
-      document.body.append(houder);
+    // In de houder van de gewone meldingen (componenten.js): de badge staat op dezelfde plaats, en boven een melding die er al staat.
+    if (!houder?.isConnected) {
+      houder = h('div', { class: 'vieringhouder' });
+      meldingenhouder().append(houder);
     }
     let kaartje;
     if (typeof id === 'object') {

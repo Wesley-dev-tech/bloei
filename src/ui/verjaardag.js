@@ -1,7 +1,8 @@
-// De geboortedatum in Bloei: het veld (dag, maand en jaar; mag leeg blijven) voor het welkomscherm en voor Algemeen > Naam en foto.
+// De geboortedatum in Bloei (dag, maand en jaar; mag leeg blijven): de drie lijsten voor het welkomscherm, het venster met die lijsten
+// (de eenmalige vraag na de update) en dezelfde drie lijsten op Algemeen > Naam en foto.
 // De viering zelf (confetti op haar verjaardag) staat in ui/feest.js.
 import { h } from './dom.js';
-import { knop } from './componenten.js';
+import { knop, bladInhoud } from './componenten.js';
 import { leesInstelling, zetInstelling, isStartKlaar } from '../data/instellingen.js';
 import { DEMO } from '../kern/demo.js';
 import { t } from '../teksten.js';
@@ -13,7 +14,8 @@ const maandNaam = (maand) => new Date(2024, maand - 1, 1).toLocaleDateString('nl
 // verjaardagKiezer({ waarde: { dag, maand, jaar } | null, opWijzig(waarde | null) })
 // Drie keuzelijsten naast elkaar. opWijzig krijgt een geldige geboortedatum, of null zolang er een leeg is (of de datum niet bestaat of in
 // de toekomst ligt).
-export function verjaardagKiezer({ waarde = null, opWijzig } = {}) {
+// opStand({ geldig, leeg }) volgt elke wijziging, ook een half ingevulde datum: zo weet het venster of Bewaren mag.
+export function verjaardagKiezer({ waarde = null, opWijzig, opStand } = {}) {
   const nu = vandaag();
   const ditJaar = Number(nu.slice(0, 4));
   const begin = geldigeVerjaardag(waarde);
@@ -34,6 +36,7 @@ export function verjaardagKiezer({ waarde = null, opWijzig } = {}) {
   // Alles leeg: de geboortedatum is gewist (null). Half ingevuld of ongeldig: nog niets melden, ze is bezig.
   const meld = () => {
     const geldig = geldigeVerjaardag({ dag: Number(dag.value), maand: Number(maand.value), jaar: Number(jaar.value) }, nu);
+    opStand?.({ geldig, leeg: leeg() });
     if (geldig || leeg()) opWijzig?.(geldig);
   };
   maand.addEventListener('change', () => {
@@ -43,6 +46,51 @@ export function verjaardagKiezer({ waarde = null, opWijzig } = {}) {
   dag.addEventListener('change', meld);
   jaar.addEventListener('change', meld);
   return h('div', { class: 'verjaardag', role: 'group', 'aria-label': t('verjaardag.veld') }, dag, maand, jaar);
+}
+
+// Het venster met de drie lijsten. Het is het gewone venster van Bloei (bladInhoud in componenten.js): dezelfde maat, dezelfde titel en
+// dezelfde rij van twee even brede knoppen als elke andere vraag in de app. De drie lijsten zijn samen even breed als die rij knoppen.
+// geboortevenster({ tekst, nee }) → belofte met { waarde } na Bewaren, anders null. Bewaren kan alleen met een volledige, geldige datum.
+function geboortevenster({ tekst, nee } = {}) {
+  return new Promise((klaar) => {
+    let gekozen = null;
+    let antwoord = null;
+    const venster = h('dialog', { class: 'dialoog geboortevraag', 'aria-labelledby': 'geboortevraag-titel' });
+    const bewaar = knop(t('verjaardag.bewaren'), {
+      soort: 'primair',
+      breed: true,
+      opKlik: () => {
+        if (bewaar.disabled) return;
+        antwoord = { waarde: gekozen };
+        venster.close();
+      },
+    });
+    bewaar.disabled = !gekozen;
+    const kiezer = verjaardagKiezer({
+      opStand: ({ geldig }) => {
+        gekozen = geldig;
+        bewaar.disabled = !geldig;
+      },
+    });
+    venster.append(
+      bladInhoud({
+        id: 'geboortevraag',
+        titel: t('verjaardag.welkomVraag'),
+        inhoud: h('div', { class: 'geboortevraag__inhoud' }, h('p', { class: 'dialoog__tekst' }, tekst), kiezer),
+        acties: [bewaar, knop(nee, { soort: 'secundair', breed: true, opKlik: () => venster.close() })],
+      }),
+    );
+    // naast het venster tikken sluit het zonder te bewaren, zoals bij elke vraag
+    venster.addEventListener('click', (e) => {
+      if (e.target === venster) venster.close();
+    });
+    venster.addEventListener('close', () => {
+      venster.remove();
+      klaar(antwoord);
+    });
+    document.body.append(venster);
+    venster.showModal();
+  });
 }
 
 // Voor wie Bloei al gebruikte toen de geboortedatum erbij kwam: één keer een vraag om ze in te vullen. Vrijblijvend: Bewaren bewaart
@@ -57,43 +105,8 @@ export async function vraagGeboortedatumEenKeer() {
     if (gevraagd) return;
     await zetInstelling('profiel.verjaardagGevraagd', true);
     if (geldigeVerjaardag(verjaardag)) return;
-    await new Promise((klaar) => {
-      let gekozen = null;
-      const bewaar = knop(t('verjaardag.bewaren'), {
-        soort: 'primair',
-        breed: true,
-        opKlik: async () => {
-          if (!gekozen) return;
-          await zetInstelling('profiel.verjaardag', gekozen);
-          venster.close();
-        },
-      });
-      bewaar.disabled = true;
-      const kiezer = verjaardagKiezer({
-        opWijzig: (waarde) => {
-          gekozen = waarde;
-          bewaar.disabled = !waarde;
-        },
-      });
-      const venster = h(
-        'dialog',
-        { class: 'geboortevraag', 'aria-labelledby': 'geboortevraag-titel' },
-        h(
-          'div',
-          { class: 'geboortevraag__kaart kaart' },
-          h('h2', { class: 't-h2', id: 'geboortevraag-titel' }, t('verjaardag.welkomVraag')),
-          h('p', { class: 't-klein t-gedempt' }, t('verjaardag.vraagTekst')),
-          kiezer,
-          h('div', { class: 'geboortevraag__knoppen' }, bewaar, knop(t('verjaardag.nuNiet'), { soort: 'secundair', breed: true, opKlik: () => venster.close() })),
-        ),
-      );
-      venster.addEventListener('close', () => {
-        venster.remove();
-        klaar();
-      });
-      document.body.append(venster);
-      venster.showModal();
-    });
+    const antwoord = await geboortevenster({ tekst: t('verjaardag.vraagTekst'), nee: t('verjaardag.nuNiet') });
+    if (antwoord?.waarde) await zetInstelling('profiel.verjaardag', antwoord.waarde);
   } catch {
     /* de vraag is een extraatje: mislukt ze, dan gaat de app gewoon verder */
   }

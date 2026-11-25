@@ -274,7 +274,7 @@ body > .blad > dialog[data-familie],
     :root:has(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"])) body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis)),
     body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis))[data-familie],
     body > .blad > dialog[data-familie]:not(.supplementkaart, .dialoog--wis))
-  :is(.chip, .segment, .veld__invoer, .stapper__knop, .delen__periodewoorden, .mk__dag, .maand__moment, .dag__stemming .gevoel__optie, .dag__stemming .energie__tik,
+  :is(.chip, .segment, .veld__invoer, .verjaardag__lijst, .stapper__knop, .delen__periodewoorden, .mk__dag, .maand__moment, .dag__stemming .gevoel__optie, .dag__stemming .energie__tik,
       .week__bol, .weekstaaf__balk, .weekdag__bol, .gewicht__pad, .gewvoorbeeld__dag) {
   /* alleen het token herbenoemen: elke staat van het onderdeel (gekozen, gevuld, transparant) blijft zijn eigen regel volgen */
   --c-surface-soft: var(--fam-bediening);

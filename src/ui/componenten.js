@@ -711,12 +711,19 @@ export function strookElement(tekst, actie) {
 // vast (BESLISSING 704): de strook blijft staan tot haar eigen knop getikt wordt. Ze verdwijnt niet vanzelf en een gewone strook
 // ("Weggehaald", "Bewaard") schuift erboven in plaats van haar te vervangen. Alleen de melding van een nieuwe versie gebruikt dit:
 // die mag niet verdwijnen zonder dat de update gebeurd is. Een tweede vaste strook vervangt de vorige, zodat er er nooit twee staan.
-export function strook(tekst, opties = {}) {
-  const { actie, duur = 3000, vast = false } = opties;
+// De houder van alle meldingen onderaan (gewone meldingen, de melding van een nieuwe versie, en de melding van een nieuwe badge uit
+// ui/vieringen.js): één plek, zodat ze nooit over elkaar staan.
+export function meldingenhouder() {
   if (!stroken) {
     stroken = h('div', { class: 'strokenhouder', role: 'status', 'aria-live': 'polite' });
     document.body.append(stroken);
   }
+  return stroken;
+}
+
+export function strook(tekst, opties = {}) {
+  const { actie, duur = 3000, vast = false } = opties;
+  meldingenhouder();
   const el = strookElement(
     tekst,
     actie && {

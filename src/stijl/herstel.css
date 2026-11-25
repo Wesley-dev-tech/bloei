@@ -436,17 +436,16 @@
 
 /* ===== Vieringen ===== */
 
+/* De melding van een nieuwe badge staat op de plaats van een gewone melding: in dezelfde houder (.strokenhouder, componenten.css), dus even
+   breed en even hoog boven de balk onderaan. Staat er tegelijk een gewone melding, dan schuift de badge erboven (order: -1). */
 .vieringhouder {
-  left: 0;
-  right: 0;
-  bottom: calc(var(--tabbar-h) + var(--safe-bottom) + var(--s-4) + var(--s-12) + var(--s-4));
-  z-index: 50;
-  padding: 0 var(--s-5);
+  order: -1;
+  width: 100%;
   pointer-events: none;
   justify-content: center;
   display: flex;
-  position: fixed;
 }
+.vieringhouder:empty { display: none; }
 
 .viering {
   align-items: center;

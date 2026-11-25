@@ -848,10 +848,23 @@ a.week__link { min-height: 48px; justify-content: center; }
 }
 /* Profiel op een telefoon: het naamveld en de fotoknoppen staan onder de naam, over de breedte */
 @media (max-width: 719px) {
-  .instel__lijst .rij:has(.profiel__naam), .instel__lijst .rij:has(.profiel__knoppen) { flex-wrap: wrap; }
-  .instel__lijst .rij:has(.profiel__naam) .rij__eind, .instel__lijst .rij:has(.profiel__knoppen) .rij__eind { flex: 1 1 100%; justify-content: flex-start; margin-left: 0; }
+  .instel__lijst .rij:has(:is(.profiel__naam, .profiel__knoppen, .verjaardag)) { flex-wrap: wrap; }
+  .instel__lijst .rij:has(:is(.profiel__naam, .profiel__knoppen, .verjaardag)) .rij__eind { flex: 1 1 100%; justify-content: flex-start; margin-left: 0; }
   .instel__lijst .profiel__naam { width: 100%; min-width: 0; }
   .instel__lijst .profiel__knoppen { justify-content: flex-start; }
+  /* Ook de geboortedatum: drie kaders (dag, maand, jaar) onder de tekst, samen even breed als het naamveld. Naast de tekst persten ze die
+     op een iPhone samen tot een smalle kolom van drie afgebroken regels. */
+  .instel__lijst .rij:has(.verjaardag) .verjaardag { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.75fr) minmax(0, 1.25fr); gap: var(--s-2); width: 100%; }
+  .instel__lijst .rij:has(.verjaardag) .verjaardag__lijst { width: 100%; }
+}
+/* Vanaf 720 px staan de drie kaders rechts in de rij, elk op een vaste breedte, en de tekst houdt haar plaats. */
+@media (min-width: 720px) {
+  /* De uitleg staat hier op twee regels en de rij is de laatste van de kaart: onderaan dezelfde lucht als erboven. */
+  .instel__lijst > .kaart > .rij:has(.verjaardag):last-child { padding-bottom: var(--s-3); }
+  .instel__lijst .rij:has(.verjaardag) .verjaardag { flex-wrap: nowrap; }
+  .instel__lijst .rij:has(.verjaardag) .verjaardag__lijst { flex: none; width: 4.75rem; }
+  .instel__lijst .rij:has(.verjaardag) .verjaardag__lijst--maand { width: 8.75rem; }
+  .instel__lijst .rij:has(.verjaardag) .verjaardag__lijst:last-child { width: 6rem; }
 }
 /* Tikvlakken: zeven dagen naast elkaar vullen de breedte; minstens 48 hoog, zo breed als de kolom toelaat */
 .energie__tik { min-width: 48px; min-height: 48px; }
@@ -1613,10 +1626,22 @@ a.week__link { min-height: 48px; justify-content: center; }
 
 /* ---- De geboortedatum (ui/verjaardag.js): drie keuzelijsten naast elkaar */
 .verjaardag { display: flex; gap: var(--s-2); align-items: center; justify-content: flex-end; flex-wrap: wrap; min-width: 0; }
-.verjaardag__lijst { font: inherit; color: var(--c-text); background: var(--c-surface); border: var(--lijn); border-radius: 12px; min-height: 44px; padding: 0 var(--s-2); min-width: 0; max-width: 100%; }
-.verjaardag__lijst:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
-.rij:has(> .verjaardag), .rij:has(.verjaardag) { flex-wrap: wrap; }
-.welkom__stap--geboorte .verjaardag { justify-content: center; flex-wrap: nowrap; }
+/* De keuzelijsten krijgen hun eigen vorm (appearance: none): een iPhone tekent een gewone keuzelijst anders altijd op zijn eigen, lage maat,
+   wat de wens van min-height negeert. Zo zijn ze op elk toestel even hoog als een knop, met een eigen pijltje rechts. Letter van 16 px:
+   kleiner laat een iPhone inzoomen bij het aantikken. */
+.verjaardag__lijst { -webkit-appearance: none; appearance: none; box-sizing: border-box; font-family: var(--font-ui); font-size: var(--fs-body); line-height: 1.2; color: var(--c-text); background: var(--c-surface-soft) url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 12 8'%3E%3Cpath d='M1.4 1.5 6 6.1l4.6-4.6' fill='none' stroke='%238a7890' stroke-width='1.8' stroke-linecap='round' stroke-linejoin='round'/%3E%3C/svg%3E") no-repeat right 11px center / 11px auto; border: 1px solid transparent; border-radius: var(--r-sm); height: var(--veld-h); min-height: var(--veld-h); padding: 0 28px 0 12px; min-width: 0; max-width: 100%; text-overflow: ellipsis; }
+/* Op een instelscherm zijn de kaders even hoog als het invoerveld erboven (het naamveld): dezelfde regelhoogte, binnenruimte en rand. */
+.instel__lijst .verjaardag__lijst { height: calc(var(--fs-body) * var(--lh-body) + var(--s-3) * 2 + 2px); }
+.verjaardag__lijst:focus, .verjaardag__lijst:focus-visible { outline: none; border-color: var(--c-accent); box-shadow: 0 0 0 1px var(--c-accent); }
+/* In het welkomscherm en in de eenmalige vraag vullen de drie lijsten de volle breedte, net als de knoppen eronder: dag smal, maand breed. */
+.welkom__stap--geboorte .verjaardag, .geboortevraag .verjaardag { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1.75fr) minmax(0, 1.25fr); gap: var(--s-2); width: 100%; }
+.welkom__stap--geboorte .verjaardag__lijst, .geboortevraag .verjaardag__lijst { width: 100%; }
+/* Op een smalle telefoon (minder dan 360 px): minder binnenruimte, een kleiner pijltje en een bredere maand, zodat "september" en het jaar
+   volledig te lezen zijn. */
+@media (max-width: 359.98px) {
+  .verjaardag__lijst { padding: 0 19px 0 8px; background-position: right 6px center; background-size: 9px auto; }
+  .welkom__stap--geboorte .verjaardag, .geboortevraag .verjaardag, .instel__lijst .rij:has(.verjaardag) .verjaardag { grid-template-columns: minmax(0, 1fr) minmax(0, 2.25fr) minmax(0, 1.4fr); gap: 6px; }
+}
 
 /* ---- De feesten (ui/feest.js): confetti, ballonnen en een slinger op haar verjaardag, vuurwerk bij de jaarwissel. De enige plekken in
    Bloei waar het uitbundig mag; zonder geluid, en met "Verminder beweging" alleen de kaart. De animatie zelf wordt op één doek getekend
@@ -1624,7 +1649,7 @@ a.week__link { min-height: 48px; justify-content: center; }
    thema donker (in Nacht dus donkerder, niet lichter), zodat de kleuren van de animatie overal afsteken. */
 .feest { border: 0; padding: var(--s-4); background: transparent; max-width: min(92vw, 420px); width: 100%; overflow: visible; }
 .feest::backdrop { background: color-mix(in srgb, var(--c-text) 45%, transparent); }
-[data-theme="nacht"] .feest::backdrop, [data-theme="nacht"] .geboortevraag::backdrop { background: color-mix(in srgb, black 58%, transparent); }
+[data-theme="nacht"] .feest::backdrop { background: color-mix(in srgb, black 58%, transparent); }
 .feest__kaart { display: grid; gap: var(--s-3); justify-items: center; text-align: center; padding: var(--s-6) var(--s-5); position: relative; z-index: 2; }
 .feest--beweegt .feest__kaart { animation: feest-plop 700ms cubic-bezier(.2, 1.5, .4, 1) 250ms both; }
 .feest__titel, .feest__tekst { margin: 0; }
@@ -1633,10 +1658,8 @@ a.week__link { min-height: 48px; justify-content: center; }
 @keyframes feest-plop { 0% { transform: scale(.2) rotate(-8deg); opacity: 0; } 60% { transform: scale(1.08) rotate(2deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
 @media (prefers-reduced-motion: reduce) { .feest__lucht { display: none; } }
 
-/* De vraag naar de geboortedatum, één keer na de update voor wie Bloei al gebruikt (ui/verjaardag.js). */
-.geboortevraag { border: 0; padding: var(--s-4); background: transparent; max-width: min(92vw, 420px); width: 100%; }
-.geboortevraag::backdrop { background: color-mix(in srgb, var(--c-text) 45%, transparent); }
-.geboortevraag__kaart { display: grid; gap: var(--s-3); justify-items: center; text-align: center; padding: var(--s-6) var(--s-5); }
-.geboortevraag__kaart > * { margin: 0; }
-.geboortevraag .verjaardag { justify-content: center; flex-wrap: nowrap; }
-.geboortevraag__knoppen { display: grid; gap: var(--s-2); width: 100%; }
+/* Het venster met de drie lijsten: de vraag naar de geboortedatum, één keer na de update voor wie Bloei al gebruikt (ui/verjaardag.js). */
+/* Het venster zelf is het gewone venster van Bloei (.dialoog): dezelfde maat en dezelfde rij van twee even brede knoppen als elke andere vraag.
+   De drie lijsten zijn samen even breed als die rij knoppen (twee keer 9rem en de tussenruimte, zie .dialoog__acties) en staan er recht boven. */
+.geboortevraag__inhoud { display: flex; flex-direction: column; gap: var(--s-4); }
+.geboortevraag .verjaardag { width: min(100%, calc(9rem * 2 + var(--s-2))); margin-inline: auto; }
