@@ -25,15 +25,38 @@ export function plaatsAdres(breedte, lengte) {
 // Het antwoord → de naam van de gemeente (city), anders van het kleinste benoemde gebied (locality), anders de gemeente uit de lijst
 // van bestuurlijke gebieden (niveau 8: een gemeente in België en Nederland), of null. Alleen gewone tekst van redelijke lengte: de naam
 // komt van buiten en gaat zo op het scherm (als tekst, nooit als opmaak).
-export function leesPlaats(json) {
-  const bestuur = Array.isArray(json?.localityInfo?.administrative) ? json.localityInfo.administrative : [];
-  const niveau8 = bestuur.find((g) => g?.adminLevel === 8)?.name;
-  for (const kandidaat of [json?.city, json?.locality, niveau8]) {
+const eersteNaam = (kandidaten) => {
+  for (const kandidaat of kandidaten) {
     if (typeof kandidaat !== 'string') continue;
     const naam = kandidaat.replace(/\s+/g, ' ').trim();
     if (naam.length >= 2 && naam.length <= 40 && !/[<>{}\u0000-\u001f]/.test(naam)) return naam;
   }
   return null;
+};
+export function leesPlaats(json) {
+  const bestuur = Array.isArray(json?.localityInfo?.administrative) ? json.localityInfo.administrative : [];
+  const niveau8 = bestuur.find((g) => g?.adminLevel === 8)?.name;
+  return eersteNaam([json?.city, json?.locality, niveau8]);
+}
+
+// ---- De tweede bron voor de naam van de plaats ----
+// Antwoordt de eerste dienst niet (een netwerk of een toestel dat haar adres tegenhoudt, een storing), dan vraagt Bloei het aan
+// Nominatim, de zoekdienst van OpenStreetMap (gratis, zonder account; gegevens van de OpenStreetMap-bijdragers, licentie ODbL). Zelfde afronding.
+export const PLAATS2_ORIGIN = 'https://nominatim.openstreetmap.org';
+
+// zoom=10 vraagt het gebied op het niveau van een stad of gemeente.
+export function plaatsAdres2(breedte, lengte) {
+  if (typeof breedte !== 'number' || typeof lengte !== 'number') return null;
+  const b = rondFijn(breedte);
+  const l = rondFijn(lengte);
+  if (!Number.isFinite(b) || !Number.isFinite(l) || Math.abs(b) > 90 || Math.abs(l) > 180) return null;
+  return `${PLAATS2_ORIGIN}/reverse?format=jsonv2&lat=${b.toFixed(2)}&lon=${l.toFixed(2)}&zoom=10&accept-language=nl`;
+}
+
+// Het antwoord van Nominatim → de naam van de gemeente, stad, het dorp, of van het gevonden gebied zelf; anders null.
+export function leesPlaats2(json) {
+  const a = json?.address && typeof json.address === 'object' ? json.address : {};
+  return eersteNaam([a.municipality, a.city, a.town, a.village, json?.name]);
 }
 
 // Is ze sinds de vorige vraag ver genoeg verplaatst om de gemeente opnieuw op te zoeken? (meer dan ongeveer een kilometer)

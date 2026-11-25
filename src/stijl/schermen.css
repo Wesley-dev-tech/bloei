@@ -310,6 +310,10 @@
 /* De plaats waar ze is: op de telefoon altijd op een eigen eerste regel, met het weer van nu eronder. */
 .weerbericht__plaats { flex: 0 0 100%; display: flex; align-items: center; gap: var(--s-1); color: var(--c-text); font-size: var(--fs-body); font-weight: 600; max-width: 100%; }
 .weerbericht__plaats svg { color: var(--c-accent); flex: none; }
+/* De naam van de gemeente kon niet opgehaald worden: gedempt, met kort waarom erachter. */
+.weerbericht__plaats--niet { font-weight: 400; font-size: var(--fs-small); color: var(--c-text-muted); flex-wrap: wrap; }
+.weerbericht__plaats--niet svg { color: var(--c-text-muted); }
+.weerbericht__reden { opacity: .8; }
 .weerbericht__plaats span { min-width: 0; overflow-wrap: anywhere; }
 .weerbericht__breuk { flex: 0 0 100%; height: 0; }
 .weerbericht__nu svg { color: var(--c-accent); flex: none; }

@@ -30,6 +30,8 @@ export function weerbericht(weer) {
     const metVerwacht = metKans && Number.isFinite(hoeveelheid) && hoeveelheid >= 0.1;
     // De plaats waar ze is (een gemeente, bv. Balen), als die bekend is: vooraan, met een speldje.
     const plaats = typeof w.plaats === 'string' ? w.plaats.trim() : '';
+    // Geen naam gevonden: dat staat er dan, met kort waarom (welke bron wat antwoordde), in plaats van een lege plek.
+    const plaatsStand = !plaats && typeof w.plaatsStand === 'string' ? w.plaatsStand.slice(0, 60) : '';
     // Een schermlezer krijgt het in gewone zinnen; de tekens en cijfers zelf leest hij niet voor.
     const voorLezer = [
       plaats ? t('weer.labelPlaats', { plaats, naam, aantal: w.temp }) : t('weer.label', { naam, aantal: w.temp }),
@@ -43,6 +45,14 @@ export function weerbericht(weer) {
     el.replaceChildren(
       h('p', { class: 'alleen-lezer' }, voorLezer.filter(Boolean).join(' ')),
       plaats && h('p', { class: 'weerbericht__plaats', 'aria-hidden': 'true' }, icoon('location-dot', { grootte: 13 }), h('span', {}, plaats)),
+      plaatsStand &&
+        h(
+          'p',
+          { class: 'weerbericht__plaats weerbericht__plaats--niet', 'aria-hidden': 'true' },
+          icoon('location-dot', { grootte: 13 }),
+          h('span', {}, t('weer.plaatsNiet')),
+          h('span', { class: 'weerbericht__reden' }, `(${plaatsStand})`),
+        ),
       h(
         'p',
         { class: 'weerbericht__nu', 'aria-hidden': 'true' },

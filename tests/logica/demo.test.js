@@ -295,8 +295,8 @@ describe('de bouw per versie (vite.config.js)', () => {
       return p.transformIndexHtml.handler(html).match(/connect-src [^;]*/)[0];
     };
     // De echte app verbindt met de meldingsdienst, de weerdienst (Open-Meteo) en de dienst voor de plaatsnaam (BigDataCloud); de demo met geen ervan.
-    expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com' })).toBe("connect-src 'self' https://dienst.example.com https://api.open-meteo.com https://api.bigdatacloud.net");
-    expect(meta({})).toBe("connect-src 'self' https://api.open-meteo.com https://api.bigdatacloud.net");
+    expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com' })).toBe("connect-src 'self' https://dienst.example.com https://api.open-meteo.com https://api.bigdatacloud.net https://nominatim.openstreetmap.org");
+    expect(meta({})).toBe("connect-src 'self' https://api.open-meteo.com https://api.bigdatacloud.net https://nominatim.openstreetmap.org");
     expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com', VITE_DEMO: 'true' })).toBe("connect-src 'self'");
   });
 

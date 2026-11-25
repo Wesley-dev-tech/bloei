@@ -3,7 +3,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { cspBeleid, dienstOrigin as leesDienstOrigin, inlineScriptHashes } from './scripts/csp.mjs';
-import { PLAATS_ORIGIN, WEER_ORIGIN } from './src/logica/weer.js';
+import { PLAATS2_ORIGIN, PLAATS_ORIGIN, WEER_ORIGIN } from './src/logica/weer.js';
 
 const WORTEL = import.meta.dirname;
 
@@ -168,6 +168,7 @@ function csp() {
   // adressen waarmee de app verbindt. Niet in de demo.
   let weerOrigin = '';
   let plaatsOrigin = '';
+  let plaats2Origin = ''; // de tweede bron voor de plaatsnaam (Nominatim van OpenStreetMap)
   return {
     name: 'bloei-csp',
     apply: 'build',
@@ -176,11 +177,12 @@ function csp() {
       dienstOrigin = isDemo(config.env) ? '' : leesDienstOrigin(config.env?.VITE_PUSH_URL);
       weerOrigin = isDemo(config.env) ? '' : WEER_ORIGIN;
       plaatsOrigin = isDemo(config.env) ? '' : PLAATS_ORIGIN;
+      plaats2Origin = isDemo(config.env) ? '' : PLAATS2_ORIGIN;
     },
     transformIndexHtml: {
       order: 'post',
       handler(html) {
-        const beleid = cspBeleid({ scriptHashes: inlineScriptHashes(html), connect: [dienstOrigin, weerOrigin, plaatsOrigin] });
+        const beleid = cspBeleid({ scriptHashes: inlineScriptHashes(html), connect: [dienstOrigin, weerOrigin, plaatsOrigin, plaats2Origin] });
         const charset = /(<meta charset="utf-8"\s*\/?>)/i;
         let uit = html;
         if (!/http-equiv="Content-Security-Policy"/i.test(uit)) {

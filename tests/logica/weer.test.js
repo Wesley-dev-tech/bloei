@@ -1,6 +1,6 @@
 // Het weer van nu (logica/weer.js): wat het toestel verlaat, hoe het antwoord gelezen wordt en welke zinnen erbij horen. Pure functies.
 import { describe, expect, test } from 'vitest';
-import { PLAATS_ORIGIN, WEERGROEPEN, WEERICONEN, WEERNAMEN, WEER_ORIGIN, isVerplaatst, leesAntwoord, leesPlaats, plaatsAdres, rondFijn, voorbeeldWeer, weerAdres, weerBeeld, weerSoort } from '../../src/logica/weer.js';
+import { PLAATS2_ORIGIN, PLAATS_ORIGIN, leesPlaats2, plaatsAdres2, WEERGROEPEN, WEERICONEN, WEERNAMEN, WEER_ORIGIN, isVerplaatst, leesAntwoord, leesPlaats, plaatsAdres, rondFijn, voorbeeldWeer, weerAdres, weerBeeld, weerSoort } from '../../src/logica/weer.js';
 import { GROEPEN } from '../../src/logica/motivatie.js';
 import { TEKSTEN } from '../../src/teksten.js';
 import { existsSync } from 'node:fs';
@@ -68,6 +68,19 @@ describe('de naam van de gemeente', () => {
 
   test('iets anders dan een gewone naam geeft null, nooit een fout', () => {
     for (const fout of [null, undefined, {}, { city: 42 }, { city: '', locality: '' }, { city: 'x' }, { city: '<b>Balen</b>' }, { city: 'a'.repeat(60) }, { city: 'Ba\u0007len' }, 'tekst', 7]) expect(leesPlaats(fout)).toBeNull();
+  });
+
+  test('de tweede bron (OpenStreetMap) krijgt dezelfde afgeronde plaats en geeft de gemeente, de stad of het dorp', () => {
+    const url = new URL(plaatsAdres2(50.846722, 4.352528));
+    expect(url.origin).toBe(PLAATS2_ORIGIN);
+    expect(url.origin + url.pathname).toBe('https://nominatim.openstreetmap.org/reverse');
+    expect(Object.fromEntries(url.searchParams)).toEqual({ format: 'jsonv2', lat: '50.85', lon: '4.35', zoom: '10', 'accept-language': 'nl' });
+    for (const [b, l] of [[undefined, 5], [51, null], [NaN, 5], [91, 5], [51, 181]]) expect(plaatsAdres2(b, l), `${b},${l}`).toBeNull();
+    expect(leesPlaats2({ name: 'Balen', address: { town: 'Balen', county: 'Turnhout', state: 'Antwerpen', country: 'België' } })).toBe('Balen');
+    expect(leesPlaats2({ name: 'Brussel-Hoofdstad', address: { city: 'Brussel' } })).toBe('Brussel');
+    expect(leesPlaats2({ address: { village: 'Olmen', municipality: 'Balen' } })).toBe('Balen');
+    expect(leesPlaats2({ name: 'Olmen', address: {} })).toBe('Olmen');
+    for (const fout of [null, undefined, {}, { address: 'tekst' }, { address: { town: '<b>x</b>' } }, { error: 'Unable to geocode' }, 7]) expect(leesPlaats2(fout)).toBeNull();
   });
 
   test('opnieuw opzoeken alleen na een verplaatsing van meer dan ongeveer een kilometer', () => {

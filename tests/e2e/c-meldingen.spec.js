@@ -251,7 +251,7 @@ test.describe('zonder push-dienst', () => {
     await page.goto('./');
     const csp = await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content');
     // Zonder meldingsdienst in de testbouw: alleen de eigen oorsprong, en de weerdienst en de dienst voor de plaatsnaam (niet in de demo).
-    expect(csp.split('; ').find((regel) => regel.startsWith('connect-src'))).toMatch(/^connect-src 'self'( https:\/\/api\.open-meteo\.com https:\/\/api\.bigdatacloud\.net)?$/);
+    expect(csp.split('; ').find((regel) => regel.startsWith('connect-src'))).toMatch(/^connect-src 'self'( https:\/\/api\.open-meteo\.com https:\/\/api\.bigdatacloud\.net https:\/\/nominatim\.openstreetmap\.org)?$/);
   });
 });
 

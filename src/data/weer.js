@@ -13,7 +13,7 @@
 // aan, de warme zin blijft staan tot de volgende opening (zo verspringt ze niet een seconde na het openen).
 import { zend } from '../kern/bus.js';
 import { DEMO } from '../kern/demo.js';
-import { isVerplaatst, leesAntwoord, leesPlaats, plaatsAdres, rondFijn, voorbeeldWeer, weerAdres, weerSoort } from '../logica/weer.js';
+import { isVerplaatst, leesAntwoord, leesPlaats, leesPlaats2, plaatsAdres, plaatsAdres2, rondFijn, voorbeeldWeer, weerAdres, weerSoort } from '../logica/weer.js';
 import { db } from './db.js';
 
 const SLEUTEL = 'weer.laatste'; // { tijd (ms), code, temp, gevoel, wind, dag, min, max, kans, mm, sneeuw, plaats? }
@@ -69,25 +69,40 @@ async function ververs() {
   const metTijd = (ms) => (typeof AbortSignal?.timeout === 'function' ? { ...vraag, signal: AbortSignal.timeout(ms) } : vraag);
   // Het weer en de naam van de gemeente tegelijk. De gemeente alleen als ze nog niet bekend is voor deze plek; mislukt die vraag, dan
   // komt het weer er gewoon zonder plaatsnaam (liever geen naam dan een naam die niet meer klopt).
+  // Eén bron vragen: de naam, of null met de reden erbij (voor de regel "Plaats niet gevonden" in het weerbericht).
+  const stand = [];
+  const vraagBron = async (naam, adresVanBron, lees, opties) => {
+    try {
+      const antwoord = await fetch(adresVanBron, opties);
+      if (!antwoord.ok) return void stand.push(`${naam} ${antwoord.status}`);
+      const gevonden = lees(await antwoord.json());
+      if (!gevonden) stand.push(`${naam} leeg`);
+      return gevonden;
+    } catch (fout) {
+      // Een geblokkeerd adres, geen netwerk of te traag: de browser zegt niet welk van de drie.
+      stand.push(`${naam} ${fout?.name === 'TimeoutError' || fout?.name === 'AbortError' ? 'traag' : 'geen antwoord'}`);
+      return undefined;
+    }
+  };
   const zoekGemeente = async () => {
     if (!isVerplaatst(gemeente, breedte, lengte)) return gemeente.naam;
     gemeenteGevraagd = true;
-    try {
-      const antwoord = await fetch(plaatsAdres(breedte, lengte), metTijd(6000));
-      const naam = antwoord.ok ? leesPlaats(await antwoord.json()) : null;
-      gemeente = naam ? { b: rondFijn(breedte), l: rondFijn(lengte), naam } : null;
-      return naam;
-    } catch {
-      gemeente = null;
-      return null;
-    }
+    // Eerst de eerste dienst; geeft die geen naam, dan de tweede (OpenStreetMap; die wil weten welke app het vraagt: het adres van de app
+    // als herkomst, niets over de gebruiker).
+    const naam =
+      (await vraagBron('A', plaatsAdres(breedte, lengte), leesPlaats, metTijd(5000))) ||
+      (await vraagBron('B', plaatsAdres2(breedte, lengte), leesPlaats2, { ...metTijd(5000), referrerPolicy: 'origin' })) ||
+      null;
+    gemeente = naam ? { b: rondFijn(breedte), l: rondFijn(lengte), naam } : null;
+    return naam;
   };
   const [antwoord, plaatsnaam] = await Promise.all([fetch(adres, metTijd(8000)), zoekGemeente()]);
   if (!antwoord.ok) return;
   const weer = leesAntwoord(await antwoord.json());
   if (!weer) return;
   // Rechtstreeks in de database, zonder 'instelling:gewijzigd': Vandaag hoeft er niet voor te hertekenen.
-  const rij = { tijd: Date.now(), ...weer, ...(plaatsnaam ? { plaats: plaatsnaam } : {}) };
+  // Zonder naam gaat de reden mee (plaatsStand, bv. "A geen antwoord, B 403"): het weerbericht toont dan "Plaats niet gevonden".
+  const rij = { tijd: Date.now(), ...weer, ...(plaatsnaam ? { plaats: plaatsnaam } : stand.length ? { plaatsStand: stand.join(', ') } : {}) };
   await db.instellingen.put({ sleutel: SLEUTEL, waarde: rij });
   hadWeer = true;
   zend('weer:gewijzigd', { weer: rij });
