@@ -294,7 +294,9 @@ describe('de bouw per versie (vite.config.js)', () => {
       p.configResolved({ env });
       return p.transformIndexHtml.handler(html).match(/connect-src [^;]*/)[0];
     };
-    expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com' })).toBe("connect-src 'self' https://dienst.example.com");
+    // De echte app verbindt met de meldingsdienst en met de weerdienst (Open-Meteo); de demo met geen van beide.
+    expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com' })).toBe("connect-src 'self' https://dienst.example.com https://api.open-meteo.com");
+    expect(meta({})).toBe("connect-src 'self' https://api.open-meteo.com");
     expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com', VITE_DEMO: 'true' })).toBe("connect-src 'self'");
   });
 

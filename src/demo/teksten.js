@@ -3,7 +3,8 @@
 // In src/teksten.js staan onder 'demo' alleen de zinnen die ook gedeelde schermen in een demotak gebruiken.
 export const DEMO_TEKSTEN = {
   regio: 'Demo',
-  privacyRegel6: 'In de demo blijft alles staan. In de echte app wist Profiel verwijderen alles van dit toestel.',
+  privacyRegel5: 'In de demo blijft alles staan. In de echte app wist Profiel verwijderen alles van dit toestel.',
+  privacyRegel6: 'In de demo is het weer een voorbeeld. De echte app gebruikt je locatie voor het weer waar je bent.',
   // BESLISSING 674: eerlijk zeggen dat wat je wijzigt niet blijft staan. De korte zin staat er onder 560 px.
   balk: 'Demo · probeer gerust alles, niets blijft bewaard',
   balkKort: 'Demo · niets blijft bewaard',

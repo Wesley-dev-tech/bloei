@@ -3,6 +3,7 @@ import { describe, expect, test } from 'vitest';
 import { GROEPEN, MIJLPALEN, WEEKGROEPEN, isDagRond, kiesMotivatie, kiesWeekMotivatie, kiesWeekZin, kiesZin, reactieUit } from '../../src/logica/motivatie.js';
 import { besteEerdereReeks, verledenUit, weekVerledenUit } from '../../src/logica/verleden.js';
 import { ALLE_BADGES } from '../../src/logica/badgeregels.js';
+import { WEERGROEPEN } from '../../src/logica/weer.js';
 import { TEKSTEN, motivatieZin } from '../../src/teksten.js';
 
 // Vrijdag 13 november 2026, zonder dagdeel: dan wisselt de stand alleen tussen de groepen zonder dagdeel.
@@ -87,6 +88,57 @@ describe('kiesMotivatie: elke opening van de dag een andere zin', () => {
     const kerst = [0, 1].map((opening) => open(opening, [], { kalender: { feestdag: 'kerst' } }));
     for (const k of kerst) expect(k.groep).toBe('kerst');
     expect(kerst[0].sleutel).not.toBe(kerst[1].sleutel);
+  });
+});
+
+// 0.4.8: het weer op de plaats waar ze is (logica/weer.js) kleurt de zin bij het openen.
+describe('kiesMotivatie: het weer van nu', () => {
+  const bezig = { maaltijden: 2, ml: 150, supplementen: { genomen: 1, totaal: 2 }, stemming: 4, lopendeReeks: 2, dagenBijgehouden: 12, dagdeel: 'middag', datum: '2026-11-25' };
+  const open = (extra = {}) => kiesMotivatie({ ...leeg, ...bezig, ...extra });
+
+  test('elke weersoort heeft haar eigen groep zinnen', () => {
+    for (const g of WEERGROEPEN) {
+      expect(GROEPEN[g], g).toBeGreaterThanOrEqual(4);
+      expect(Object.keys(TEKSTEN.motivatie[g]).length, g).toBe(GROEPEN[g]);
+    }
+  });
+
+  test('bij het openen komt het weer één keer per dag per weersoort, ook zonder iets genoteerd', () => {
+    for (const g of WEERGROEPEN) {
+      const eerste = open({ weer: g });
+      expect(eerste.groep, g).toBe(g);
+      expect(eerste.moment, g).toBe('weer:' + g);
+      expect(open({ weer: g, opening: 1, gehad: ['weer:' + g] }).moment, g).toBeUndefined();
+      expect(kiesMotivatie({ ...leeg, weer: g }).groep, g).toBe(g);
+    }
+    // Het weer sloeg om: de nieuwe weersoort mag ook nog.
+    expect(open({ weer: 'weerRegen', opening: 2, gehad: ['weer:weerGrijs'] }).groep).toBe('weerRegen');
+  });
+
+  test('daarna wisselt het weer mee met de zinnen over de dag', () => {
+    const groepen = new Set();
+    for (let opening = 1; opening <= 8; opening++) groepen.add(open({ weer: 'weerRegen', opening, gehad: ['weer:weerRegen'] }).groep);
+    expect(groepen.has('weerRegen')).toBe(true);
+    expect(groepen.size).toBeGreaterThanOrEqual(3);
+  });
+
+  test('een mijlpaal, haar verjaardag en een feestdag gaan voor; na een handeling zwijgt het weer', () => {
+    expect(open({ weer: 'weerZon', lopendeReeks: 3 }).groep).toBe('reeks');
+    expect(open({ weer: 'weerZon', kalender: { jarig: true, leeftijd: 39 } }).groep).toBe('verjaardag');
+    expect(open({ weer: 'weerZon', kalender: { feestdag: 'kerst' } }).groep).toBe('kerst');
+    expect(open({ weer: 'weerZon', reactie: { soort: 'notitie', nieuw: {}, teller: 1 } }).groep).not.toBe('weerZon');
+  });
+
+  test('zonder weer, of met iets wat geen weergroep is, verandert er niets', () => {
+    const zonder = open().sleutel;
+    expect(open({ weer: null }).sleutel).toBe(zonder);
+    expect(open({ weer: 'reeks' }).sleutel).toBe(zonder);
+    expect(open({ weer: 'weerOnbekend' }).sleutel).toBe(zonder);
+    expect(open({ weer: 42 }).sleutel).toBe(zonder);
+  });
+
+  test('geen enkele weerzin noemt een cijfer, wat ze at of haar gewicht', () => {
+    for (const g of WEERGROEPEN) for (const zin of Object.values(TEKSTEN.motivatie[g])) expect(zin, zin).not.toMatch(/\d|gegeten|\bat\b|kilo|gewicht|lichter|zwaarder/i);
   });
 });
 
@@ -492,6 +544,10 @@ describe('elke keuze geeft een volledige zin', () => {
           badges: { vandaag: r(4) === 0 ? [kies(ids), kies(ids)].slice(0, 1 + r(2)) : [], gisteren: r(5) === 0 ? [kies(ids)] : [], aantal: kies([1, 5, 12, 33]), totaal: 33, volgende: r(3) === 0 ? null : kies([{ id: 'week-vol', aantal: 6, doel: 7, dagTeller: true }, { id: 'maand-vol', aantal: 15, doel: 30, dagTeller: true }, { id: 'tien-kannen', aantal: 4, doel: 10, dagTeller: false }]), volgendeDag: r(2) === 0 ? null : { id: 'week-op-rij', aantal: 1 + r(5), doel: 7, dagTeller: true } },
         },
       };
+      // Het weer van nu en de hoeveelste opening van de dag (0.4.7 en 0.4.8).
+      // (zonder de generator: de reeks toestanden hierboven blijft dezelfde als voorheen)
+      status.weer = i % 3 === 0 ? WEERGROEPEN[i % WEERGROEPEN.length] : null;
+      status.opening = i % 5;
       const keuze = kiesMotivatie(status);
       expect(GROEPEN[keuze.groep], keuze.groep).toBeDefined();
       expect(typeof TEKSTEN.motivatie[keuze.groep][keuze.sleutel.split('.')[2]], keuze.sleutel).toBe('string');

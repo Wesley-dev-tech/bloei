@@ -84,7 +84,11 @@ For the screen tests `tests/globaal-opstart.js` first prepares a saved state in 
 
 All diary data lives on the device, in IndexedDB, and never leaves it. The same goes for the optional date of birth: it is only used on the device, to celebrate the user's birthday, and can be cleared at any time. Only when reminders are switched on does something go to the reminder service: the push address with the keys of that device, and the chosen times. Nothing from the diary goes to that service. There is no backup: if the app is removed, the browser data is cleared or the device is lost, the data is gone. A report or a supplement list is only shared when the user does so, as a file.
 
-The built pages carry a strict Content-Security-Policy, and the app makes no external requests except to the reminder service. Fonts and icons are bundled locally.
+The built pages carry a strict Content-Security-Policy, and the app makes no external requests except to the reminder service and the weather service. Fonts and icons are bundled locally.
+
+## Weather
+
+The Today screen shows the current weather where the user is, and the warm sentence can follow it. The device asks for location permission once; without it there is simply no weather. The app sends only the location rounded to one decimal (roughly ten kilometres) to Open-Meteo, and stores the weather it got back, never the location. While the app is in view it refreshes every ten minutes. The demo shows sample weather and connects to nothing. Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0, free for non-commercial use).
 
 ## Reminders
 

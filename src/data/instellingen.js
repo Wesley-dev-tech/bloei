@@ -13,6 +13,7 @@ export const STANDAARD = {
   'profiel.verjaardagJaren': [], // elk jaar waarin Bloei haar verjaardag vierde: de medaille Jarig in Bloei behaal je elk jaar opnieuw
   'profiel.verjaardagGevierd': null, // het jaar waarin Bloei haar verjaardag al vierde (ui/verjaardag.js)
   'motivatie.dag': null, // { datum, openingen, gehad }: de hoeveelste keer ze de app vandaag opent en welke momenten ze al zag (data/motivatiestand.js)
+  'weer.laatste': null, // { tijd, code, temp, wind, dag }: het weer van daarnet, voor de warme zin (data/weer.js). De plaats zelf wordt niet bewaard.
   'thema.keuze': 'poeder', // poeder | salie | nacht | auto
   'thema.kaft': 'bes',
   'thema.modus': 'auto',

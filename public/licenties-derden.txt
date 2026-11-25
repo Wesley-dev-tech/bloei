@@ -648,3 +648,10 @@ INCLUDING ANY GENERAL, SPECIAL, INDIRECT, INCIDENTAL, OR CONSEQUENTIAL
 DAMAGES, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING
 FROM, OUT OF THE USE OR INABILITY TO USE THE FONT SOFTWARE OR FROM
 OTHER DEALINGS IN THE FONT SOFTWARE.
+
+==============================================================================
+Open-Meteo (https://open-meteo.com), weergegevens
+Het weerbericht op Vandaag en de zinnen over het weer gebruiken weergegevens van Open-Meteo.com.
+Gegevens: Creative Commons Attribution 4.0 International (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/).
+Bloei toont ze verkort: het weer van nu, en van vandaag de laagste en de hoogste temperatuur en de kans op neerslag.
+==============================================================================

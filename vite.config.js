@@ -3,6 +3,7 @@ import { VitePWA } from 'vite-plugin-pwa';
 import { copyFileSync, existsSync, readFileSync, writeFileSync } from 'node:fs';
 import { join, resolve } from 'node:path';
 import { cspBeleid, dienstOrigin as leesDienstOrigin, inlineScriptHashes } from './scripts/csp.mjs';
+import { WEER_ORIGIN } from './src/logica/weer.js';
 
 const WORTEL = import.meta.dirname;
 
@@ -158,22 +159,25 @@ function svgZonderMetadata() {
 // Content-Security-Policy als <meta> in de gebouwde pagina's (niet in dev: de dev-server van Vite heeft
 // inline scripts nodig). De hash is die van het inline thema-script in index.html.
 // Het beleid zelf staat in scripts/csp.mjs; vercel.json stuurt hetzelfde beleid als kop, met frame-ancestors erbij
-// (dat kan niet in een meta). De meta blijft: ze beperkt connect-src tot precies de meldingsdienst en beschermt ook
+// (dat kan niet in een meta). De meta blijft: ze beperkt connect-src tot precies de meldingsdienst en de weerdienst en beschermt ook
 // een gebouwde versie die zonder die koppen wordt bekeken (vite preview, de schermtests).
 function csp() {
   // Het adres van de push-dienst komt alleen in connect-src als VITE_PUSH_URL bij het bouwen is ingevuld (BESLISSING 38).
   let dienstOrigin = '';
+  // De weerdienst (Open-Meteo, src/data/weer.js): het enige andere adres waarmee de app verbindt. Niet in de demo.
+  let weerOrigin = '';
   return {
     name: 'bloei-csp',
     apply: 'build',
     configResolved(config) {
       // De demo (BESLISSING 364) verbindt met geen enkele dienst: connect-src 'self', ook als VITE_PUSH_URL gezet is.
       dienstOrigin = isDemo(config.env) ? '' : leesDienstOrigin(config.env?.VITE_PUSH_URL);
+      weerOrigin = isDemo(config.env) ? '' : WEER_ORIGIN;
     },
     transformIndexHtml: {
       order: 'post',
       handler(html) {
-        const beleid = cspBeleid({ scriptHashes: inlineScriptHashes(html), connect: [dienstOrigin] });
+        const beleid = cspBeleid({ scriptHashes: inlineScriptHashes(html), connect: [dienstOrigin, weerOrigin] });
         const charset = /(<meta charset="utf-8"\s*\/?>)/i;
         let uit = html;
         if (!/http-equiv="Content-Security-Policy"/i.test(uit)) {

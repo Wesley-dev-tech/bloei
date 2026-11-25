@@ -8,6 +8,17 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.4.8',
+    datum: '2026-11-25',
+    tijd: '14:06',
+    punten: [
+      { begrip: 'algemeen', tekst: 'Op Vandaag staat nu het weer waar je bent: de temperatuur, hoe het aanvoelt, min. en max., de wind en de kans op regen.' },
+      { begrip: 'algemeen', tekst: 'Het weerbericht blijft live: zolang Bloei openstaat, wordt het om de tien minuten bijgewerkt.' },
+      { begrip: 'algemeen', tekst: 'De warme zin houdt rekening met het weer, van een zonnige dag tot regen of sneeuw.' },
+      { begrip: 'vergrendeling', tekst: 'Voor het weer vraagt je toestel één keer je locatie. Alleen je ruime omgeving verlaat het toestel. Dat staat ook bij Privacy.' },
+    ],
+  },
+  {
     versie: '0.4.7',
     datum: '2026-11-25',
     tijd: '13:10',

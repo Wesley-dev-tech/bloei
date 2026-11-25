@@ -254,9 +254,10 @@ describe('de publicatie op Vercel (vercel.json)', () => {
     expect(overal['Cross-Origin-Opener-Policy']).toBe('same-origin');
     expect(overal['Strict-Transport-Security']).toMatch(/^max-age=\d{8,}/);
     const pp = Object.fromEntries(overal['Permissions-Policy'].split(/,\s*/).map((r) => r.split('=')));
-    for (const uit of ['camera', 'microphone', 'geolocation', 'payment', 'usb']) expect(pp[uit], uit).toBe('()');
-    // Wat de app wel gebruikt: Face ID via een passkey (WebAuthn) en het delen van het verslag.
-    for (const aan of ['publickey-credentials-get', 'publickey-credentials-create', 'web-share']) expect(pp[aan], aan).toBe('(self)');
+    for (const uit of ['camera', 'microphone', 'payment', 'usb']) expect(pp[uit], uit).toBe('()');
+    // Wat de app wel gebruikt: Face ID via een passkey (WebAuthn), het delen van het verslag en de locatie voor het weer
+    // (data/weer.js; alleen voor Bloei zelf, nooit voor een andere oorsprong).
+    for (const aan of ['publickey-credentials-get', 'publickey-credentials-create', 'web-share', 'geolocation']) expect(pp[aan], aan).toBe('(self)');
   });
 
   it('cache: index.html, sw.js en het manifest nooit lang, de bestanden met een hash in assets/ een jaar en immutable', () => {

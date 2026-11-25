@@ -74,7 +74,7 @@ export function reactieVoor(datum, tel) {
 // zodat de zin niet verspringt als Vandaag opnieuw getekend wordt.
 const SLEUTEL = 'motivatie.dag'; // { datum, openingen, gehad: [moment, ...] }
 const WEG_MS = 5 * 60 * 1000;
-let dag = null; // { datum, nummer, gehad (wat ze voor deze opening al zag), bewaard (alles wat ze vandaag zag) }
+let dag = null; // { datum, nummer, gehad (wat ze voor deze opening al zag), bewaard (alles wat ze vandaag zag), weer? (Vandaag zet de weersoort van deze opening erbij) }
 let dagBezig = null;
 
 // Rechtstreeks in de database, zonder 'instelling:gewijzigd': het is een teller van de app zelf en Vandaag hoeft er niet voor te hertekenen.
