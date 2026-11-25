@@ -71,14 +71,21 @@ export function openWatIsNieuw(lijst) {
 
 // Bij de start van de app: toont alles wat uitkwam sinds de versie die dit toestel al zag. Geeft true als het blad openging.
 // In de demo nooit: daar begint elk bezoek opnieuw en zou het blad telkens terugkomen.
-export async function toonWatIsNieuwBijStart() {
+// kendeLater: dit toestel draaide al een versie van na de fout met het nummer 0.5.0 (main.js kijkt dat na voor het eerste scherm tekent).
+export async function toonWatIsNieuwBijStart({ kendeLater = false } = {}) {
   if (DEMO) return false;
   try {
-    // (gezienVersie: een toestel dat het foute nummer 0.5.0 onthield, zag 0.4.3)
-    const gezien = gezienVersie(await leesInstelling('versie.gezien'), appVersie);
-    if (gezien === appVersie) return false;
+    // Het onthouden nummer '0.5.0' is dubbelzinnig: het foute van 24 november (in feite 0.4.3) of het echte van 25 november. Het is het
+    // echte als deze app het zelf zo bewaarde ('versie.nummering' is 2, vanaf 0.5.1) of als het toestel al een latere versie kende.
+    const nummering = await leesInstelling('versie.nummering');
+    const gezien = gezienVersie(await leesInstelling('versie.gezien'), nummering === 2 || kendeLater);
+    if (gezien === appVersie) {
+      if (nummering !== 2) await zetInstelling('versie.nummering', 2);
+      return false;
+    }
     const lijst = wijzigingenSinds(gezien, appVersie);
     await zetInstelling('versie.gezien', appVersie);
+    if (nummering !== 2) await zetInstelling('versie.nummering', 2);
     // Een nieuwe gebruiker (welkomscherm) krijgt geen wijzigingen van vóór haar tijd te zien.
     if (!isStartKlaar()) return false;
     return openWatIsNieuw(lijst);

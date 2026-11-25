@@ -35,7 +35,7 @@ import './stijl/telefoon.css'; // onder 720 px: "Goed om te weten" onderaan en g
 const IS_DEMO = import.meta.env.VITE_DEMO === 'true';
 import { openDb } from './data/db.js';
 import { startBadges } from './data/badges.js';
-import { migreerKan } from './data/instellingen.js';
+import { leesInstelling, migreerKan } from './data/instellingen.js';
 import { herstelVangnet } from './data/vangnet.js';
 import { startKanaal } from './data/kanaal.js';
 import { pasThemaToe } from './thema/thema.js';
@@ -73,6 +73,9 @@ async function start() {
   await migreerKan(); // BESLISSING 270: water is een kan van 800 ml; een oude standaard van 250 gaat één keer mee
   await herstelVangnet(); // R5-03: tekst die vlak voor herladen of afsluiten getypt was, en wist het vangnet meteen
   startKanaal(); // R5-01: wat een ander tabblad bewaart, verschijnt ook hier
+  // Voor het blad "Nieuw in Bloei": kende dit toestel al een versie van na 24 november? De warme zin bewaart sinds 0.4.7 bij elke opening
+  // 'motivatie.dag'. Hier gelezen, voor het eerste scherm tekent en die sleutel zelf schrijft (ui/watisnieuw.js, gezienVersie).
+  const kendeLater = Boolean(await leesInstelling('motivatie.dag').catch(() => null));
   await startSlot();
   startApp(document.getElementById('app'));
   if (IS_DEMO) (await import('./demo/start.js')).toonBalk(); // demo: de balk met "Opnieuw beginnen"
@@ -84,7 +87,7 @@ async function start() {
   startMeldingen(); // doet niets zolang er geen push-dienst is ingesteld (BESLISSING 38)
   // BESLISSING 701: na een update één keer het blad "Nieuw in Bloei"; niet blokkerend. Daarna de feesten (ui/feest.js): confetti op haar
   // verjaardag en vuurwerk bij de jaarwissel, pas als er geen ander blad meer openstaat.
-  toonWatIsNieuwBijStart().finally(() => startFeest());
+  toonWatIsNieuwBijStart({ kendeLater }).finally(() => startFeest());
 }
 
 start();

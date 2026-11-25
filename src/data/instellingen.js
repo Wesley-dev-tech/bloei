@@ -49,6 +49,7 @@ export const STANDAARD = {
   // Delen (stap 19): welke onderdelen in het verslag komen. Gewicht en notities staan standaard uit.
   'delen.onderdelen': { eten: true, drinken: true, gewicht: false, notities: false },
   'installatie.strookWeg': false,
+  'versie.nummering': null, // 2 zodra deze app 'versie.gezien' zelf bewaarde (vanaf 0.5.1): dan is een onthouden '0.5.0' de echte (wijzigingen.js, gezienVersie)
   'versie.gezien': null, // de laatste versie waarvan het blad "Nieuw in Bloei" getoond werd (src/ui/watisnieuw.js)
 };
 

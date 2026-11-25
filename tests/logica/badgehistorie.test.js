@@ -46,14 +46,40 @@ describe('eersteDatums', () => {
 
 // Het foute versienummer 0.5.0 (was 0.4.3): een toestel dat het onthield, krijgt het blad "Nieuw in Bloei" van 0.4.4 gewoon te zien.
 import { gezienVersie, wijzigingenSinds, WIJZIGINGEN, vergelijkVersies } from '../../src/data/wijzigingen.js';
+import { readFileSync } from 'node:fs';
 describe('het versienummer (wijzigingen.js)', () => {
-  test('0.5.0 telt als 0.4.3 zolang de app onder 0.5.0 zit', () => {
-    expect(gezienVersie('0.5.0', '0.4.4')).toBe('0.4.3');
-    expect(gezienVersie('0.4.2', '0.4.4')).toBe('0.4.2');
-    expect(gezienVersie('0.5.0', '0.5.0')).toBe('0.5.0');
-    expect(gezienVersie('0.5.0', '0.5.1')).toBe('0.5.0');
-    expect(wijzigingenSinds(gezienVersie('0.5.0', '0.4.4'), '0.4.4').map((w) => w.versie)).toEqual(['0.4.4']);
-    expect(wijzigingenSinds(gezienVersie('0.4.2', '0.4.4'), '0.4.4').map((w) => w.versie)).toEqual(['0.4.4', '0.4.3']);
+  // Het onthouden nummer '0.5.0' kan het foute van 24 november zijn (in feite 0.4.3) of het echte van 25 november.
+  test("een onthouden '0.5.0' telt als 0.4.3, tenzij vaststaat dat het de echte 0.5.0 is", () => {
+    expect(gezienVersie('0.5.0', false)).toBe('0.4.3');
+    expect(gezienVersie('0.5.0', undefined)).toBe('0.4.3');
+    expect(gezienVersie('0.5.0', true)).toBe('0.5.0');
+    for (const echt of [true, false]) {
+      expect(gezienVersie('0.4.2', echt)).toBe('0.4.2');
+      expect(gezienVersie('0.5.1', echt)).toBe('0.5.1');
+      expect(gezienVersie(null, echt)).toBe(null);
+    }
+  });
+  test('wie op het foute nummer bleef staan, krijgt alles te zien wat sindsdien uitkwam; wie de echte 0.5.0 had, alleen het nieuwe', () => {
+    expect(wijzigingenSinds(gezienVersie('0.5.0', false), '0.5.1').map((w) => w.versie)).toEqual(['0.5.1', '0.5.0', '0.4.9', '0.4.8', '0.4.7', '0.4.6', '0.4.5', '0.4.4']);
+    expect(wijzigingenSinds(gezienVersie('0.5.0', true), '0.5.1').map((w) => w.versie)).toEqual(['0.5.1']);
+    expect(wijzigingenSinds(gezienVersie('0.4.9', false), '0.5.1').map((w) => w.versie)).toEqual(['0.5.1', '0.5.0']);
+    expect(wijzigingenSinds(gezienVersie('0.4.2', false), '0.4.4').map((w) => w.versie)).toEqual(['0.4.4', '0.4.3']);
+  });
+  test('de lijst staat ook in de tijd op volgorde: geen versie ging uit voor de versie eronder', () => {
+    const moment = (w) => `${w.datum} ${w.tijd ?? '00:00'}`;
+    for (let i = 0; i < WIJZIGINGEN.length - 1; i++) {
+      expect(/^\d{4}-\d{2}-\d{2}$/.test(WIJZIGINGEN[i].datum), WIJZIGINGEN[i].versie).toBe(true);
+      if (WIJZIGINGEN[i].tijd != null) expect(/^([01]\d|2[0-3]):[0-5]\d$/.test(WIJZIGINGEN[i].tijd), WIJZIGINGEN[i].versie).toBe(true);
+      expect(moment(WIJZIGINGEN[i]) >= moment(WIJZIGINGEN[i + 1]), `${WIJZIGINGEN[i].versie} na ${WIJZIGINGEN[i + 1].versie}`).toBe(true);
+    }
+  });
+  test('package.json, package-lock.json en de bovenste regel van de lijst dragen hetzelfde versienummer', () => {
+    const lees = (bestand) => JSON.parse(readFileSync(new URL('../../' + bestand, import.meta.url), 'utf8'));
+    const pakket = lees('package.json');
+    const lock = lees('package-lock.json');
+    expect(WIJZIGINGEN[0].versie).toBe(pakket.version);
+    expect(lock.version).toBe(pakket.version);
+    expect(lock.packages[''].version).toBe(pakket.version);
   });
   test('elke versie is precies één hoger op het laatste cijfer (na 9 volgt de volgende reeks), nieuwste bovenaan', () => {
     const versies = WIJZIGINGEN.map((w) => w.versie);

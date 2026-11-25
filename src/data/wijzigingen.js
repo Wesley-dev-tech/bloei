@@ -8,6 +8,15 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.5.1',
+    datum: '2026-11-25',
+    tijd: '15:06',
+    punten: [
+      { begrip: 'algemeen', tekst: 'Het versienummer en de lijst met wat er per versie veranderde zijn nagekeken en kloppen weer overal.' },
+      { begrip: 'algemeen', tekst: 'Sloeg je een update over, dan zie je in dit blad weer alles wat je miste.' },
+    ],
+  },
+  {
     versie: '0.5.0',
     datum: '2026-11-25',
     tijd: '15:00',
@@ -85,7 +94,7 @@ export const WIJZIGINGEN = [
     ],
   },
   {
-    versie: '0.4.3', // ging op 24 november eerst uit als 0.5.0: een fout nummer, hersteld in 0.4.4 (zie gezienVersie hieronder)
+    versie: '0.4.3', // ging op 24 november eerst uit als 0.5.0: een fout nummer, hersteld in 0.4.4. De echte 0.5.0 is die van 25 november (zie gezienVersie hieronder)
     datum: '2026-11-24',
     tijd: '21:01',
     punten: [
@@ -130,7 +139,7 @@ export const WIJZIGINGEN = [
   {
     versie: '0.3.9',
     datum: '2026-11-22',
-    tijd: '21:30',
+    tijd: '21:06',
     punten: [
       { begrip: 'supplementen', tekst: 'In de rondleiding Een supplement aanpassen duiden Begint op en Stopt na nu elk hun eigen vak aan.' },
     ],
@@ -232,7 +241,7 @@ export const WIJZIGINGEN = [
   {
     versie: '0.2.7',
     datum: '2026-11-20',
-    tijd: '18:40',
+    tijd: '18:29',
     punten: [
       { begrip: 'instellingen', tekst: 'Op je telefoon staat het tandwiel naar Algemeen nu helemaal rechts bovenaan, na Delen.' },
       { begrip: 'uitleg', tekst: 'De rondleiding van Vandaag en van Algemeen klopt weer: juiste titels, juiste teksten en een stap over Wat is er nieuw.' },
@@ -321,11 +330,12 @@ export function vergelijkVersies(a, b) {
   return 0;
 }
 
-// Versie 0.4.3 ging eerst uit met het nummer 0.5.0, tegen de afspraak in dat elke versie één hoger is op het laatste cijfer. Een toestel
-// dat toen '0.5.0' onthield, zag in feite 0.4.3: zonder deze correctie zou het blad "Nieuw in Bloei" daar zwijgen tot er echt een 0.5.1 is.
-// Alleen zolang de app zelf onder 0.5.0 zit: komt de echte 0.5.0 er, dan betekent dat nummer weer gewoon wat het zegt.
-export function gezienVersie(gezien, huidige) {
-  return gezien === '0.5.0' && vergelijkVersies(huidige, '0.5.0') < 0 ? '0.4.3' : gezien;
+// Versie 0.4.3 ging op 24 november eerst uit met het nummer 0.5.0, tegen de afspraak in dat elke versie één hoger is op het laatste cijfer.
+// Een toestel dat toen '0.5.0' onthield, zag in feite 0.4.3. Sinds 25 november bestaat de echte 0.5.0: het onthouden nummer '0.5.0' kan
+// dus twee dingen betekenen. echt zegt welke: true als vaststaat dat dit toestel de echte 0.5.0 (of een versie na de fout) al draaide
+// (src/ui/watisnieuw.js bepaalt dat). Zonder die zekerheid telt '0.5.0' als 0.4.3, zodat zo'n toestel alles te zien krijgt wat het miste.
+export function gezienVersie(gezien, echt) {
+  return gezien === '0.5.0' && !echt ? '0.4.3' : gezien;
 }
 
 // Alles wat nieuwer is dan de versie die de gebruiker al zag, tot en met de versie die nu draait, nieuwste eerst.
