@@ -614,9 +614,9 @@ export const TEKSTEN = {
     regel3: 'Een verslag of je supplementenlijst deel je zelf, als bestand. Er staat alleen je lijst in.',
     regel4: 'Je pincode houdt meekijkers buiten. Je gegevens zelf zijn niet versleuteld.',
     regel5: 'Er is geen back-up. Verwijder je je profiel of Bloei, of wist je toestel de gegevens, dan is alles weg.',
-    // Het weer en de naam van haar gemeente (data/weer.js): het enige wat over haar plaats het toestel verlaat, voor allebei afgerond op
-    // ongeveer een kilometer. De diensten worden niet genoemd; ze staan in public/licenties-derden.txt.
-    regel6: 'Voor het weer en je gemeente verlaat je locatie het toestel, afgerond op ongeveer een kilometer. Nooit je naam of dagboek.',
+    // Het weer en de naam van haar gemeente (data/weer.js): het enige wat over haar plaats het toestel verlaat, en dat is de exacte
+    // plaats (niets wordt afgerond). De diensten worden niet genoemd; ze staan in public/licenties-derden.txt.
+    regel6: 'Voor het weer en je gemeente verlaat je exacte locatie het toestel. Nooit je naam of dagboek.',
   },
 
   meer: {
@@ -3276,6 +3276,7 @@ export const TEKSTEN = {
     label: 'Het weer nu: {naam}, {aantal} graden.',
     labelPlaats: 'Het weer nu in {plaats}: {naam}, {aantal} graden.',
     plaatsNiet: 'Plaats niet gevonden',
+    plaatsOngeveer: 'bij benadering',
     labelVoelt: 'Het voelt als {aantal} graden.',
     labelBereik: 'Vandaag minimaal {min} en maximaal {max} graden.',
     labelKansRegen: '{aantal} procent kans op regen vandaag.',

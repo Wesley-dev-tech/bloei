@@ -20,7 +20,7 @@ async function begin(page, route, soort, ids = ALLE) {
 const REGELS = [
   'Alles wat je bijhoudt, ook je geboortedatum, blijft op dit toestel. Geen account, geen cookies en geen volgcode.',
   'Voor herinneringen bewaart Cloudflare alleen je pushadres en uren. Geen naam, geen dagboek.',
-  'Voor het weer en je gemeente verlaat je locatie het toestel, afgerond op ongeveer een kilometer. Nooit je naam of dagboek.',
+  'Voor het weer en je gemeente verlaat je exacte locatie het toestel. Nooit je naam of dagboek.',
   'Een verslag of je supplementenlijst deel je zelf, als bestand. Er staat alleen je lijst in.',
   'Je pincode houdt meekijkers buiten. Je gegevens zelf zijn niet versleuteld.',
   'Er is geen back-up. Verwijder je je profiel of Bloei, of wist je toestel de gegevens, dan is alles weg.',

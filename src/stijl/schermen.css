@@ -314,6 +314,8 @@
 .weerbericht__plaats--niet { font-weight: 400; font-size: var(--fs-small); color: var(--c-text-muted); flex-wrap: wrap; }
 .weerbericht__plaats--niet svg { color: var(--c-text-muted); }
 .weerbericht__reden { opacity: .8; }
+/* De gemeente is bij benadering (het toestel gaf alleen een grove plek): klein en gedempt achter de naam. */
+.weerbericht__ongeveer { font-weight: 400; font-size: var(--fs-small); color: var(--c-text-muted); white-space: nowrap; }
 .weerbericht__plaats span { min-width: 0; overflow-wrap: anywhere; }
 .weerbericht__breuk { flex: 0 0 100%; height: 0; }
 .weerbericht__nu svg { color: var(--c-accent); flex: none; }

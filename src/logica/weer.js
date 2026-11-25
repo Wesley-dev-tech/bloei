@@ -1,25 +1,30 @@
 // Het weer van nu, voor de warme zin op Vandaag (logica/motivatie.js). Pure functies: geen netwerk, geen locatie (dat doet data/weer.js).
 // De gegevens komen van Open-Meteo (open-meteo.com, CC BY 4.0): gratis voor niet-commercieel gebruik, zonder account en zonder cookies.
-// De naam van de gemeente waar ze is (bv. Balen) komt van een tweede dienst, BigDataCloud (gratis, zonder account, alleen rechtstreeks
+// De naam van de gemeente waar ze is (bv. Balen) komt van Nominatim, de zoekdienst van OpenStreetMap (die kijkt binnen welke
+// gemeentegrens de plek ligt). Antwoordt die niet, dan vraagt Bloei het aan BigDataCloud (gratis, zonder account, alleen rechtstreeks
 // vanaf het toestel).
-// Aan beide diensten stuurt Bloei alleen de plaats, afgerond op twee cijfers na de komma (rondFijn): ongeveer een kilometer. Zo zijn het
-// weer en de gemeente die van de plek waar ze echt is. Geen naam, geen dagboek, niets anders.
+// Aan elke dienst stuurt Bloei alleen de plaats, precies zoals het toestel ze geeft: er wordt niets afgerond (sinds 0.5.4; daarvoor op
+// ongeveer een kilometer). Zo zijn het weer en de gemeente die van de plek waar ze echt is. Geen naam, geen dagboek, niets anders.
 
 export const WEER_ORIGIN = 'https://api.open-meteo.com';
 
 // ---- De naam van de plaats ----
 export const PLAATS_ORIGIN = 'https://api.bigdatacloud.net';
 
-// Twee cijfers na de komma: ongeveer een kilometer. Fijn genoeg voor de juiste gemeente, te grof voor een straat of een huis.
-export const rondFijn = (graden) => Math.round(Number(graden) * 100) / 100;
+// Een breedte of lengte zoals ze in een vraag staat: het getal van het toestel, onveranderd. Alleen de schrijfwijze ligt vast (nooit
+// met een exponent, wat een heel klein getal anders krijgt).
+export const graad = (graden) => {
+  const tekst = String(graden);
+  return /e/i.test(tekst) ? graden.toFixed(15) : tekst;
+};
 
-// Het adres van de vraag naar de gemeente: alleen de plaats, afgerond op ongeveer een kilometer (zoals voor het weer), en de taal van de naam.
+const geldigePlek = (breedte, lengte) =>
+  typeof breedte === 'number' && typeof lengte === 'number' && Number.isFinite(breedte) && Number.isFinite(lengte) && Math.abs(breedte) <= 90 && Math.abs(lengte) <= 180;
+
+// Het adres van de vraag naar de gemeente: alleen de plaats (zoals voor het weer) en de taal van de naam.
 export function plaatsAdres(breedte, lengte) {
-  if (typeof breedte !== 'number' || typeof lengte !== 'number') return null;
-  const b = rondFijn(breedte);
-  const l = rondFijn(lengte);
-  if (!Number.isFinite(b) || !Number.isFinite(l) || Math.abs(b) > 90 || Math.abs(l) > 180) return null;
-  return `${PLAATS_ORIGIN}/data/reverse-geocode-client?latitude=${b.toFixed(2)}&longitude=${l.toFixed(2)}&localityLanguage=nl`;
+  if (!geldigePlek(breedte, lengte)) return null;
+  return `${PLAATS_ORIGIN}/data/reverse-geocode-client?latitude=${graad(breedte)}&longitude=${graad(lengte)}&localityLanguage=nl`;
 }
 
 // Het antwoord → de naam van de gemeente (city), anders van het kleinste benoemde gebied (locality), anders de gemeente uit de lijst
@@ -34,23 +39,23 @@ const eersteNaam = (kandidaten) => {
   return null;
 };
 export function leesPlaats(json) {
+  // Deze dienst valt terug op het internetadres als ze de plaats niet aanneemt: dat is een gok van tientallen kilometers. Dan liever niets.
+  if (typeof json?.lookupSource === 'string' && /ip/i.test(json.lookupSource)) return null;
   const bestuur = Array.isArray(json?.localityInfo?.administrative) ? json.localityInfo.administrative : [];
   const niveau8 = bestuur.find((g) => g?.adminLevel === 8)?.name;
   return eersteNaam([json?.city, json?.locality, niveau8]);
 }
 
-// ---- De tweede bron voor de naam van de plaats ----
-// Antwoordt de eerste dienst niet (een netwerk of een toestel dat haar adres tegenhoudt, een storing), dan vraagt Bloei het aan
-// Nominatim, de zoekdienst van OpenStreetMap (gratis, zonder account; gegevens van de OpenStreetMap-bijdragers, licentie ODbL). Zelfde afronding.
+// ---- De eerste bron voor de naam van de plaats ----
+// Nominatim, de zoekdienst van OpenStreetMap (gratis, zonder account; gegevens van de OpenStreetMap-bijdragers, licentie ODbL). Ze zoekt
+// de gemeente op binnen wier grens de plek ligt. Antwoordt ze niet (een netwerk of een toestel dat haar adres tegenhoudt, een storing),
+// dan is BigDataCloud hierboven de reserve.
 export const PLAATS2_ORIGIN = 'https://nominatim.openstreetmap.org';
 
 // zoom=10 vraagt het gebied op het niveau van een stad of gemeente.
 export function plaatsAdres2(breedte, lengte) {
-  if (typeof breedte !== 'number' || typeof lengte !== 'number') return null;
-  const b = rondFijn(breedte);
-  const l = rondFijn(lengte);
-  if (!Number.isFinite(b) || !Number.isFinite(l) || Math.abs(b) > 90 || Math.abs(l) > 180) return null;
-  return `${PLAATS2_ORIGIN}/reverse?format=jsonv2&lat=${b.toFixed(2)}&lon=${l.toFixed(2)}&zoom=10&accept-language=nl`;
+  if (!geldigePlek(breedte, lengte)) return null;
+  return `${PLAATS2_ORIGIN}/reverse?format=jsonv2&lat=${graad(breedte)}&lon=${graad(lengte)}&zoom=10&accept-language=nl`;
 }
 
 // Het antwoord van Nominatim → de naam van de gemeente, stad, het dorp, of van het gevonden gebied zelf; anders null.
@@ -59,22 +64,35 @@ export function leesPlaats2(json) {
   return eersteNaam([a.municipality, a.city, a.town, a.village, json?.name]);
 }
 
-// Is ze sinds de vorige vraag ver genoeg verplaatst om de gemeente opnieuw op te zoeken? (meer dan ongeveer een kilometer)
+// Is de plek anders dan bij de vorige vraag? Dan wordt de gemeente opnieuw opgezocht. Alleen exact dezelfde plek geeft zeker dezelfde
+// gemeente: daarvoor hoeft er geen nieuwe vraag naar buiten.
 export function isVerplaatst(vorige, breedte, lengte) {
   if (!vorige) return true;
-  return Math.abs(rondFijn(breedte) - vorige.b) > 0.011 || Math.abs(rondFijn(lengte) - vorige.l) > 0.011;
+  return vorige.b !== breedte || vorige.l !== lengte;
 }
 
+// ---- Hoe goed de meting van het toestel is ----
+// Een toestel geeft eerst vaak een ruwe plek (op zendmasten, kilometers ernaast) en pas daarna een fijne (wifi, gps). Bloei
+// gebruikt de eerste meting meteen en verbetert zodra er een fijne komt (data/weer.js). De nauwkeurigheid is de straal in meter die het
+// toestel zelf opgeeft.
+export const GOED_M = 150; // zo fijn: dit is de plek, er hoeft geen betere meer te komen
+export const RUW_M = 1500; // grover dan dit: de gemeente kan ernaast zitten, het weerbericht zegt dan "bij benadering"
+
+const straal = (meting) => (Number.isFinite(meting?.coords?.accuracy) && meting.coords.accuracy >= 0 ? meting.coords.accuracy : Infinity);
+
+// De beste van twee metingen: de fijnste; bij gelijk de nieuwste.
+export const besteMeting = (beste, nieuw) => (!beste || straal(nieuw) <= straal(beste) ? nieuw : beste);
+export const isGoedeMeting = (meting) => straal(meting) <= GOED_M;
+// Ruw alleen als het toestel het zelf zegt; geeft het geen straal op, dan weten we het niet en zeggen we niets.
+export const isRuweMeting = (meting) => Number.isFinite(meting?.coords?.accuracy) && meting.coords.accuracy > RUW_M;
+
 // ---- Het weer ----
-// Het adres van de vraag: alleen de afgeronde plaats en wat Bloei wil weten. Van nu: temperatuur, gevoelstemperatuur, weercode, wind, dag of nacht. Van
+// Het adres van de vraag: alleen de plaats en wat Bloei wil weten. Van nu: temperatuur, gevoelstemperatuur, weercode, wind, dag of nacht. Van
 // vandaag: de laagste en de hoogste temperatuur, de kans op neerslag en hoeveel er verwacht wordt (daarvoor wil de dienst een tijdzone:
 // 'auto' is die van de plaats).
 export function weerAdres(breedte, lengte) {
-  if (typeof breedte !== 'number' || typeof lengte !== 'number') return null;
-  const b = rondFijn(breedte);
-  const l = rondFijn(lengte);
-  if (!Number.isFinite(b) || !Number.isFinite(l) || Math.abs(b) > 90 || Math.abs(l) > 180) return null;
-  return `${WEER_ORIGIN}/v1/forecast?latitude=${b.toFixed(2)}&longitude=${l.toFixed(2)}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,is_day&daily=temperature_2m_min,temperature_2m_max,precipitation_probability_max,precipitation_sum,snowfall_sum&forecast_days=1&timezone=auto`;
+  if (!geldigePlek(breedte, lengte)) return null;
+  return `${WEER_ORIGIN}/v1/forecast?latitude=${graad(breedte)}&longitude=${graad(lengte)}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,is_day&daily=temperature_2m_min,temperature_2m_max,precipitation_probability_max,precipitation_sum,snowfall_sum&forecast_days=1&timezone=auto`;
 }
 
 // Het antwoord van de dienst → { code, temp, gevoel, wind, dag, min, max, kans, mm, sneeuw }, of null als het niet is wat Bloei verwacht (dan komt er gewoon

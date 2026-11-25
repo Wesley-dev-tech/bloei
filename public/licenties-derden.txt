@@ -657,13 +657,14 @@ Bloei toont ze verkort: het weer van nu, en van vandaag de laagste en de hoogste
 ==============================================================================
 
 ==============================================================================
-BigDataCloud (https://www.bigdatacloud.com), naam van de gemeente
-Het weerbericht op Vandaag toont de naam van de gemeente waar de gebruiker is. Die naam komt van de gratis
-dienst voor plaatsnamen van BigDataCloud (Free Client-side Reverse Geocoding API), rechtstreeks vanaf het toestel.
+OpenStreetMap / Nominatim (https://nominatim.openstreetmap.org), naam van de gemeente
+Het weerbericht op Vandaag toont de naam van de gemeente waar de gebruiker is. Die naam komt van Nominatim, de
+zoekdienst van OpenStreetMap, rechtstreeks vanaf het toestel.
+Gegevens: © OpenStreetMap-bijdragers, Open Database License (ODbL, https://www.openstreetmap.org/copyright).
 ==============================================================================
 
 ==============================================================================
-OpenStreetMap / Nominatim (https://nominatim.openstreetmap.org), naam van de gemeente, tweede bron
-Geeft BigDataCloud geen naam, dan vraagt Bloei de naam van de gemeente aan Nominatim, de zoekdienst van OpenStreetMap.
-Gegevens: © OpenStreetMap-bijdragers, Open Database License (ODbL, https://www.openstreetmap.org/copyright).
+BigDataCloud (https://www.bigdatacloud.com), naam van de gemeente, reserve
+Geeft Nominatim geen naam, dan vraagt Bloei de naam van de gemeente aan de gratis dienst voor plaatsnamen van
+BigDataCloud (Free Client-side Reverse Geocoding API), rechtstreeks vanaf het toestel.
 ==============================================================================

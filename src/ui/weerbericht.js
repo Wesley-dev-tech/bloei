@@ -44,7 +44,15 @@ export function weerbericht(weer) {
     const deel = (klasse, ...kinderen) => h('span', { class: ['weerbericht__deel', klasse], 'aria-hidden': 'true' }, ...kinderen);
     el.replaceChildren(
       h('p', { class: 'alleen-lezer' }, voorLezer.filter(Boolean).join(' ')),
-      plaats && h('p', { class: 'weerbericht__plaats', 'aria-hidden': 'true' }, icoon('location-dot', { grootte: 13 }), h('span', {}, plaats)),
+      plaats &&
+        h(
+          'p',
+          { class: 'weerbericht__plaats', 'aria-hidden': 'true' },
+          icoon('location-dot', { grootte: 13 }),
+          h('span', {}, plaats),
+          // Het toestel gaf alleen een grove plek: de gemeente kan ernaast zitten, en dat staat er dan bij.
+          w.ruw === true && h('span', { class: 'weerbericht__reden weerbericht__ongeveer' }, `(${t('weer.plaatsOngeveer')})`),
+        ),
       plaatsStand &&
         h(
           'p',

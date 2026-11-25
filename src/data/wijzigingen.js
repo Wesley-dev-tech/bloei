@@ -8,6 +8,17 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.5.4',
+    datum: '2026-11-25',
+    tijd: '15:57',
+    punten: [
+      { begrip: 'algemeen', tekst: 'Het weerbericht gebruikt nu je exacte plek. Zo staat de juiste gemeente erbij.' },
+      { begrip: 'algemeen', tekst: 'Plek en weer worden opnieuw opgehaald telkens je Bloei opent of terugkomt in de app.' },
+      { begrip: 'algemeen', tekst: 'Kent je toestel je plek maar ruwweg, dan staat er "bij benadering" achter de gemeente.' },
+      { begrip: 'vergrendeling', tekst: 'Daarvoor verlaat je exacte locatie het toestel, niet meer afgerond. Dat staat ook bij Privacy.' },
+    ],
+  },
+  {
     versie: '0.5.3',
     datum: '2026-11-25',
     tijd: '15:34',
