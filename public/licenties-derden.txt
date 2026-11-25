@@ -655,3 +655,9 @@ Het weerbericht op Vandaag en de zinnen over het weer gebruiken weergegevens van
 Gegevens: Creative Commons Attribution 4.0 International (CC BY 4.0, https://creativecommons.org/licenses/by/4.0/).
 Bloei toont ze verkort: het weer van nu, en van vandaag de laagste en de hoogste temperatuur en de kans op neerslag.
 ==============================================================================
+
+==============================================================================
+BigDataCloud (https://www.bigdatacloud.com), naam van de gemeente
+Het weerbericht op Vandaag toont de naam van de gemeente waar de gebruiker is. Die naam komt van de gratis
+dienst voor plaatsnamen van BigDataCloud (Free Client-side Reverse Geocoding API), rechtstreeks vanaf het toestel.
+==============================================================================

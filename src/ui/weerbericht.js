@@ -28,9 +28,11 @@ export function weerbericht(weer) {
     const sneeuw = Number.isFinite(w.sneeuw) && w.sneeuw > 0;
     const hoeveelheid = sneeuw ? w.sneeuw : w.mm;
     const metVerwacht = metKans && Number.isFinite(hoeveelheid) && hoeveelheid >= 0.1;
+    // De plaats waar ze is (een gemeente, bv. Balen), als die bekend is: vooraan, met een speldje.
+    const plaats = typeof w.plaats === 'string' ? w.plaats.trim() : '';
     // Een schermlezer krijgt het in gewone zinnen; de tekens en cijfers zelf leest hij niet voor.
     const voorLezer = [
-      t('weer.label', { naam, aantal: w.temp }),
+      plaats ? t('weer.labelPlaats', { plaats, naam, aantal: w.temp }) : t('weer.label', { naam, aantal: w.temp }),
       metVoelt && t('weer.labelVoelt', { aantal: w.gevoel }),
       metBereik && t('weer.labelBereik', { min: w.min, max: w.max }),
       metKans && t(sneeuw ? 'weer.labelKansSneeuw' : 'weer.labelKansRegen', { aantal: w.kans }),
@@ -40,6 +42,7 @@ export function weerbericht(weer) {
     const deel = (klasse, ...kinderen) => h('span', { class: ['weerbericht__deel', klasse], 'aria-hidden': 'true' }, ...kinderen);
     el.replaceChildren(
       h('p', { class: 'alleen-lezer' }, voorLezer.filter(Boolean).join(' ')),
+      plaats && h('p', { class: 'weerbericht__plaats', 'aria-hidden': 'true' }, icoon('location-dot', { grootte: 13 }), h('span', {}, plaats)),
       h(
         'p',
         { class: 'weerbericht__nu', 'aria-hidden': 'true' },
@@ -48,6 +51,8 @@ export function weerbericht(weer) {
         h('span', { class: 'weerbericht__naam' }, naam),
         metVoelt && h('span', { class: 'weerbericht__voelt' }, t('weer.voelt', { aantal: w.gevoel })),
       ),
+      // Op de telefoon begint hier een nieuwe regel (de css verbergt dit op een breed scherm).
+      h('span', { class: 'weerbericht__breuk', 'aria-hidden': 'true' }),
       metBereik && deel('weerbericht__min', t('weer.min', { aantal: w.min })),
       metBereik && deel('weerbericht__max', t('weer.max', { aantal: w.max })),
       metWind && deel('weerbericht__wind', icoon('wind', { grootte: 13 }), t('weer.wind', { aantal: w.wind })),

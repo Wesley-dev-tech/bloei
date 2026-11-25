@@ -270,7 +270,7 @@ De volledige uitleg staat in `worker/README.md`. Alle commando's in dit deel voe
 
 9. Bouw opnieuw, want een variabele werkt pas bij de volgende bouw: **Deployments**, de bovenste bouw met het label Production, het menu **⋯**, **Redeploy**.
 
-10. Kijk na dat het adres van de dienst in de app zit. Dit moet een regel met `connect-src 'self' https://bloei-herinneringen...` tonen (daarachter staat ook `https://api.open-meteo.com`, de weerdienst):
+10. Kijk na dat het adres van de dienst in de app zit. Dit moet een regel met `connect-src 'self' https://bloei-herinneringen...` tonen (daarachter staan ook `https://api.open-meteo.com`, de weerdienst, en `https://api.bigdatacloud.net`, voor de naam van de gemeente):
 
     ```
     curl.exe -s https://jouw-project.vercel.app/ | Select-String "connect-src"

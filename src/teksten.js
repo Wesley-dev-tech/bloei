@@ -614,9 +614,9 @@ export const TEKSTEN = {
     regel3: 'Een verslag of je supplementenlijst deel je zelf, als bestand. Er staat alleen je lijst in.',
     regel4: 'Je pincode houdt meekijkers buiten. Je gegevens zelf zijn niet versleuteld.',
     regel5: 'Er is geen back-up. Verwijder je je profiel of Bloei, of wist je toestel de gegevens, dan is alles weg.',
-    // Het weer (data/weer.js): het enige wat over haar plaats het toestel verlaat, afgerond op ongeveer tien kilometer. De regel noemt de
-    // dienst niet; de bronvermelding van de weergegevens (Open-Meteo, CC BY 4.0) staat in public/licenties-derden.txt.
-    regel6: 'Voor het weer gebruikt Bloei je locatie. Alleen je ruime omgeving verlaat het toestel, nooit je naam of dagboek.',
+    // Het weer en de naam van haar gemeente (data/weer.js): het enige wat over haar plaats het toestel verlaat, voor allebei afgerond op
+    // ongeveer een kilometer. De diensten worden niet genoemd; ze staan in public/licenties-derden.txt.
+    regel6: 'Voor het weer en je gemeente verlaat je locatie het toestel, afgerond op ongeveer een kilometer. Nooit je naam of dagboek.',
   },
 
   meer: {
@@ -1561,7 +1561,7 @@ export const TEKSTEN = {
         kop: { titel: "Rondleiding", tekst: "Bovenaan staat een vraagteken. Daarmee start je deze rondleiding opnieuw, wanneer je maar wil. Je vindt het op elk scherm terug." },
         instellingen: { titel: "Algemeen", tekst: "Naast Delen staat een tandwiel. Daarachter zit Algemeen: je profiel, je favoriete maaltijden, je badges en alle instellingen." },
         // Het weerbericht onder de datum (ui/weerbericht.js). Staat er geen weer (geen locatie, geen netwerk), dan valt de stap weg.
-        weer: { titel: "Het weer bij jou", tekst: "Onder de datum staat het weer op de plaats waar je bent: hoe warm het is en hoe het aanvoelt, het minimum en het maximum van vandaag, de wind en de kans op regen. Het werkt zichzelf bij zolang Bloei openstaat, en je toestel vraagt er één keer je locatie voor." },
+        weer: { titel: "Het weer bij jou", tekst: "Onder de datum staan je gemeente en het weer van nu: hoe warm het is en hoe het aanvoelt, het minimum en het maximum van vandaag, de wind en de kans op regen. Het werkt zichzelf bij zolang Bloei openstaat, en je toestel vraagt er één keer je locatie voor." },
         dag: { titel: "Je dag in één blik", tekst: "Bovenaan staan vier tegels met hoe je dag ervoor staat: eten, drinken, supplementen en stemming. Ze zijn om naar te kijken, de cijfers lopen vanzelf mee. De zin eronder moedigt je aan: hij past bij je dag en bij het weer, en wisselt elke keer dat je Bloei opent." },
         glas: { titel: "Een kan water erbij", tekst: "Tik op een drank om ze toe te voegen. Eén tik op Kan water voegt een kan van 800 ml toe, en met Laatste weghalen zet je een vergissing recht." },
         spuit: { titel: "Een spuit vandaag", tekst: "Staat er vandaag een spuit gepland, dan zie je ze als extra rij in de kaart Supplementen. Vink ze af als je ze zette, en tik nog eens om ze terug te zetten." },
@@ -3274,6 +3274,7 @@ export const TEKSTEN = {
     verwachtSneeuw: 'verwacht {aantal} cm',
     wind: 'Wind {aantal} km/u',
     label: 'Het weer nu: {naam}, {aantal} graden.',
+    labelPlaats: 'Het weer nu in {plaats}: {naam}, {aantal} graden.',
     labelVoelt: 'Het voelt als {aantal} graden.',
     labelBereik: 'Vandaag minimaal {min} en maximaal {max} graden.',
     labelKansRegen: '{aantal} procent kans op regen vandaag.',

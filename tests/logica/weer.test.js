@@ -1,15 +1,15 @@
 // Het weer van nu (logica/weer.js): wat het toestel verlaat, hoe het antwoord gelezen wordt en welke zinnen erbij horen. Pure functies.
 import { describe, expect, test } from 'vitest';
-import { WEERGROEPEN, WEERICONEN, WEERNAMEN, WEER_ORIGIN, leesAntwoord, rondAf, voorbeeldWeer, weerAdres, weerBeeld, weerSoort } from '../../src/logica/weer.js';
+import { PLAATS_ORIGIN, WEERGROEPEN, WEERICONEN, WEERNAMEN, WEER_ORIGIN, isVerplaatst, leesAntwoord, leesPlaats, plaatsAdres, rondFijn, voorbeeldWeer, weerAdres, weerBeeld, weerSoort } from '../../src/logica/weer.js';
 import { GROEPEN } from '../../src/logica/motivatie.js';
 import { TEKSTEN } from '../../src/teksten.js';
 import { existsSync } from 'node:fs';
 
 describe('wat er naar de weerdienst gaat', () => {
-  test('de plaats wordt afgerond op één cijfer na de komma (ongeveer elf kilometer)', () => {
-    expect(rondAf(50.846722)).toBe(50.8);
-    expect(rondAf(4.352528)).toBe(4.4);
-    expect(rondAf(-0.04)).toBe(-0);
+  test('de plaats wordt afgerond op twee cijfers na de komma (ongeveer een kilometer)', () => {
+    expect(rondFijn(50.846722)).toBe(50.85);
+    expect(rondFijn(4.352528)).toBe(4.35);
+    expect(rondFijn(-0.004)).toBe(-0);
   });
 
   test('het adres bevat alleen de afgeronde plaats en de gevraagde waarden', () => {
@@ -17,20 +17,60 @@ describe('wat er naar de weerdienst gaat', () => {
     const url = new URL(adres);
     expect(url.origin + url.pathname).toBe(WEER_ORIGIN + '/v1/forecast');
     expect(Object.fromEntries(url.searchParams)).toEqual({
-      latitude: '50.8',
-      longitude: '4.4',
+      latitude: '50.85',
+      longitude: '4.35',
       current: 'temperature_2m,apparent_temperature,weather_code,wind_speed_10m,is_day',
       daily: 'temperature_2m_min,temperature_2m_max,precipitation_probability_max,precipitation_sum,snowfall_sum',
       forecast_days: '1',
       timezone: 'auto',
     });
-    expect(adres).not.toContain('50.84');
-    expect(adres).not.toContain('4.35');
+    expect(adres).not.toContain('50.846');
+    expect(adres).not.toContain('4.3525');
     expect(new URL(adres).origin).toBe('https://api.open-meteo.com');
   });
 
   test('een ongeldige plaats geeft geen adres', () => {
     for (const [b, l] of [[undefined, 5], [51, null], [NaN, 5], [91, 5], [51, 181], ['x', 'y']]) expect(weerAdres(b, l), `${b},${l}`).toBeNull();
+  });
+});
+
+describe('de naam van de gemeente', () => {
+  test('de vraag bevat alleen de plaats, afgerond op twee cijfers (ongeveer een kilometer), en de taal', () => {
+    expect(rondFijn(50.846722)).toBe(50.85);
+    const adres = plaatsAdres(50.846722, 4.352528);
+    const url = new URL(adres);
+    expect(url.origin).toBe(PLAATS_ORIGIN);
+    expect(url.origin + url.pathname).toBe('https://api.bigdatacloud.net/data/reverse-geocode-client');
+    expect(Object.fromEntries(url.searchParams)).toEqual({ latitude: '50.85', longitude: '4.35', localityLanguage: 'nl' });
+    expect(adres).not.toContain('50.846');
+    expect(adres).not.toContain('4.3525');
+    for (const [b, l] of [[undefined, 5], [51, null], [NaN, 5], [91, 5], [51, 181]]) expect(plaatsAdres(b, l), `${b},${l}`).toBeNull();
+  });
+
+  test('het weer krijgt dezelfde plaats als de gemeente: het is het weer van de plek waar ze echt is', () => {
+    const weer = new URL(weerAdres(50.846722, 4.352528)).searchParams;
+    const plaats = new URL(plaatsAdres(50.846722, 4.352528)).searchParams;
+    expect([weer.get('latitude'), weer.get('longitude')]).toEqual([plaats.get('latitude'), plaats.get('longitude')]);
+  });
+
+  test('uit het antwoord: eerst de gemeente (city), anders het kleinste benoemde gebied (locality)', () => {
+    expect(leesPlaats({ city: 'Balen', locality: 'Olmen' })).toBe('Balen');
+    expect(leesPlaats({ city: '', locality: 'Olmen' })).toBe('Olmen');
+    expect(leesPlaats({ city: '  Heist-op-den-Berg ' })).toBe('Heist-op-den-Berg');
+    expect(leesPlaats({ locality: "'s-Hertogenbosch" })).toBe("'s-Hertogenbosch");
+  });
+
+  test('iets anders dan een gewone naam geeft null, nooit een fout', () => {
+    for (const fout of [null, undefined, {}, { city: 42 }, { city: '', locality: '' }, { city: 'x' }, { city: '<b>Balen</b>' }, { city: 'a'.repeat(60) }, { city: 'Ba\u0007len' }, 'tekst', 7]) expect(leesPlaats(fout)).toBeNull();
+  });
+
+  test('opnieuw opzoeken alleen na een verplaatsing van meer dan ongeveer een kilometer', () => {
+    const vorige = { b: 50.85, l: 4.35, naam: 'Brussel' };
+    expect(isVerplaatst(null, 50.85, 4.35)).toBe(true);
+    expect(isVerplaatst(vorige, 50.8512, 4.3531)).toBe(false);
+    expect(isVerplaatst(vorige, 50.859, 4.35)).toBe(false);
+    expect(isVerplaatst(vorige, 50.88, 4.35)).toBe(true);
+    expect(isVerplaatst(vorige, 50.85, 4.40)).toBe(true);
   });
 });
 

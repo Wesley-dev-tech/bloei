@@ -306,7 +306,12 @@
 .weerbericht { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-4); margin: var(--s-3) 0 0; font-family: var(--font-ui); font-size: var(--fs-small); line-height: 1.3; color: var(--c-text-muted); }
 .weerbericht[hidden] { display: none; }
 .weerbericht > p { margin: 0; }
-.weerbericht__nu { flex: 0 0 100%; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-2); color: var(--c-text); font-size: var(--fs-body); }
+.weerbericht__nu { flex: 0 1 auto; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-2); color: var(--c-text); font-size: var(--fs-body); }
+/* De plaats waar ze is: op de telefoon altijd op een eigen eerste regel, met het weer van nu eronder. */
+.weerbericht__plaats { flex: 0 0 100%; display: flex; align-items: center; gap: var(--s-1); color: var(--c-text); font-size: var(--fs-body); font-weight: 600; max-width: 100%; }
+.weerbericht__plaats svg { color: var(--c-accent); flex: none; }
+.weerbericht__plaats span { min-width: 0; overflow-wrap: anywhere; }
+.weerbericht__breuk { flex: 0 0 100%; height: 0; }
 .weerbericht__nu svg { color: var(--c-accent); flex: none; }
 .weerbericht__graden { font-weight: 600; font-variant-numeric: tabular-nums; }
 .weerbericht__voelt { color: var(--c-text-muted); font-size: var(--fs-small); margin-left: var(--s-1); font-variant-numeric: tabular-nums; }
@@ -1237,6 +1242,9 @@ a.week__link { min-height: 48px; justify-content: center; }
      gelijk verdeeld tot aan de rechterrand. Zo blijft er rechts geen leeg vlak. Een dunne lijn erboven zet het af van de datum. */
   .vandaag__begroeting .weerbericht { flex-wrap: wrap; justify-content: space-between; gap: var(--s-2) var(--s-5); margin-top: var(--s-3); padding-top: var(--s-3); border-top: var(--lijn); }
   .vandaag__begroeting .weerbericht__nu, .vandaag__begroeting .weerbericht__regen { flex: 0 1 auto; flex-wrap: nowrap; white-space: nowrap; }
+  .vandaag__begroeting .weerbericht__breuk { display: none; }
+  /* Op een breed scherm staat de plaats vooraan op dezelfde regel als de rest. */
+  .vandaag__begroeting .weerbericht__plaats { flex: 0 1 auto; }
 }
 
 /* ---------- Dagboek · Week (BESLISSING 253): samenvatting in kerncijfers en het weekschema als tabel ---------- */

@@ -63,7 +63,9 @@ describe('huisstijl', () => {
         'snowman', 'spa', 'square-check', 'stairs', 'star', 'tablets', 'tree', 'trophy', 'vial', 'water',
         'weight-hanging', 'wind',
         // Toegevoegd op vraag van de eigenaar (0.4.8): het weerbericht op Vandaag (zon, maan, wolk, wind en druppel stonden er al).
-        'cloud-bolt', 'cloud-moon', 'cloud-rain', 'cloud-showers-heavy', 'smog', 'snowflake'],
+        'cloud-bolt', 'cloud-moon', 'cloud-rain', 'cloud-showers-heavy', 'smog', 'snowflake',
+        // Toegevoegd op vraag van de eigenaar (0.5.0): het speldje bij de naam van de gemeente in het weerbericht.
+        'location-dot'],
       regular: ['heart', 'bell', 'face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'],
     };
     // BESLISSING 606: een eigen bestand, op vraag van de eigenaar: het teken voor Face ID; de gratis iconenset heeft er geen.

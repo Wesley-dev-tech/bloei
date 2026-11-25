@@ -1,7 +1,9 @@
 // Het weer op de plaats waar ze is, voor het weerbericht en de warme zin op Vandaag (logica/weer.js, logica/motivatie.js).
 // Altijd aan, zonder schakelaar en zonder vraag van Bloei zelf. Het toestel vraagt wel één keer toestemming voor de locatie; zegt ze nee,
-// dan komt er gewoon geen zin over het weer. Wat er het toestel verlaat: alleen de afgeronde plaats (ongeveer elf kilometer), naar
-// Open-Meteo. Geen naam, geen dagboek, geen cookie. De plaats zelf wordt nergens bewaard; alleen het weer van daarnet (instelling 'weer.laatste').
+// dan komt er gewoon geen zin over het weer. Wat er het toestel verlaat: alleen de plaats, afgerond op ongeveer een kilometer. Voor het
+// weer naar Open-Meteo, voor de naam van de gemeente naar BigDataCloud. Geen naam, geen dagboek, geen cookie.
+// Bewaard wordt alleen het weer van daarnet met de naam van de gemeente (instelling 'weer.laatste'); de coördinaten zelf nooit.
+// De gemeente wordt één keer per opening van de app opgezocht, en opnieuw als ze zich meer dan ongeveer een kilometer verplaatste.
 //
 // Vandaag wacht nooit op het netwerk: het krijgt het weer dat er al is (hoogstens drie uur oud) en op de achtergrond wordt het ververst.
 // Het weerbericht is live (houdLive): zolang de app in beeld is, haalt Bloei om de tien minuten nieuw weer op, en meteen als ze terugkomt
@@ -9,10 +11,10 @@
 // aan, de warme zin blijft staan tot de volgende opening (zo verspringt ze niet een seconde na het openen).
 import { zend } from '../kern/bus.js';
 import { DEMO } from '../kern/demo.js';
-import { leesAntwoord, voorbeeldWeer, weerAdres, weerSoort } from '../logica/weer.js';
+import { isVerplaatst, leesAntwoord, leesPlaats, plaatsAdres, rondFijn, voorbeeldWeer, weerAdres, weerSoort } from '../logica/weer.js';
 import { db } from './db.js';
 
-const SLEUTEL = 'weer.laatste'; // { tijd (ms), code, temp, gevoel, wind, dag, min, max, kans }
+const SLEUTEL = 'weer.laatste'; // { tijd (ms), code, temp, gevoel, wind, dag, min, max, kans, mm, sneeuw, plaats? }
 const VERS_MS = 10 * 60 * 1000; // ouder dan tien minuten: opnieuw ophalen
 const GELDIG_MS = 3 * 60 * 60 * 1000; // ouder dan drie uur: niet meer het weer van nu
 const OPNIEUW_MS = 2 * 60 * 1000; // na een mislukte poging: even wachten
@@ -23,6 +25,7 @@ let laatstePoging = 0;
 let geweigerd = false; // ze zei nee tegen de locatie: deze sessie niet opnieuw proberen
 let live = false; // de wachter van houdLive loopt
 let hadWeer = false; // er stond weer in beeld
+let gemeente = null; // { b, l, naam }: waar de gemeente het laatst opgezocht is (alleen in het geheugen, deze sessie)
 
 const lees = async () => {
   try {
@@ -55,19 +58,32 @@ async function ververs() {
     if (fout?.code === 1) geweigerd = true; // PERMISSION_DENIED
     return;
   }
-  const adres = weerAdres(positie?.coords?.latitude, positie?.coords?.longitude);
+  const breedte = positie?.coords?.latitude;
+  const lengte = positie?.coords?.longitude;
+  const adres = weerAdres(breedte, lengte);
   if (!adres) return;
-  const antwoord = await fetch(adres, {
-    credentials: 'omit',
-    referrerPolicy: 'no-referrer',
-    cache: 'no-store',
-    signal: typeof AbortSignal?.timeout === 'function' ? AbortSignal.timeout(8000) : undefined,
-  });
+  const vraag = { credentials: 'omit', referrerPolicy: 'no-referrer', cache: 'no-store' };
+  const metTijd = (ms) => (typeof AbortSignal?.timeout === 'function' ? { ...vraag, signal: AbortSignal.timeout(ms) } : vraag);
+  // Het weer en de naam van de gemeente tegelijk. De gemeente alleen als ze nog niet bekend is voor deze plek; mislukt die vraag, dan
+  // komt het weer er gewoon zonder plaatsnaam (liever geen naam dan een naam die niet meer klopt).
+  const zoekGemeente = async () => {
+    if (!isVerplaatst(gemeente, breedte, lengte)) return gemeente.naam;
+    try {
+      const antwoord = await fetch(plaatsAdres(breedte, lengte), metTijd(6000));
+      const naam = antwoord.ok ? leesPlaats(await antwoord.json()) : null;
+      gemeente = naam ? { b: rondFijn(breedte), l: rondFijn(lengte), naam } : null;
+      return naam;
+    } catch {
+      gemeente = null;
+      return null;
+    }
+  };
+  const [antwoord, plaatsnaam] = await Promise.all([fetch(adres, metTijd(8000)), zoekGemeente()]);
   if (!antwoord.ok) return;
   const weer = leesAntwoord(await antwoord.json());
   if (!weer) return;
   // Rechtstreeks in de database, zonder 'instelling:gewijzigd': Vandaag hoeft er niet voor te hertekenen.
-  const rij = { tijd: Date.now(), ...weer };
+  const rij = { tijd: Date.now(), ...weer, ...(plaatsnaam ? { plaats: plaatsnaam } : {}) };
   await db.instellingen.put({ sleutel: SLEUTEL, waarde: rij });
   hadWeer = true;
   zend('weer:gewijzigd', { weer: rij });

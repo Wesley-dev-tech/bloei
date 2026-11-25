@@ -4,7 +4,7 @@
 export const DEMO_TEKSTEN = {
   regio: 'Demo',
   privacyRegel5: 'In de demo blijft alles staan. In de echte app wist Profiel verwijderen alles van dit toestel.',
-  privacyRegel6: 'In de demo is het weer een voorbeeld. De echte app gebruikt je locatie voor het weer waar je bent.',
+  privacyRegel6: 'In de demo is het weer een voorbeeld. De echte app gebruikt je locatie voor het weer en je gemeente.',
   // BESLISSING 674: eerlijk zeggen dat wat je wijzigt niet blijft staan. De korte zin staat er onder 560 px.
   balk: 'Demo · probeer gerust alles, niets blijft bewaard',
   balkKort: 'Demo · niets blijft bewaard',

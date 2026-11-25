@@ -1,21 +1,54 @@
 // Het weer van nu, voor de warme zin op Vandaag (logica/motivatie.js). Pure functies: geen netwerk, geen locatie (dat doet data/weer.js).
 // De gegevens komen van Open-Meteo (open-meteo.com, CC BY 4.0): gratis voor niet-commercieel gebruik, zonder account en zonder cookies.
-// Bloei stuurt alleen een afgeronde plaats mee (rondAf): geen naam, geen dagboek, niets anders.
+// De naam van de gemeente waar ze is (bv. Balen) komt van een tweede dienst, BigDataCloud (gratis, zonder account, alleen rechtstreeks
+// vanaf het toestel).
+// Aan beide diensten stuurt Bloei alleen de plaats, afgerond op twee cijfers na de komma (rondFijn): ongeveer een kilometer. Zo zijn het
+// weer en de gemeente die van de plek waar ze echt is. Geen naam, geen dagboek, niets anders.
 
 export const WEER_ORIGIN = 'https://api.open-meteo.com';
 
-// Eén cijfer na de komma: ongeveer elf kilometer. Genoeg voor het weer, te grof om een adres te zijn.
-export const rondAf = (graden) => Math.round(Number(graden) * 10) / 10;
+// ---- De naam van de plaats ----
+export const PLAATS_ORIGIN = 'https://api.bigdatacloud.net';
 
+// Twee cijfers na de komma: ongeveer een kilometer. Fijn genoeg voor de juiste gemeente, te grof voor een straat of een huis.
+export const rondFijn = (graden) => Math.round(Number(graden) * 100) / 100;
+
+// Het adres van de vraag naar de gemeente: alleen de plaats, afgerond op ongeveer een kilometer (zoals voor het weer), en de taal van de naam.
+export function plaatsAdres(breedte, lengte) {
+  if (typeof breedte !== 'number' || typeof lengte !== 'number') return null;
+  const b = rondFijn(breedte);
+  const l = rondFijn(lengte);
+  if (!Number.isFinite(b) || !Number.isFinite(l) || Math.abs(b) > 90 || Math.abs(l) > 180) return null;
+  return `${PLAATS_ORIGIN}/data/reverse-geocode-client?latitude=${b.toFixed(2)}&longitude=${l.toFixed(2)}&localityLanguage=nl`;
+}
+
+// Het antwoord → de naam van de gemeente (city), anders van het kleinste benoemde gebied (locality), of null. Alleen gewone tekst van
+// redelijke lengte: de naam komt van buiten en gaat zo op het scherm (als tekst, nooit als opmaak).
+export function leesPlaats(json) {
+  for (const kandidaat of [json?.city, json?.locality]) {
+    if (typeof kandidaat !== 'string') continue;
+    const naam = kandidaat.replace(/\s+/g, ' ').trim();
+    if (naam.length >= 2 && naam.length <= 40 && !/[<>{}\u0000-\u001f]/.test(naam)) return naam;
+  }
+  return null;
+}
+
+// Is ze sinds de vorige vraag ver genoeg verplaatst om de gemeente opnieuw op te zoeken? (meer dan ongeveer een kilometer)
+export function isVerplaatst(vorige, breedte, lengte) {
+  if (!vorige) return true;
+  return Math.abs(rondFijn(breedte) - vorige.b) > 0.011 || Math.abs(rondFijn(lengte) - vorige.l) > 0.011;
+}
+
+// ---- Het weer ----
 // Het adres van de vraag: alleen de afgeronde plaats en wat Bloei wil weten. Van nu: temperatuur, gevoelstemperatuur, weercode, wind, dag of nacht. Van
 // vandaag: de laagste en de hoogste temperatuur, de kans op neerslag en hoeveel er verwacht wordt (daarvoor wil de dienst een tijdzone:
 // 'auto' is die van de plaats).
 export function weerAdres(breedte, lengte) {
   if (typeof breedte !== 'number' || typeof lengte !== 'number') return null;
-  const b = rondAf(breedte);
-  const l = rondAf(lengte);
+  const b = rondFijn(breedte);
+  const l = rondFijn(lengte);
   if (!Number.isFinite(b) || !Number.isFinite(l) || Math.abs(b) > 90 || Math.abs(l) > 180) return null;
-  return `${WEER_ORIGIN}/v1/forecast?latitude=${b.toFixed(1)}&longitude=${l.toFixed(1)}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,is_day&daily=temperature_2m_min,temperature_2m_max,precipitation_probability_max,precipitation_sum,snowfall_sum&forecast_days=1&timezone=auto`;
+  return `${WEER_ORIGIN}/v1/forecast?latitude=${b.toFixed(2)}&longitude=${l.toFixed(2)}&current=temperature_2m,apparent_temperature,weather_code,wind_speed_10m,is_day&daily=temperature_2m_min,temperature_2m_max,precipitation_probability_max,precipitation_sum,snowfall_sum&forecast_days=1&timezone=auto`;
 }
 
 // Het antwoord van de dienst → { code, temp, gevoel, wind, dag, min, max, kans, mm, sneeuw }, of null als het niet is wat Bloei verwacht (dan komt er gewoon
@@ -119,5 +152,6 @@ export function voorbeeldWeer(datumSleutel) {
   const zomer = [{ code: 0, temp: 23, kans: 0, mm: 0 }, { code: 2, temp: 20, kans: 15, mm: 0 }, { code: 0, temp: 29, kans: 5, mm: 0 }, { code: 80, temp: 18, kans: 70, mm: 4 }];
   const lijst = [12, 1, 2].includes(maand) ? winter : [6, 7, 8].includes(maand) ? zomer : tussen;
   const weer = lijst[dagNr % lijst.length];
-  return { sneeuw: 0, ...weer, gevoel: weer.temp - 2, wind: 12, dag: true, min: weer.temp - 4, max: weer.temp + 2 };
+  // (de demo vraagt geen locatie: de plaats is een voorbeeld, zoals het weer zelf)
+  return { sneeuw: 0, ...weer, gevoel: weer.temp - 2, wind: 12, dag: true, min: weer.temp - 4, max: weer.temp + 2, plaats: 'Brussel' };
 }
