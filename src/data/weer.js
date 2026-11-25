@@ -7,8 +7,9 @@
 //
 // De plek moet de echte zijn. Een toestel geeft eerst vaak een ruwe plek (op zendmasten, kilometers ernaast: zo stond er in 0.5.3 een
 // gemeente van tien kilometer verder). Bloei vraagt daarom de fijne locatie en neemt geen plek van daarnet over. Er wordt nergens op
-// gewacht: de eerste meting gaat meteen naar buiten, en komt er daarna een fijnere, dan verbetert het bericht (ververs()). Blijft de
-// meting ruw, dan staat dat bij de gemeente ("bij benadering").
+// gewacht: de eerste meting gaat meteen naar buiten, en komt er daarna een fijnere, dan verbetert het bericht (ververs()).
+// Een gemeente komt er alleen bij een meting die fijn genoeg is. Blijft de meting ruw (het toestel geeft Bloei alleen een geschatte
+// plek), dan komt er geen naam maar staat er hoe ruw de plek is ("Plek maar op 9 km nauwkeurig"): nooit een gemeente die ernaast zit.
 //
 // Vandaag wacht nooit op het netwerk: het krijgt het weer dat er al is (hoogstens drie uur oud) en op de achtergrond wordt het ververst.
 // Verversen (de plek, het weer en zo nodig de gemeente) gebeurt bij elke opening van de app, telkens ze terugkomt naar de app, als het
@@ -20,6 +21,7 @@ import {
   besteMeting,
   isGoedeMeting,
   isRuweMeting,
+  spelingKm,
   isVerplaatst,
   leesAntwoord,
   leesPlaats,
@@ -32,7 +34,8 @@ import {
 } from '../logica/weer.js';
 import { db } from './db.js';
 
-const SLEUTEL = 'weer.laatste'; // { tijd (ms), code, temp, gevoel, wind, dag, min, max, kans, mm, sneeuw, plaats?, ruw?, plaatsStand? }
+const SLEUTEL = 'weer.laatste'; // { v, tijd (ms), code, temp, gevoel, wind, dag, min, max, kans, mm, sneeuw, plaats? | speling? | plaatsStand? }
+const VORM = 2; // sinds 0.5.5: een plaats staat er alleen bij als ze van een fijne meting komt. Oudere rijen: het weer telt, de plaats niet.
 const VERS_MS = 10 * 60 * 1000; // ouder dan tien minuten: opnieuw ophalen
 const GELDIG_MS = 3 * 60 * 60 * 1000; // ouder dan drie uur: niet meer het weer van nu
 const OPNIEUW_MS = 2 * 60 * 1000; // na een mislukte poging: even wachten
@@ -54,7 +57,12 @@ let osmVrij = 0; // vanaf wanneer OpenStreetMap opnieuw gevraagd mag worden (die
 const lees = async () => {
   try {
     const waarde = (await db.instellingen.get(SLEUTEL))?.waarde;
-    return waarde && Number.isFinite(waarde.tijd) ? waarde : null;
+    if (!waarde || !Number.isFinite(waarde.tijd)) return null;
+    if (waarde.v === VORM) return waarde;
+    // Een rij van een oudere versie: de plaats daarin kan van een ruwe meting komen (een gemeente ernaast). Alleen het weer telt nog.
+    const weer = { ...waarde };
+    for (const veld of ['plaats', 'ruw', 'plaatsStand', 'speling']) delete weer[veld];
+    return weer;
   } catch {
     return null;
   }
@@ -95,29 +103,31 @@ async function zoekGemeente(breedte, lengte) {
   return naam ? { naam } : { stand: stand.join(', ') };
 }
 
-// Het weer (en de gemeente) voor één meting ophalen en tonen. metNaam false: de gemeente van daarnet blijft staan (een ruwe eerste
-// meting mag een goede naam niet vervangen door een gok). pas(straal) zegt of dit antwoord nog mag: nooit over dat van een fijnere
-// meting heen.
-async function haal(meting, { metNaam, pas }) {
+// Het weer (en de gemeente) voor één meting ophalen en tonen. hoe zegt wat er met de gemeente gebeurt:
+//   'naam'   de meting is fijn genoeg: de gemeente van deze plek opzoeken;
+//   'wacht'  een ruwe eerste meting terwijl Bloei nog luistert: de gemeente van daarnet blijft staan (geen gok in de plaats);
+//   'ruw'    er kwam alleen een ruwe meting: geen gemeente, wel hoe ruw de plek is (speling, in kilometer).
+// pas() zegt of dit antwoord nog mag: nooit over dat van een fijnere meting heen.
+async function haal(meting, { hoe, pas }) {
   const breedte = meting?.coords?.latitude;
   const lengte = meting?.coords?.longitude;
   const adres = weerAdres(breedte, lengte);
   if (!adres) return;
-  const [antwoord, plek] = await Promise.all([fetch(adres, metTijd(8000)), metNaam ? zoekGemeente(breedte, lengte) : null]);
+  const [antwoord, plek] = await Promise.all([fetch(adres, metTijd(8000)), hoe === 'naam' ? zoekGemeente(breedte, lengte) : null]);
   if (!antwoord.ok) return;
   const weer = leesAntwoord(await antwoord.json());
   if (!weer || !pas()) return;
-  // De gemeente: die van deze meting; anders die van daarnet. ruw: het toestel gaf alleen een grove plek (kilometers speling), het
-  // weerbericht zet dan "bij benadering" bij de naam. Zonder naam gaat de reden mee (plaatsStand, bv. "A geen antwoord, B 403").
+  // Zonder naam gaat de reden mee (plaatsStand, bv. "A geen antwoord, B 403").
   let naam = {};
-  if (plek?.naam) naam = { plaats: plek.naam, ...(isRuweMeting(meting) ? { ruw: true } : {}) };
+  if (plek?.naam) naam = { plaats: plek.naam };
   else if (plek?.stand) naam = { plaatsStand: plek.stand };
-  else if (!plek) {
+  else if (hoe === 'ruw') naam = { speling: spelingKm(meting) ?? 1 };
+  else if (hoe === 'wacht') {
     const vorige = await lees();
-    if (typeof vorige?.plaats === 'string') naam = { plaats: vorige.plaats, ...(vorige.ruw === true ? { ruw: true } : {}) };
+    if (typeof vorige?.plaats === 'string') naam = { plaats: vorige.plaats };
   }
   // Rechtstreeks in de database, zonder 'instelling:gewijzigd': Vandaag hoeft er niet voor te hertekenen.
-  const rij = { tijd: Date.now(), ...weer, ...naam };
+  const rij = { v: VORM, tijd: Date.now(), ...weer, ...naam };
   await db.instellingen.put({ sleutel: SLEUTEL, waarde: rij });
   eersteKeer = false;
   hadWeer = true;
@@ -143,7 +153,7 @@ async function ververs() {
   await new Promise((klaar) => {
     let beste = null; // de fijnste meting die er kwam
     let gebruikt = null; // de meting waarmee het laatst opgehaald is
-    let metNaamGebruikt = false;
+    let hoeGebruikt = null;
     let getoond = Infinity; // de straal van de meting die nu in beeld staat
     let gedaan = false;
     let laat = false; // de luistertijd is om
@@ -151,13 +161,13 @@ async function ververs() {
     let luisterKlok;
     let uiterstKlok;
     const straal = (meting) => (Number.isFinite(meting?.coords?.accuracy) ? meting.coords.accuracy : Infinity);
-    const gebruik = (meting, metNaam) => {
+    const gebruik = (meting, hoe) => {
       gebruikt = meting;
-      metNaamGebruikt = metNaam;
+      hoeGebruikt = hoe;
       const mijn = straal(meting);
       // Een antwoord mag in beeld als er nog niets fijners staat (bij gelijk: het nieuwste, dat heeft de naam erbij).
       const pas = () => (mijn <= getoond ? ((getoond = mijn), true) : false);
-      taken.push(haal(meting, { metNaam, pas }).catch(() => {}));
+      taken.push(haal(meting, { hoe, pas }).catch(() => {}));
     };
     const sluit = () => {
       if (gedaan) return;
@@ -169,20 +179,21 @@ async function ververs() {
       } catch {
         /* niets te stoppen */
       }
-      // Er kwam geen fijne meting: de beste die er was telt, nu met haar gemeente erbij (en "bij benadering" als ze ruw is).
-      if (beste && !isGoedeMeting(gebruikt) && (beste !== gebruikt || !metNaamGebruikt)) gebruik(beste, true);
+      // Er kwam geen fijne meting: de beste die er was telt. Is ze fijn genoeg, dan met haar gemeente; is ze ruw, dan zonder naam
+      // en met hoe ruw ze is.
+      if (beste && !isGoedeMeting(gebruikt) && (beste !== gebruikt || hoeGebruikt === 'wacht')) gebruik(beste, isRuweMeting(beste) ? 'ruw' : 'naam');
       klaar();
     };
     const opMeting = (meting) => {
       if (gedaan) return;
       beste = besteMeting(beste, meting);
       if (isGoedeMeting(meting)) {
-        gebruik(meting, true);
+        gebruik(meting, 'naam');
         return sluit();
       }
       // De eerste meting, nog niet fijn: meteen het weer van daar. De gemeente erbij, tenzij de meting ruw is: dan blijft de naam van
       // daarnet staan (of nog even geen naam) tot de fijne meting er is. Liever een tel geen naam dan een gemeente die er naast zit.
-      if (!gebruikt) gebruik(meting, !isRuweMeting(meting));
+      if (!gebruikt) gebruik(meting, isRuweMeting(meting) ? 'wacht' : 'naam');
     };
     // Een fout: bij een nee deze sessie niet meer vragen. Wat er al kwam, telt.
     const opFout = (fout) => {
@@ -194,7 +205,7 @@ async function ververs() {
       return void geo.getCurrentPosition(
         (meting) => {
           beste = meting;
-          gebruik(meting, true);
+          gebruik(meting, isRuweMeting(meting) ? 'ruw' : 'naam');
           sluit();
         },
         opFout,

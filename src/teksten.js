@@ -3276,7 +3276,7 @@ export const TEKSTEN = {
     label: 'Het weer nu: {naam}, {aantal} graden.',
     labelPlaats: 'Het weer nu in {plaats}: {naam}, {aantal} graden.',
     plaatsNiet: 'Plaats niet gevonden',
-    plaatsOngeveer: 'bij benadering',
+    plaatsRuw: 'Plek maar op {aantal} km nauwkeurig',
     labelVoelt: 'Het voelt als {aantal} graden.',
     labelBereik: 'Vandaag minimaal {min} en maximaal {max} graden.',
     labelKansRegen: '{aantal} procent kans op regen vandaag.',

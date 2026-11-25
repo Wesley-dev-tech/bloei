@@ -32,6 +32,7 @@ export function weerbericht(weer) {
     const plaats = typeof w.plaats === 'string' ? w.plaats.trim() : '';
     // Geen naam gevonden: dat staat er dan, met kort waarom (welke bron wat antwoordde), in plaats van een lege plek.
     const plaatsStand = !plaats && typeof w.plaatsStand === 'string' ? w.plaatsStand.slice(0, 60) : '';
+    const speling = !plaats && !plaatsStand && Number.isFinite(w.speling) && w.speling > 0 ? Math.round(w.speling) : 0;
     // Een schermlezer krijgt het in gewone zinnen; de tekens en cijfers zelf leest hij niet voor.
     const voorLezer = [
       plaats ? t('weer.labelPlaats', { plaats, naam, aantal: w.temp }) : t('weer.label', { naam, aantal: w.temp }),
@@ -42,7 +43,8 @@ export function weerbericht(weer) {
       metWind && t('weer.labelWind', { aantal: w.wind }),
     ];
     const deel = (klasse, ...kinderen) => h('span', { class: ['weerbericht__deel', klasse], 'aria-hidden': 'true' }, ...kinderen);
-    el.replaceChildren(
+    // Wat er niet is (false, een lege tekst) valt weg: de browser zou het anders als woord in het bericht zetten.
+    const delen = [
       h('p', { class: 'alleen-lezer' }, voorLezer.filter(Boolean).join(' ')),
       plaats &&
         h(
@@ -50,8 +52,14 @@ export function weerbericht(weer) {
           { class: 'weerbericht__plaats', 'aria-hidden': 'true' },
           icoon('location-dot', { grootte: 13 }),
           h('span', {}, plaats),
-          // Het toestel gaf alleen een grove plek: de gemeente kan ernaast zitten, en dat staat er dan bij.
-          w.ruw === true && h('span', { class: 'weerbericht__reden weerbericht__ongeveer' }, `(${t('weer.plaatsOngeveer')})`),
+        ),
+      // Het toestel gaf alleen een ruwe plek (kilometers speling): geen gemeente, want die kan ernaast zitten. Wel hoe ruw de plek is.
+      speling > 0 &&
+        h(
+          'p',
+          { class: 'weerbericht__plaats weerbericht__plaats--niet', 'aria-hidden': 'true' },
+          icoon('location-dot', { grootte: 13 }),
+          h('span', {}, t('weer.plaatsRuw', { aantal: speling })),
         ),
       plaatsStand &&
         h(
@@ -81,7 +89,8 @@ export function weerbericht(weer) {
           h('span', {}, t(sneeuw ? 'weer.kansSneeuw' : 'weer.kansRegen', { aantal: w.kans })),
           metVerwacht && h('span', { class: 'weerbericht__verwacht' }, t(sneeuw ? 'weer.verwachtSneeuw' : 'weer.verwachtRegen', { aantal: hoeveel(hoeveelheid) })),
         ),
-    );
+    ];
+    el.replaceChildren(...delen.filter(Boolean));
   };
   teken(weer);
   return { el, teken };

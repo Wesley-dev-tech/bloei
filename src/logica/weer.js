@@ -59,9 +59,16 @@ export function plaatsAdres2(breedte, lengte) {
 }
 
 // Het antwoord van Nominatim → de naam van de gemeente, stad, het dorp, of van het gevonden gebied zelf; anders null.
+// Het antwoord is het gebied op het niveau van een stad of gemeente waar de plek in ligt. addresstype zegt onder welke sleutel dat gebied
+// zelf in het adres staat (city, town, village): die naam telt. Is het antwoord een groter gebied (een arrondissement, een provincie),
+// dan kent de dienst de gemeente hier niet en komt er geen naam: liever geen dan een verkeerde.
+// De sleutel municipality telt niet: in België staat daar het arrondissement (Turnhout), niet de gemeente (Balen).
+const GEMEENTESOORTEN = ['city', 'town', 'village'];
 export function leesPlaats2(json) {
   const a = json?.address && typeof json.address === 'object' ? json.address : {};
-  return eersteNaam([a.municipality, a.city, a.town, a.village, json?.name]);
+  const soort = json?.addresstype;
+  if (typeof soort === 'string') return GEMEENTESOORTEN.includes(soort) ? eersteNaam([a[soort], json?.name]) : null;
+  return eersteNaam([a.city, a.town, a.village, json?.name]);
 }
 
 // Is de plek anders dan bij de vorige vraag? Dan wordt de gemeente opnieuw opgezocht. Alleen exact dezelfde plek geeft zeker dezelfde
@@ -76,7 +83,7 @@ export function isVerplaatst(vorige, breedte, lengte) {
 // gebruikt de eerste meting meteen en verbetert zodra er een fijne komt (data/weer.js). De nauwkeurigheid is de straal in meter die het
 // toestel zelf opgeeft.
 export const GOED_M = 150; // zo fijn: dit is de plek, er hoeft geen betere meer te komen
-export const RUW_M = 1500; // grover dan dit: de gemeente kan ernaast zitten, het weerbericht zegt dan "bij benadering"
+export const RUW_M = 1000; // grover dan dit: de gemeente kan ernaast zitten. Dan komt er geen naam, wel hoe ruw de plek is.
 
 const straal = (meting) => (Number.isFinite(meting?.coords?.accuracy) && meting.coords.accuracy >= 0 ? meting.coords.accuracy : Infinity);
 
@@ -85,6 +92,8 @@ export const besteMeting = (beste, nieuw) => (!beste || straal(nieuw) <= straal(
 export const isGoedeMeting = (meting) => straal(meting) <= GOED_M;
 // Ruw alleen als het toestel het zelf zegt; geeft het geen straal op, dan weten we het niet en zeggen we niets.
 export const isRuweMeting = (meting) => Number.isFinite(meting?.coords?.accuracy) && meting.coords.accuracy > RUW_M;
+// De speling van een ruwe meting in hele kilometers (minstens 1), voor de regel in het weerbericht; null als de meting niet ruw is.
+export const spelingKm = (meting) => (isRuweMeting(meting) ? Math.max(1, Math.round(meting.coords.accuracy / 1000)) : null);
 
 // ---- Het weer ----
 // Het adres van de vraag: alleen de plaats en wat Bloei wil weten. Van nu: temperatuur, gevoelstemperatuur, weercode, wind, dag of nacht. Van
