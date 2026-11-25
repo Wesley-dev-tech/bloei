@@ -8,6 +8,15 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.4.7',
+    datum: '2026-11-25',
+    tijd: '13:10',
+    punten: [
+      { begrip: 'algemeen', tekst: 'De warme zin bleef de hele dag dezelfde. Nu krijg je bij elke opening van Bloei een andere zin.' },
+      { begrip: 'algemeen', tekst: 'Een mijlpaal of een medaille komt bij het openen nog één keer per dag. Daarna volgt de zin weer je dag.' },
+    ],
+  },
+  {
     versie: '0.4.6',
     datum: '2026-11-25',
     tijd: '09:52',

@@ -39,7 +39,7 @@ import { leesFavorieten, markeerGebruikt, zetFavorietTerug } from '../data/favor
 import { totaalMl, leesDranken } from '../data/dranken.js';
 import { leesReeks, dagStatus, leesWeekoverzicht, leesMaand, leesMomentopname, dagenSindsVorigeUit } from '../data/statistiek.js';
 import { leesVerleden } from '../data/verleden.js';
-import { reactieVoor } from '../data/motivatiestand.js';
+import { noteerMoment, openingVoor, reactieVoor } from '../data/motivatiestand.js';
 import { telMomenten } from '../logica/supplementen.js';
 import { feestdagOp, isJarig, leeftijdOp, seizoenOp } from '../logica/kalender.js';
 
@@ -550,24 +550,27 @@ export function toon(houder) {
       volgende: verleden.badges.volgende ? { id: verleden.badges.volgende.id, aantal: verleden.badges.volgende.aantal } : null,
     };
     const geboortedatum = await leesInstelling('profiel.verjaardag');
-    const zin = motivatieZin(
-      kiesMotivatie({
-        dagdeel: deel,
-        ...dagStand,
-        stemming: dag.stemming,
-        energie: dag.energie ?? null,
-        drankenAantal: dranken.length,
-        lopendeReeks: reeks.lopendeReeks,
-        dagenBijgehouden: reeks.dagenBijgehouden,
-        dagenSindsVorige: sindsVorige ?? verleden.dagenSinds,
-        datum,
-        iets: status.bijgehouden,
-        reactie: reactieVoor(datum, tel),
-        verleden,
-        kalender: { jarig: isJarig(geboortedatum, datum), leeftijd: leeftijdOp(geboortedatum, datum), feestdag: feestdagOp(datum), seizoen: seizoenOp(datum), uur: new Date().getHours() },
-      }),
-      voornaam,
-    );
+    // De hoeveelste keer ze de app vandaag opent en wat ze al zag: zo krijgt elke opening een andere zin (data/motivatiestand.js).
+    const opening = await openingVoor(datum);
+    const keuze = kiesMotivatie({
+      dagdeel: deel,
+      ...dagStand,
+      stemming: dag.stemming,
+      energie: dag.energie ?? null,
+      drankenAantal: dranken.length,
+      lopendeReeks: reeks.lopendeReeks,
+      dagenBijgehouden: reeks.dagenBijgehouden,
+      dagenSindsVorige: sindsVorige ?? verleden.dagenSinds,
+      datum,
+      iets: status.bijgehouden,
+      reactie: reactieVoor(datum, tel),
+      opening: opening.nummer,
+      gehad: opening.gehad,
+      verleden,
+      kalender: { jarig: isJarig(geboortedatum, datum), leeftijd: leeftijdOp(geboortedatum, datum), feestdag: feestdagOp(datum), seizoen: seizoenOp(datum), uur: new Date().getHours() },
+    });
+    noteerMoment(datum, keuze.moment);
+    const zin = motivatieZin(keuze, voornaam);
     const zinWisselt = staat.zin != null && staat.zin !== zin; // een nieuwe zin komt zacht op
     staat.zin = zin;
 
@@ -692,7 +695,7 @@ export function toon(houder) {
     }
     requestAnimationFrame(() => na.forEach((f) => f()));
     return scherm;
-  }, { events: ['data:gewijzigd', 'instelling:gewijzigd', 'elders:gewijzigd', 'badge:behaald'], lichtOp: true });
+  }, { events: ['data:gewijzigd', 'instelling:gewijzigd', 'elders:gewijzigd', 'badge:behaald', 'motivatie:opnieuw'], lichtOp: true });
   const stopHaken = haakUitleg(houder, {
     haken: [
       ['.drinkkaart .drankrij', 'glas'],

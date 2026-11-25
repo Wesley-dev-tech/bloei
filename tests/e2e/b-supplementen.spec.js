@@ -293,15 +293,19 @@ test('E12: de voortgang vult zich per onderdeel, de zin past zich aan en blijft 
   await expect(page.locator('.voortgang__deel[data-deel="face-smile"]')).toHaveClass(/is-vol/);
   await wachtOpDag(page, 'stemming', 4);
   await expect(page.locator('.voortgang__deel.is-vol')).toHaveCount(4);
-  const zin2 = await page.locator('.voortgang__zin').textContent();
 
   // Een volle dag: nergens een score of een verwijt
   await expect(page.locator('.voortgang')).not.toContainText(/%|vergeten|gemist|!/);
+  // 0.4.7: elke opening van de dag krijgt een andere zin (data/motivatiestand.js). Ze zag anders de hele dag dezelfde.
   await page.reload();
   await expect(page.locator('.voortgang__deel.is-vol')).toHaveCount(4);
-  await expect(page.locator('.voortgang__zin')).toHaveText(zin2);
+  await expect(page.locator('.voortgang__zin')).not.toBeEmpty();
+  const zin3 = await page.locator('.voortgang__zin').textContent();
+  await expect(page.locator('.voortgang')).not.toContainText(/%|vergeten|gemist|!/);
   await page.reload();
-  await expect(page.locator('.voortgang__zin')).toHaveText(zin2);
+  await expect(page.locator('.voortgang__deel.is-vol')).toHaveCount(4);
+  await expect(page.locator('.voortgang__zin')).not.toBeEmpty();
+  await expect(page.locator('.voortgang__zin')).not.toHaveText(zin3);
 });
 
 test('E12: zonder supplementen in de lijst telt dat onderdeel niet mee, en het weekoverzicht sluit af met een zin', async ({ page }) => {

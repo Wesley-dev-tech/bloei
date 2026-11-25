@@ -25,6 +25,71 @@ describe('de groepen', () => {
   });
 });
 
+// 0.4.7: ze zag de hele dag dezelfde zin bij het openen. Elke opening krijgt nu een andere zin, en een moment (een mijlpaal, een medaille)
+// komt bij het openen maar één keer per dag.
+describe('kiesMotivatie: elke opening van de dag een andere zin', () => {
+  const bezig = { maaltijden: 2, ml: 150, supplementen: { genomen: 1, totaal: 2 }, stemming: 4, lopendeReeks: 3, dagenBijgehouden: 3, dagdeel: 'middag', datum: '2026-11-25' };
+  const open = (opening, gehad = [], extra = {}) => kiesMotivatie({ ...leeg, ...bezig, ...extra, opening, gehad });
+
+  test('een mijlpaal komt bij het openen één keer en gaat daarna naar de stand van de dag', () => {
+    const eerste = open(0);
+    expect(eerste.groep).toBe('reeks');
+    expect(eerste.moment).toBe('reeks');
+    const tweede = open(1, ['reeks']);
+    expect(tweede.groep).not.toBe('reeks');
+    expect(tweede.moment).toBeUndefined();
+    expect(['onderweg', 'onderwegMiddag', 'badgeStap', 'herfst', 'winter', 'lente', 'zomer']).toContain(tweede.groep);
+  });
+
+  test('zes openingen na elkaar: nooit twee keer dezelfde zin na elkaar, en niet de hele dag dezelfde', () => {
+    for (let d = 1; d <= 28; d++) {
+      const datum = `2026-11-${String(d).padStart(2, '0')}`;
+      const zinnen = [];
+      for (let opening = 0; opening < 6; opening++) zinnen.push(open(opening, opening ? ['reeks'] : [], { datum }).sleutel);
+      for (let i = 1; i < zinnen.length; i++) expect(zinnen[i], `${datum} opening ${i}`).not.toBe(zinnen[i - 1]);
+      expect(new Set(zinnen).size, datum).toBeGreaterThanOrEqual(4);
+    }
+  });
+
+  test('ook zonder iets genoteerd, en ook op een ronde dag, wisselt de zin per opening', () => {
+    const niets = [0, 1, 2, 3].map((opening) => kiesMotivatie({ ...leeg, dagdeel: 'ochtend', opening }).sleutel);
+    expect(new Set(niets).size).toBeGreaterThanOrEqual(3);
+    const rond = [0, 1, 2, 3].map((opening) => kiesMotivatie({ ...leeg, maaltijden: 3, etenKlaar: true, ml: 2000, verleden: { rondReeks: 3 }, opening }).sleutel);
+    for (let i = 1; i < rond.length; i++) expect(rond[i]).not.toBe(rond[i - 1]);
+  });
+
+  test('zonder opening blijft de keuze die van de eerste opening, en dezelfde handeling klinkt na een heropening anders', () => {
+    expect(kiesMotivatie({ ...leeg, ...bezig }).sleutel).toBe(open(0).sleutel);
+    const r = { soort: 'dagdoel', nieuw: {}, teller: 1 };
+    expect(open(0, [], { reactie: r }).groep).toBe('dagdoel');
+    expect(open(1, ['reeks'], { reactie: r }).groep).toBe('dagdoel');
+    expect(open(1, ['reeks'], { reactie: r }).sleutel).not.toBe(open(0, [], { reactie: r }).sleutel);
+  });
+
+  test('een moment na een handeling komt altijd, ook als het al gezien is', () => {
+    const r = { soort: 'maaltijd', nieuw: { iets: true }, teller: 1 };
+    expect(open(3, ['reeks'], { reactie: r }).groep).toBe('reeks');
+  });
+
+  test('medailles van vandaag: bij het openen één keer, en opnieuw als er een bij komt', () => {
+    const met = (ids, gehad) => open(2, ['reeks', ...gehad], { verleden: { badges: { vandaag: ids, aantal: 7, totaal: 121 } } });
+    const id = ALLE_BADGES[0].id;
+    expect(met([id], []).moment).toBe('m-' + id);
+    expect(met([id], ['m-' + id]).moment).toBeUndefined();
+    expect(met([id, ALLE_BADGES[1].id], ['m-' + id]).moment).toBe('badgeMeer:2');
+    expect(met([id, ALLE_BADGES[1].id], ['m-' + id, 'badgeMeer:2']).moment).toBeUndefined();
+  });
+
+  test('haar verjaardag en een feestdag blijven de hele dag, met elke opening een andere zin', () => {
+    const jarig = [0, 1, 2].map((opening) => open(opening, [], { kalender: { jarig: true, leeftijd: 39 } }));
+    for (const k of jarig) expect(k.groep).toBe('verjaardag');
+    expect(new Set(jarig.map((k) => k.sleutel)).size).toBe(3);
+    const kerst = [0, 1].map((opening) => open(opening, [], { kalender: { feestdag: 'kerst' } }));
+    for (const k of kerst) expect(k.groep).toBe('kerst');
+    expect(kerst[0].sleutel).not.toBe(kerst[1].sleutel);
+  });
+});
+
 describe('kiesMotivatie: de stand van de dag (bij het openen van de app)', () => {
   test('de juiste groep bij elke toestand', () => {
     const cases = [

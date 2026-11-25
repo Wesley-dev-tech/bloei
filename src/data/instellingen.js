@@ -12,6 +12,7 @@ export const STANDAARD = {
   'feest.nieuwjaarGevierd': null, // het jaar waarvan Bloei de jaarwissel al vierde (ui/feest.js)
   'profiel.verjaardagJaren': [], // elk jaar waarin Bloei haar verjaardag vierde: de medaille Jarig in Bloei behaal je elk jaar opnieuw
   'profiel.verjaardagGevierd': null, // het jaar waarin Bloei haar verjaardag al vierde (ui/verjaardag.js)
+  'motivatie.dag': null, // { datum, openingen, gehad }: de hoeveelste keer ze de app vandaag opent en welke momenten ze al zag (data/motivatiestand.js)
   'thema.keuze': 'poeder', // poeder | salie | nacht | auto
   'thema.kaft': 'bes',
   'thema.modus': 'auto',
