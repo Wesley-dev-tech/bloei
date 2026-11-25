@@ -20,6 +20,11 @@
   --bloei-salie:     #8EA58C;
   --bloei-mist:      #9FBDBF;
   --bloei-porselein: #FBF7F4;
+  /* Goud: alleen voor de ultieme medaille (In volle bloei). In elk thema hetzelfde. */
+  --bloei-goud-licht: #F6DC8C;
+  --bloei-goud:       #D9A93A;
+  --bloei-goud-diep:  #A97720;
+  --bloei-goud-glans: #FFFAF0;
 
   /* ---- Rollen: licht (standaard, thema "Poeder") ---- */
   --c-bg:            #FBF7F4;  /* app-achtergrond */

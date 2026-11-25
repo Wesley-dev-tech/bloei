@@ -98,7 +98,7 @@ describe('kiesMotivatie: het weer van nu', () => {
 
   test('elke weersoort heeft haar eigen groep zinnen', () => {
     for (const g of WEERGROEPEN) {
-      expect(GROEPEN[g], g).toBeGreaterThanOrEqual(4);
+      expect(GROEPEN[g], g).toBe(6);
       expect(Object.keys(TEKSTEN.motivatie[g]).length, g).toBe(GROEPEN[g]);
     }
   });
@@ -120,6 +120,40 @@ describe('kiesMotivatie: het weer van nu', () => {
     for (let opening = 1; opening <= 8; opening++) groepen.add(open({ weer: 'weerRegen', opening, gehad: ['weer:weerRegen'] }).groep);
     expect(groepen.has('weerRegen')).toBe(true);
     expect(groepen.size).toBeGreaterThanOrEqual(3);
+  });
+
+  // Elke weerzin verbindt het weer met Bloei en met haar dag: zin 1 drinken, 2 noteren, 3 stemming, 4 supplementen, 5 en 6 altijd.
+  test('een weerzin past bij haar dag: niets over wat al klaar is of wat ze niet heeft', () => {
+    const nummers = (extra) => {
+      const uit = new Set();
+      for (const g of WEERGROEPEN) for (let opening = 0; opening < 12; opening++) uit.add(Number(kiesMotivatie({ ...leeg, datum: '2026-11-25', weer: g, opening, gehad: [], ...extra }).sleutel.split('.')[2]));
+      return uit;
+    };
+    // Niets genoteerd, een dagdoel, supplementen te nemen, geen stemming: alle zes kunnen.
+    expect([...nummers({ supplementen: { genomen: 0, totaal: 2 } })].sort()).toEqual([1, 2, 3, 4, 5, 6]);
+    // Het dagdoel is gehaald, of er is geen dagdoel: geen zin over drinken.
+    expect(nummers({ ml: 2000 }).has(1)).toBe(false);
+    expect(nummers({ doelMl: 0 }).has(1)).toBe(false);
+    // Alles genoteerd: geen zin over noteren. Een stemming gekozen: geen vraag naar haar stemming.
+    expect(nummers({ maaltijden: 3, etenKlaar: true }).has(2)).toBe(false);
+    expect(nummers({ stemming: 4 }).has(3)).toBe(false);
+    // Zonder supplementen, of alles afgevinkt: geen zin over supplementen.
+    expect(nummers({}).has(4)).toBe(false);
+    expect(nummers({ supplementen: { genomen: 2, totaal: 2 } }).has(4)).toBe(false);
+    // Alles klaar: alleen de twee zinnen die altijd passen.
+    expect([...nummers({ maaltijden: 3, etenKlaar: true, ml: 2000, stemming: 5, supplementen: { genomen: 2, totaal: 2 }, lopendeReeks: 2 })].sort()).toEqual([5, 6]);
+  });
+
+  test('elke weerzin noemt Bloei, haar dag, haar dagboek of wat ze erin bijhoudt', () => {
+    const band = /Bloei|dagboek|dagdoel|je dag\b|jouw dag\b|stemming|supplementen|noteer|glas/i;
+    for (const g of WEERGROEPEN) for (const [nr, zin] of Object.entries(TEKSTEN.motivatie[g])) expect(band.test(zin), `${g}.${nr}: ${zin}`).toBe(true);
+    for (const g of WEERGROEPEN) {
+      const z = TEKSTEN.motivatie[g];
+      expect(z[1], g).toMatch(/dagdoel/);
+      expect(z[2], g).toMatch(/noteer|noteren|dagboek/i);
+      expect(z[3], g).toMatch(/stemming/);
+      expect(z[4], g).toMatch(/supplementen/);
+    }
   });
 
   test('een mijlpaal, haar verjaardag en een feestdag gaan voor; na een handeling zwijgt het weer', () => {

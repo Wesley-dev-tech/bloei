@@ -50,7 +50,20 @@ describe('huisstijl', () => {
         // Toegevoegd op vraag van de eigenaar (BESLISSING 320): het belletje van Herinneringen is gevuld, zoals zijn buren op Algemeen.
         'bell',
         // Toegevoegd op vraag van de eigenaar: het tandwiel van Algemeen, op Vandaag en in de zijbalk, nu Algemeen geen tabblad meer is op de telefoon.
-        'gear'],
+        'gear',
+        // Toegevoegd op vraag van de eigenaar (0.4.5): elke medaille haar eigen icoon, en de iconen van de feestdagen en de verjaardag.
+        'bolt', 'book', 'book-bookmark', 'bottle-droplet', 'bowl-rice', 'bread-slice', 'briefcase', 'bucket', 'burst', 'cake-candles',
+        'calendar', 'calendar-check', 'calendar-plus', 'calendar-week', 'carrot', 'certificate', 'champagne-glasses', 'check-double', 'church', 'circle-check',
+        'clipboard-check', 'clipboard-list', 'cloud', 'cloud-sun', 'cross', 'crown', 'door-open', 'dove', 'droplet', 'egg',
+        'face-grin-hearts', 'face-grin-stars', 'face-grin-tongue', 'face-grin-wide', 'face-kiss-wink-heart', 'face-smile', 'face-smile-beam', 'faucet-drip', 'feather-pointed', 'fire',
+        'flag', 'gauge', 'gem', 'ghost', 'gift', 'glass-water-droplet', 'graduation-cap', 'hand-holding-droplet', 'hand-holding-heart', 'hand-holding-medical',
+        'hands-clapping', 'heart-circle-plus', 'heart-pulse', 'holly-berry', 'horse', 'hourglass-half', 'infinity', 'kitchen-set', 'list-check', 'medal',
+        'mobile-screen-button', 'mountain', 'mountain-sun', 'note-sticky', 'paper-plane', 'peace', 'pen-to-square', 'person-hiking', 'person-running', 'person-walking',
+        'pills', 'plate-wheat', 'prescription-bottle', 'prescription-bottle-medical', 'rainbow', 'ranking-star', 'rocket', 'ruler', 'scale-balanced', 'shoe-prints',
+        'snowman', 'spa', 'square-check', 'stairs', 'star', 'tablets', 'tree', 'trophy', 'vial', 'water',
+        'weight-hanging', 'wind',
+        // Toegevoegd op vraag van de eigenaar (0.4.8): het weerbericht op Vandaag (zon, maan, wolk, wind en druppel stonden er al).
+        'cloud-bolt', 'cloud-moon', 'cloud-rain', 'cloud-showers-heavy', 'smog', 'snowflake'],
       regular: ['heart', 'bell', 'face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'],
     };
     // BESLISSING 606: een eigen bestand, op vraag van de eigenaar: het teken voor Face ID; de gratis iconenset heeft er geen.
@@ -69,7 +82,11 @@ describe('huisstijl', () => {
   });
 
   it('gebruikt geen hexkleur, rgb( of hsl( in src (behalve src/data)', () => {
+    // Het feest (ui/feest.js) tekent confetti, ballonnen en vuurwerk op een canvas. Dat zijn de kleuren van papier en vonken, geen kleuren
+    // van de huisstijl: ze horen in elk thema dezelfde te zijn en worden per vonk berekend. Alleen dat ene bestand is uitgezonderd.
+    const feest = join(src, 'ui', 'feest.js');
     for (const f of codeZonderData) {
+      if (f === feest) continue;
       const tekst = readFileSync(f, 'utf8');
       expect(/#[0-9a-fA-F]{3,8}\b/.test(tekst.replace(/&#\d+;/g, '')), `${wijs(f)}: hexkleur`).toBe(false);
       expect(/\brgba?\(|\bhsla?\(/i.test(tekst), `${wijs(f)}: rgb/hsl`).toBe(false);

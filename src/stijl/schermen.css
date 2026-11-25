@@ -1057,9 +1057,9 @@ a.week__link { min-height: 48px; justify-content: center; }
 /* De ultieme medaille (In volle bloei: alle andere behaald) is, eenmaal behaald, van goud: een gouden schijf met een lichtere glans linksboven
    en gouden lintjes. Nog niet behaald ziet ze eruit als elke andere. De kleuren zijn die van de vrolijkste stemming (--mood-4 en --mood-5). */
 :is(#scherm, body > dialog, body > .blad) .medaille.medaille--ultiem.is-behaald, .medaille.medaille--ultiem.is-behaald { --mk: var(--mood-4); }
-.medaille.medaille--ultiem.is-behaald .medaille__schijf { background: radial-gradient(circle at 30% 24%, #f6dc8c 0%, #d9a93a 46%, #a97720 100%); }
-.medaille.medaille--ultiem.is-behaald .medaille__icoon { color: #fffaf0; }
-.medaille.medaille--ultiem.is-behaald .medaille__binnen { border-color: color-mix(in srgb, #fff 60%, transparent); }
+.medaille.medaille--ultiem.is-behaald .medaille__schijf { background: radial-gradient(circle at 30% 24%, var(--bloei-goud-licht) 0%, var(--bloei-goud) 46%, var(--bloei-goud-diep) 100%); }
+.medaille.medaille--ultiem.is-behaald .medaille__icoon { color: var(--bloei-goud-glans); }
+.medaille.medaille--ultiem.is-behaald .medaille__binnen { border-color: color-mix(in srgb, white 60%, transparent); }
 
 /* De zin volgt de breedte van de kaart, zoals op een telefoon: zo blijft de motivator even hoog voor alle zinnen (BESLISSING 142). */
 @container motiv (max-width: 420px) { .voortgang .voortgang__zin, .vandaag__rij1 > .voortgang .voortgang__zin { font-size: var(--fs-h2); } }

@@ -26,6 +26,8 @@ describe('kleurnamen: geen vast kleurwoord in een tekst', () => {
     for (const [pad, tekst] of ZICHTBAAR) {
       for (const m of tekst.matchAll(KLEURWOORD)) {
         if (/thema/i.test(pad) && THEMANAMEN.includes(m[0])) continue;
+        // De ultieme medaille (In volle bloei) is in elk thema goud (medaille--ultiem, --bloei-goud in tokens.css): die kleur klopt altijd.
+        if (pad === 'motivatie.m-verzameling-compleet.2' && m[0] === 'goud') continue;
         fout.push(`${pad}: "${m[0]}" in "${tekst.slice(0, 90)}"`);
       }
     }
