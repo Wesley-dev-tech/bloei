@@ -298,31 +298,6 @@
 .begroeting__naam { overflow-wrap: anywhere; }
 .begroeting__naam { display: inline-block; font-style: italic; }
 .begroeting__datum { margin-top: var(--s-3); }
-/* Het weerbericht onder de datum (ui/weerbericht.js): het weer van nu op de plaats waar ze is. Geen eigen kaart: zo blijven de kaarten van
-   Vandaag op elke schermbreedte precies zoals ze waren. Eerst het weer van nu (icoon, temperatuur, naam, hoe het aanvoelt); daarna,
-   gedempt, vandaag: minimum, maximum, wind, en de kans op regen met wat er verwacht wordt.
-   Op de telefoon: het weer van nu op een eigen regel, de rest eronder, de regen op de laatste regel. */
-.begroeting__onder { min-width: 0; }
-.weerbericht { display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-4); margin: var(--s-3) 0 0; font-family: var(--font-ui); font-size: var(--fs-small); line-height: 1.3; color: var(--c-text-muted); }
-.weerbericht[hidden] { display: none; }
-.weerbericht > p { margin: 0; }
-.weerbericht__nu { flex: 0 1 auto; display: flex; flex-wrap: wrap; align-items: center; gap: var(--s-1) var(--s-2); color: var(--c-text); font-size: var(--fs-body); }
-/* De plaats waar ze is: op de telefoon altijd op een eigen eerste regel, met het weer van nu eronder. */
-.weerbericht__plaats { flex: 0 0 100%; display: flex; align-items: center; gap: var(--s-1); color: var(--c-text); font-size: var(--fs-body); font-weight: 600; max-width: 100%; }
-.weerbericht__plaats svg { color: var(--c-accent); flex: none; }
-/* De naam van de gemeente kon niet opgehaald worden: gedempt, met kort waarom erachter. */
-.weerbericht__plaats--niet { font-weight: 400; font-size: var(--fs-small); color: var(--c-text-muted); flex-wrap: wrap; }
-.weerbericht__plaats--niet svg { color: var(--c-text-muted); }
-.weerbericht__reden { opacity: .8; }
-.weerbericht__plaats span { min-width: 0; overflow-wrap: anywhere; }
-.weerbericht__breuk { flex: 0 0 100%; height: 0; }
-.weerbericht__nu svg { color: var(--c-accent); flex: none; }
-.weerbericht__graden { font-weight: 600; font-variant-numeric: tabular-nums; }
-.weerbericht__voelt { color: var(--c-text-muted); font-size: var(--fs-small); margin-left: var(--s-1); font-variant-numeric: tabular-nums; }
-.weerbericht__deel { display: inline-flex; align-items: center; gap: var(--s-1); white-space: nowrap; font-variant-numeric: tabular-nums; }
-.weerbericht__deel svg { flex: none; opacity: .8; }
-.weerbericht__regen { flex: 0 0 100%; flex-wrap: wrap; white-space: normal; }
-.weerbericht__verwacht::before { content: "\00B7"; margin: 0 var(--s-2) 0 var(--s-1); }
 .vandaag__begroeting .vandaag__logo { display: block; }
 
 /* Zacht verschijnen (ook gebruikt door de nieuwe zin in de motivator). Het openen van een scherm loopt via src/ui/beweging.js. */
@@ -1238,17 +1213,6 @@ a.week__link { min-height: 48px; justify-content: center; }
   .vandaag__begroeting .begroeting__tekst { display: contents; }
   .vandaag__begroeting .begroeting__titel { flex: 1 1 0; min-width: 0; }
   .vandaag__begroeting .begroeting__datum { order: 9; flex: 0 0 100%; margin-top: var(--s-3); white-space: normal; text-align: left; }
-  /* Met het weerbericht erbij is het de rij onder de begroeting die de volle breedte neemt: de datum en eronder het weer, links, zoals
-     op de telefoon. */
-  .vandaag__begroeting .begroeting__onder { order: 9; flex: 0 0 100%; margin-top: var(--s-3); }
-  .vandaag__begroeting .begroeting__onder .begroeting__datum { margin-top: 0; }
-  /* Op een breed scherm staat het weerbericht op één regel over de volle breedte van de kaarten: links het weer van nu, de andere delen
-     gelijk verdeeld tot aan de rechterrand. Zo blijft er rechts geen leeg vlak. Een dunne lijn erboven zet het af van de datum. */
-  .vandaag__begroeting .weerbericht { flex-wrap: wrap; justify-content: space-between; gap: var(--s-2) var(--s-5); margin-top: var(--s-3); padding-top: var(--s-3); border-top: var(--lijn); }
-  .vandaag__begroeting .weerbericht__nu, .vandaag__begroeting .weerbericht__regen { flex: 0 1 auto; flex-wrap: nowrap; white-space: nowrap; }
-  .vandaag__begroeting .weerbericht__breuk { display: none; }
-  /* Op een breed scherm staat de plaats vooraan op dezelfde regel als de rest. */
-  .vandaag__begroeting .weerbericht__plaats { flex: 0 1 auto; }
 }
 
 /* ---------- Dagboek · Week (BESLISSING 253): samenvatting in kerncijfers en het weekschema als tabel ---------- */

@@ -84,11 +84,7 @@ For the screen tests `tests/globaal-opstart.js` first prepares a saved state in 
 
 All diary data lives on the device, in IndexedDB, and never leaves it. The same goes for the optional date of birth: it is only used on the device, to celebrate the user's birthday, and can be cleared at any time. Only when reminders are switched on does something go to the reminder service: the push address with the keys of that device, and the chosen times. Nothing from the diary goes to that service. There is no backup: if the app is removed, the browser data is cleared or the device is lost, the data is gone. A report or a supplement list is only shared when the user does so, as a file.
 
-The built pages carry a strict Content-Security-Policy, and the app makes no external requests except to the reminder service, the weather service and the place-name service. Fonts and icons are bundled locally.
-
-## Weather
-
-The Today screen shows the current weather where the user is, and the warm sentence can follow it. The device asks for location permission once; without it there is simply no weather. The app sends only the location, exactly as the device reports it (nothing is rounded): to Open-Meteo for the weather, and to Nominatim (OpenStreetMap) for the name of the municipality (at every refresh). It asks the device for its precise, current position and uses the first reading at once; if that reading is rough, it keeps listening for a few seconds and corrects the report as soon as a fine reading arrives, so a rough first reading does not leave the user in the wrong town. A town name is shown only for a reading that is fine enough. If the reading stays rough (the device gives only an estimated position), no town is shown and the report says how rough the position is. It stores the weather and that name, never the coordinates. It refreshes at every opening, every time the user returns to the app, and every ten minutes while the app is in view. The demo shows sample weather and connects to nothing. Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0, free for non-commercial use). Place names by [Nominatim](https://nominatim.org/) (data © OpenStreetMap contributors, ODbL).
+The built pages carry a strict Content-Security-Policy, and the app makes no external requests except to the reminder service. Fonts and icons are bundled locally.
 
 ## Reminders
 

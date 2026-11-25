@@ -20,10 +20,10 @@ async function begin(page, route, soort, ids = ALLE) {
 const REGELS = [
   'Alles wat je bijhoudt, ook je geboortedatum, blijft op dit toestel. Geen account, geen cookies en geen volgcode.',
   'Voor herinneringen bewaart Cloudflare alleen je pushadres en uren. Geen naam, geen dagboek.',
-  'Voor het weer en je gemeente verlaat je exacte locatie het toestel. Nooit je naam of dagboek.',
   'Een verslag of je supplementenlijst deel je zelf, als bestand. Er staat alleen je lijst in.',
   'Je pincode houdt meekijkers buiten. Je gegevens zelf zijn niet versleuteld.',
-  'Er is geen back-up. Verwijder je je profiel of Bloei, of wist je toestel de gegevens, dan is alles weg.',
+  'Er is geen back-up. Verwijder je Bloei of wist je toestel de gegevens, dan zijn ze weg.',
+  'Profiel verwijderen wist alles van dit toestel, ook je geboortedatum.',
 ];
 
 test('Algemeen: de kaart Privacy heeft haar zes regels, elk met een tegel, en niets over wie de dienst beheert', async ({ page }) => {

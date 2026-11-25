@@ -13,7 +13,6 @@ export const STANDAARD = {
   'profiel.verjaardagJaren': [], // elk jaar waarin Bloei haar verjaardag vierde: de medaille Jarig in Bloei behaal je elk jaar opnieuw
   'profiel.verjaardagGevierd': null, // het jaar waarin Bloei haar verjaardag al vierde (ui/verjaardag.js)
   'motivatie.dag': null, // { datum, openingen, gehad }: de hoeveelste keer ze de app vandaag opent en welke momenten ze al zag (data/motivatiestand.js)
-  'weer.laatste': null, // { tijd, code, temp, wind, dag }: het weer van daarnet, voor de warme zin (data/weer.js). De plaats zelf wordt niet bewaard.
   'thema.keuze': 'poeder', // poeder | salie | nacht | auto
   'thema.kaft': 'bes',
   'thema.modus': 'auto',
@@ -95,6 +94,16 @@ export async function migreerKan() {
   }
   // Los van de kan: ook wie de kan al eerder omgezet kreeg (tussen BESLISSING 270 en 274), krijgt de dagdoelstap één keer (BESLISSING 428).
   await migreerDagdoel();
+}
+
+// Het weerbericht (0.4.8 tot 0.5.6) is weer weg: het weer dat een toestel daarvoor bewaarde, gaat mee weg. Mislukt het, dan blijft er
+// alleen een rij staan die niemand nog leest.
+export async function ruimWeerOp() {
+  try {
+    await db.instellingen.delete('weer.laatste');
+  } catch {
+    /* niets te wissen */
+  }
 }
 
 // BESLISSING 274 en 428: het standaard dagdoel is 2,5 liter. Een bewaard dagdoel van precies de oude standaard (2000) wordt één keer per

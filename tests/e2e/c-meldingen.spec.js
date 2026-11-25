@@ -247,11 +247,10 @@ test.describe('zonder push-dienst', () => {
     expect(Math.max(...kaarten.map((k) => k.gat)), 'een opgevoegd leeg vlak van 90 px wordt gemeten').toBeGreaterThan(32);
   });
 
-  test('de CSP staat connect-src alleen op de eigen oorsprong, de weerdienst en de dienst voor de plaatsnaam toe', async ({ page }) => {
+  test('de CSP staat connect-src alleen op de eigen oorsprong toe', async ({ page }) => {
     await page.goto('./');
     const csp = await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content');
-    // Zonder meldingsdienst in de testbouw: alleen de eigen oorsprong, en de weerdienst en de dienst voor de plaatsnaam (niet in de demo).
-    expect(csp.split('; ').find((regel) => regel.startsWith('connect-src'))).toMatch(/^connect-src 'self'( https:\/\/api\.open-meteo\.com https:\/\/nominatim\.openstreetmap\.org)?$/);
+    expect(csp.split('; ')).toContain("connect-src 'self'");
   });
 });
 

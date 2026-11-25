@@ -71,7 +71,6 @@ export const ICOON = {
   verslag: { naam: 'file-lines', familie: 'delen', stijl: 'solid' },
   periode: { naam: 'calendar-days', familie: 'delen', stijl: 'solid' },
   uitleg: { naam: 'circle-info', familie: 'neutraal', stijl: 'solid' }, // "Goed om te weten" en Over
-  weer: { naam: 'cloud-sun', familie: 'neutraal', stijl: 'solid' }, // de regel over het weer bij Privacy
   herinneringen: { naam: 'bell', familie: 'neutraal', stijl: 'solid' }, // het scherm Herinneringen, zijn rijen en weetjes; gevuld en neutraal, zoals vergrendeling en uitleg
   bewaren: { naam: 'floppy-disk', familie: 'neutraal', stijl: 'solid' }, // actie zonder tegel: de knop "Pdf bewaren" op het scherm Delen
   foto: { naam: 'camera', familie: 'neutraal', stijl: 'solid' },

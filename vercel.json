@@ -15,7 +15,7 @@
         { "key": "Referrer-Policy", "value": "no-referrer" },
         {
           "key": "Permissions-Policy",
-          "value": "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(self), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), screen-wake-lock=(), usb=(), bluetooth=(), hid=(), serial=(), idle-detection=(), browsing-topics=(), xr-spatial-tracking=(), publickey-credentials-create=(self), publickey-credentials-get=(self), web-share=(self)"
+          "value": "accelerometer=(), autoplay=(), camera=(), display-capture=(), encrypted-media=(), fullscreen=(), geolocation=(), gyroscope=(), magnetometer=(), microphone=(), midi=(), payment=(), picture-in-picture=(), screen-wake-lock=(), usb=(), bluetooth=(), hid=(), serial=(), idle-detection=(), browsing-topics=(), xr-spatial-tracking=(), publickey-credentials-create=(self), publickey-credentials-get=(self), web-share=(self)"
         },
         { "key": "Strict-Transport-Security", "value": "max-age=63072000; includeSubDomains" },
         { "key": "Cross-Origin-Opener-Policy", "value": "same-origin" },

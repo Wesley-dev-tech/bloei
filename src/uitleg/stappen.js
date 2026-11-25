@@ -48,8 +48,6 @@ export const STAPPEN = {
     // Alleen op een telefoon: daar staat Algemeen niet in de balk onderaan, maar achter dit tandwiel. Vanaf 720 px staat het weer
     // gewoon in het menu en slaat de rondleiding deze stap vanzelf over (de knop staat er niet).
     { id: 'instellingen', doel: '.begroeting__instellingen' },
-    // Het weerbericht onder de datum: alleen als er weer is (zonder locatie of netwerk is het verborgen en valt de stap weg).
-    { id: 'weer', doel: '.weerbericht:not([hidden])' },
     { id: 'dag', doel: '.voortgang' },
     { id: 'badges', doel: '[data-uitleg="badges"]' },
     { id: 'week', doel: '[data-uitleg="week"]' },

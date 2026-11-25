@@ -35,7 +35,7 @@ import './stijl/telefoon.css'; // onder 720 px: "Goed om te weten" onderaan en g
 const IS_DEMO = import.meta.env.VITE_DEMO === 'true';
 import { openDb } from './data/db.js';
 import { startBadges } from './data/badges.js';
-import { leesInstelling, migreerKan } from './data/instellingen.js';
+import { leesInstelling, migreerKan, ruimWeerOp } from './data/instellingen.js';
 import { herstelVangnet } from './data/vangnet.js';
 import { startKanaal } from './data/kanaal.js';
 import { pasThemaToe } from './thema/thema.js';
@@ -71,6 +71,7 @@ async function start() {
   // demo: een nieuw bezoek zet Sofie en haar voorbeeldgegevens terug (BESLISSING 674, demo/bezoek.js), vóór de badges starten (die worden dan stil toegekend)
   if (IS_DEMO) await (await import('./demo/start.js')).startBezoek();
   await migreerKan(); // BESLISSING 270: water is een kan van 800 ml; een oude standaard van 250 gaat één keer mee
+  await ruimWeerOp(); // het weerbericht is weg (0.5.7): ook het weer dat nog bewaard stond
   await herstelVangnet(); // R5-03: tekst die vlak voor herladen of afsluiten getypt was, en wist het vangnet meteen
   startKanaal(); // R5-01: wat een ander tabblad bewaart, verschijnt ook hier
   // Voor het blad "Nieuw in Bloei": kende dit toestel al een versie van na 24 november? De warme zin bewaart sinds 0.4.7 bij elke opening

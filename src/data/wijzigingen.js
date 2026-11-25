@@ -8,6 +8,15 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.5.7',
+    datum: '2026-11-25',
+    tijd: '16:32',
+    punten: [
+      { begrip: 'algemeen', tekst: 'Het weerbericht op Vandaag en de zinnen over het weer zijn weg. Vandaag is weer zoals voordien.' },
+      { begrip: 'vergrendeling', tekst: 'Je locatie verlaat het toestel niet meer. Bloei vraagt er ook niet meer naar.' },
+    ],
+  },
+  {
     versie: '0.5.6',
     datum: '2026-11-25',
     tijd: '16:28',

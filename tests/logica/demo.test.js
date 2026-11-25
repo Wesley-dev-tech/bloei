@@ -294,9 +294,7 @@ describe('de bouw per versie (vite.config.js)', () => {
       p.configResolved({ env });
       return p.transformIndexHtml.handler(html).match(/connect-src [^;]*/)[0];
     };
-    // De echte app verbindt met de meldingsdienst, de weerdienst (Open-Meteo) en de dienst voor de plaatsnaam (Nominatim van OpenStreetMap); de demo met geen ervan.
-    expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com' })).toBe("connect-src 'self' https://dienst.example.com https://api.open-meteo.com https://nominatim.openstreetmap.org");
-    expect(meta({})).toBe("connect-src 'self' https://api.open-meteo.com https://nominatim.openstreetmap.org");
+    expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com' })).toBe("connect-src 'self' https://dienst.example.com");
     expect(meta({ VITE_PUSH_URL: 'https://dienst.example.com', VITE_DEMO: 'true' })).toBe("connect-src 'self'");
   });
 

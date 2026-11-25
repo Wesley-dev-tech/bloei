@@ -40,8 +40,6 @@ import { totaalMl, leesDranken } from '../data/dranken.js';
 import { leesReeks, dagStatus, leesWeekoverzicht, leesMaand, leesMomentopname, dagenSindsVorigeUit } from '../data/statistiek.js';
 import { leesVerleden } from '../data/verleden.js';
 import { noteerMoment, openingVoor, reactieVoor } from '../data/motivatiestand.js';
-import { weerNu } from '../data/weer.js';
-import { weerbericht } from '../ui/weerbericht.js';
 import { telMomenten } from '../logica/supplementen.js';
 import { feestdagOp, isJarig, leeftijdOp, seizoenOp } from '../logica/kalender.js';
 
@@ -88,7 +86,7 @@ export function toon(houder) {
   const staat = { stemmingStandaard: undefined, animeer: true, klaar: null, zin: null, getoondDatum: null, getoondDeel: null };
   const stopViering = luister('doel:gehaald', () => (viering = true));
 
-  const opruim = beheerScherm(houder, async (beheer) => {
+  const opruim = beheerScherm(houder, async () => {
     const datum = vandaag();
     const schrijfDag = dagBinder(datum);
     // Het dagdeel van deze tekening (R2-01, BESLISSING 411): is er invoer bezig, dan blijft dat van de vorige tekening staan, op dezelfde dag; een nieuwe dag gaat meteen door.
@@ -127,12 +125,6 @@ export function toon(houder) {
     // Cormorant cursief, het beeldmerk als rustig merkelement en de datum eronder.
     // Zonder naam: alleen het woord van het moment, zonder komma en zonder aanspreking.
     const voornaam = voornaamVan(naam);
-    // Het weer op de plaats waar ze is (data/weer.js): wat er al is, zonder op het netwerk te wachten. Mislukt het, dan is er geen weer.
-    // Het weerbericht is live: data/weer.js ververst zolang de app open is en meldt elk nieuw weer met 'weer:gewijzigd'. Het bericht past
-    // zich dan ter plaatse aan; de warme zin blijft staan tot de volgende opening.
-    const { weer, groep: weerGroep } = await weerNu(datum).catch(() => ({ weer: null, groep: null }));
-    const bericht = weerbericht(weer);
-    beheer.opruim(luister('weer:gewijzigd', ({ weer: nieuw } = {}) => bericht.teken(nieuw)));
     const groet = groetVoor(t('begroeting.' + deel, { naam: '\u0001' }).split('\u0001')[0], voornaam);
     const begroeting = h(
       'header',
@@ -143,13 +135,7 @@ export function toon(houder) {
         'div',
         { class: 'begroeting__tekst' },
         h('h1', { class: 't-hero begroeting__titel' }, h('span', { class: 'begroeting__groet' }, groet), ...(voornaam ? [' ', h('span', { class: 'begroeting__naam' }, voornaam)] : [])),
-        // Onder de begroeting: de datum en eronder het weerbericht.
-        h(
-          'div',
-          { class: 'begroeting__onder' },
-          h('p', { class: 'label begroeting__datum' }, opmaakDatum(datum, 'lang', new Date(0))), // referentie 1970: het jaar staat er altijd bij
-          bericht.el,
-        ),
+        h('p', { class: 'label begroeting__datum' }, opmaakDatum(datum, 'lang', new Date(0))), // referentie 1970: het jaar staat er altijd bij
       ),
       // De knop Delen (naar het verslag voor bv. de diëtiste) staat alleen als het icoon bestaat; op een telefoon alleen het icoon.
       ICOONNAMEN.some((n) => n.endsWith('/arrow-up-from-bracket'))
@@ -580,8 +566,6 @@ export function toon(houder) {
       reactie: reactieVoor(datum, tel),
       opening: opening.nummer,
       gehad: opening.gehad,
-      // Binnen één opening blijft de weersoort voor de zin vast zodra ze er is: zo verspringt de zin niet bij elke hertekening.
-      weer: (opening.weer ??= weerGroep),
       verleden,
       kalender: { jarig: isJarig(geboortedatum, datum), leeftijd: leeftijdOp(geboortedatum, datum), feestdag: feestdagOp(datum), seizoen: seizoenOp(datum), uur: new Date().getHours() },
     });
