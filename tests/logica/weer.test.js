@@ -1,6 +1,6 @@
 // Het weer van nu (logica/weer.js): wat het toestel verlaat, hoe het antwoord gelezen wordt en welke zinnen erbij horen. Pure functies.
 import { describe, expect, test } from 'vitest';
-import { spelingKm, GOED_M, RUW_M, besteMeting, isGoedeMeting, isRuweMeting, PLAATS2_ORIGIN, PLAATS_ORIGIN, leesPlaats2, plaatsAdres2, WEERGROEPEN, WEERICONEN, WEERNAMEN, WEER_ORIGIN, isVerplaatst, leesAntwoord, leesPlaats, plaatsAdres, graad, voorbeeldWeer, weerAdres, weerBeeld, weerSoort } from '../../src/logica/weer.js';
+import { soortAntwoord, spelingKm, GOED_M, RUW_M, besteMeting, isGoedeMeting, isRuweMeting, PLAATS_ORIGIN,  WEERGROEPEN, WEERICONEN, WEERNAMEN, WEER_ORIGIN, isVerplaatst, leesAntwoord, leesPlaats, plaatsAdres, graad, voorbeeldWeer, weerAdres, weerBeeld, weerSoort } from '../../src/logica/weer.js';
 import { GROEPEN } from '../../src/logica/motivatie.js';
 import { TEKSTEN } from '../../src/teksten.js';
 import { existsSync } from 'node:fs';
@@ -36,58 +36,36 @@ describe('wat er naar de weerdienst gaat', () => {
 });
 
 describe('de naam van de gemeente', () => {
-  test('de vraag bevat alleen de plaats, niet afgerond, en de taal', () => {
-    const adres = plaatsAdres(50.846722, 4.352528);
-    const url = new URL(adres);
+  test('de vraag bevat alleen de plaats, niet afgerond, en de taal; het antwoord geeft de gemeente', () => {
+    const url = new URL(plaatsAdres(50.846722, 4.352528));
     expect(url.origin).toBe(PLAATS_ORIGIN);
-    expect(url.origin + url.pathname).toBe('https://api.bigdatacloud.net/data/reverse-geocode-client');
-    expect(Object.fromEntries(url.searchParams)).toEqual({ latitude: '50.846722', longitude: '4.352528', localityLanguage: 'nl' });
-    for (const [b, l] of [[undefined, 5], [51, null], [NaN, 5], [91, 5], [51, 181]]) expect(plaatsAdres(b, l), `${b},${l}`).toBeNull();
-  });
-
-  test('het weer krijgt dezelfde plaats als de gemeente: het is het weer van de plek waar ze echt is', () => {
-    const weer = new URL(weerAdres(50.846722, 4.352528)).searchParams;
-    const plaats = new URL(plaatsAdres(50.846722, 4.352528)).searchParams;
-    expect([weer.get('latitude'), weer.get('longitude')]).toEqual([plaats.get('latitude'), plaats.get('longitude')]);
-  });
-
-  test('uit het antwoord: eerst de gemeente (city), anders het kleinste benoemde gebied (locality)', () => {
-    expect(leesPlaats({ city: 'Balen', locality: 'Olmen' })).toBe('Balen');
-    expect(leesPlaats({ city: '', locality: 'Olmen' })).toBe('Olmen');
-    expect(leesPlaats({ city: '  Heist-op-den-Berg ' })).toBe('Heist-op-den-Berg');
-    expect(leesPlaats({ locality: "'s-Hertogenbosch" })).toBe("'s-Hertogenbosch");
-    // Zonder city en locality: de gemeente uit de bestuurlijke gebieden (niveau 8), niet de provincie of het land.
-    const bestuur = { localityInfo: { administrative: [{ name: 'België', adminLevel: 2 }, { name: 'Antwerpen', adminLevel: 6 }, { name: 'Balen', adminLevel: 8 }] } };
-    expect(leesPlaats({ city: '', locality: '', ...bestuur })).toBe('Balen');
-    expect(leesPlaats({ city: 'Mol', ...bestuur })).toBe('Mol');
-    expect(leesPlaats({ localityInfo: { administrative: 'geen lijst' } })).toBeNull();
-    expect(leesPlaats({ localityInfo: { administrative: [{ name: 'Antwerpen', adminLevel: 6 }] } })).toBeNull();
-  });
-
-  test('iets anders dan een gewone naam geeft null, nooit een fout', () => {
-    for (const fout of [null, undefined, {}, { city: 42 }, { city: '', locality: '' }, { city: 'x' }, { city: '<b>Balen</b>' }, { city: 'a'.repeat(60) }, { city: 'Ba\u0007len' }, 'tekst', 7]) expect(leesPlaats(fout)).toBeNull();
-  });
-
-  test('OpenStreetMap krijgt dezelfde plaats, niet afgerond, en geeft de gemeente, de stad of het dorp', () => {
-    const url = new URL(plaatsAdres2(50.846722, 4.352528));
-    expect(url.origin).toBe(PLAATS2_ORIGIN);
     expect(url.origin + url.pathname).toBe('https://nominatim.openstreetmap.org/reverse');
     expect(Object.fromEntries(url.searchParams)).toEqual({ format: 'jsonv2', lat: '50.846722', lon: '4.352528', zoom: '10', 'accept-language': 'nl' });
-    for (const [b, l] of [[undefined, 5], [51, null], [NaN, 5], [91, 5], [51, 181]]) expect(plaatsAdres2(b, l), `${b},${l}`).toBeNull();
-    // Het gebied van het antwoord zelf telt: addresstype zegt onder welke sleutel het in het adres staat.
-    expect(leesPlaats2({ name: 'Balen', addresstype: 'town', address: { town: 'Balen', municipality: 'Turnhout', county: 'Antwerpen', state: 'Vlaanderen', country: 'België' } })).toBe('Balen');
-    expect(leesPlaats2({ name: 'Laakdal', addresstype: 'city', address: { city: 'Laakdal', municipality: 'Turnhout' } })).toBe('Laakdal');
-    expect(leesPlaats2({ name: 'Olmen', addresstype: 'village', address: { village: 'Olmen', municipality: 'Turnhout' } })).toBe('Olmen');
-    expect(leesPlaats2({ name: 'Balen', addresstype: 'town', address: {} })).toBe('Balen');
-    // In België staat onder municipality het arrondissement: dat is nooit de gemeente als er een stad, town of dorp staat.
-    expect(leesPlaats2({ address: { town: 'Balen', municipality: 'Turnhout' } })).toBe('Balen');
-    expect(leesPlaats2({ name: 'Brussel-Hoofdstad', address: { city: 'Brussel' } })).toBe('Brussel');
-    expect(leesPlaats2({ name: 'Olmen', address: {} })).toBe('Olmen');
+    for (const [b, l] of [[undefined, 5], [51, null], [NaN, 5], [91, 5], [51, 181]]) expect(plaatsAdres(b, l), `${b},${l}`).toBeNull();
+    // Het weer krijgt dezelfde plaats als de gemeente: het is het weer van de plek waar ze echt is.
+    const weer = new URL(weerAdres(50.846722, 4.352528)).searchParams;
+    expect([weer.get('latitude'), weer.get('longitude')]).toEqual([url.searchParams.get('lat'), url.searchParams.get('lon')]);
+    // Iets anders dan een gewone naam geeft null, nooit een fout.
+    for (const fout of [{ address: { town: 42 } }, { address: { town: 'x' } }, { address: { town: 'a'.repeat(60) } }, { address: { town: 'Ba\u0007len' } }, 'tekst']) expect(leesPlaats(fout)).toBeNull();
+    // De gemeente staat onder municipality; city, town of village is een kleiner deel ervan.
+    expect(leesPlaats({ name: 'Balen', addresstype: 'municipality', address: { municipality: 'Balen', county: 'Turnhout', state: 'Antwerpen', region: 'Vlaanderen', country: 'België' } })).toBe('Balen');
+    expect(leesPlaats({ name: 'Olmen', addresstype: 'village', address: { village: 'Olmen', municipality: 'Balen', county: 'Turnhout' } })).toBe('Balen');
+    expect(leesPlaats({ name: 'Balen', addresstype: 'town', address: { town: 'Balen', county: 'Turnhout' } })).toBe('Balen');
+    expect(leesPlaats({ name: 'Brussel-Hoofdstad', address: { city: 'Brussel' } })).toBe('Brussel');
+    expect(leesPlaats({ name: 'Olmen', address: {} })).toBe('Olmen');
+    expect(leesPlaats({ name: 'Balen', addresstype: 'municipality', address: {} })).toBe('Balen');
     // Een antwoord dat alleen een groter gebied kent (arrondissement, provincie, land): geen naam, liever dan een verkeerde.
-    expect(leesPlaats2({ name: 'Turnhout', addresstype: 'county', address: { county: 'Turnhout', state: 'Antwerpen' } })).toBeNull();
-    expect(leesPlaats2({ name: 'Turnhout', addresstype: 'municipality', address: { municipality: 'Turnhout' } })).toBeNull();
-    expect(leesPlaats2({ name: 'Antwerpen', addresstype: 'state', address: { state: 'Antwerpen' } })).toBeNull();
-    for (const fout of [null, undefined, {}, { address: 'tekst' }, { address: { town: '<b>x</b>' } }, { error: 'Unable to geocode' }, 7]) expect(leesPlaats2(fout)).toBeNull();
+    expect(leesPlaats({ name: 'Turnhout', addresstype: 'county', address: { county: 'Turnhout', state: 'Antwerpen' } })).toBeNull();
+    expect(leesPlaats({ name: 'Antwerpen', addresstype: 'state', address: { state: 'Antwerpen' } })).toBeNull();
+    expect(leesPlaats({ name: 'België', addresstype: 'country', address: { country: 'België' } })).toBeNull();
+    // Bij een antwoord zonder naam: wat voor antwoord het was.
+    expect(soortAntwoord({ addresstype: 'county' })).toBe('county');
+    expect(soortAntwoord({ error: 'Unable to geocode' })).toBe('fout');
+    expect(soortAntwoord({ error: { code: 400, message: 'x' } })).toBe('fout');
+    expect(soortAntwoord({ addresstype: '<b>x</b>' })).toBe('');
+    expect(soortAntwoord({})).toBe('');
+    expect(soortAntwoord(null)).toBe('');
+    for (const fout of [null, undefined, {}, { address: 'tekst' }, { address: { town: '<b>x</b>' } }, { error: 'Unable to geocode' }, 7]) expect(leesPlaats(fout)).toBeNull();
   });
 
   test('opnieuw opzoeken zodra de plek ook maar iets anders is', () => {
@@ -96,13 +74,6 @@ describe('de naam van de gemeente', () => {
     expect(isVerplaatst(vorige, 50.846722, 4.352528)).toBe(false);
     expect(isVerplaatst(vorige, 50.846723, 4.352528)).toBe(true);
     expect(isVerplaatst(vorige, 50.846722, 4.352529)).toBe(true);
-  });
-
-  test('een antwoord dat op het internetadres steunt telt niet als plaats', () => {
-    expect(leesPlaats({ city: 'Brussel', lookupSource: 'coordinates' })).toBe('Brussel');
-    expect(leesPlaats({ city: 'Brussel' })).toBe('Brussel');
-    expect(leesPlaats({ city: 'Brussel', lookupSource: 'ipGeolocation' })).toBeNull();
-    expect(leesPlaats({ city: 'Brussel', lookupSource: 'IP geolocation' })).toBeNull();
   });
 
   test('de fijnste meting telt, en ruw is alleen wat het toestel zelf ruw noemt', () => {

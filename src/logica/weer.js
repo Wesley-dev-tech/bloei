@@ -1,15 +1,11 @@
 // Het weer van nu, voor de warme zin op Vandaag (logica/motivatie.js). Pure functies: geen netwerk, geen locatie (dat doet data/weer.js).
 // De gegevens komen van Open-Meteo (open-meteo.com, CC BY 4.0): gratis voor niet-commercieel gebruik, zonder account en zonder cookies.
 // De naam van de gemeente waar ze is (bv. Balen) komt van Nominatim, de zoekdienst van OpenStreetMap (die kijkt binnen welke
-// gemeentegrens de plek ligt). Antwoordt die niet, dan vraagt Bloei het aan BigDataCloud (gratis, zonder account, alleen rechtstreeks
-// vanaf het toestel).
-// Aan elke dienst stuurt Bloei alleen de plaats, precies zoals het toestel ze geeft: er wordt niets afgerond (sinds 0.5.4; daarvoor op
+// gemeentegrens de plek ligt). Er is geen tweede bron meer (sinds 0.5.6: de reserve, BigDataCloud, antwoordde niet op een echt toestel).
+// Aan beide diensten stuurt Bloei alleen de plaats, precies zoals het toestel ze geeft: er wordt niets afgerond (sinds 0.5.4; daarvoor op
 // ongeveer een kilometer). Zo zijn het weer en de gemeente die van de plek waar ze echt is. Geen naam, geen dagboek, niets anders.
 
 export const WEER_ORIGIN = 'https://api.open-meteo.com';
-
-// ---- De naam van de plaats ----
-export const PLAATS_ORIGIN = 'https://api.bigdatacloud.net';
 
 // Een breedte of lengte zoals ze in een vraag staat: het getal van het toestel, onveranderd. Alleen de schrijfwijze ligt vast (nooit
 // met een exponent, wat een heel klein getal anders krijgt).
@@ -21,15 +17,8 @@ export const graad = (graden) => {
 const geldigePlek = (breedte, lengte) =>
   typeof breedte === 'number' && typeof lengte === 'number' && Number.isFinite(breedte) && Number.isFinite(lengte) && Math.abs(breedte) <= 90 && Math.abs(lengte) <= 180;
 
-// Het adres van de vraag naar de gemeente: alleen de plaats (zoals voor het weer) en de taal van de naam.
-export function plaatsAdres(breedte, lengte) {
-  if (!geldigePlek(breedte, lengte)) return null;
-  return `${PLAATS_ORIGIN}/data/reverse-geocode-client?latitude=${graad(breedte)}&longitude=${graad(lengte)}&localityLanguage=nl`;
-}
-
-// Het antwoord → de naam van de gemeente (city), anders van het kleinste benoemde gebied (locality), anders de gemeente uit de lijst
-// van bestuurlijke gebieden (niveau 8: een gemeente in België en Nederland), of null. Alleen gewone tekst van redelijke lengte: de naam
-// komt van buiten en gaat zo op het scherm (als tekst, nooit als opmaak).
+// De eerste bruikbare naam uit een rij kandidaten, of null. Alleen gewone tekst van redelijke lengte: de naam komt van buiten en gaat
+// zo op het scherm (als tekst, nooit als opmaak).
 const eersteNaam = (kandidaten) => {
   for (const kandidaat of kandidaten) {
     if (typeof kandidaat !== 'string') continue;
@@ -38,37 +27,36 @@ const eersteNaam = (kandidaten) => {
   }
   return null;
 };
-export function leesPlaats(json) {
-  // Deze dienst valt terug op het internetadres als ze de plaats niet aanneemt: dat is een gok van tientallen kilometers. Dan liever niets.
-  if (typeof json?.lookupSource === 'string' && /ip/i.test(json.lookupSource)) return null;
-  const bestuur = Array.isArray(json?.localityInfo?.administrative) ? json.localityInfo.administrative : [];
-  const niveau8 = bestuur.find((g) => g?.adminLevel === 8)?.name;
-  return eersteNaam([json?.city, json?.locality, niveau8]);
-}
-
-// ---- De eerste bron voor de naam van de plaats ----
+// ---- De naam van de plaats ----
 // Nominatim, de zoekdienst van OpenStreetMap (gratis, zonder account; gegevens van de OpenStreetMap-bijdragers, licentie ODbL). Ze zoekt
-// de gemeente op binnen wier grens de plek ligt. Antwoordt ze niet (een netwerk of een toestel dat haar adres tegenhoudt, een storing),
-// dan is BigDataCloud hierboven de reserve.
-export const PLAATS2_ORIGIN = 'https://nominatim.openstreetmap.org';
+// de gemeente op binnen wier grens de plek ligt. Het adres van de vraag bevat alleen de plaats (zoals voor het weer) en de taal.
+export const PLAATS_ORIGIN = 'https://nominatim.openstreetmap.org';
 
 // zoom=10 vraagt het gebied op het niveau van een stad of gemeente.
-export function plaatsAdres2(breedte, lengte) {
+export function plaatsAdres(breedte, lengte) {
   if (!geldigePlek(breedte, lengte)) return null;
-  return `${PLAATS2_ORIGIN}/reverse?format=jsonv2&lat=${graad(breedte)}&lon=${graad(lengte)}&zoom=10&accept-language=nl`;
+  return `${PLAATS_ORIGIN}/reverse?format=jsonv2&lat=${graad(breedte)}&lon=${graad(lengte)}&zoom=10&accept-language=nl`;
 }
 
 // Het antwoord van Nominatim → de naam van de gemeente, stad, het dorp, of van het gevonden gebied zelf; anders null.
-// Het antwoord is het gebied op het niveau van een stad of gemeente waar de plek in ligt. addresstype zegt onder welke sleutel dat gebied
-// zelf in het adres staat (city, town, village): die naam telt. Is het antwoord een groter gebied (een arrondissement, een provincie),
-// dan kent de dienst de gemeente hier niet en komt er geen naam: liever geen dan een verkeerde.
-// De sleutel municipality telt niet: in België staat daar het arrondissement (Turnhout), niet de gemeente (Balen).
-const GEMEENTESOORTEN = ['city', 'town', 'village'];
-export function leesPlaats2(json) {
+// Het antwoord is het gebied op het niveau van een stad of gemeente waar de plek in ligt, met zijn adres. In België en Nederland
+// staat de gemeente onder municipality (Balen), en onder city, town of village een kleiner deel ervan (Olmen): de gemeente telt eerst.
+// (0.5.5 liet municipality vallen in de veronderstelling dat daar het arrondissement stond; op een echt toestel kwam er dan geen naam.)
+// Is het antwoord zelf een groter gebied (addresstype county, state ...: arrondissement, provincie, land), dan kent de dienst de
+// gemeente hier niet en komt er geen naam: liever geen dan een verkeerde.
+const TE_GROOT = ['county', 'state_district', 'state', 'province', 'region', 'country', 'continent'];
+export function leesPlaats(json) {
   const a = json?.address && typeof json.address === 'object' ? json.address : {};
-  const soort = json?.addresstype;
-  if (typeof soort === 'string') return GEMEENTESOORTEN.includes(soort) ? eersteNaam([a[soort], json?.name]) : null;
-  return eersteNaam([a.city, a.town, a.village, json?.name]);
+  if (TE_GROOT.includes(json?.addresstype)) return null;
+  return eersteNaam([a.municipality, a.city, a.town, a.village, json?.name]);
+}
+
+// Wat voor antwoord er kwam als er geen naam uit te halen was, voor de regel "Plaats niet gevonden": het soort gebied, of dat de dienst
+// zelf een fout meldde. Alleen kleine letters en een streepje: het komt van buiten en gaat zo op het scherm.
+export function soortAntwoord(json) {
+  if (typeof json?.error === 'string' || (json?.error && typeof json.error === 'object')) return 'fout';
+  const soort = typeof json?.addresstype === 'string' ? json.addresstype.toLowerCase() : '';
+  return /^[a-z_]{2,20}$/.test(soort) ? soort : '';
 }
 
 // Is de plek anders dan bij de vorige vraag? Dan wordt de gemeente opnieuw opgezocht. Alleen exact dezelfde plek geeft zeker dezelfde

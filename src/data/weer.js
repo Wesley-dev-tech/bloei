@@ -1,7 +1,7 @@
 // Het weer op de plaats waar ze is, voor het weerbericht en de warme zin op Vandaag (logica/weer.js, logica/motivatie.js).
 // Altijd aan, zonder schakelaar en zonder vraag van Bloei zelf. Het toestel vraagt wel één keer toestemming voor de locatie; zegt ze nee,
 // dan komt er gewoon geen zin over het weer. Wat er het toestel verlaat: alleen de plaats, precies zoals het toestel ze geeft (niets
-// wordt afgerond). Voor het weer naar Open-Meteo, voor de naam van de gemeente naar OpenStreetMap (Nominatim) en, als die niet antwoordt, naar BigDataCloud.
+// wordt afgerond). Voor het weer naar Open-Meteo, voor de naam van de gemeente naar OpenStreetMap (Nominatim).
 // Geen naam, geen dagboek, geen cookie.
 // Bewaard wordt alleen het weer van daarnet met de naam van de gemeente (instelling 'weer.laatste'); de coördinaten zelf nooit.
 //
@@ -25,9 +25,8 @@ import {
   isVerplaatst,
   leesAntwoord,
   leesPlaats,
-  leesPlaats2,
   plaatsAdres,
-  plaatsAdres2,
+  soortAntwoord,
   voorbeeldWeer,
   weerAdres,
   weerSoort,
@@ -75,32 +74,29 @@ const metTijd = (ms) => (typeof AbortSignal?.timeout === 'function' ? { ...VRAAG
 // De naam van de gemeente op deze plek: { naam } of { stand } (waarom er geen naam is, voor de regel "Plaats niet gevonden").
 async function zoekGemeente(breedte, lengte) {
   if (!isVerplaatst(gemeente, breedte, lengte)) return { naam: gemeente.naam };
-  const stand = [];
-  const vraagBron = async (bron, adres, leesNaam, opties) => {
-    try {
-      const antwoord = await fetch(adres, opties);
-      if (!antwoord.ok) return void stand.push(`${bron} ${antwoord.status}`);
-      const gevonden = leesNaam(await antwoord.json());
-      if (!gevonden) stand.push(`${bron} leeg`);
-      return gevonden;
-    } catch (fout) {
-      // Een geblokkeerd adres, geen netwerk of te traag: de browser zegt niet welk van de drie.
-      stand.push(`${bron} ${fout?.name === 'TimeoutError' || fout?.name === 'AbortError' ? 'traag' : 'geen antwoord'}`);
-      return undefined;
-    }
-  };
-  // Eerst OpenStreetMap (A): die zoekt binnen welke gemeentegrens de plek ligt. Ze wil weten welke app het vraagt: het adres van de app
-  // als herkomst, niets over de gebruiker. Geeft ze geen naam, dan de reserve (B).
-  // Volgen twee metingen elkaar binnen de seconde op, dan wacht de tweede vraag aan OpenStreetMap tot die seconde om is.
+  // Volgen twee metingen elkaar binnen de seconde op, dan wacht de tweede vraag tot die seconde om is (de dienst vraagt hoogstens één
+  // vraag per seconde).
   const wacht = osmVrij - Date.now();
   osmVrij = Math.max(osmVrij, Date.now()) + 1100;
   if (wacht > 0) await new Promise((verder) => setTimeout(verder, wacht));
-  const naam =
-    (await vraagBron('A', plaatsAdres2(breedte, lengte), leesPlaats2, { ...metTijd(4000), referrerPolicy: 'origin' })) ||
-    (await vraagBron('B', plaatsAdres(breedte, lengte), leesPlaats, metTijd(4000))) ||
-    null;
+  // OpenStreetMap zoekt binnen welke gemeentegrens de plek ligt. Ze wil weten welke app het vraagt: het adres van de app als herkomst,
+  // niets over de gebruiker. stand: waarom er geen naam is (bv. "geen antwoord", "403", "leeg county").
+  let naam = null;
+  let stand = '';
+  try {
+    const antwoord = await fetch(plaatsAdres(breedte, lengte), { ...metTijd(4000), referrerPolicy: 'origin' });
+    if (antwoord.ok) {
+      const json = await antwoord.json();
+      naam = leesPlaats(json);
+      // Een antwoord zonder bruikbare naam: erbij wat voor antwoord het was, zodat de regel zegt wat er misloopt.
+      if (!naam) stand = `leeg ${soortAntwoord(json)}`.trim();
+    } else stand = String(antwoord.status);
+  } catch (fout) {
+    // Een geblokkeerd adres, geen netwerk of te traag: de browser zegt niet welk van de drie.
+    stand = fout?.name === 'TimeoutError' || fout?.name === 'AbortError' ? 'traag' : 'geen antwoord';
+  }
   gemeente = naam ? { b: breedte, l: lengte, naam } : null;
-  return naam ? { naam } : { stand: stand.join(', ') };
+  return naam ? { naam } : { stand };
 }
 
 // Het weer (en de gemeente) voor één meting ophalen en tonen. hoe zegt wat er met de gemeente gebeurt:
@@ -117,7 +113,7 @@ async function haal(meting, { hoe, pas }) {
   if (!antwoord.ok) return;
   const weer = leesAntwoord(await antwoord.json());
   if (!weer || !pas()) return;
-  // Zonder naam gaat de reden mee (plaatsStand, bv. "A geen antwoord, B 403").
+  // Zonder naam gaat de reden mee (plaatsStand, bv. "geen antwoord" of "leeg county").
   let naam = {};
   if (plek?.naam) naam = { plaats: plek.naam };
   else if (plek?.stand) naam = { plaatsStand: plek.stand };
