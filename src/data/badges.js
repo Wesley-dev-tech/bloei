@@ -5,12 +5,13 @@ import { luister, zend } from '../kern/bus.js';
 import { eigenBijgehoudenDatums, leesMomentopname, leesStats } from './statistiek.js';
 import { isIngevuld } from './maaltijden.js';
 import { leesInstelling, zetInstelling, STANDAARD } from './instellingen.js';
-import { DOEL, verdiendAlle, langsteReeks, langsteWeekReeks, terugDagen, dagRondDagen, rondeDagenUit, volleMaandenUit, volleWekenUit } from '../logica/badgeregels.js';
+import { DOEL, FEESTBADGES, HERHAALBAAR, verdiendAlle, langsteReeks, langsteWeekReeks, terugDagen, dagRondDagen, rondeDagenUit, volleMaandenUit, volleWekenUit } from '../logica/badgeregels.js';
 import { isDagRond, ETEN_KLAAR } from '../logica/motivatie.js';
 import { isPeriodiek, rooster, telMomenten } from '../logica/supplementen.js';
 import { isStandalone } from '../kern/toestel.js';
 import { OPSLAG_VOORVOEGSEL } from '../kern/demo.js';
 import { eersteDatums } from '../logica/badgehistorie.js';
+import { feestdagOp, geldigeVerjaardag, isJarig } from '../logica/kalender.js';
 import { isBijgehouden } from '../logica/bijgehouden.js';
 import { naarSleutel, vandaag } from '../kern/datum.js';
 
@@ -25,7 +26,7 @@ let bezig = Promise.resolve();
 export async function leesBadgeStats(rijen) {
   const r = rijen ?? (await leesMomentopname());
   // Via leesInstelling, zoals de rest van de app: zonder bewaarde rij geldt het standaard dagdoel (R1-01).
-  const [basis, favorieten, doelMlRuw, verslag, bijgehouden, verslagenRuw, rondleidingenRuw, thema, kaft, naam, avatar, slotAan, mDagboek, mDrinken, mSupplementen, medailles] = await Promise.all([
+  const [basis, favorieten, doelMlRuw, verslag, bijgehouden, verslagenRuw, rondleidingenRuw, thema, kaft, naam, avatar, slotAan, mDagboek, mDrinken, mSupplementen, medailles, geboortedatum, gevierd, jarigJaren] = await Promise.all([
     leesStats(r),
     db.favorieten.count(),
     leesInstelling('drinken.dagdoelMl'),
@@ -42,6 +43,9 @@ export async function leesBadgeStats(rijen) {
     leesInstelling('meldingen.drinken'),
     leesInstelling('meldingen.supplementenUren'),
     db.badges.count(),
+    leesInstelling('profiel.verjaardag'),
+    leesInstelling('profiel.verjaardagGevierd'),
+    leesInstelling('profiel.verjaardagJaren'),
   ]);
   const maaltijden = r.maaltijden.filter((m) => isEigen(m) && isIngevuld(m));
   const dranken = r.dranken.filter(isEigen);
@@ -90,6 +94,12 @@ export async function leesBadgeStats(rijen) {
     opBeginscherm: isStandalone() ? 1 : 0,
     eigenProfiel: String(naam ?? '').trim() !== '' && JSON.stringify(avatar) !== JSON.stringify(STANDAARD['profiel.avatar']) ? 1 : 0,
     medailles,
+    // De verjaardag (logica/kalender.js): ingevuld, Bloei geopend op die dag, en iets genoteerd op die dag.
+    geboortedatum: geldigeVerjaardag(geboortedatum) ? 1 : 0,
+    jarigGeopend: Math.max(Array.isArray(jarigJaren) ? jarigJaren.length : 0, gevierd ? 1 : 0), // elk jaar opnieuw
+    jarigGenoteerd: bijgehouden.filter((datum) => isJarig(geboortedatum, datum)).length,
+    // De feestdagen: per feestdag op hoeveel van die dagen ze iets noteerde ('feest:nieuwjaar', 'feest:kerst', ...).
+    ...Object.fromEntries(Object.keys(FEESTBADGES).map((feest) => ['feest:' + feest, bijgehouden.filter((datum) => feestdagOp(datum) === feest).length])),
     maaltijden: maaltijden.length,
     favorieten,
     energieDagen: dagen.filter((d) => d.energie != null).length,
@@ -183,9 +193,11 @@ export function controleerBadges() {
     const hoogste = Number(await leesInstelling('teller.hoogste')) || 0;
     if (stats.dagenBijgehouden > hoogste && epoch === huidigeEpoch()) await zetInstelling('teller.hoogste', stats.dagenBijgehouden);
     const nieuw = [];
+    const opnieuw = []; // een medaille van een feestdag of van haar verjaardag, dit jaar opnieuw behaald
     // Bij de eerste start na een uitbreiding worden de nieuwe badges voor wat al in het dagboek staat stil toegekend: geen reeks vieringen,
-    // hoogstens één rustige melding. De vlaggen 'badges.uitgebreid' (naar 33) en 'badges.uitgebreid2' (naar 100) onthouden dat dit gebeurd is.
-    const vlaggen = await Promise.all(['badges.uitgebreid', 'badges.uitgebreid2'].map((sleutel) => db.instellingen.get(sleutel)));
+    // hoogstens één rustige melding. De vlaggen 'badges.uitgebreid' (naar 33), 'badges.uitgebreid2' (naar 100) en 'badges.uitgebreid3' (de feestdagen) onthouden dat
+    // dit gebeurd is.
+    const vlaggen = await Promise.all(['badges.uitgebreid', 'badges.uitgebreid2', 'badges.uitgebreid3'].map((sleutel) => db.instellingen.get(sleutel)));
     const stil = vlaggen.some((rij) => !rij?.waarde);
     // Stil toegekende medailles horen bij de dag waarop ze echt verdiend werden (logica/badgehistorie.js), niet bij de dag van de update.
     let historie = new Map();
@@ -211,8 +223,19 @@ export function controleerBadges() {
         for (const id of verdiendAlle({ ...stats, medailles: await db.badges.count() })) {
           // Het schrift is intussen leeggemaakt of vervangen: niets bewaren.
           if (epoch !== huidigeEpoch()) return;
-          if (await db.badges.get(id)) continue;
-          await db.badges.add({ id, behaaldOp: moment(id), gezien: stil });
+          const rij = await db.badges.get(id);
+          // Hoe vaak ze een herhaalbare medaille al verdiende: op hoeveel van die feestdagen (of verjaardagen) het klopte.
+          const keer = HERHAALBAAR.has(id) ? Math.max(1, Math.floor(Number(stats[DOEL[id][0]]) || 1)) : null;
+          if (rij) {
+            // Al behaald. Een herhaalbare medaille behaal je elk jaar opnieuw: de teller loopt mee, de datum wordt die van vandaag en ze
+            // wordt opnieuw gevierd. Stil (na een uitbreiding) komt alleen de teller bij.
+            if (keer != null && keer > (rij.keer ?? 1)) {
+              await db.badges.put({ ...rij, keer, behaaldOp: stil ? rij.behaaldOp : Date.now(), gezien: stil ? rij.gezien : false });
+              if (!stil && !opnieuw.includes(id)) opnieuw.push(id);
+            }
+            continue;
+          }
+          await db.badges.add({ id, behaaldOp: moment(id), gezien: stil, ...(keer != null ? { keer } : {}) });
           nieuw.push(id);
           erbij += 1;
         }
@@ -231,6 +254,7 @@ export function controleerBadges() {
       if (stil && epoch === huidigeEpoch()) {
         await db.instellingen.put({ sleutel: 'badges.uitgebreid', waarde: true });
         await db.instellingen.put({ sleutel: 'badges.uitgebreid2', waarde: true });
+        await db.instellingen.put({ sleutel: 'badges.uitgebreid3', waarde: true });
       }
     });
     // De viering volgt pas als het bewaren gelukt is.
@@ -238,6 +262,7 @@ export function controleerBadges() {
       if (nieuw.length) zend('badges:stil', { aantal: nieuw.length });
     } else {
       for (const id of nieuw) zend('badge:behaald', { id });
+      for (const id of opnieuw) zend('badge:behaald', { id, opnieuw: true });
     }
     return nieuw;
   });
@@ -280,7 +305,7 @@ export function startBadges() {
   });
   // Een thema, een herinnering, het slot of het profiel: de medailles van Bloei leren kennen.
   const stopInstelling = luister('instelling:gewijzigd', ({ sleutel } = {}) => {
-    if (/^(thema\.|meldingen\.|slot\.aan$|profiel\.)/.test(String(sleutel ?? ''))) plan();
+    if (/^(thema\.|meldingen\.|slot\.aan$|profiel\.)/.test(String(sleutel ?? ''))) plan(); // (ook profiel.verjaardag en profiel.verjaardagGevierd)
   });
   afmelden = () => {
     stopData();

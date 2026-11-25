@@ -1025,6 +1025,12 @@ a.week__link { min-height: 48px; justify-content: center; }
 .medaille.is-behaald .medaille__schijf { background: var(--mk); }
 .medaille.is-behaald .medaille__icoon { color: var(--c-surface); }
 .medaille.is-behaald .medaille__binnen { border-color: color-mix(in srgb, var(--c-surface) 55%, transparent); }
+/* De ultieme medaille (In volle bloei: alle andere behaald) is, eenmaal behaald, van goud: een gouden schijf met een lichtere glans linksboven
+   en gouden lintjes. Nog niet behaald ziet ze eruit als elke andere. De kleuren zijn die van de vrolijkste stemming (--mood-4 en --mood-5). */
+:is(#scherm, body > dialog, body > .blad) .medaille.medaille--ultiem.is-behaald, .medaille.medaille--ultiem.is-behaald { --mk: var(--mood-4); }
+.medaille.medaille--ultiem.is-behaald .medaille__schijf { background: radial-gradient(circle at 30% 24%, #f6dc8c 0%, #d9a93a 46%, #a97720 100%); }
+.medaille.medaille--ultiem.is-behaald .medaille__icoon { color: #fffaf0; }
+.medaille.medaille--ultiem.is-behaald .medaille__binnen { border-color: color-mix(in srgb, #fff 60%, transparent); }
 
 /* De zin volgt de breedte van de kaart, zoals op een telefoon: zo blijft de motivator even hoog voor alle zinnen (BESLISSING 142). */
 @container motiv (max-width: 420px) { .voortgang .voortgang__zin, .vandaag__rij1 > .voortgang .voortgang__zin { font-size: var(--fs-h2); } }
@@ -1604,3 +1610,33 @@ a.week__link { min-height: 48px; justify-content: center; }
   .favorietenlijst > .favorietvoorbeeld__chip { display: block; line-height: var(--tap-min); overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
   .favorietenlijst > .chip span { min-width: 0; overflow: hidden; white-space: nowrap; text-overflow: ellipsis; }
 }
+
+/* ---- De geboortedatum (ui/verjaardag.js): drie keuzelijsten naast elkaar */
+.verjaardag { display: flex; gap: var(--s-2); align-items: center; justify-content: flex-end; flex-wrap: wrap; min-width: 0; }
+.verjaardag__lijst { font: inherit; color: var(--c-text); background: var(--c-surface); border: var(--lijn); border-radius: 12px; min-height: 44px; padding: 0 var(--s-2); min-width: 0; max-width: 100%; }
+.verjaardag__lijst:focus-visible { outline: 2px solid var(--c-accent); outline-offset: 2px; }
+.rij:has(> .verjaardag), .rij:has(.verjaardag) { flex-wrap: wrap; }
+.welkom__stap--geboorte .verjaardag { justify-content: center; flex-wrap: nowrap; }
+
+/* ---- De feesten (ui/feest.js): confetti, ballonnen en een slinger op haar verjaardag, vuurwerk bij de jaarwissel. De enige plekken in
+   Bloei waar het uitbundig mag; zonder geluid, en met "Verminder beweging" alleen de kaart. De animatie zelf wordt op één doek getekend
+   (canvas), zodat ze op elke telefoon vlot loopt; beide feesten spelen boven de app, met dezelfde zachte sluier. Die sluier is in elk
+   thema donker (in Nacht dus donkerder, niet lichter), zodat de kleuren van de animatie overal afsteken. */
+.feest { border: 0; padding: var(--s-4); background: transparent; max-width: min(92vw, 420px); width: 100%; overflow: visible; }
+.feest::backdrop { background: color-mix(in srgb, var(--c-text) 45%, transparent); }
+[data-theme="nacht"] .feest::backdrop, [data-theme="nacht"] .geboortevraag::backdrop { background: color-mix(in srgb, black 58%, transparent); }
+.feest__kaart { display: grid; gap: var(--s-3); justify-items: center; text-align: center; padding: var(--s-6) var(--s-5); position: relative; z-index: 2; }
+.feest--beweegt .feest__kaart { animation: feest-plop 700ms cubic-bezier(.2, 1.5, .4, 1) 250ms both; }
+.feest__titel, .feest__tekst { margin: 0; }
+.feest__medaille { display: grid; place-items: center; margin-top: calc(var(--s-6) * -2.2); } /* de gouden medaille steekt boven de kaart uit */
+.feest__lucht { position: fixed; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 1; }
+@keyframes feest-plop { 0% { transform: scale(.2) rotate(-8deg); opacity: 0; } 60% { transform: scale(1.08) rotate(2deg); opacity: 1; } 100% { transform: scale(1) rotate(0); opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .feest__lucht { display: none; } }
+
+/* De vraag naar de geboortedatum, één keer na de update voor wie Bloei al gebruikt (ui/verjaardag.js). */
+.geboortevraag { border: 0; padding: var(--s-4); background: transparent; max-width: min(92vw, 420px); width: 100%; }
+.geboortevraag::backdrop { background: color-mix(in srgb, var(--c-text) 45%, transparent); }
+.geboortevraag__kaart { display: grid; gap: var(--s-3); justify-items: center; text-align: center; padding: var(--s-6) var(--s-5); }
+.geboortevraag__kaart > * { margin: 0; }
+.geboortevraag .verjaardag { justify-content: center; flex-wrap: nowrap; }
+.geboortevraag__knoppen { display: grid; gap: var(--s-2); width: 100%; }

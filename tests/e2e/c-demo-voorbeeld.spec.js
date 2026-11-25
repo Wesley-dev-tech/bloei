@@ -67,7 +67,7 @@ test.describe('het welkomscherm als voorbeeld', { tag: '@demo' }, () => {
     const r = kaart.locator('.demo-voorbeeld__rij');
     await expect(r).toHaveCount(1);
     await expect(r.locator('.rij__titel')).toHaveText('Zo begint een nieuwe gebruiker');
-    await expect(r.locator('.rij__sub')).toHaveText('Vier stappen, er wordt niets bewaard.');
+    await expect(r.locator('.rij__sub')).toHaveText('Vijf stappen, er wordt niets bewaard.');
     // de titel en de uitleg staan er volledig (niet afgekapt) op elke breedte vanaf 320; onder 390 staat de knop onder de tekst (BESLISSING 711,
     // voor alle rijen met een knop: tests/e2e/x-rondleiding-rijen-smal.spec.js), vanaf 390 ernaast.
     for (const breed of [320, 340, 360, 375, 390, 445]) {

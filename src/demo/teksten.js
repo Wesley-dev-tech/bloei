@@ -20,7 +20,7 @@ export const DEMO_TEKSTEN = {
   // BESLISSING 675: onder Rondleiding een rij die het welkomscherm als voorbeeld toont; er wordt niets bewaard.
   voorbeeldTitel: 'Zo begint een nieuwe gebruiker',
   // Kort: op een telefoon staat de knop ernaast en de uitleg mag hoogstens drie regels zijn (de langere zin werd afgekapt).
-  voorbeeldTekst: 'Vier stappen, er wordt niets bewaard.',
+  voorbeeldTekst: 'Vijf stappen, er wordt niets bewaard.',
   voorbeeldKnop: 'Toon het me',
   voorbeeldKnopLabel: 'Toon het me: zo begint een nieuwe gebruiker',
   // De balk tijdens het voorbeeld: wat dit is en de weg terug. De korte zin staat er onder 560 px.

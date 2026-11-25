@@ -108,14 +108,17 @@ const REGELS = [
   ['tien-medailles', 'medailles', 10],
   ['vijfentwintig-medailles', 'medailles', 25],
   ['vijftig-medailles', 'medailles', 50],
-  ['verzameling-compleet', 'medailles', 99],
+  ['verzameling-compleet', 'medailles', 120],
+  ['geboortedatum', 'geboortedatum', 1],
+  ['jarig', 'jarigGeopend', 1],
+  ['jarig-genoteerd', 'jarigGenoteerd', 1],
 ];
 
 describe('badgeregels (puur)', () => {
   test('alle badges hebben een unieke sleutel, een groep, een naam, een uitleg en een voortgang', () => {
     const ids = ALLE_BADGES.map((b) => b.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toHaveLength(100);
+    expect(ids).toHaveLength(121);
     expect(ids).not.toContain('veilig');
     for (const b of ALLE_BADGES) {
       expect(GROEPEN, b.id).toContain(b.groep);
@@ -174,10 +177,10 @@ describe('badgeregels (puur)', () => {
   });
 
   test('telBadges: behaald is nooit groter dan het totaal; een oude bewaarde rij "veilig" telt niet mee', () => {
-    expect(telBadges([])).toEqual({ behaald: 0, totaal: 100 });
-    expect(telBadges(['veilig', 'week-vol'])).toEqual({ behaald: 1, totaal: 100 });
+    expect(telBadges([])).toEqual({ behaald: 0, totaal: 121 });
+    expect(telBadges(['veilig', 'week-vol'])).toEqual({ behaald: 1, totaal: 121 });
     const alle = ALLE_BADGES.map((b) => b.id);
-    expect(telBadges(alle)).toEqual({ behaald: 100, totaal: 100 });
+    expect(telBadges(alle)).toEqual({ behaald: 121, totaal: 121 });
     expect(telBadges(['onbekend']).behaald).toBe(0);
   });
 

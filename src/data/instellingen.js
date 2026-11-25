@@ -7,6 +7,11 @@ export const STANDAARD = {
   'start.klaar': false,
   'profiel.naam': '', // geen standaardnaam: het welkomscherm vraagt ze (BESLISSING 287); zonder naam valt elk scherm terug op niets (logica/naam.js)
   'profiel.avatar': { soort: 'figuur', nr: 1 },
+  'profiel.verjaardag': null, // haar geboortedatum { dag, maand, jaar }, of null: ze hoeft dit niet in te vullen (logica/kalender.js)
+  'profiel.verjaardagGevraagd': false, // de vraag naar de geboortedatum is gesteld (welkomscherm, of één keer na de update)
+  'feest.nieuwjaarGevierd': null, // het jaar waarvan Bloei de jaarwissel al vierde (ui/feest.js)
+  'profiel.verjaardagJaren': [], // elk jaar waarin Bloei haar verjaardag vierde: de medaille Jarig in Bloei behaal je elk jaar opnieuw
+  'profiel.verjaardagGevierd': null, // het jaar waarin Bloei haar verjaardag al vierde (ui/verjaardag.js)
   'thema.keuze': 'poeder', // poeder | salie | nacht | auto
   'thema.kaft': 'bes',
   'thema.modus': 'auto',

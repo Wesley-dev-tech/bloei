@@ -8,6 +8,23 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.4.5',
+    datum: '2026-11-25',
+    tijd: '08:50',
+    punten: [
+      { begrip: 'profiel', tekst: 'Bloei vraagt één keer naar je geboortedatum. Het hoeft niet, en later kan het nog onder Algemeen, Naam en foto.' },
+      { begrip: 'profiel', tekst: 'Op je verjaardag is het feest bij het openen, met confetti, ballonnen en een slinger, en krijg je de hele dag je eigen zinnen.' },
+      { begrip: 'algemeen', tekst: 'Bij de jaarwissel is er vuurwerk: precies om middernacht als Bloei openstaat, anders op 1 januari.' },
+      { begrip: 'algemeen', tekst: 'De warme zin kent nu de Belgische feestdagen, de seizoenen en het uur van de dag.' },
+      { begrip: 'algemeen', tekst: 'Elke warme zin is korter en past nu op twee regels.' },
+      { begrip: 'algemeen', tekst: 'Drie nieuwe medailles rond je verjaardag, in de groep Je verjaardag.' },
+      { begrip: 'badge', tekst: 'Voor elke feestdag is er een medaille: noteer iets op die dag. Die medailles en die van je verjaardag behaal je elk jaar opnieuw.' },
+      { begrip: 'badge', tekst: 'Elke medaille heeft nu haar eigen icoon. Zo zien je behaalde medailles er niet meer allemaal hetzelfde uit.' },
+      { begrip: 'badge', tekst: 'De ultieme medaille heet In volle bloei: je krijgt ze als je alle andere behaalde, met een eigen feest.' },
+      { begrip: 'vergrendeling', tekst: 'Je geboortedatum blijft op je toestel. Dat staat nu ook bij Privacy en in de rondleidingen.' },
+    ],
+  },
+  {
     versie: '0.4.4',
     datum: '2026-11-24',
     tijd: '21:27',

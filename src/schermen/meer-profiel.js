@@ -3,6 +3,8 @@
 // (400 ms na de laatste toets, bij verlaten) en de begroeting op Vandaag volgt meteen. De foto komt uit de camera of de fotorol; zonder foto de initiaal.
 import { haakUitleg } from '../ui/uitleghaken.js';
 import { h } from '../ui/dom.js';
+import { verjaardagKiezer } from '../ui/verjaardag.js';
+import { vierAlsHetZoverIs } from '../ui/feest.js';
 import { ICOON, begripOpties } from '../ui/iconenkaart.js';
 import { kaart, kaartkop, knop, rij, tekstveld, strook, schermkop, beeldmerk, icoontegel } from '../ui/componenten.js';
 import { dagdeel, opmaakDatum, vandaag } from '../kern/datum.js';
@@ -22,7 +24,7 @@ export function toon(houder) {
   const naamBewaarder = uitgesteldBewaren((naam) => zetInstelling('profiel.naam', naam.trim()));
 
   const opruimScherm = beheerScherm(houder, async (ctx) => {
-    const [naam, avatar] = await Promise.all([leesInstelling('profiel.naam'), leesInstelling('profiel.avatar')]);
+    const [naam, avatar, verjaardag] = await Promise.all([leesInstelling('profiel.naam'), leesInstelling('profiel.avatar'), leesInstelling('profiel.verjaardag')]);
     const heeftFoto = avatar?.soort === 'foto' && avatar.fotoId != null;
     const url = heeftFoto ? await ctx.foto(avatar.fotoId, 'klein') : null;
 
@@ -130,6 +132,19 @@ export function toon(houder) {
       kaartkop({ tegel: begripOpties('profiel'), label: t('profiel.titel') }),
       rij({ tegel: begripOpties('profiel'), titel: t('profiel.naam'), tekst: t('profiel.naamUitleg'), eind: h('div', { class: 'profiel__naam' }, veld) }),
       rij({ tegel: profielfoto({ url, naam: naam || '', grootte: 40 }), titel: t('profiel.foto'), tekst: t('profiel.fotoUitleg'), eind: fotoKnoppen }),
+      // De geboortedatum: dag, maand en jaar, en ze mag leeg blijven. Is het vandaag, dan viert Bloei meteen (ui/verjaardag.js).
+      rij({
+        tegel: begripOpties('periode'),
+        titel: t('profiel.verjaardag'),
+        tekst: t('profiel.verjaardagUitleg'),
+        eind: verjaardagKiezer({
+          waarde: verjaardag,
+          opWijzig: async (waarde) => {
+            await zetInstelling('profiel.verjaardag', waarde);
+            if (waarde) vierAlsHetZoverIs();
+          },
+        }),
+      }),
     );
     if (opent) komOp([lijst, voorbeeld.firstElementChild], { stap: 90 });
 

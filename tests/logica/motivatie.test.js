@@ -351,6 +351,40 @@ describe('kiesWeekMotivatie', () => {
   });
 });
 
+describe('kiesMotivatie: de kalender (logica/kalender.js)', () => {
+  const kal = (kalender, extra = {}) => kiesMotivatie({ ...leeg, ...extra, kalender }).groep;
+  test('haar verjaardag gaat bij het openen voor alles; daarna een feestdag', () => {
+    expect(kal({ jarig: true })).toBe('verjaardag');
+    for (let d = 1; d <= 28; d++) expect(kiesZin({ ...leeg, datum: `2026-05-${String(d).padStart(2, '0')}`, kalender: { jarig: true } })).not.toMatch(/verjaardag\.[78]$/); // zonder leeftijd geen zin die ze noemt
+    expect(kiesMotivatie({ ...leeg, kalender: { jarig: true, leeftijd: 36 } }).waarden).toEqual({ leeftijd: 36 });
+    expect(kal({ jarig: true, feestdag: 'kerst' }, { maaltijden: 1, lopendeReeks: 7 })).toBe('verjaardag');
+    expect(kal({ feestdag: 'kerst' }, { maaltijden: 1, lopendeReeks: 7 })).toBe('kerst');
+    expect(kal({ feestdag: 'onbekend' })).toBe('begin');
+    // bij het eerste wat ze die dag noteert, komt de mijlpaal toch aan bod
+    expect(kal({ feestdag: 'kerst' }, { maaltijden: 1, lopendeReeks: 7, reactie: reactie('maaltijd', { iets: true }) })).toBe('reeks');
+  });
+  test('op haar verjaardag wisselt de reactie af met een zin over haar dag', () => {
+    const groepen = [1, 2, 3, 4].map((teller) => kiesMotivatie({ ...leeg, maaltijden: 3, reactie: { soort: 'maaltijd', nieuw: {}, teller }, kalender: { jarig: true } }).groep);
+    expect(groepen).toEqual(['maaltijd', 'verjaardagBezig', 'maaltijd', 'verjaardagBezig']);
+  });
+  test('het seizoen: de dag waarop het begint, en daarna af en toe', () => {
+    expect(kiesMotivatie({ ...leeg, kalender: { seizoen: { naam: 'winter', start: true } } }).sleutel).toMatch(/^motivatie\.winter\.[12]$/);
+    const gezien = new Set();
+    for (let d = 2; d <= 28; d++) gezien.add(kiesMotivatie({ ...leeg, maaltijden: 1, datum: `2026-07-${String(d).padStart(2, '0')}`, kalender: { seizoen: { naam: 'zomer', start: false } } }).sleutel.replace(/\.\d+$/, ''));
+    expect([...gezien].sort()).toEqual(['motivatie.onderweg', 'motivatie.zomer']);
+    for (let d = 2; d <= 28; d++) expect(kiesMotivatie({ ...leeg, datum: `2026-07-${String(d).padStart(2, '0')}`, kalender: { seizoen: { naam: 'zomer', start: false } } }).sleutel).not.toMatch(/zomer\.[12]$/);
+  });
+  test('na middernacht en het uur van de dag bij een reactie', () => {
+    expect(kal({ uur: 2 })).toBe('nacht');
+    expect(kal({ uur: 9 })).toBe('begin');
+    const avond = new Set([1, 2, 3, 4].map((teller) => kiesMotivatie({ ...leeg, dagdeel: 'avond', maaltijden: 3, reactie: { soort: 'maaltijd', nieuw: {}, teller } }).groep));
+    expect([...avond].sort()).toEqual(['maaltijd', 'maaltijdAvond']);
+    const middag = new Set([1, 2, 3, 4].map((teller) => kiesMotivatie({ ...leeg, dagdeel: 'middag', supplementen: { genomen: 2, totaal: 4 }, reactie: { soort: 'inname', nieuw: {}, teller } }).groep));
+    expect([...middag]).toEqual(['supplementEerste']); // er is geen groep voor een vinkje in de middag
+    expect(kiesMotivatie({ ...leeg, dagdeel: 'avond', stemming: 1, reactie: reactie('stemming') }).groep).toBe('stemmingLaag'); // moe: altijd de zachte zin
+  });
+});
+
 describe('isDagRond (gedeeld met de badges dag-rond en zeven-dagen-rond)', () => {
   test('geeft precies dagRond voor de zin als de dag rond is', () => {
     const basis = { ...leeg, maaltijden: 3, etenKlaar: true, ml: 2000, supplementen: { genomen: 1, totaal: 1 } };
@@ -376,7 +410,7 @@ describe('elke keuze geeft een volledige zin', () => {
     const soorten = ['maaltijd', 'gevoel', 'drank', 'periodiek', 'inname', 'stemming', 'energie', 'notitie', 'weging', 'favoriet', 'verslag', 'vorigeDag', 'aangepast', 'eigen', 'herinnering', 'slot', 'dagdoel', 'supplementLijst', 'rondleiding'];
     const ids = ALLE_BADGES.map((b) => b.id);
     const gezien = new Set();
-    for (let i = 0; i < 6000; i++) {
+    for (let i = 0; i < 30000; i++) {
       const totaalSupp = r(4);
       const status = {
         dagdeel: kies(['ochtend', 'middag', 'avond', null]), maaltijden: r(7), etenKlaar: r(2) === 1, ml: r(10) * 250, doelMl: kies([0, 1500, 2000]),
@@ -384,6 +418,7 @@ describe('elke keuze geeft een volledige zin', () => {
         lopendeReeks: kies([0, 1, 2, 3, 7, 9, 14, 150]), dagenBijgehouden: kies([0, 1, 10, 50, 77]), dagenSindsVorige: kies([null, 1, 2, 5, 20]),
         datum: `2026-${String(1 + r(12)).padStart(2, '0')}-${String(1 + r(28)).padStart(2, '0')}`, drankenAantal: r(5),
         iets: kies([undefined, true, false]),
+        kalender: r(3) === 0 ? undefined : { jarig: r(12) === 0, leeftijd: kies([null, 36]), feestdag: r(6) === 0 ? kies(['nieuwjaar', 'valentijn', 'pasen', 'paasmaandag', 'arbeid', 'hemelvaart', 'pinksteren', 'pinkstermaandag', 'feestdag', 'olv', 'halloween', 'allerheiligen', 'wapenstilstand', 'sinterklaas', 'kerstavond', 'kerst', 'tweedeKerstdag', 'oudjaar']) : null, seizoen: { naam: kies(['lente', 'zomer', 'herfst', 'winter']), start: r(10) === 0 }, uur: r(24) },
         reactie: r(3) === 0 ? null : { soort: kies(soorten), teller: 1 + r(9), nieuw: { iets: r(4) === 0, rond: r(4) === 0, eten: r(3) === 0, supp: r(3) === 0, doel: r(3) === 0, moment: r(3) === 0, stap: r(2) === 0, badges: r(5) === 0 ? [kies(ids)] : [], eersteStemming: r(2) === 0, eersteNotitie: r(2) === 0, eersteWeging: r(2) === 0, mlVoor: r(4) * 250 } },
         verleden: r(4) === 0 ? undefined : {
           eersteDatum: kies(['2026-01-15', '2025-06-01', null]), besteEerdereReeks: kies([0, 2, 8]), rondReeks: r(4), gisterenRond: r(3) === 0, gisterenDoel: r(3) === 0, gisterenMl: r(8) * 250,
@@ -408,5 +443,45 @@ describe('elke keuze geeft een volledige zin', () => {
     const nooit = Object.keys(GROEPEN).filter((g) => !g.startsWith('m-') && g !== 'eersteDag' && !gezien.has(g));
     expect(nooit).toEqual([]);
     for (const m of Object.keys(MIJLPALEN)) expect(MIJLPALEN[m].length).toBeGreaterThan(2);
+  });
+});
+
+// De naam in een zin, op de feestkaart en in de begroeting is altijd de naam uit het profiel van de gebruiker: nergens in de teksten staat
+// een vaste voornaam, ook niet die van de demo.
+describe('de naam is altijd die van de gebruiker', () => {
+  test('in geen enkele tekst van de app staat een vaste voornaam', () => {
+    const alles = JSON.stringify(TEKSTEN);
+    for (const naam of ['Caroline', 'Sofie']) expect(alles.includes(naam)).toBe(false);
+  });
+  test('elke zin met een naam toont de naam die meegegeven wordt, en zonder naam blijft er niets van over', () => {
+    let metNaam = 0;
+    for (const [groep, zinnen] of Object.entries(TEKSTEN.motivatie)) {
+      for (const [nr, zin] of Object.entries(zinnen)) {
+        if (!zin.includes('{naam}')) continue;
+        metNaam++;
+        const keuze = { groep, sleutel: `motivatie.${groep}.${nr}`, waarden: { aantal: 3, leeftijd: 36 } };
+        expect(motivatieZin(keuze, 'Noor').includes('Noor')).toBe(true);
+        expect(motivatieZin(keuze, 'Amira Peeters').includes('Amira')).toBe(true);
+        expect(motivatieZin(keuze, '').includes('{naam}')).toBe(false);
+      }
+    }
+    expect(metNaam).toBeGreaterThan(100);
+  });
+});
+
+// Elke zin past op twee regels. Dat is in de app gemeten op een telefoon van 375 px breed met een voornaam van acht letters, voor alle
+// zinnen. Hier bewaakt een grens in letters dat er geen lange zin meer bijkomt: met de naam, de langste medaille en de langste periode
+// ingevuld hoogstens 86 tekens (de langste zin die op twee regels past).
+describe('elke zin past op twee regels', () => {
+  test('geen zin is langer dan 86 tekens, met een naam van acht letters en de langste invulling', () => {
+    const langsteMedaille = Object.values(TEKSTEN.badge.namen).sort((a, b) => b.length - a.length)[0];
+    const lang = [];
+    for (const [groep, zinnen] of Object.entries(TEKSTEN.motivatie)) {
+      for (const [nr, zin] of Object.entries(zinnen)) {
+        const vol = zin.replaceAll('{naam}', 'Caroline').replaceAll('{badge}', langsteMedaille).replaceAll('{aantal}', '365').replaceAll('{periode}', 'drie maanden').replaceAll('{leeftijd}', '36');
+        if (vol.length > 86) lang.push(`${groep}.${nr} (${vol.length})`);
+      }
+    }
+    expect(lang).toEqual([]);
   });
 });

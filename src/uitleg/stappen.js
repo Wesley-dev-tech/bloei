@@ -444,9 +444,10 @@ export const STUKKEN = {
   // De rondleidingen van de instelschermen en de kaart Thema (BESLISSINGEN 579, 627 en 645): per deel van een kaart de tekst over wat erin staat.
   'meer/profiel.kaart': {
     stukken: [
-      { bij: '.instellingen__profiel > .kaartkop', eigen: true, titel: 'Naam en profielfoto', tekst: 'In deze kaart stel je je naam en je profielfoto in.' },
+      { bij: '.instellingen__profiel > .kaartkop', eigen: true, titel: 'Naam en profielfoto', tekst: 'In deze kaart stel je je naam, je profielfoto en je geboortedatum in.' },
       { bij: '.instellingen__profiel .rij:has(.profiel__naam)', titel: 'Je naam', tekst: 'Typ hier je voornaam. Bloei begroet je ermee op Vandaag en zet hem op je verslag. Je naam wordt vanzelf bewaard.' },
       { bij: '.instellingen__profiel .rij:has(.profiel__knoppen)', titel: 'Je profielfoto', tekst: 'Met Foto kiezen kies je een foto op je toestel. Staat er een foto, dan haal je ze weg met Foto weghalen en zie je weer je initiaal.' },
+      { bij: '.instellingen__profiel .rij:has(.verjaardag)', titel: 'Je geboortedatum', tekst: 'Kies de dag, de maand en het jaar waarop je geboren bent. Op je verjaardag viert Bloei dan met je mee.' },
     ],
   },
   'meer/profiel.voorbeeld': {
@@ -585,7 +586,7 @@ export const STUKKEN = {
   },
   'meer.profiel': {
     stukken: [
-      { bij: '.meer__profiel .meer__profielrij', titel: 'Je profiel', tekst: 'Tik op je profiel om je naam en foto aan te passen.' },
+      { bij: '.meer__profiel .meer__profielrij', titel: 'Je profiel', tekst: 'Tik op je profiel om je naam, je foto en je geboortedatum aan te passen.' },
       { bij: '.meer__profiel .meer__stats', titel: 'Je cijfers', tekst: 'Eronder zie je hoeveel dagen je bijhield, hoeveel dagen op rij en hoeveel badges je behaalde.' },
     ],
   },

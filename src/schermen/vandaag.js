@@ -41,6 +41,7 @@ import { leesReeks, dagStatus, leesWeekoverzicht, leesMaand, leesMomentopname, d
 import { leesVerleden } from '../data/verleden.js';
 import { reactieVoor } from '../data/motivatiestand.js';
 import { telMomenten } from '../logica/supplementen.js';
+import { feestdagOp, isJarig, leeftijdOp, seizoenOp } from '../logica/kalender.js';
 
 const GEZICHTEN = STEMMING_STAP;
 
@@ -548,6 +549,7 @@ export function toon(houder) {
       badges: bewaardeBadges.map((b) => b.id),
       volgende: verleden.badges.volgende ? { id: verleden.badges.volgende.id, aantal: verleden.badges.volgende.aantal } : null,
     };
+    const geboortedatum = await leesInstelling('profiel.verjaardag');
     const zin = motivatieZin(
       kiesMotivatie({
         dagdeel: deel,
@@ -562,6 +564,7 @@ export function toon(houder) {
         iets: status.bijgehouden,
         reactie: reactieVoor(datum, tel),
         verleden,
+        kalender: { jarig: isJarig(geboortedatum, datum), leeftijd: leeftijdOp(geboortedatum, datum), feestdag: feestdagOp(datum), seizoen: seizoenOp(datum), uur: new Date().getHours() },
       }),
       voornaam,
     );

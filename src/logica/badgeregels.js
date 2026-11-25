@@ -7,7 +7,34 @@ import { ETEN_KLAAR, isDagRond } from './motivatie.js';
 import { rooster, telMomenten } from './supplementen.js';
 
 // De groepen op het badgescherm, in volgorde. De sleutel hoort bij badge.groepen.<sleutel> in teksten.js.
-export const GROEPEN = ['bijhouden', 'eten', 'drinken', 'supplementen', 'stemming', 'gewicht', 'dag', 'delen', 'kennen', 'verzameling'];
+export const GROEPEN = ['bijhouden', 'eten', 'drinken', 'supplementen', 'stemming', 'gewicht', 'dag', 'delen', 'kennen', 'verzameling', 'verjaardag', 'feestdagen'];
+
+// Voor elke feestdag een medaille (ook de niet-wettelijke): iets noteren op die dag. De sleutel is de groep van de dag in logica/kalender.js
+// (feestdagOp), de waarde het id van de medaille. De teller in de stats heet 'feest:' + groep (data/badges.js en logica/badgehistorie.js).
+export const FEESTBADGES = {
+  nieuwjaar: 'feest-nieuwjaar',
+  valentijn: 'feest-valentijn',
+  pasen: 'feest-pasen',
+  paasmaandag: 'feest-paasmaandag',
+  arbeid: 'feest-arbeid',
+  hemelvaart: 'feest-hemelvaart',
+  pinksteren: 'feest-pinksteren',
+  pinkstermaandag: 'feest-pinkstermaandag',
+  feestdag: 'feest-nationaal',
+  olv: 'feest-olv',
+  halloween: 'feest-halloween',
+  allerheiligen: 'feest-allerheiligen',
+  wapenstilstand: 'feest-wapenstilstand',
+  sinterklaas: 'feest-sinterklaas',
+  kerstavond: 'feest-kerstavond',
+  kerst: 'feest-kerst',
+  tweedeKerstdag: 'feest-tweede-kerstdag',
+  oudjaar: 'feest-oudjaar',
+};
+
+// Deze medailles behaal je elk jaar opnieuw: die van elke feestdag en de twee van je verjaardag zelf. Alle andere behaal je één keer.
+// Op de bewaarde rij telt 'keer' mee hoe vaak (data/badges.js); de medaille blijft behaald en toont het aantal keer.
+export const HERHAALBAAR = new Set(['jarig', 'jarig-genoteerd', ...Object.values(FEESTBADGES)]);
 
 // De nieuwe badges. stats komt uit leesBadgeStats() (data/badges.js): de oude stats plus de velden hieronder.
 export const NIEUWE_BADGES = [
@@ -113,7 +140,11 @@ export const DREMPELS = [
   ['tien-medailles', 'verzameling', 'medailles', 10, 'medailles'],
   ['vijfentwintig-medailles', 'verzameling', 'medailles', 25, 'medailles'],
   ['vijftig-medailles', 'verzameling', 'medailles', 50, 'medailles'],
-  ['verzameling-compleet', 'verzameling', 'medailles', 99, 'medailles'],
+  ['verzameling-compleet', 'verzameling', 'medailles', 120, 'medailles'], // alle andere
+  ['geboortedatum', 'verjaardag', 'geboortedatum', 1, 'keer'],
+  ['jarig', 'verjaardag', 'jarigGeopend', 1, 'keer'],
+  ['jarig-genoteerd', 'verjaardag', 'jarigGenoteerd', 1, 'keer'],
+  ...Object.entries(FEESTBADGES).map(([feest, id]) => [id, 'feestdagen', 'feest:' + feest, 1, 'keer']),
 ];
 for (const [id, groep, teller, drempel] of DREMPELS) NIEUWE_BADGES.push({ id, groep, voorwaarde: (s) => (s[teller] ?? 0) >= drempel });
 

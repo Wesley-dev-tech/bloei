@@ -126,7 +126,8 @@ describe('teksten van de vierde stap', () => {
   const w = TEKSTEN.welkom;
   it('de teller rekent met het aantal stappen, en geen tekst zegt nog drie', () => {
     expect(w.stapVan).toBe('Stap {nr} van {totaal}');
-    expect(w.intro).toMatch(/^Vier korte vragen/);
+    expect(w.intro).toMatch(/^Vijf korte vragen/); // sinds 0.4.5: de geboortedatum is een eigen stap
+    expect(w.introKort).toMatch(/^Vier korte vragen/); // zonder de stap van de vergrendeling
     expect(JSON.stringify(w)).not.toMatch(/\bdrie\b|van 3/i);
   });
   it('de stap heeft haar eigen teksten en hergebruikt de eerlijke regels', () => {

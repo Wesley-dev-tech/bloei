@@ -82,7 +82,7 @@ For the screen tests `tests/globaal-opstart.js` first prepares a saved state in 
 
 ## Privacy
 
-All diary data lives on the device, in IndexedDB, and never leaves it. Only when reminders are switched on does something go to the reminder service: the push address with the keys of that device, and the chosen times. Nothing from the diary goes to that service. There is no backup: if the app is removed, the browser data is cleared or the device is lost, the data is gone. A report or a supplement list is only shared when the user does so, as a file.
+All diary data lives on the device, in IndexedDB, and never leaves it. The same goes for the optional date of birth: it is only used on the device, to celebrate the user's birthday, and can be cleared at any time. Only when reminders are switched on does something go to the reminder service: the push address with the keys of that device, and the chosen times. Nothing from the diary goes to that service. There is no backup: if the app is removed, the browser data is cleared or the device is lost, the data is gone. A report or a supplement list is only shared when the user does so, as a file.
 
 The built pages carry a strict Content-Security-Policy, and the app makes no external requests except to the reminder service. Fonts and icons are bundled locally.
 

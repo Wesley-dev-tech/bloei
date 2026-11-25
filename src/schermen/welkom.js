@@ -8,6 +8,8 @@
 // BESLISSING 675: de demo toont dit scherm ook als voorbeeld (src/demo/voorbeeld.js, toon(houder, { voorbeeld })): dan altijd vier stappen, en er
 // wordt niets bewaard. Klaar roept voorbeeld.opKlaar(), "Vergrendeling instellen" voorbeeld.opSlot(), Escape voorbeeld.opSluit(). Het uitzicht is hetzelfde.
 import { h } from '../ui/dom.js';
+import { verjaardagKiezer } from '../ui/verjaardag.js';
+import { naAndereBladen } from '../ui/feest.js';
 import { kaart, knop, logo, stapper, tekstveld, chips, strook } from '../ui/componenten.js';
 import { t } from '../teksten.js';
 import { opmaakLiter } from '../kern/getal.js';
@@ -20,13 +22,17 @@ import { isAndroid } from '../kern/toestel.js';
 import { bewaarNieuwSlot, codeKiezer, naNieuweCode, slotOptie } from '../vergrendeling/instellen.js';
 import { SLOT_SLEUTELS } from '../vergrendeling/herstel.js';
 
-const SLOT_STAP = 4;
+// De stappen: 1 de naam, 2 de geboortedatum (vrijblijvend), 3 het dagdoel, 4 de weegdag en, als het toestel het kan, 5 de vergrendeling.
+const GEBOORTE_STAP = 2;
+const DOEL_STAP = 3;
+const WEEG_STAP = 4;
+const SLOT_STAP = 5;
 const DAGEN = [1, 2, 3, 4, 5, 6, 7];
 
 export function toon(houder, { voorbeeld = null } = {}) {
   const metSlot = !DEMO || Boolean(voorbeeld);
-  const aantal = metSlot ? 4 : 3;
-  const stand = { naam: '', doel: STANDAARD['drinken.dagdoelMl'], weegdag: STANDAARD['gewicht.weegdag'], slotMethode: 'pin' };
+  const aantal = metSlot ? SLOT_STAP : WEEG_STAP;
+  const stand = { naam: '', verjaardag: null, doel: STANDAARD['drinken.dagdoelMl'], weegdag: STANDAARD['gewicht.weegdag'], slotMethode: 'pin' };
   const overgeslagen = new Set(); // stappen waarvoor de standaard geldt
   let nr = 1;
   let bezig = false;
@@ -56,6 +62,10 @@ export function toon(houder, { voorbeeld = null } = {}) {
     if (nr === 1) meldNaam();
   });
   const naamBlok = h('div', { class: 'welkom__naamveld' }, naamVeld, naamMelding);
+
+  // ---- Stap 2: de geboortedatum (dag, maand en jaar). Vrijblijvend: Verder zonder iets te kiezen of Overslaan bewaart niets, en later
+  // kan het nog bij Algemeen > Naam en foto.
+  const geboorte = verjaardagKiezer({ opWijzig: (waarde) => (stand.verjaardag = waarde) });
 
   // ---- Stap 2: het dagdoel, met dezelfde grenzen en stap als de instelling Drinken
   const doel = stapper({
@@ -134,8 +144,9 @@ export function toon(houder, { voorbeeld = null } = {}) {
     h('div', { class: ['welkom__stap', klasse], 'data-stap': n }, h('h2', { class: 't-h2 welkom__vraag' }, vraag), h('p', { class: 't-klein t-gedempt welkom__hint' }, hint), h('div', { class: 'welkom__bediening' }, bediening));
   const stappen = [
     stapEl(1, t('welkom.stap1'), t('welkom.stap1Hint'), naamBlok),
-    stapEl(2, t('welkom.stap2'), t('welkom.stap2Hint'), doel),
-    stapEl(3, t('welkom.stap3'), t('welkom.stap3Hint'), dagen),
+    stapEl(GEBOORTE_STAP, t('verjaardag.welkomVraag'), t('verjaardag.welkomHint'), geboorte, 'welkom__stap--geboorte'),
+    stapEl(DOEL_STAP, t('welkom.stap2'), t('welkom.stap2Hint'), doel),
+    stapEl(WEEG_STAP, t('welkom.stap3'), t('welkom.stap3Hint'), dagen),
   ];
   // De hint van stap 4 is de eerlijke regel van de kaart Privacy (BESLISSING 334): de pincode houdt meekijkers buiten, de gegevens zelf zijn niet versleuteld.
   if (metSlot) stappen.push(stapEl(SLOT_STAP, t('welkom.stap4'), t('privacy.regel4'), slotBediening, 'welkom__stap--slot'));
@@ -193,7 +204,7 @@ export function toon(houder, { voorbeeld = null } = {}) {
 
   function zetFocus() {
     const doelEl =
-      nr === 1 ? naamVeld : nr === 2 ? doelWaarde : nr === 3 ? dagen.querySelector('.chip.is-actief') || dagen.querySelector('.chip') : gekozenOptie();
+      nr === 1 ? naamVeld : nr === GEBOORTE_STAP ? geboorte.querySelector('select') : nr === DOEL_STAP ? doelWaarde : nr === WEEG_STAP ? dagen.querySelector('.chip.is-actief') || dagen.querySelector('.chip') : gekozenOptie();
     doelEl?.focus({ preventScroll: true });
   }
 
@@ -206,7 +217,7 @@ export function toon(houder, { voorbeeld = null } = {}) {
   function slaOver() {
     if (nr === 1 || inCode) return; // de naam is verplicht
     overgeslagen.add(nr);
-    if (nr === 2) {
+    if (nr === DOEL_STAP) {
       stand.doel = STANDAARD['drinken.dagdoelMl'];
       doel.zetWaarde(stand.doel);
     }
@@ -331,8 +342,10 @@ export function toon(houder, { voorbeeld = null } = {}) {
       }
       const naam = stand.naam.trim();
       if (naam) await zetInstelling('profiel.naam', naam);
-      await zetInstelling('drinken.dagdoelMl', overgeslagen.has(2) ? STANDAARD['drinken.dagdoelMl'] : stand.doel);
-      await zetInstelling('gewicht.weegdag', overgeslagen.has(3) ? STANDAARD['gewicht.weegdag'] : stand.weegdag);
+      if (stand.verjaardag && !overgeslagen.has(GEBOORTE_STAP)) await zetInstelling('profiel.verjaardag', stand.verjaardag);
+      await zetInstelling('profiel.verjaardagGevraagd', true); // de vraag is hier gesteld: het blad voor bestaande gebruikers komt niet meer (ui/verjaardag.js)
+      await zetInstelling('drinken.dagdoelMl', overgeslagen.has(DOEL_STAP) ? STANDAARD['drinken.dagdoelMl'] : stand.doel);
+      await zetInstelling('gewicht.weegdag', overgeslagen.has(WEEG_STAP) ? STANDAARD['gewicht.weegdag'] : stand.weegdag);
       await zetStartKlaar();
     } catch {
       // R2-16: het bewaren mislukte; ze blijft op deze stap met haar keuzes en kan het opnieuw proberen.
@@ -346,6 +359,9 @@ export function toon(houder, { voorbeeld = null } = {}) {
     }
     vraagPermanenteOpslag();
     window.location.hash = '#/vandaag';
+    // Is het vandaag haar verjaardag (of 1 januari), dan viert Bloei dat meteen mee (ui/feest.js). Even wachten tot Vandaag er staat: een
+    // wissel van scherm sluit wat er nog openstaat.
+    setTimeout(() => naAndereBladen(), 1000);
     // De app blijft open (het slot vraagt de code pas bij de volgende keer openen of terugkeren), met de bevestiging van het scherm Vergrendeling.
     if (slotBewaard) strook(t('slot.ingesteld'));
   }
@@ -370,7 +386,7 @@ export function toon(houder, { voorbeeld = null } = {}) {
       h(
         'div',
         { class: 'welkom__kol welkom__kol--links' },
-        h('header', { class: 'welkom__kop' }, logo({ grootte: 34 }), h('h1', { class: 't-h1 welkom__titel', id: 'welkom-titel' }, t('welkom.titel')), h('p', { class: 'welkom__intro' }, t('welkom.intro'))),
+        h('header', { class: 'welkom__kop' }, logo({ grootte: 34 }), h('h1', { class: 't-h1 welkom__titel', id: 'welkom-titel' }, t('welkom.titel')), h('p', { class: 'welkom__intro' }, t(metSlot ? 'welkom.intro' : 'welkom.introKort'))),
         h('div', { class: 'welkom__voortgang' }, h('div', { class: 'welkom__bolletjes', 'aria-hidden': 'true' }, ...bolletjes), stapTekst),
       ),
       h('div', { class: 'welkom__kol welkom__kol--rechts' }, h('div', { class: 'welkom__stappen' }, ...stappen), knoppen),

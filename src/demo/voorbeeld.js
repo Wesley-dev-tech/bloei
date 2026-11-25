@@ -1,6 +1,6 @@
 // Het welkomscherm als voorbeeld (BESLISSING 675). Alleen in de demo geladen (dynamische import in uitleg/scherm.js).
 // Onder Rondleiding staat een rij "Zo begint een nieuwe gebruiker" met "Toon het me". Een tik toont het echte welkomscherm (schermen/welkom.js) met zijn
-// vier stappen, op de plaats van het scherm en zonder navigatie, zoals bij een eerste start. Er wordt niets bewaard: welkom.js roept bij het einde
+// vijf stappen, op de plaats van het scherm en zonder navigatie, zoals bij een eerste start. Er wordt niets bewaard: welkom.js roept bij het einde
 // opKlaar() en bij "Vergrendeling instellen" opSlot() (het kaartje "Dit is de demo"); daarna staat het scherm Rondleiding er weer, met Sofie.
 // De weg terug staat in de demo-balk ("Terug naar de demo"), Escape en de terugknop van de browser doen hetzelfde. Het adres blijft #/meer/uitleg:
 // herladen midden in het voorbeeld toont gewoon Rondleiding. Wisselt het adres (een andere route), dan tekent de app dat scherm en ruimt dit voorbeeld zich op.

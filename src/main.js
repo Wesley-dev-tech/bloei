@@ -49,6 +49,7 @@ import { startMeldingen } from './meldingen/push.js';
 import { installeerVrijstellingen } from './vergrendeling/vrijstelling.js';
 import { volgBediening } from './kern/bediening.js';
 import { toonWatIsNieuwBijStart } from './ui/watisnieuw.js';
+import { startFeest } from './ui/feest.js';
 
 async function start() {
   // BESLISSING 405: wacht er een nieuwe versie, dan neemt die nu over en herlaadt de pagina één keer, vóór er iets getekend wordt.
@@ -81,7 +82,9 @@ async function start() {
   startVieringen();
   registreerSw();
   startMeldingen(); // doet niets zolang er geen push-dienst is ingesteld (BESLISSING 38)
-  toonWatIsNieuwBijStart(); // BESLISSING 701: na een update één keer het blad "Nieuw in Bloei"; niet blokkerend
+  // BESLISSING 701: na een update één keer het blad "Nieuw in Bloei"; niet blokkerend. Daarna de feesten (ui/feest.js): confetti op haar
+  // verjaardag en vuurwerk bij de jaarwissel, pas als er geen ander blad meer openstaat.
+  toonWatIsNieuwBijStart().finally(() => startFeest());
 }
 
 start();

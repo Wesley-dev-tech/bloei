@@ -197,6 +197,63 @@ export const GROEPEN = {
   'm-vijfentwintig-medailles': 2,
   'm-vijftig-medailles': 2,
   'm-verzameling-compleet': 2,
+  'm-geboortedatum': 2,
+  'm-jarig': 2,
+  'm-jarig-genoteerd': 2,
+  'm-feest-nieuwjaar': 2,
+  'm-feest-valentijn': 2,
+  'm-feest-pasen': 2,
+  'm-feest-paasmaandag': 2,
+  'm-feest-arbeid': 2,
+  'm-feest-hemelvaart': 2,
+  'm-feest-pinksteren': 2,
+  'm-feest-pinkstermaandag': 2,
+  'm-feest-nationaal': 2,
+  'm-feest-olv': 2,
+  'm-feest-halloween': 2,
+  'm-feest-allerheiligen': 2,
+  'm-feest-wapenstilstand': 2,
+  'm-feest-sinterklaas': 2,
+  'm-feest-kerstavond': 2,
+  'm-feest-kerst': 2,
+  'm-feest-tweede-kerstdag': 2,
+  'm-feest-oudjaar': 2,
+  // De kalender (logica/kalender.js): een verjaardag, feestdagen, seizoenen en het uur van de dag
+  verjaardag: 8,
+  verjaardagBezig: 4,
+  nieuwjaar: 3,
+  valentijn: 3,
+  pasen: 3,
+  paasmaandag: 3,
+  feestdag: 3,
+  halloween: 3,
+  sinterklaas: 3,
+  kerstavond: 3,
+  kerst: 3,
+  tweedeKerstdag: 3,
+  oudjaar: 3,
+  arbeid: 3,
+  hemelvaart: 3,
+  pinksteren: 3,
+  pinkstermaandag: 3,
+  olv: 3,
+  allerheiligen: 3,
+  wapenstilstand: 3,
+  lente: 6,
+  zomer: 6,
+  herfst: 6,
+  winter: 6,
+  maaltijdOchtend: 3,
+  maaltijdMiddag: 3,
+  maaltijdAvond: 3,
+  drankOchtend: 3,
+  drankMiddag: 3,
+  drankAvond: 3,
+  innameOchtend: 3,
+  innameAvond: 3,
+  stemmingAvond: 3,
+  notitieAvond: 3,
+  nacht: 3,
 };
 
 export const WEEKGROEPEN = {
@@ -229,7 +286,7 @@ const isReeksMijlpaal = (n) => REEKS_MIJLPALEN.includes(n) || (n > 100 && n % 50
 const JUBILEA = [[1, 'maand'], [3, 'kwartaal'], [6, 'halfjaar'], [12, 'jaar'], [24, 'tweejaar']];
 
 // Voorbeelden voor wat er in een zin komt: de tests vullen er elke zin mee in.
-export const VOORBEELD_WAARDEN = { aantal: 7, badge: 'Drie op rij', periode: 'een maand' };
+export const VOORBEELD_WAARDEN = { aantal: 7, badge: 'Drie op rij', periode: 'een maand', leeftijd: 30 };
 
 // Een stabiel getal uit een tekst (som van tekens, geen toeval).
 function getalUit(tekst) {
@@ -335,7 +392,8 @@ export function reactieUit(vorige, nu, gebeurd) {
 // status: { dagdeel, maaltijden, etenKlaar, ml, doelMl, supplementen: { genomen, totaal }, stemming, energie, lopendeReeks, dagenBijgehouden,
 //           dagenSindsVorige: number | null, datum, iets?: boolean, drankenAantal?,
 //           reactie?: { soort, nieuw, teller } | null   wat ze net deed (data/motivatiestand.js),
-//           verleden?: zie data/verleden.js (alles is optioneel: zonder verleden vallen die groepen gewoon weg) }
+//           verleden?: zie data/verleden.js (alles is optioneel: zonder verleden vallen die groepen gewoon weg),
+//           kalender?: { jarig: boolean, leeftijd: number | null, feestdag: groep | null, seizoen: { naam, start } | null, uur: 0..23 } (logica/kalender.js) }
 // iets (optioneel): of er vandaag iets genoteerd staat, zoals dagStatus(datum).bijgehouden dat bepaalt (BESLISSING 168); zonder iets rekent kiesMotivatie het zelf uit.
 // Geeft { groep, sleutel, waarden }.
 export function kiesMotivatie(status) {
@@ -355,6 +413,18 @@ export function kiesMotivatie(status) {
   const heeftSupp = (supplementen?.totaal ?? 0) > 0;
   const K = (groep, waarden = {}, zonder = []) => kies(groep, datum, { waarden, zonder, schuif: reactie?.teller ?? 0 });
   const op = (lijst, aantal) => MIJLPALEN[lijst].includes(aantal);
+  const kal = status?.kalender ?? {};
+  const deelNaam = DAGDEEL_NAAM[dagdeel] ?? null;
+  // Het uur van de dag kleurt een gewone reactie: om de andere keer de zin van het dagdeel (als die groep bestaat), anders de gewone.
+  const metDagdeel = (stam, gewoon) => {
+    const groep = stam + (deelNaam ?? '');
+    return deelNaam && GROEPEN[groep] && (getalUit(datum + stam) + (reactie?.teller ?? 0)) % 2 === 0 ? K(groep) : gewoon();
+  };
+
+  // 0. De kalender, bij het openen van de app: haar verjaardag gaat voor alles, daarna een feestdag.
+  // (de laatste twee zinnen noemen haar leeftijd: alleen als die bekend is)
+  if (!reactie && kal.jarig) return K('verjaardag', kal.leeftijd != null ? { leeftijd: kal.leeftijd } : {}, kal.leeftijd != null ? [] : [7, 8]);
+  if (!reactie && kal.feestdag && GROEPEN[kal.feestdag]) return K(kal.feestdag);
 
   // 1. Het verleden: bij het openen, of als wat ze net deed de dag begon.
   if (iets && (!reactie || n.iets)) {
@@ -394,11 +464,13 @@ export function kiesMotivatie(status) {
       if (doel >= 3 && doel - aantal === 1) return K('badgeBijna', { badge: id });
       if (doel >= 10 && aantal * 2 === doel) return K('badgeHalf', { badge: id });
     }
+    // Op haar verjaardag wisselt de gewone reactie af met een zin over haar dag.
+    if (kal.jarig && reactie.teller % 2 === 0) return K('verjaardagBezig');
     switch (reactie.soort) {
       case 'maaltijd':
         if (op('maaltijden', tot.maaltijden)) return K('maaltijdenTotaal', { aantal: tot.maaltijden });
         if (n.eten) return K('etenKlaar');
-        return maaltijden <= 1 ? K('eersteMaaltijd') : K('maaltijd');
+        return maaltijden <= 1 ? K('eersteMaaltijd') : metDagdeel('maaltijd', () => K('maaltijd'));
       case 'gevoel':
         return K('maaltijdGevoel');
       case 'drank':
@@ -410,7 +482,7 @@ export function kiesMotivatie(status) {
         if (doelMl > 0 && ml >= doelMl * 0.75) return K('drinkenBijna');
         if (doelMl > 0 && ml >= doelMl * 0.5) return K('drinkenHalf');
         if ((v.gisterenMl ?? 0) > 0 && ml > v.gisterenMl && (n.mlVoor ?? 0) <= v.gisterenMl) return K('drinkenMeer');
-        return drankenAantal <= 1 ? K('eersteDrank') : K('drank');
+        return drankenAantal <= 1 ? K('eersteDrank') : metDagdeel('drank', () => K('drank'));
       case 'periodiek':
         return K('periodiek');
       case 'inname':
@@ -421,16 +493,18 @@ export function kiesMotivatie(status) {
         }
         if (n.moment) return K('supplementMoment');
         // De eerste zin zegt "je eerste supplement van vandaag": alleen bij het eerste vinkje.
-        return K('supplementEerste', {}, (supplementen?.genomen ?? 0) > 1 ? [1] : []);
+        if ((supplementen?.genomen ?? 0) <= 1) return K('supplementEerste');
+        return metDagdeel('inname', () => K('supplementEerste', {}, [1]));
       case 'stemming':
         if (n.eersteStemming && op('stemming', tot.stemmingDagen)) return K('stemmingTotaal', { aantal: tot.stemmingDagen });
         if (stemming >= 4 && (v.stemmingReeks ?? 0) >= 3) return K('stemmingReeks', { aantal: v.stemmingReeks });
-        return K(stemming <= 1 ? 'stemmingLaag' : stemming <= 3 ? 'stemmingMidden' : 'stemmingHoog');
+        if (stemming <= 1) return K('stemmingLaag');
+        return metDagdeel('stemming', () => K(stemming <= 3 ? 'stemmingMidden' : 'stemmingHoog'));
       case 'energie':
         return K(energie != null && energie <= 2 ? 'energieLaag' : 'energie');
       case 'notitie':
         if (n.eersteNotitie && op('notitie', tot.notitieDagen)) return K('notitieTotaal', { aantal: tot.notitieDagen });
-        return K('notitie');
+        return metDagdeel('notitie', () => K('notitie'));
       case 'weging':
         if (n.eersteWeging && op('weging', tot.wegingen)) return K('wegingTotaal', { aantal: tot.wegingen });
         if ((v.wegingReeks ?? 0) >= 3) return K('wegingReeks', { aantal: v.wegingReeks });
@@ -452,8 +526,10 @@ export function kiesMotivatie(status) {
     }
   }
 
-  // 5. De stand van de dag.
-  const deelNaam = DAGDEEL_NAAM[dagdeel] ?? null;
+  // 5. De stand van de dag. Na middernacht een zin voor wie nog laat in Bloei zit; op de dag dat een seizoen begint, de zin daarover.
+  if (!reactie && kal.uur != null && kal.uur < 5) return K('nacht');
+  const seizoen = kal.seizoen && GROEPEN[kal.seizoen.naam] ? kal.seizoen : null;
+  if (!reactie && seizoen?.start) return K(seizoen.naam, {}, [3, 4, 5, 6]);
   // Alleen een medaille waar elke bijgehouden dag voor telt: dan klopt "vandaag kan er een stap bij" altijd.
   const dagBadge = b.volgendeDag ?? (b.volgende?.dagTeller ? b.volgende : null);
   if (!iets) {
@@ -467,7 +543,9 @@ export function kiesMotivatie(status) {
     if (deelNaam) groepen.push('begin' + deelNaam);
     if (lopendeReeks >= 2) groepen.push('beginReeks');
     if (dagBadge) groepen.push('beginBadge');
+    if (seizoen) groepen.push(seizoen.naam);
     const groep = wissel(groepen, datum);
+    if (groep === seizoen?.naam) return K(groep, {}, [1, 2]); // de eerste twee zinnen horen bij de dag waarop het seizoen begint
     return K(groep, groep === 'beginReeks' ? { aantal: lopendeReeks } : groep === 'beginBadge' ? { badge: dagBadge.id } : {});
   }
   // Nog één onderdeel en de dag is rond (alleen voor wie supplementen heeft: de zinnen noemen ze).
@@ -483,7 +561,9 @@ export function kiesMotivatie(status) {
   if (deelNaam) groepen.push('onderweg' + deelNaam);
   if (dagBadge && dagBadge.aantal > 0) groepen.push('badgeStap');
   if (weekdag(datum) === 7 && (v.weekDagen ?? 0) >= 1) groepen.push('weekEinde');
+  if (seizoen) groepen.push(seizoen.naam);
   const groep = wissel(groepen, datum);
+  if (groep === seizoen?.naam) return K(groep, {}, [1, 2]);
   return K(groep, groep === 'badgeStap' ? { badge: dagBadge.id } : groep === 'weekEinde' ? { aantal: v.weekDagen } : {});
 }
 

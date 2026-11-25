@@ -5,7 +5,8 @@
 // profiel, de lijst met supplementen) hebben geen geschiedenis: die medailles krijgen de dag van vandaag.
 import { plusDagen, weekStart } from '../kern/datum.js';
 import { lopendeReeks } from './reeks.js';
-import { DOEL } from './badgeregels.js';
+import { DOEL, FEESTBADGES } from './badgeregels.js';
+import { feestdagOp } from './kalender.js';
 
 // feiten: [{ datum, bij (bijgehouden), maaltijden, etenKlaar, gevoel, dranken, ml, soorten: [..], doel (dagdoel gehaald), innames, periodiek,
 //            vol (alle momenten afgevinkt), stemming, energie, notitie (boolean), wegingen: [maandag van de week, ...], rond }]
@@ -16,6 +17,7 @@ export function eersteDatums(feiten, ids) {
     dranken: 0, liters: 0, drankSoorten: 0, doelDagen: 0, langsteDoelReeks: 0, innameDagen: 0, innames: 0, periodiekInnames: 0,
     volledigeMomentDagen: 0, langsteVolReeks: 0, notitieDagen: 0, stemmingDagen: 0, energieDagen: 0, beideDagen: 0, langsteStemmingReeks: 0,
     wegingen: 0, langsteWeegReeks: 0, dagRondDagen: 0, langsteRondReeks: 0, helemaalDagen: 0,
+    ...Object.fromEntries(Object.keys(FEESTBADGES).map((feest) => ['feest:' + feest, 0])), // iets genoteerd op die feestdag
   };
   const zoek = ids.filter((id) => DOEL[id] && DOEL[id][0] in s);
   const uit = new Map();
@@ -46,6 +48,8 @@ export function eersteDatums(feiten, ids) {
       s.lopendeReeks = lopendeReeks(bijDatums, d);
       if (vorigeBij && plusDagen(vorigeBij, 5) <= d) s.terugDagen += 1; // zoals terugDagen (badgeregels.js): minstens vier lege dagen
       vorigeBij = d;
+      const feest = feestdagOp(d);
+      if (feest && 'feest:' + feest in s) s['feest:' + feest] += 1;
       const week = weekStart(d);
       perWeek.set(week, (perWeek.get(week) ?? 0) + 1);
       if (perWeek.get(week) === 7) s.volleWeken += 1;

@@ -90,7 +90,7 @@ describe('teksten', () => {
       'reeks.samen': '{dagen} dagen bijgehouden · {reeks} op rij',
       'vandaag.leeg': 'Nog niets genoteerd vandaag.',
       'vandaag.weegdag': 'Het is je weegdag.',
-      'wissen.vraag1': 'Alles wat je in Bloei hebt bijgehouden verdwijnt van dit toestel: je maaltijden, drinken, supplementen, wegingen, stemming, notities, badges, je naam en foto en je instellingen. Dit kan je niet ongedaan maken.',
+      'wissen.vraag1': 'Alles wat je in Bloei hebt bijgehouden verdwijnt van dit toestel: je maaltijden, drinken, supplementen, wegingen, stemming, notities, badges, je naam, je foto, je geboortedatum en je instellingen. Dit kan je niet ongedaan maken.',
       'wissen.vraag2': 'Je profiel en alles erin worden nu echt verwijderd.',
       'melding.dagboekLeeg': 'Je dag van vandaag is nog leeg. Even bijschrijven?',
       'melding.dagboekOpen': 'Nog open voor vandaag: {open}.',
@@ -114,8 +114,8 @@ describe('teksten', () => {
   });
 
   it('heeft voor elke badge een naam en een uitleg, en geen herstelvragen meer', () => {
-    expect(Object.keys(TEKSTEN.badge.namen)).toHaveLength(100);
-    expect(Object.keys(TEKSTEN.badge.voorwaarden)).toHaveLength(100);
+    expect(Object.keys(TEKSTEN.badge.namen)).toHaveLength(121);
+    expect(Object.keys(TEKSTEN.badge.voorwaarden)).toHaveLength(121);
     expect(Object.keys(TEKSTEN.badge.namen).sort()).toEqual(Object.keys(TEKSTEN.badge.voorwaarden).sort());
     expect(TEKSTEN.slot.herstelVragen).toBeUndefined();
   });
@@ -183,8 +183,8 @@ describe('motivatie', () => {
   it('heeft zinnen zonder gewicht, eten, schuld of bevel (naast de algemene zwarte lijst), en alleen met de plekken die de motivator invult', () => {
     for (const [sleutel, tekst] of ALLES.filter(([k]) => k.startsWith('motivatie.'))) {
       expect(tekst, sleutel).not.toMatch(/gewicht|kilo|afgevallen|bijgekomen|je hebt nog niet|nog niet genoeg|moet|\bzou\b/i);
-      expect(tekst.length, sleutel).toBeLessThan(110);
-      for (const [, plek] of tekst.matchAll(/\{(\w+)\}/g)) expect(['naam', 'aantal', 'badge', 'periode'], sleutel).toContain(plek);
+      expect(tekst.length, sleutel).toBeLessThan(90); // elke zin past op twee regels (gemeten op een telefoon van 375 px, met een naam van acht letters)
+      for (const [, plek] of tekst.matchAll(/\{(\w+)\}/g)) expect(['naam', 'aantal', 'badge', 'periode', 'leeftijd'], sleutel).toContain(plek);
     }
   });
 

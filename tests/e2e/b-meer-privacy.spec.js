@@ -18,12 +18,12 @@ async function begin(page, route, soort, ids = ALLE) {
 }
 
 const REGELS = [
-  'Alles wat je bijhoudt, blijft op dit toestel. Bloei heeft geen account. Bloei gebruikt geen cookies en geen volgcode.',
+  'Alles wat je bijhoudt, ook je geboortedatum, blijft op dit toestel. Geen account, geen cookies en geen volgcode.',
   'Voor herinneringen bewaart Cloudflare alleen je pushadres en uren. Geen naam, geen dagboek.',
   'Een verslag of je supplementenlijst deel je zelf, als bestand. Er staat alleen je lijst in.',
   'Je pincode houdt meekijkers buiten. Je gegevens zelf zijn niet versleuteld.',
   'Er is geen back-up. Verwijder je Bloei of wist je toestel de gegevens, dan zijn ze weg.',
-  'Profiel verwijderen wist alles van dit toestel.',
+  'Profiel verwijderen wist alles van dit toestel, ook je geboortedatum.',
 ];
 
 test('Algemeen: de kaart Privacy heeft haar zes regels, elk met een tegel, en niets over wie de dienst beheert', async ({ page }) => {

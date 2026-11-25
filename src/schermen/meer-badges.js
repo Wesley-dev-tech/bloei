@@ -15,6 +15,8 @@ import { leesBadges, markeerGezien, leesBadgeStats } from '../data/badges.js';
 import { leesReeks } from '../data/statistiek.js';
 
 const datumTekst = (ms) => opmaakDatum(naarSleutel(new Date(ms)), 'lang');
+// De regel onder een behaalde medaille. Een medaille van een feestdag of van je verjaardag behaal je elk jaar opnieuw: dan staat er hoe vaak.
+const behaaldRegel = (rij) => ((rij.keer ?? 1) > 1 ? t('badge.behaaldKeer', { keer: rij.keer, datum: datumTekst(rij.behaaldOp) }) : t('badge.behaald', { datum: datumTekst(rij.behaaldOp) }));
 
 export function toon(houder) {
   const opruimScherm = beheerScherm(houder, async () => {
@@ -66,7 +68,7 @@ export function toon(houder) {
           { class: 'badgehero__tekst' },
           h('p', { class: 'label' }, label),
           h('p', { class: 'badgehero__naam t-h1' }, t('badge.namen.' + b.id)),
-          h('p', { class: 't-klein t-gedempt' }, b.gehaald ? t('badge.behaald', { datum: datumTekst(b.gehaald.behaaldOp) }) : (b.voortgang?.tekst ?? t('badge.nogNiet'))),
+          h('p', { class: 't-klein t-gedempt' }, b.gehaald ? behaaldRegel(b.gehaald) : (b.voortgang?.tekst ?? t('badge.nogNiet'))),
         ),
       );
       if (opent) animaties.push(() => (m.glans(400), m.vulRing(b.voortgang?.fractie ?? 0)));
@@ -96,7 +98,7 @@ export function toon(houder) {
           })(),
           h('p', { class: 't-klein t-gedempt' }, t('badge.betekent')),
           h('p', null, t('badge.voorwaarden.' + b.id)),
-          h('p', { class: 'cijfer' }, b.gehaald ? t('badge.behaald', { datum: datumTekst(b.gehaald.behaaldOp) }) : (b.voortgang?.tekst ?? t('badge.nogNiet'))),
+          h('p', { class: 'cijfer' }, b.gehaald ? behaaldRegel(b.gehaald) : (b.voortgang?.tekst ?? t('badge.nogNiet'))),
         ),
         acties: [knop(t('badge.sluiten'), { soort: 'secundair', opKlik: () => dlg.sluit() })],
       });
@@ -109,10 +111,10 @@ export function toon(houder) {
       const m = maakMedaille(b, 'groot', true); // met een muis zegt een kaartje wat de medaille betekent, naast het blad bij een tik
       if (opent) animaties.push(() => (b.gehaald ? m.glans(500 + Math.min(i, 12) * 90) : m.vulRing(b.voortgang?.fractie ?? 0)));
       return kaart(
-        { klasse: 'medaillekaart', opKlik: () => openBlad(b), 'aria-label': t('badge.namen.' + b.id) + ', ' + (b.gehaald ? t('badge.behaald', { datum: datumTekst(b.gehaald.behaaldOp) }) : (b.voortgang?.tekst ?? t('badge.nogNiet'))) },
+        { klasse: 'medaillekaart', opKlik: () => openBlad(b), 'aria-label': t('badge.namen.' + b.id) + ', ' + (b.gehaald ? behaaldRegel(b.gehaald) : (b.voortgang?.tekst ?? t('badge.nogNiet'))) },
         m,
         h('span', { class: 'medaillekaart__naam t-h2' }, t('badge.namen.' + b.id)),
-        h('span', { class: 't-klein t-gedempt' }, b.gehaald ? t('badge.behaald', { datum: datumTekst(b.gehaald.behaaldOp) }) : (b.voortgang?.tekst ?? t('badge.nogNiet'))),
+        h('span', { class: 't-klein t-gedempt' }, b.gehaald ? behaaldRegel(b.gehaald) : (b.voortgang?.tekst ?? t('badge.nogNiet'))),
       );
     };
     // De medailles staan per groep, in de volgorde van de beloning; een groep zonder zichtbare badges ontbreekt.

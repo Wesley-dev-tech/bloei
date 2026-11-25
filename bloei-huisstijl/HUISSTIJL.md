@@ -87,6 +87,7 @@ Geen emoji in de interface. Iconen 20px in lijsten, 24px in de tabbalk, kleur `c
 | Energie | eigen blaadjes, zie §5.3 (geen FA-icoon) |
 | Streak | `solid/seedling` |
 | Badge | `solid/award` |
+| Medailles | elke medaille een eigen icoon uit Font Awesome Free (solid), geen twee dezelfde; de lijst staat in `src/logica/badgeiconen.js` |
 | Foto | `solid/camera` |
 | Notitie | `solid/pen` |
 | Favoriet | `regular/heart` / `solid/heart` |
