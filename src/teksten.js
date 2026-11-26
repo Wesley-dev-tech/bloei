@@ -612,8 +612,8 @@ export const TEKSTEN = {
     mm: '{aantal} mm',
     cm: '{aantal} cm',
     // Het weer in het kort onder de datum, op een telefoon (ui/weerkaart.js, weerregel)
-    kansRegen: '{aantal}% regen',
-    kansSneeuw: '{aantal}% sneeuw',
+    eenheidMm: 'mm',
+    eenheidCm: 'cm',
     naarKaart: 'Ga naar het hele weerbericht.',
     week: 'De komende dagen',
     vandaag: 'Vandaag',

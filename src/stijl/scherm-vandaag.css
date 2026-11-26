@@ -339,11 +339,11 @@
 @media (min-width: 1024px) { .vandaag__rij1 > .weerkaart > .kaartkop { display: none; } }
 /* ---------- Het weer in het kort (ui/weerkaart.js, weerregel): alleen op een telefoon, onder de datum ----------
    Eén regel in een afgeronde pil in de zachte kleur van de dag, altijd even breed als de kolom: ze lijnt links en rechts met de kaart
-   eronder. De delen (het weerbeeld als icoon met de temperatuur van nu, Min., Max., de kans op regen, de hoeveelheid) staan gelijk
-   verdeeld over de breedte, met een puntje ertussen. De naam van het weer staat hier niet, alleen in de kaart Het weer: zo blijft de regel
-   kort en vult ze de pil mooi. Er valt nooit iets weg en er steekt nooit iets buiten de pil: past alles niet met de gewone letters (15 px),
-   dan zet weerkaart.js de hele pil net zoveel kleiner als nodig. Daarom hangen alle maten aan één lettermaat (em): de letters, het icoon,
-   de binnenruimte, de tussenruimtes en de hoogte krimpen samen, zodat de pil één geheel blijft.
+   eronder. Vijf vakken (het weerbeeld als icoon met de temperatuur van nu, Min., Max., de kans op regen, de hoeveelheid), gelijk verdeeld
+   over de breedte met een puntje ertussen. De naam van het weer staat hier niet, alleen in de kaart Het weer. Er valt nooit iets weg en
+   er steekt nooit iets buiten de pil: past alles niet met de gewone letters (15 px), dan zet weerkaart.js de hele pil net zoveel kleiner
+   als nodig. Daarom hangen alle maten aan één lettermaat (em): de letters, het icoon, de binnenruimte, de tussenruimtes en de hoogte
+   krimpen samen, zodat de pil één geheel blijft.
    De maten (gemeten op de inkt, 320 tot 440 px): tussen begroeting en datum en tussen datum en pil staat telkens 8 px wit; onder de pil
    16 px tot de eerste kaart, zoals tussen twee kaarten. Het tikvlak is altijd 44 px hoog en ligt nergens over de datum. */
 .weerregel { display: none; }
@@ -353,23 +353,25 @@
      blijft, hoe hoog de pil ook is. */
   .weerregel { display: block; min-width: 0; margin: 0 0 calc(2.286em - 40px); font-family: var(--font-ui); font-size: .9375rem; line-height: 1.3; }
   .weerregel__knop { display: flex; width: 100%; min-width: 0; margin: 0; padding: 4px 0 calc(40px - 2.286em); border: 0; border-radius: var(--r-pill); background: none; font: inherit; color: var(--c-text); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
-  .weerregel__pil { display: flex; flex: 1 1 auto; box-sizing: border-box; align-items: center; gap: .36em; min-width: 0; width: 100%; height: 2.286em; padding: 0 .57em 0 .5em; border-radius: var(--r-pill); background: var(--c-day-soft); overflow: hidden; white-space: nowrap; }
-  .weerregel__pil > .icoon { flex: none; width: 1.286em; height: 1.286em; color: var(--c-day); }
-  .weerregel__graden { flex: none; font-weight: 500; }
-  .weerregel__delen { display: flex; flex: 1 1 auto; min-width: 0; }
-  .weerregel__delen > span { flex: none; }
-  /* De delen staan gelijk verdeeld over de breedte: elk puntje ertussen neemt evenveel van de vrije ruimte, met het puntje in het midden.
-     Het eerste deel begint links, het laatste eindigt rechts tegen de rand: zo lijnt de pil met de kaart eronder, zonder groot gat bij een
-     korte tekst. Bij een lange tekst krimpen de tussenruimtes tot een smal puntje (.45em). */
-  .weerregel__delen > .weerregel__punt { flex: 1 1 .75em; min-width: .45em; text-align: center; color: var(--c-text-muted); }
+  /* De vakken (nu, Min., Max., regen, hoeveelheid) staan gelijk verdeeld over de breedte: elk puntje ertussen neemt evenveel van de vrije
+     ruimte, met het puntje precies in het midden tussen twee vakken. Het eerste vak begint links, het laatste eindigt rechts. Bij een
+     lange tekst krimpen de tussenruimtes tot een smal puntje (.6em). */
+  .weerregel__pil { display: flex; align-items: center; flex: 1 1 auto; box-sizing: border-box; min-width: 0; width: 100%; height: 2.286em; padding: 0 .7em 0 .55em; border-radius: var(--r-pill); background: var(--c-day-soft); overflow: hidden; white-space: nowrap; }
+  /* Eén vak: het woord en het cijfer naast elkaar op dezelfde grondlijn, met duidelijke ruimte ertussen (.45em). Overal dezelfde opbouw:
+     een zacht woord, dan het cijfer dat opvalt. */
+  .weerregel__vak { display: flex; flex: none; align-items: baseline; gap: .45em; }
+  .weerregel__vak--nu { align-items: center; gap: .4em; }
+  .weerregel__vak--nu > .icoon { flex: none; width: 1.286em; height: 1.286em; color: var(--c-day); }
+  .weerregel__vak--eenheid { gap: .3em; } /* een cijfer met zijn eenheid (4 mm) hoort dichter bij elkaar */
+  .weerregel__getal { font-weight: 500; }
+  .weerregel__woord { color: var(--c-text-muted); }
+  .weerregel__punt { flex: 1 1 .9em; min-width: .6em; text-align: center; color: var(--c-text-muted); }
   .weerregel__punt::before { content: "\00B7"; }
   /* Tijdens het meten (weerkaart.js, pas): de kleinste breedte van de regel met deze lettermaat. */
   .weerregel__pil.is-meten { flex: none; width: max-content; }
-  .weerregel__pil.is-meten .weerregel__delen { flex: none; }
-  .weerregel__pil.is-meten .weerregel__punt { flex: none; width: .45em; }
-  .weerregel__woord { color: var(--c-text-muted); }
+  .weerregel__pil.is-meten .weerregel__punt { flex: none; width: .6em; }
   .weerregel__knop:active .weerregel__pil { background: color-mix(in srgb, var(--c-day) 22%, var(--c-day-soft)); }
-  .weerregel[data-fase="laden"] .weerregel__pil > .icoon { color: var(--c-text-muted); animation: weer-wacht 1.6s var(--ease) infinite alternate; }
+  .weerregel[data-fase="laden"] .weerregel__vak--nu > .icoon { color: var(--c-text-muted); animation: weer-wacht 1.6s var(--ease) infinite alternate; }
   .vandaag > .vandaag__begroeting > .begroeting__tekst.begroeting__tekst { margin-bottom: 0; } /* de pil staat 16 px boven de eerste kaart (de gewone ruimte tussen kaarten) */
   .vandaag .vandaag__begroeting .begroeting__datum { margin-top: 9px; } /* 1 px meer dan elders: de staart van de g in de begroeting hangt in dit wit */
   /* De kaart komt onder de vaste balk met het logo te staan als de regel haar naar boven haalt. */
@@ -378,7 +380,7 @@
 /* De langste naam (Onweer met zware hagel) in de kaart onderaan: onder 360 px past hij met de gewone maat niet op één regel naast de
    temperatuur. */
 @media (max-width: 359.98px) { .weerkaart .weerkaart__beeld.weerkaart__beeld--lang { font-size: var(--fs-label); letter-spacing: -.01em; white-space: nowrap; } }
-@media (prefers-reduced-motion: reduce) { .weerregel[data-fase="laden"] .weerregel__pil > .icoon { animation: none; } }
+@media (prefers-reduced-motion: reduce) { .weerregel[data-fase="laden"] .weerregel__vak--nu > .icoon { animation: none; } }
 /* Nu: het weerbeeld in een grote tegel, de temperatuur in het sierlettertype (zoals de liters op Drinken), ernaast de naam van het weer
    en hoe het aanvoelt. */
 /* De kop van de kaart: links de tegel, daarnaast de temperatuur met het weerbeeld ernaast, en "Voelt als" op de regel eronder, vanaf de

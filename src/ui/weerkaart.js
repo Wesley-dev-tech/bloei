@@ -42,7 +42,11 @@ export function weerregel(stand, { naar } = {}) {
   knop.addEventListener('click', () => naar?.());
   // De rij, de knop en de pil zijn zo breed als de kolom, net als de kaart eronder.
   const el = h('div', { class: 'weerregel' }, knop);
-  const deel = (woord, waarde) => h('span', null, h('span', { class: 'weerregel__woord' }, woord), ' ', h('span', { class: 'cijfer' }, waarde ?? LEEG));
+  // Eén vak van de regel: overal dezelfde opbouw, eerst het woord en dan het cijfer (Min. 6°, Max. 12°, Regen 70%). Het cijfer staat
+  // duidelijk los van het woord en valt op; het woord is zachter van kleur. Tussen twee vakken staat een puntje.
+  const vak = (...kinderen) => h('span', { class: 'weerregel__vak' }, ...kinderen);
+  const woord = (tekst) => h('span', { class: 'weerregel__woord' }, tekst);
+  const getal = (tekst) => h('span', { class: 'weerregel__getal' }, tekst ?? LEEG);
   const punt = () => h('span', { class: 'weerregel__punt' });
   // Alles blijft altijd staan, op één regel en binnen de pil. Past de tekst met de gewone letters niet (een lange naam, een smalle
   // telefoon), dan krimpen eerst de tussenruimtes tot een smal puntje en daarna de hele pil: letters, icoon, binnenruimte en hoogte hangen
@@ -87,22 +91,17 @@ export function weerregel(stand, { naar } = {}) {
         .filter(Boolean)
         .join(' '),
     );
-    pil.replaceChildren(
-      icoon(beeld?.icoon ?? 'cloud-sun', { grootte: 18 }),
-      h('span', { class: 'weerregel__graden cijfer' }, w ? graden(w.temp) : LEEG),
-      // De delen staan gelijk verdeeld over de breedte van de pil: de puntjes ertussen nemen elk evenveel van de vrije ruimte
-      // (scherm-vandaag.css). De naam van het weer staat hier niet: het weerbeeld is het icoon, de naam staat in de kaart Het weer.
-      h(
-        'span',
-        { class: 'weerregel__delen' },
-        punt(),
-        deel(t('weer.min'), w?.min != null ? graden(w.min) : null),
-        punt(),
-        deel(t('weer.max'), w?.max != null ? graden(w.max) : null),
-        w?.kans != null ? [punt(), h('span', { class: 'cijfer' }, t(sneeuw ? 'weer.kansSneeuw' : 'weer.kansRegen', { aantal: w.kans }))] : null,
-        heeftHoeveel ? [punt(), h('span', { class: 'cijfer' }, t(sneeuw ? 'weer.cm' : 'weer.mm', { aantal: hoeveel(hoeveelheid) }))] : null,
-      ),
-    );
+    // De naam van het weer staat hier niet: het weerbeeld is het icoon, de naam staat in de kaart Het weer.
+    const vakken = [
+      h('span', { class: 'weerregel__vak weerregel__vak--nu' }, icoon(beeld?.icoon ?? 'cloud-sun', { grootte: 18 }), h('span', { class: 'weerregel__getal weerregel__graden' }, w ? graden(w.temp) : LEEG)),
+      punt(),
+      vak(woord(t('weer.min')), getal(w?.min != null ? graden(w.min) : null)),
+      punt(),
+      vak(woord(t('weer.max')), getal(w?.max != null ? graden(w.max) : null)),
+      w?.kans != null ? [punt(), vak(woord(t(sneeuw ? 'weer.sneeuw' : 'weer.regen')), getal(t('weer.procent', { aantal: w.kans })))] : null,
+      heeftHoeveel ? [punt(), h('span', { class: 'weerregel__vak weerregel__vak--eenheid' }, getal(hoeveel(hoeveelheid)), woord(t(sneeuw ? 'weer.eenheidCm' : 'weer.eenheidMm')))] : null,
+    ];
+    pil.replaceChildren(...vakken.flat().filter(Boolean));
     pas();
   };
   teken(stand);
