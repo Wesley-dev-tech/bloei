@@ -17,9 +17,9 @@ const kgVan = (i) => 70 + Math.round(Math.sin(i) * 20) / 10;
 
 // Zaait wegingen op de weken (afstanden in weken tot de huidige week, 0 = deze week) in de opslag en geeft ze terug ({ week, datum, kg }).
 // De opslag bestaat pas nadat de app één keer geopend is. Daarna herladen.
-async function zaai(page, { afstanden = [], kgs = null, streef = null, weegdag = null, thema = null } = {}) {
+async function zaai(page, { afstanden = [], kgs = null, streef = null, thema = null } = {}) {
   const lijst = await page.evaluate(
-    ([weken, gewichten, streefKg, dag, themaKeuze]) =>
+    ([weken, gewichten, streefKg, themaKeuze]) =>
       new Promise((klaar, mislukt) => {
         const t2 = (x) => String(x).padStart(2, '0');
         const naarTekst = (d) => `${d.getFullYear()}-${t2(d.getMonth() + 1)}-${t2(d.getDate())}`;
@@ -41,7 +41,6 @@ async function zaai(page, { afstanden = [], kgs = null, streef = null, weegdag =
             gezaaid.push(w);
           });
           tx.objectStore('instellingen').put({ sleutel: 'gewicht.streefKg', waarde: streefKg });
-          if (dag != null) tx.objectStore('instellingen').put({ sleutel: 'gewicht.weegdag', waarde: dag });
           if (themaKeuze) tx.objectStore('instellingen').put({ sleutel: 'thema.keuze', waarde: themaKeuze });
           tx.oncomplete = () => {
             db.close();
@@ -50,7 +49,7 @@ async function zaai(page, { afstanden = [], kgs = null, streef = null, weegdag =
           tx.onerror = () => mislukt(tx.error);
         };
       }),
-    [afstanden, kgs ?? afstanden.map((_, i) => kgVan(i)), streef, weegdag, thema],
+    [afstanden, kgs ?? afstanden.map((_, i) => kgVan(i)), streef, thema],
   );
   await page.reload();
   await page.waitForSelector('.gewicht .gewicht__weetjes');
@@ -92,7 +91,9 @@ const meetKaarten = (page) =>
         const b = e.getBoundingClientRect();
         if (b.width < 1 || b.height < 1) continue;
         const kop = e.classList.contains('kaartkop');
-        if (!(kop || e.children.length === 0 || ['svg', 'textarea', 'input', 'button'].includes(e.tagName.toLowerCase()))) continue;
+        // een blad, of een element met eigen tekst naast een kind (de weekdatum "23" met zijn kleine "/11" sinds 0.6.3)
+        const eigenTekst = [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim());
+        if (!(kop || e.children.length === 0 || eigenTekst || ['svg', 'textarea', 'input', 'button'].includes(e.tagName.toLowerCase()))) continue;
         const onder = kop ? b.bottom + parseFloat(getComputedStyle(e).marginBottom) : b.bottom;
         blokken.push([Math.max(b.top, binnenTop), Math.min(onder, binnenBodem)]);
       }
@@ -105,7 +106,7 @@ const meetKaarten = (page) =>
         tot = Math.max(tot, naar);
       }
       gat = Math.max(gat, binnenBodem - tot);
-      const naam = [...k.classList].find((c) => /^(gewichthoofd|gewicht__weegdag|gewichtstreef|gewichtgrafiek|gewicht__lijst|gewicht__cijferkaart|gewicht__kal|gewicht__weg|gewicht__weetjes)$/.test(c)) ?? k.className;
+      const naam = [...k.classList].find((c) => /^(gewichthoofd|gewichtstreef|gewichtgrafiek|gewicht__lijst|gewicht__cijferkaart|gewicht__kal|gewicht__weg|gewicht__weetjes)$/.test(c)) ?? k.className;
       const kop = k.querySelector(':scope > .kaartkop');
       const kr = kop?.getBoundingClientRect();
       return { naam, top: r.top, bodem: r.bottom, links: r.left, rechts: r.right, hoogte: r.height, gat, labelTop: k.querySelector('.kaartkop__label')?.getBoundingClientRect().top ?? null, lijnY: kr ? kr.bottom : null };
@@ -226,7 +227,7 @@ for (const [breed, hoog] of BREED) {
           expect(weken[0].maand).not.toBe('');
           const zin = norm(await page.locator('.gewicht__kalregel').first().innerText());
           expect(zin).toBe(gevuld === 1 ? 'Gewogen in de laatste week.' : `Gewogen in ${gevuld} van de laatste ${gevuld} weken.`);
-          await expect(page.locator('.gewicht__kalregel--volgende')).toContainText('Volgende weegdag:');
+          await expect(page.locator('.gewicht__kalregel--volgende')).toHaveCount(0); // sinds 0.6.3 geen weegdag en dus geen volgende weegdag
           // Statisch: niet aanklikbaar
           expect(await page.locator('.gewicht__week').evaluateAll((l) => l.every((e) => e.tagName === 'LI' && !e.onclick && e.querySelector('a, button') == null && getComputedStyle(e).cursor === 'default'))).toBe(true);
           // twaalf bolletjes op één rij en gelijke afstanden op breed
@@ -254,7 +255,7 @@ for (const [breed, hoog] of BREED) {
           expect(Math.abs(per.gewicht__kal.rechts - per.gewicht__cijferkaart.rechts)).toBeLessThanOrEqual(1);
           expect(per.gewicht__weetjes.top).toBeGreaterThanOrEqual(per.gewicht__kal.bodem);
         }
-        expect(Math.abs(per.gewichthoofd.bodem - per.gewicht__weegdag.bodem)).toBeLessThanOrEqual(2);
+        expect(Math.abs(per.gewichthoofd.bodem - per.gewichtstreef.bodem)).toBeLessThanOrEqual(2);
         expect(Math.abs(per.gewichtgrafiek.bodem - per.gewicht__lijst.bodem), 'Verloop en Je wegingen eindigen gelijk').toBeLessThanOrEqual(2);
         expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
         expect(fouten).toEqual([]);
@@ -309,16 +310,16 @@ test('Weegkalender: gaten, "5 van de laatste 8 weken", weken vóór de eerste we
   expect(norm(await page.locator('.gewicht__kalregel').first().innerText())).toBe('Gewogen in 5 van de laatste 8 weken.');
 });
 
-test('Weegkalender: de lopende week zonder weging is nog niet gemist, en de datum volgt de weegdag', async ({ page }) => {
+test('Weegkalender: de lopende week zonder weging is nog niet gemist, en de datum is de maandag van elke week', async ({ page }) => {
   await open(page, 1690, 1230);
-  // Wegingen 3, 2 en 1 week terug, nog niet deze week; weegdag donderdag
-  const { gezaaid } = await zaai(page, { afstanden: [3, 2, 1], weegdag: 4 });
+  // Wegingen 3, 2 en 1 week terug, nog niet deze week
+  const { gezaaid } = await zaai(page, { afstanden: [3, 2, 1] });
   const weken = await page.$$eval('.gewicht__week', (l) => l.map((li) => ({ gevuld: li.classList.contains('is-gevuld'), nu: li.classList.contains('is-nu'), datum: li.querySelector('.gewicht__weekdatum').textContent })));
   expect(weken.at(-1)).toMatchObject({ gevuld: false, nu: true });
   expect(norm(await page.locator('.gewicht__kalregel').first().innerText())).toBe('Gewogen in 3 van de laatste 3 weken.');
-  // Elke datum is een donderdag: de weken liggen 7 dagen uit elkaar
+  // Elke datum is een maandag: de weken liggen 7 dagen uit elkaar
   const dagen = await page.evaluate((lijst) => lijst.map((d) => { const [dd, mm] = d.split('/').map(Number); const nu = new Date(); let j = nu.getFullYear(); if (mm - 1 > nu.getMonth() + 1) j -= 1; return new Date(j, mm - 1, dd).getDay(); }), weken.map((w) => w.datum));
-  expect(new Set(dagen)).toEqual(new Set([4]));
+  expect(new Set(dagen)).toEqual(new Set([1]));
   expect(gezaaid).toHaveLength(3);
 });
 
@@ -384,7 +385,7 @@ for (const breed of [390, 360]) {
           expect(weken.slice(0, 6).every((w) => Math.abs(w.top - weken[0].top) <= 1)).toBe(true);
           const romp = await page.$eval('.gewicht__weken', (e) => ({ scroll: e.scrollWidth, breedte: e.clientWidth }));
           expect(romp.scroll).toBeLessThanOrEqual(romp.breedte + 1);
-          const maandAfgebroken = await page.$$eval('.gewicht__weekmaand, .gewicht__weekdatum', (l) => l.some((e) => { const b = document.createRange(); b.selectNodeContents(e); return b.getClientRects().length > 1; }));
+          const maandAfgebroken = await page.$$eval('.gewicht__weekmaand, .gewicht__weekdatum', (l) => l.some((e) => { const b = document.createRange(); b.selectNodeContents(e); return new Set([...b.getClientRects()].filter((q) => q.width > 0).map((q) => Math.round(q.top / 4))).size > 1; }));
           expect(maandAfgebroken).toBe(false);
           if (metStreef) {
             const waarden = await page.$$eval('.gewicht__waarde', (l) => l.map((e) => ({ top: e.getBoundingClientRect().top, afgekapt: [...e.querySelectorAll('p')].some((p) => p.scrollWidth > p.clientWidth + 1) })));

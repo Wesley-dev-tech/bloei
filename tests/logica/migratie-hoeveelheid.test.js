@@ -50,8 +50,8 @@ describe('database schema 3 naar 4', () => {
 
     const { db, openDb, SCHEMA_VERSIE } = await import('../../src/data/db.js');
     await openDb();
-    expect(SCHEMA_VERSIE).toBe(5);
-    expect(db.verno).toBe(5);
+    expect(SCHEMA_VERSIE).toBe(6);
+    expect(db.verno).toBe(6);
 
     const lijst = (await db.supplementen.toArray()).sort((a, b) => a.volgorde - b.volgorde);
     expect(lijst).toHaveLength(15);

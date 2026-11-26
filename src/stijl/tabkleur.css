@@ -275,7 +275,7 @@ body > .blad > dialog[data-familie],
     body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis))[data-familie],
     body > .blad > dialog[data-familie]:not(.supplementkaart, .dialoog--wis))
   :is(.chip, .segment, .veld__invoer, .verjaardag__lijst, .stapper__knop, .delen__periodewoorden, .mk__dag, .maand__moment,
-      .week__bol, .weekstaaf__balk, .weekdag__bol, .gewicht__pad, .gewvoorbeeld__dag) {
+      .week__bol, .weekstaaf__balk, .weekdag__bol, .gewicht__pad, .gewicht__typvak) {
   /* alleen het token herbenoemen: elke staat van het onderdeel (gekozen, gevuld, transparant) blijft zijn eigen regel volgen */
   --c-surface-soft: var(--fam-bediening);
 }

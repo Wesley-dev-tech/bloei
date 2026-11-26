@@ -238,7 +238,7 @@ export function meetLeegVlak(page, wortel = '#scherm') {
           const b = e.getBoundingClientRect();
           if (b.width < 1 || b.height < 1) continue;
           const kop = e.classList.contains('kaartkop');
-          const toont = kop || e.children.length === 0 || ['svg', 'textarea', 'input', 'button'].includes(e.tagName.toLowerCase());
+          const toont = kop || e.children.length === 0 || [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) || ['svg', 'textarea', 'input', 'button'].includes(e.tagName.toLowerCase());
           if (!toont) continue;
           const onder = kop ? b.bottom + parseFloat(getComputedStyle(e).marginBottom) : b.bottom;
           blokken.push([Math.max(b.top, binnenTop), Math.min(onder, binnenBodem)]);

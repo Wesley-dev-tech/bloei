@@ -31,8 +31,8 @@ beforeEach(async () => {
 
 describe('database', () => {
   test('schema 4 met de tien stores', () => {
-    expect(SCHEMA_VERSIE).toBe(5);
-    expect(db.verno).toBe(5);
+    expect(SCHEMA_VERSIE).toBe(6);
+    expect(db.verno).toBe(6);
     expect(db.tables.map((t) => t.name).sort()).toEqual(
       ['badges', 'dagen', 'dranken', 'favorieten', 'fotos', 'instellingen', 'maaltijden', 'momentinnames', 'supplementen', 'wegingen'],
     );
@@ -43,7 +43,6 @@ describe('instellingen', () => {
   test('standaardwaarde zolang niets is ingesteld', async () => {
     expect(await leesInstelling('drinken.dagdoelMl')).toBe(2500);
     expect(await leesInstelling('drinken.glasMl')).toBe(800);
-    expect(await leesInstelling('gewicht.weegdag')).toBe(1);
     expect(await leesInstelling('profiel.naam')).toBe(''); // geen standaardnaam
     expect(await leesInstelling('meldingen.dagboek')).toEqual({ aan: false, uur: '20:00' });
   });

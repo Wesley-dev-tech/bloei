@@ -229,16 +229,15 @@
   .drinken__lijst .leeg { flex: 1; justify-content: center; }
   .drankrij { gap: var(--s-4); }
 
-  /* Gewicht: bovenaan drie kerncijfers (laatste weging, weegdag, streefgewicht), eronder links de grafiek (hoogte van de
+  /* Gewicht: bovenaan twee kerncijfers (laatste weging en streefgewicht), eronder links de grafiek (hoogte van de
      kolom ernaast) en rechts het noteren en de lijst van wegingen; alle kaarten van een rij even hoog */
   .gewicht__raster {
     grid-template-columns: repeat(2, minmax(0, 1fr));
-    grid-template-areas: "hoofd weegdag" "streef streef" "grafiek grafiek" "lijst lijst" "weetjes weetjes";
+    grid-template-areas: "hoofd streef" "grafiek grafiek" "lijst lijst" "weetjes weetjes";
   }
   .gewichtgrafiek { grid-area: grafiek; }
   .gewichtgrafiek__vlak { flex: 1; }
   .gewichthoofd { grid-area: hoofd; }
-  .gewicht__weegdag { grid-area: weegdag; }
   .gewichtstreef { grid-area: streef; }
   .gewicht__lijst { grid-area: lijst; }
   .gewicht__weetjes { grid-area: weetjes; }
@@ -644,13 +643,8 @@ a.week__link { min-height: 48px; justify-content: center; }
 .drinkvoorbeeld__dranken li { display: flex; align-items: center; gap: var(--s-2); }
 .drinkvoorbeeld__dranken li > span:nth-child(2) { flex: 1; }
 .drinkvoorbeeld__dranken .tegel { width: var(--s-8); height: var(--s-8); }
-/* Instelscherm Gewicht: het voorbeeld (een week met de weegdag en een kleine grafiek) */
-.weegdagen { display: flex; flex-wrap: wrap; justify-content: flex-end; gap: var(--s-1); max-width: 24rem; }
-.weegdagen .chips { flex-wrap: wrap; justify-content: flex-end; }
+/* Instelscherm Gewicht: het voorbeeld (een kleine grafiek met de stippellijn van het streefgewicht) */
 .gewvoorbeeld__zin { margin: 0; font-size: var(--fs-h2); }
-.gewvoorbeeld__week { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--s-2); margin: 0; padding: 0; list-style: none; }
-.gewvoorbeeld__dag { display: flex; align-items: center; justify-content: center; min-height: var(--s-10); border-radius: var(--r-sm); background: var(--c-surface-soft); color: var(--c-text-muted); font-size: var(--fs-small); font-weight: 500; transition: background-color var(--dur) var(--ease), color var(--dur) var(--ease); }
-.gewvoorbeeld__dag.is-weegdag { background: var(--c-weight-soft); color: var(--c-weight-text); box-shadow: inset 0 0 0 2px var(--c-weight); }
 .gewvoorbeeld__grafiek { width: 100%; height: auto; display: block; }
 .gewvoorbeeld__streef { stroke: var(--c-weight); stroke-width: 1.5; stroke-dasharray: 4 5; }
 /* Instelscherm Profiel: de begroeting als voorbeeld */
@@ -689,19 +683,12 @@ a.week__link { min-height: 48px; justify-content: center; }
 .instel__groep:first-of-type { margin-top: var(--s-2); }
 .drankknop--voorbeeld { cursor: default; }
 .drinkvoorbeeld__dranken { grid-template-columns: repeat(3, minmax(0, 1fr)); }
-/* Gewicht: weegdagchips op een eigen regel over de volle breedte, streefbediening op de lijn */
-.weegdagen--breed { max-width: none; justify-content: stretch; margin: 0 0 var(--s-3); }
-.weegdagen--breed .chips { display: grid; grid-template-columns: repeat(7, minmax(0, 1fr)); gap: var(--s-1); width: 100%; }
-.weegdagen--breed .chip { min-width: 0; width: 100%; justify-content: center; }
-/* BESLISSING 308: zeven tikvlakken van 44 px (met 4 px ertussen) vragen 332 px; is de houder smaller (iPhone, slide-over), dan staan de dagen 4 + 3 in twee rijen. */
-.weegdagen--breed { container-type: inline-size; container-name: weegdagen; }
-@container weegdagen (max-width: 331px) { .weegdagen--breed .chips { grid-template-columns: repeat(4, minmax(0, 1fr)); } }
+/* Gewicht: de streefbediening op de lijn */
 .streefbediening { display: flex; align-items: center; gap: var(--s-3); justify-content: flex-end; flex-wrap: wrap; }
 .gewvoorbeeld__echt { position: relative; flex: 1 1 auto; min-height: calc(var(--s-12) * 3); }
 .gewvoorbeeld .instel__voorbeeldinhoud > .gewvoorbeeld__grafiekhouder { flex: 1 1 auto; display: flex; flex-direction: column; }
 .gewvoorbeeld__as { stroke: var(--c-line); stroke-width: 1.5; }
 .gewvoorbeeld__leeg { margin: var(--s-2) 0 0; color: var(--c-text-muted); text-align: center; }
-.gewvoorbeeld__volgende { margin: 0; }
 /* Delen-instellingen: het voorbeeld is klein, met een label; de hint staat op de lijn van de rijen */
 /* Het voorbeeld in .instel__groei (spoor C): de onderdelen verdelen de ruimte, bovenaan uitgelijnd; ze groeien niet zelf uit */
 .instel__voorbeeld .instel__voorbeeldinhoud { display: flex; flex-direction: column; justify-content: space-between; gap: var(--s-5); }
@@ -1476,9 +1463,6 @@ a.week__link { min-height: 48px; justify-content: center; }
 .gewicht__bovenkaart .cijfer-groot { font-size: var(--getal-hoofd); }
 .gewicht__bovenkaart .cijfer-groot.is-leeg { color: var(--c-text-muted); }
 .gewicht__bovenkaart .cijfer-groot__eenheid { font-size: var(--getal-eenheid); }
-.gewicht__invoer .stapper__waarde { font-size: var(--getal-invoer); width: 9rem; min-width: 0; padding: 0; }
-.gewicht__invoer .stapper__eenheid { font-size: .4em; }
-.gewicht__invoer .stapper__knop { width: var(--knop-h); height: var(--knop-h); }
 .gewichthoofd__verschil { margin-top: var(--s-2); color: var(--c-text); }
 .gewichtgrafiek { display: flex; flex-direction: column; gap: var(--s-4); }
 .gewichtgrafiek__vlak { position: relative; min-height: calc(var(--s-12) * 4 + var(--s-2)); }
@@ -1488,10 +1472,31 @@ a.week__link { min-height: 48px; justify-content: center; }
 .gewicht__acties { display: flex; align-items: center; gap: var(--s-2); }
 .streef { display: flex; align-items: center; justify-content: space-between; gap: var(--s-3); flex-wrap: wrap; }
 .gewicht__invoer { display: flex; flex-direction: column; align-items: center; gap: var(--s-2); }
-.gewicht__getal { cursor: text; }
-.gewicht__typveld { width: calc(var(--s-12) * 4); text-align: center; font-family: var(--font-display); font-size: var(--fs-h1); }
-.gewicht__hint { text-align: center; }
-.gewicht__raster .gewicht__hint { margin-top: var(--s-3); text-align: left; }
+.gewicht__invoer--typ { width: 100%; }
+.gewicht__typlabel { margin: 0; text-align: center; color: var(--c-text-muted); }
+/* Het invulvak voor een gewicht (bladen Weging noteren en Streefgewicht, 0.6.3): min, het vak, plus. Alles even hoog (40 px) als de
+   knoppen Noteren en Annuleren eronder; het tikvlak van min en plus blijft 44 px (een onzichtbare laag). Het vak is een veld van de app
+   (zachte vulling, rand bij focus) met het getal en de eenheid kg erin. */
+.gewicht__stapper { gap: var(--s-2); }
+.gewicht__stapper .stapper__knop { position: relative; width: 40px; height: 40px; font-size: 1.25rem; }
+.gewicht__stapper .stapper__knop::after { content: ''; position: absolute; inset: -2px; }
+.gewicht__typvak { display: inline-flex; align-items: baseline; justify-content: center; box-sizing: border-box; width: 6.75rem; height: 40px; padding: 0 var(--s-3); border: 1px solid transparent; border-radius: var(--r-sm); background: var(--c-surface-soft); color: var(--c-text); cursor: text; transition: border-color var(--dur) var(--ease); }
+.gewicht__typvak:focus-within { border-color: var(--c-accent); box-shadow: 0 0 0 1px var(--c-accent); }
+.gewicht__typvak:has(.gewicht__typveld[aria-invalid="true"]) { border-color: var(--c-fout-text); }
+/* Het getal in de cijferletter, rechts uitgelijnd tegen kg; 20 px (nooit kleiner dan 16 px: anders zoomt iOS in). */
+.gewicht__typveld { flex: none; min-width: 1ch; max-width: 100%; width: 4ch; height: 38px; margin: 0; padding: 0; border: 0; background: transparent; color: inherit; outline: none; appearance: none; -webkit-appearance: none; text-align: center; font-family: var(--font-display); font-weight: 500; font-size: 1.25rem; line-height: 38px; font-variant-numeric: lining-nums tabular-nums; }
+/* Het voorbeeld in het lege vak is klein en in de gewone letter: het leest als een voorbeeld ("bv. 68,4"), niet als een ingevuld gewicht. */
+.gewicht__typveld::placeholder { font-family: var(--font-ui); font-weight: 400; font-size: var(--fs-small); color: var(--c-text-muted); opacity: 1; }
+.gewicht__typeenheid { flex: none; margin-left: .3em; color: var(--c-text-muted); font-size: var(--fs-small); }
+/* Het getal met kg staat samen in het midden van het vak (eigenaar 26 november 2026). De spiegel meet de breedte van de tekst in dezelfde
+   letter als het veld (of als het voorbeeld); hij is onzichtbaar en neemt geen plaats in. */
+.gewicht__typvak { position: relative; }
+/* Het tikvlak van het vak is 44 px hoog: een onzichtbare laag boven en onder (vanaf de binnenrand: 38 + 2 x 3 = 44). */
+.gewicht__typvak::after { content: ''; position: absolute; inset: -3px 0; }
+.gewicht__typspiegel { position: absolute; left: 0; top: 0; visibility: hidden; pointer-events: none; white-space: pre; font-family: var(--font-display); font-weight: 500; font-size: 1.25rem; font-variant-numeric: lining-nums tabular-nums; }
+.gewicht__typspiegel.is-voorbeeld { font-family: var(--font-ui); font-weight: 400; font-size: var(--fs-small); }
+/* De foutmelding bij een ongeldig gewicht staat gecentreerd onder het vak, zoals het vak en de knoppen. */
+:is(.wegingblad, .streefblad) .foutmelding { text-align: center; }
 .gewicht__lijstleeg { color: var(--c-text-muted); font-size: var(--fs-small); line-height: 1.4; }
 /* De drie kaarten bovenaan hebben dezelfde bouw: kaartkop, een kern op dezelfde basislijn, een regel tekst en een actie onderaan */
 .gewicht__bovenkaart { display: flex; flex-direction: column; }

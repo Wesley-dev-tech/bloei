@@ -18,7 +18,7 @@
 //   Dagboek                                            kasjmier    dagboek     --tile-book-bg / --tile-book-fg; --c-book, --c-book-soft
 //   Drinken, dagdoel, dranken                          mist        drank       --tile-drink-*; de vulling van glas, baan en staafjes --c-water
 //   Supplementen, momenten, reeks, badges, doel gehaald  salie     gezondheid  --tile-health-*; --c-health
-//   Gewicht, weging, weegdag, streefgewicht            duifblauw   gewicht     (nieuw: --tile-weight-*, zodra spoor A de familie toevoegt)
+//   Gewicht, weging, weegkalender, streefgewicht       duifblauw   gewicht     (nieuw: --tile-weight-*, zodra spoor A de familie toevoegt)
 //   Algemeen: instellingen, profiel, thema, vergrendeling, uitleg, back-up   neutraal   neutraal   --tile-neutral-*
 //   Delen, verslag, periode                            aubergine   delen       (nieuw: --tile-share-*, zodra spoor A de familie toevoegt)
 //   Eten, de zes maaltijden, favorieten                poederroze  maaltijd    --tile-meal-*
@@ -58,7 +58,7 @@ export const ICOON = {
   instellingen: { naam: 'gear', familie: 'neutraal', stijl: 'solid' },
   profiel: { naam: 'user', familie: 'neutraal', stijl: 'solid' },
   thema: { naam: 'palette', familie: 'neutraal', stijl: 'solid' },
-  weegdag: { naam: 'calendar-day', familie: 'gewicht', stijl: 'solid' },
+  weegkalender: { naam: 'calendar-day', familie: 'gewicht', stijl: 'solid' }, // de kaart Weegkalender op Gewicht: de weken waarin ze zich woog
   streefgewicht: { naam: 'bullseye', familie: 'gewicht', stijl: 'solid' },
   vergrendeling: { naam: 'lock', familie: 'neutraal', stijl: 'solid' }, // ook de pincode
   pincode: { naam: 'lock', familie: 'neutraal', stijl: 'solid' },

@@ -1,5 +1,5 @@
 // BESLISSING 493: Algemeen, Gewicht: het streefgewicht met plus en min en met een invoerveld tussen die twee (typen kan ook);
-// de weekdagknoppen "MA DI WO ..." hebben een aria-label met de volledige dagnaam. De rij verandert niet van maat.
+// de weegdag bestaat niet meer (0.6.3). De rij verandert niet van maat.
 import { test, expect } from '@playwright/test';
 import { vasteKlok, VASTE_DATUM } from './vaste-klok.js';
 import { animatiesKlaar } from './wacht.js';
@@ -37,7 +37,6 @@ async function zaai(page, { streef = 66, thema = null } = {}) {
           const tx = db.transaction(['wegingen', 'instellingen'], 'readwrite');
           tx.objectStore('wegingen').clear();
           tx.objectStore('wegingen').put({ week: '2026-11-09', datum: vandaag, kg: 68.4, voorbeeld: false, gewijzigdOp: Date.now() });
-          tx.objectStore('instellingen').put({ sleutel: 'gewicht.weegdag', waarde: 4 });
           if (doel == null) tx.objectStore('instellingen').delete('gewicht.streefKg');
           else tx.objectStore('instellingen').put({ sleutel: 'gewicht.streefKg', waarde: doel });
           if (themaKeuze) tx.objectStore('instellingen').put({ sleutel: 'thema.keuze', waarde: themaKeuze });
@@ -145,25 +144,14 @@ test.describe('het streefgewicht typen bij Instellingen Gewicht', () => {
     await page.getByRole('button', { name: 'Wissen' }).click();
     await expect(page.locator('.streefveld')).toHaveCount(0);
     await wachtOpInstelling(page, 'gewicht.streefKg', null);
-    await page.getByRole('button', { name: 'Zetten' }).click();
+    await page.getByRole('button', { name: 'Instellen' }).click();
     await expect(veld(page)).toHaveValue('68,4'); // de laatste weging
   });
 
-  test('de weekdagknoppen hebben de volledige dagnaam als naam', async ({ page }) => {
+  test('er is geen keuze van een weegdag meer (0.6.3)', async ({ page }) => {
     await zaai(page);
-    const namen = await page.locator('.weegdagen .chip').evaluateAll((k) => k.map((c) => ({ naam: c.getAttribute('aria-label'), tekst: c.textContent.trim() })));
-    expect(namen).toEqual([
-      { naam: 'maandag', tekst: 'ma' },
-      { naam: 'dinsdag', tekst: 'di' },
-      { naam: 'woensdag', tekst: 'wo' },
-      { naam: 'donderdag', tekst: 'do' },
-      { naam: 'vrijdag', tekst: 'vr' },
-      { naam: 'zaterdag', tekst: 'za' },
-      { naam: 'zondag', tekst: 'zo' },
-    ]);
-    await page.getByRole('button', { name: 'zaterdag' }).click();
-    await wachtOpInstelling(page, 'gewicht.weegdag', 6);
-    await expect(page.getByRole('button', { name: 'zaterdag' })).toHaveAttribute('aria-pressed', 'true');
+    await expect(page.locator('.weegdagen, .gewvoorbeeld__week')).toHaveCount(0);
+    await expect(page.locator('#scherm')).not.toContainText(/weegdag/i);
   });
 });
 

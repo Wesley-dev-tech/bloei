@@ -63,21 +63,20 @@ export function voortgangNaarStreef(start, nu, streef) {
   return { fractie, bereikt, rest: bereikt ? 0 : Math.abs(z - n) / 10, richting: Math.sign(totaal) };
 }
 
-// De laatste `aantal` weken (oudste eerst, de lopende week laatst), elk met de dag waarop gewogen hoort te worden.
-// weegdag: 1 (maandag) tot 7 (zondag); zonder weegdag staat de maandag als datum, want een weging telt op elke dag van de week.
+// De laatste `aantal` weken (oudste eerst, de lopende week laatst), elk met de maandag van die week als datum: een weging telt op
+// elke dag van de week.
 // - gevuld: er is in die week een weging
 // - voorEerste: de week ligt voor haar eerste weging (telt niet als gemist)
 // - isNu: de lopende week
 // - maandWissel: de week waarin de maand (van de datum) wisselt t.o.v. de week ervoor, en de allereerste; met het label van de maand
-export function weekKalender(wegingen, vandaagSleutel, weegdag, aantal = 12) {
+export function weekKalender(wegingen, vandaagSleutel, aantal = 12) {
   const gewogen = new Set(wegingen.map((w) => w.week));
   const eersteWeek = wegingen.length ? wegingen.reduce((m, w) => (w.week < m ? w.week : m), wegingen[0].week) : null;
   const nu = weekStart(vandaagSleutel);
-  const dag = Number.isInteger(weegdag) && weegdag >= 1 && weegdag <= 7 ? weegdag : 1;
   const weken = [];
   for (let i = aantal - 1; i >= 0; i--) {
     const week = plusDagen(nu, -7 * i);
-    const datum = plusDagen(week, dag - 1);
+    const datum = week;
     const maand = Number(datum.slice(5, 7)) - 1;
     const vorige = weken.at(-1);
     weken.push({

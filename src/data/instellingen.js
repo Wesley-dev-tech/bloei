@@ -21,12 +21,11 @@ export const STANDAARD = {
   'drinken.glasMl': 800, // de grootte van één tik op Water: een kan van 800 ml (BESLISSING 270); de sleutel houdt zijn oude naam
   'drinken.kanOmgezet': false, // vlag: de oude standaard van 250 ml is al één keer naar een kan omgezet
   'drinken.groottes': { thee: 200, koffie: 150, sap: 200, frisdrank: 330, anders: 250 },
-  'gewicht.weegdag': 1,
   'gewicht.streefKg': null,
   'meldingen.dagboek': { aan: false, uur: '20:00' },
   // BESLISSINGEN 312 en 313: herinneringen voor drinken (tot 4 tijdstippen) en supplementen (tot 3) met elk eigen schakelaar en uur; de
-  // uren zijn beginwaarden die de gebruiker zelf aanpast, toevoegt en weghaalt. Een oude bewaarde 'meldingen.weegdag' of 'meldingen.supplementen'
-  // (één uur) leest niemand nog; ze blijven ongemoeid in de database staan.
+  // uren zijn beginwaarden die de gebruiker zelf aanpast, toevoegt en weghaalt. Een oude bewaarde 'meldingen.supplementen' (één uur) leest
+  // niemand nog; ze blijft ongemoeid in de database staan.
   'meldingen.drinken': [{ aan: false, uur: '11:00' }, { aan: false, uur: '15:00' }, { aan: false, uur: '19:00' }],
   'meldingen.supplementenUren': [{ aan: false, uur: '08:00' }, { aan: false, uur: '13:00' }, { aan: false, uur: '19:00' }],
   'meldingen.details': false, // BESLISSING 335: standaard staat er in elke melding alleen "Bloei ligt klaar."; aan = de tekst met details (alleen lokaal, gaat nooit naar de dienst)

@@ -467,9 +467,9 @@ test('Mijn gewicht noteren: het blad opent en sluit bij de juiste stappen en er 
   const titels = await loopStappen(page, async ({ titel }) => {
     gezien.push({ titel, bladOpen: (await blad.count()) > 0 });
   });
-  expect(titels, JSON.stringify(gezien)).toContain('Het getal');
+  expect(titels, JSON.stringify(gezien)).toContain('Je gewicht');
   // Het blad is open bij Het getal, De datum en Bewaren, en dicht bij de stappen die op het scherm zelf wijzen.
-  for (const naam of ['Het getal', 'De datum', 'Bewaren']) {
+  for (const naam of ['Je gewicht', 'De datum', 'Bewaren']) {
     const g = gezien.find((x) => x.titel === naam);
     if (g) expect(g.bladOpen, naam).toBe(true);
   }
@@ -601,7 +601,6 @@ const VERWACHT = {
   'supplementen.bestand': { sel: '.lijstbestand' }, // BESLISSING 703: het blok Lijst bewaren en overnemen, alleen bij een gevulde lijst
   'supplementen.kop': { sel: '.schermkop__acties' },
   'gewicht.weging': { tag: 'button', naam: /Weging noteren/ },
-  'gewicht.weegdag': { sel: '.gewicht__weegdag' },
   'gewicht.streef': { haak: 'streefgewicht' },
   'gewicht.periode': { rol: 'radiogroup', haak: 'grafiek-periode' }, // alleen vanaf twee wegingen
   'gewicht.grafiek': { haak: 'grafiek-vlak' },

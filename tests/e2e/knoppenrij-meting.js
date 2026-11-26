@@ -175,17 +175,6 @@ export const PLAATSEN = [
     kader: 'body > dialog.dialoog[open]',
   },
   {
-    naam: 'weegdag (Klaar, Annuleren)',
-    kort: 'weegdag',
-    open: async (page) => {
-      await naar(page, 'gewicht');
-      await page.locator('.gewicht__weegdag .gewicht__actie .knop').click();
-      await klaarOm(page, page.locator('.weegdagblad dialog[open]'));
-    },
-    groep: '.weegdagblad dialog[open] .maaltijd__acties',
-    kader: '.weegdagblad dialog[open]',
-  },
-  {
     naam: 'gekozen weging onder de grafiek (Aanpassen, Verwijderen als tekstknop)',
     kort: 'gewicht-gekozen',
     twijfel: true,

@@ -24,7 +24,7 @@ const CODE = '123456';
 const LEEG = { cookies: [], origins: [] };
 
 const verder = (page) => page.locator('.welkom__knoppen .knop--primair');
-const stap4 = (page) => page.locator('.welkom__stap[data-stap="5"]');
+const stap4 = (page) => page.locator('.welkom__stap[data-stap="4"]');
 const SLOT = (page) => page.getByRole('switch', { name: /^Bloei vergrendelen/ });
 const KIES_PIN = (page) => page.getByRole('radio', { name: /^Pincode/ });
 
@@ -63,15 +63,13 @@ async function naarStap4(page, naam = 'Testnaam') {
   await page.goto('./');
   await expect(page).toHaveURL(/#\/welkom$/);
   await page.getByRole('textbox', { name: 'Je naam' }).fill(naam);
-  // (de naam staat nog op "naarStap4": de vergrendeling is sinds 0.4.5, met de geboortedatum als stap 2, de vijfde stap)
+  // De vergrendeling is de vierde stap: naam, geboortedatum, dagdoel, vergrendeling (sinds 0.6.3 zonder weegdag).
   await verder(page).click();
-  await expect(page.getByText('Stap 2 van 5')).toBeVisible();
+  await expect(page.getByText('Stap 2 van 4')).toBeVisible();
   await verder(page).click();
-  await expect(page.getByText('Stap 3 van 5')).toBeVisible();
+  await expect(page.getByText('Stap 3 van 4')).toBeVisible();
   await verder(page).click();
-  await expect(page.getByText('Stap 4 van 5')).toBeVisible();
-  await verder(page).click();
-  await expect(page.getByText('Stap 5 van 5')).toBeVisible();
+  await expect(page.getByText('Stap 4 van 4')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Wil je Bloei vergrendelen?' })).toBeVisible();
 }
 
@@ -200,7 +198,7 @@ for (const [toestel, opties, methode, keuze, slotknop] of TOESTELLEN) {
       await expect(page.locator('.welkom .cijferblok')).toHaveCount(0);
       await page.getByRole('button', { name: 'Annuleren' }).click();
       await expect(page).toHaveURL(/#\/welkom$/);
-      await expect(page.getByText('Stap 5 van 5')).toBeVisible();
+      await expect(page.getByText('Stap 4 van 4')).toBeVisible();
       await expect(page.locator('.welkom__knoppen')).toBeVisible();
       await expect(page.getByRole('radio', { name: new RegExp('^' + keuze) })).toBeFocused();
       let st = await slotStand(page);
@@ -261,7 +259,7 @@ for (const [toestel, opties, methode, keuze, slotknop] of TOESTELLEN) {
       await expect(page.getByRole('radio', { name: new RegExp('^' + methode) })).toBeEnabled();
     });
 
-    test('terug naar stap 3 en weer vooruit houdt naam, dagdoel, weegdag en de keuze', async ({ page }) => {
+    test('terug naar stap 3 en weer vooruit houdt naam, dagdoel en de keuze', async ({ page }) => {
       await authenticator(page, 'ok');
       await page.goto('./');
       await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
@@ -271,31 +269,28 @@ for (const [toestel, opties, methode, keuze, slotknop] of TOESTELLEN) {
       await plus.click();
       await plus.click();
       await verder(page).click();
-      await page.getByRole('button', { name: 'wo', exact: true }).click();
-      await verder(page).click();
-      await expect(page.getByText('Stap 5 van 5')).toBeVisible();
+      await expect(page.getByText('Stap 4 van 4')).toBeVisible();
       await page.getByRole('radio', { name: new RegExp('^' + keuze) }).click();
       await page.getByRole('button', { name: 'Terug' }).click();
-      await expect(page.getByText('Stap 4 van 5')).toBeVisible();
+      await expect(page.getByText('Stap 3 van 4')).toBeVisible();
       await expect(verder(page)).toHaveText('Verder');
       await expect(page.getByRole('button', { name: 'Overslaan' })).toBeVisible();
-      await expect(page.getByRole('button', { name: 'wo', exact: true })).toHaveAttribute('aria-pressed', 'true');
-      for (let i = 0; i < 3; i += 1) await page.getByRole('button', { name: 'Terug' }).click();
+      for (let i = 0; i < 2; i += 1) await page.getByRole('button', { name: 'Terug' }).click();
       await expect(page.getByRole('textbox', { name: 'Je naam' })).toHaveValue('Testnaam');
-      for (let i = 0; i < 4; i += 1) await verder(page).click();
-      await expect(page.getByText('Stap 5 van 5')).toBeVisible();
+      for (let i = 0; i < 3; i += 1) await verder(page).click();
+      await expect(page.getByText('Stap 4 van 4')).toBeVisible();
       await expect(page.getByRole('radio', { name: new RegExp('^' + keuze) })).toHaveAttribute('aria-checked', 'true');
       await page.getByRole('button', { name: 'Nu niet' }).click();
       await expect(page).toHaveURL(/#\/vandaag$/);
       expect(await instelling(page, 'drinken.dagdoelMl')).toBe(3000);
-      expect(await instelling(page, 'gewicht.weegdag')).toBe(3);
+      expect((await instelling(page, 'gewicht.weegdag')) ?? null).toBeNull(); // er is geen weegdag meer
       expect(await instelling(page, 'profiel.naam')).toBe('Testnaam');
     });
 
     test('op een toestel zonder biometrie is er alleen Pincode', async ({ page }) => {
       await authenticator(page, 'geen');
       await naarStap4(page);
-      await expect(page.locator('.welkom__stap[data-stap="5"] .slot__optie')).toHaveCount(1);
+      await expect(page.locator('.welkom__stap[data-stap="4"] .slot__optie')).toHaveCount(1);
       await expect(KIES_PIN(page)).toHaveAttribute('aria-checked', 'true');
       await expect(page.getByRole('radio', { name: new RegExp('^' + keuze) })).toHaveCount(0);
     });
@@ -316,7 +311,7 @@ for (const [toestel, opties, methode, keuze, slotknop] of TOESTELLEN) {
       await rondAf(page); // er wordt pas bewaard bij Verder onder de herstelcode
       await expect(page.locator('.welkom__slotmelding')).not.toBeEmpty();
       await expect(page).toHaveURL(/#\/welkom$/);
-      await expect(page.getByText('Stap 5 van 5')).toBeVisible();
+      await expect(page.getByText('Stap 4 van 4')).toBeVisible();
       await page.evaluate(() => (IDBObjectStore.prototype.put = window.__echtePut));
       expect((await slotStand(page))['slot.aan']).toBeFalsy();
       expect((await slotStand(page))['start.klaar']).toBeFalsy();
@@ -428,9 +423,9 @@ test.describe('Welkom stap 4: twee even grote knoppen', () => {
     const h1 = await hoogte();
     const l1 = await lucht();
     expect(Math.abs(l1.boven - l1.onder)).toBeLessThanOrEqual(16);
-    for (let n = 2; n <= 5; n++) {
+    for (let n = 2; n <= 4; n++) {
       await verder(page).click();
-      await expect(page.getByText(`Stap ${n} van 5`)).toBeVisible();
+      await expect(page.getByText(`Stap ${n} van 4`)).toBeVisible();
       await animatiesKlaar(page);
       expect(Math.abs((await hoogte()) - h1)).toBeLessThanOrEqual(1);
       const l = await lucht();

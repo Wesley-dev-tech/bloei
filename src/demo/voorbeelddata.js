@@ -14,7 +14,7 @@ export const GEBRUIKTE_NAMEN = [DEMO_NAAM];
 
 export const AANTAL_DAGEN = 28;
 export const DOEL_ML = 2500;
-const WEEGDAG = 1; // maandag
+const WEGING_OP = 1; // in het voorbeeld weegt ze zich op maandag
 const STREEF_KG = 68;
 const WEGINGEN_KG = [71.4, 71.0, 70.9, 70.5]; // oudste eerst
 
@@ -56,7 +56,7 @@ const NOTITIES = {
 const GEMIST = { 1: 'middag', 3: 'ochtend', 5: 'avond', 7: 'avond', 9: 'middag', 11: 'middag', 13: 'ochtend', 14: 'avond', 19: 'middag', 20: 'ochtend', 21: 'ochtend', 22: 'avond', 25: 'middag' };
 // De drie dagen (dag-index) waarop Sofie niets noteerde, een lang weekend weg. Drie op een rij onderbreken de reeks altijd (de app vergeeft er één per kalenderweek), op welke weekdag ook, en het zijn er minder dan vijf: geen "Weer thuis".
 const LEGE_DAGEN = [15, 16, 17];
-// De weging die ze oversloeg (volgnummer van de weegdag, 0 = de oudste): zo blijft "Vier wegingen" nog bijna.
+// De weging die ze oversloeg (volgnummer van de maandag, 0 = de oudste): zo blijft "Vier wegingen" nog bijna.
 const OVERGESLAGEN_WEGING = 1;
 
 const FAVORIETEN = ['Havermout met banaan', 'Yoghurt met muesli', 'Soep met brood', 'Boterham met kaas'];
@@ -193,17 +193,17 @@ export function bouwDemo(nu = new Date()) {
     });
   }
 
-  // ---- gewicht: één weging per week op de weegdag (maandag); van de vier weegdagen van deze vier weken slaat ze er één over
+  // ---- gewicht: één weging per week, op maandag; van de vier maandagen van deze vier weken slaat ze er één over
   const beginDatum = plusDagen(vandaag, -(AANTAL_DAGEN - 1));
   const wegingen = [];
-  let weegdagNr = 0;
-  for (let n = 0; n < AANTAL_DAGEN && weegdagNr < WEGINGEN_KG.length; n++) {
+  let wegingNr = 0;
+  for (let n = 0; n < AANTAL_DAGEN && wegingNr < WEGINGEN_KG.length; n++) {
     const datum = plusDagen(beginDatum, n);
-    if (weekdag(datum) !== WEEGDAG) continue;
-    // Valt de weegdag in het lange weekend, dan weegt ze zich de dag erna: op een lege dag staat nooit iets, wat de weekdag van vandaag ook is.
+    if (weekdag(datum) !== WEGING_OP) continue;
+    // Valt die maandag in het lange weekend, dan weegt ze zich de dag erna: op een lege dag staat nooit iets, wat de weekdag van vandaag ook is.
     const wegDatum = LEGE_DAGEN.includes(n) ? plusDagen(beginDatum, Math.max(...LEGE_DAGEN) + 1) : datum;
-    if (weegdagNr !== OVERGESLAGEN_WEGING) wegingen.push({ week: weekStart(wegDatum), datum: wegDatum, kg: WEGINGEN_KG[weegdagNr], voorbeeld: false, gewijzigdOp: tijdstipVan(wegDatum, 7, 30, nu, vandaag, 0) });
-    weegdagNr += 1;
+    if (wegingNr !== OVERGESLAGEN_WEGING) wegingen.push({ week: weekStart(wegDatum), datum: wegDatum, kg: WEGINGEN_KG[wegingNr], voorbeeld: false, gewijzigdOp: tijdstipVan(wegDatum, 7, 30, nu, vandaag, 0) });
+    wegingNr += 1;
   }
 
   const favorieten = FAVORIETEN.map((tekst, nr) => ({ id: nr + 1, tekst, sleutel: tekst.toLowerCase(), laatstGebruikt: nu.getTime() - (nr + 1) * 3600000 }));
@@ -215,7 +215,6 @@ export function bouwDemo(nu = new Date()) {
     ['drinken.dagdoelMl', DOEL_ML],
     ['drinken.dagdoelOmgezet', true],
     ['drinken.kanOmgezet', true],
-    ['gewicht.weegdag', WEEGDAG],
     ['gewicht.streefKg', STREEF_KG],
   ].map(([sleutel, waarde]) => ({ sleutel, waarde }));
 

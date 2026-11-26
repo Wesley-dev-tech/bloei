@@ -1,15 +1,14 @@
-// Meer · Gewicht: weegdag en streefgewicht (BESLISSING 162 en 164), in de vaste opbouw van een instelscherm: links elke instelling één rij met de
-// bediening rechts, rechts "Zo ziet het eruit": een week met de weegdag gemarkeerd en een kleine grafiek met de stippellijn van het streefgewicht.
+// Meer · Gewicht: het streefgewicht (BESLISSING 162 en 164), in de vaste opbouw van een instelscherm: links de instelling als één rij met de
+// bediening rechts, rechts "Zo ziet het eruit": een kleine grafiek met de stippellijn van het streefgewicht.
 // Zonder oordeel: geen kleur voor "goed" of "slecht", nooit "nog x kg". Elke wijziging bewaart zichzelf en is meteen zichtbaar op Gewicht.
 import { h, svg } from '../ui/dom.js';
 import { grafiek } from '../ui/grafiek.js';
-import { kaart, kaartkop, knop, rij, chips, stapper, schermkop, strook } from '../ui/componenten.js';
+import { kaart, kaartkop, knop, rij, stapper, schermkop, strook } from '../ui/componenten.js';
 import { weetjesVoor } from '../ui/weetjes.js';
 import { eersteToon, komOp } from '../ui/beweging.js';
 import { beheerScherm, terugKnop, uitgesteldBewaren } from './hulp.js';
 import { t } from '../teksten.js';
 import { opmaakKg, leesKg } from '../kern/getal.js';
-import { opmaakDatum, plusDagen, vandaag, weekdag } from '../kern/datum.js';
 import { leesInstelling, zetInstelling } from '../data/instellingen.js';
 import { laatsteWeging, leesWegingen } from '../data/wegingen.js';
 import { begripOpties } from '../ui/iconenkaart.js';
@@ -108,23 +107,14 @@ export function toon(houder) {
   const opruimScherm = beheerScherm(
     houder,
     async (ctx) => {
-      const [weegdag0, streef0, laatsteKg, wegingen] = await Promise.all([leesInstelling('gewicht.weegdag'), leesInstelling('gewicht.streefKg'), laatsteWeging(), leesWegingen()]);
-      const stand = { weegdag: weegdag0, streef: streef0 };
+      const [streef0, laatsteKg, wegingen] = await Promise.all([leesInstelling('gewicht.streefKg'), laatsteWeging(), leesWegingen()]);
+      const stand = { streef: streef0 };
       const opent = eersteToon('meer-gewicht');
 
       // ---- Zo ziet het eruit
-      const week = h('ol', { class: 'gewvoorbeeld__week', 'aria-hidden': 'true' });
       const grafiekHouder = h('div', { class: 'gewvoorbeeld__grafiekhouder' });
       const zin = h('p', { class: 'gewvoorbeeld__zin t-cursief' });
-      const volgende = h('p', { class: 't-klein t-gedempt gewvoorbeeld__volgende' });
-      function volgendeWeging() {
-        const nu = vandaag();
-        let d = nu;
-        while (weekdag(d) !== stand.weegdag) d = plusDagen(d, 1);
-        return d;
-      }
       function tekenVoorbeeld() {
-        week.replaceChildren(...[1, 2, 3, 4, 5, 6, 7].map((n) => h('li', { class: ['gewvoorbeeld__dag', n === stand.weegdag && 'is-weegdag'] }, t('instellingen.dagen.' + n))));
         // Haar echte wegingen met de bestaande grafiek in klein formaat; zonder weging het lege assenvlak. Nooit verzonnen punten.
         if (wegingen.length) {
           const gr = grafiek({ wegingen, periode: 'kwartaal', streefKg: stand.streef ?? undefined, vul: true });
@@ -135,8 +125,7 @@ export function toon(houder) {
         } else {
           grafiekHouder.replaceChildren(legeGrafiek(stand.streef), h('p', { class: 'gewvoorbeeld__leeg t-cursief' }, t('instellingen.eersteWeging')));
         }
-        zin.textContent = t('instellingen.weegdagZin', { dag: t('algemeen.dagen.' + stand.weegdag) });
-        volgende.textContent = t('instellingen.volgendeWeging', { datum: opmaakDatum(volgendeWeging(), 'lang') });
+        zin.textContent = t(stand.streef != null ? 'instellingen.streefStippel' : 'instellingen.streefNogZin');
         balans?.pas(); // BESLISSING 345: de kolommen eindigen ook na een wijziging gelijk
       }
       let balans = null;
@@ -147,34 +136,11 @@ export function toon(houder) {
         kaart(
           { klasse: 'gewvoorbeeld' },
           kaartkop({ tegel: begripOpties('gewicht'), label: t('instellingen.zoZietHetEruit') }),
-          h('div', { class: 'instel__groei instel__voorbeeldinhoud' }, zin, week, volgende, grafiekHouder),
+          h('div', { class: 'instel__groei instel__voorbeeldinhoud' }, zin, grafiekHouder),
         ),
       );
 
       // ---- De instellingen
-      const weegdagChips = chips({
-        keuzes: [1, 2, 3, 4, 5, 6, 7].map((n) => ({ id: n, label: t('instellingen.dagen.' + n) })),
-        actief: stand.weegdag,
-        label: t('instellingen.weegdag'),
-        opKies: (n) => {
-          stand.weegdag = n;
-          zetInstelling('gewicht.weegdag', n);
-          tekenVoorbeeld();
-        },
-      });
-      // BESLISSING 493: de knoppen tonen "MA DI WO ..."; de schermlezer hoort de volledige dagnaam (zoals in het blad Weegdag).
-      [...weegdagChips.querySelectorAll('.chip')].forEach((k, i) => k.setAttribute('aria-label', t('algemeen.dagen.' + (i + 1))));
-      const weegdagRij = h(
-        'div',
-        { class: 'instel__rijgroep' },
-        rij({ tegel: begripOpties('weegdag'), titel: t('instellingen.weegdag'), tekst: t('instellingen.weegdagUitleg') }),
-        h(
-          'div',
-          { class: 'weegdagen weegdagen--breed' },
-          weegdagChips,
-        ),
-      );
-
       // Streefgewicht: rechts de stand en de knoppen op de lijn van de andere bedieningen; nooit "nog x kg"
       const streefHouder = h('div', { class: 'streefrijen', dataset: { fk: 'streef' } });
       function tekenStreef() {
@@ -222,18 +188,18 @@ export function toon(houder) {
       }
       tekenStreef();
 
-      const lijst = kaart({ klasse: 'instellingen__gewicht' }, kaartkop({ tegel: begripOpties('gewicht'), label: t('tab.gewicht') }), weegdagRij, streefHouder);
+      const lijst = kaart({ klasse: 'instellingen__gewicht' }, kaartkop({ tegel: begripOpties('gewicht'), label: t('tab.gewicht') }), streefHouder);
       const kaarten = [lijst, voorbeeld.firstElementChild];
       if (opent) komOp(kaarten, { stap: 90 });
 
-      const scherm = h('div', { class: 'instelscherm' }, h('div', { class: 'instel__lijst' }, lijst, weetjesVoor('gewicht', ['weegdag', 'streefgewicht', 'gewicht'])), voorbeeld);
+      const scherm = h('div', { class: 'instelscherm' }, h('div', { class: 'instel__lijst' }, lijst, weetjesVoor('gewicht', ['weegkalender', 'streefgewicht', 'gewicht'])), voorbeeld);
       balans = balanceer(scherm);
       ctx.opruim(balans.stop);
       return h('div', { class: 'stapel stapel--sectie meer-sub' }, schermkop({ titel: t('tab.gewicht'), acties: [terugKnop()] }), scherm);
     },
     { events: [] },
   );
-  const stopHaken = haakUitleg(houder, { haken: [['.weegdagen','weegdag-keuze'],['.streefbediening','streef-bediening']], toonHet: 'meer/gewicht' });
+  const stopHaken = haakUitleg(houder, { haken: [['.streefbediening', 'streef-bediening']], toonHet: 'meer/gewicht' });
   return () => {
     stopHaken();
     opruimScherm();

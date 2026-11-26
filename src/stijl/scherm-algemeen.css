@@ -346,7 +346,6 @@
 /* De hint staat onder het veld in de ruimte tussen veld en knop en verandert dus niets aan de hoogte van de kaart. */
 .welkom .welkom__melding { position: absolute; top: 100%; left: 0; right: 0; margin: var(--s-1) 0 0; line-height: 1.2; color: var(--c-text-muted); }
 .welkom .welkom__melding:empty { display: none; }
-.welkom .welkom__bediening .weegdagen--breed { margin: 0; width: 100%; }
 .welkom .welkom__bediening .stapper { gap: var(--s-4); }
 .welkom .welkom__bediening .stapper__waarde { min-width: calc(var(--s-12) * 2); text-align: center; outline: none; }
 .welkom .welkom__knoppen { display: flex; flex-direction: column; gap: var(--s-2); }

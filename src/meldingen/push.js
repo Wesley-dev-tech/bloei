@@ -59,7 +59,7 @@ export function alleUren(keuzes, { kwartieren = false } = {}) {
   return [...new Set(perSoort.flat())].sort().slice(0, MAX_UREN);
 }
 
-// Het lichaam van het verzoek: alleen het abonnement en de lijst van uren. Nooit iets uit het dagboek, ook geen soort of weegdag.
+// Het lichaam van het verzoek: alleen het abonnement en de lijst van uren. Nooit iets uit het dagboek, ook geen soort.
 export function bouwLichaam(abonnement, keuzes, opties) {
   const { endpoint, keys } = abonnement;
   return { abonnement: { endpoint, keys: { p256dh: keys.p256dh, auth: keys.auth } }, uren: alleUren(keuzes, opties) };

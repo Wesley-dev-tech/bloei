@@ -38,7 +38,7 @@ async function zaaiSupplement(page) {
   );
 }
 
-// Elk soort venster van de app: de bladen van blad() (maaltijd, streefgewicht met een invoerveld, weegdag, medaille), een bevestigvraag, de supplementkaart,
+// Elk soort venster van de app: de bladen van blad() (maaltijd, streefgewicht met een invoerveld, medaille), een bevestigvraag, de supplementkaart,
 // de wisdialoog "Profiel verwijderen" en de dialoog "Lijst overnemen".
 const VENSTERS = {
   'het blad van een maaltijd': async (page) => {
@@ -47,11 +47,7 @@ const VENSTERS = {
   },
   'het blad Streefgewicht': async (page) => {
     await page.goto('./#/gewicht');
-    await page.getByRole('button', { name: 'Streefgewicht zetten' }).click();
-  },
-  'het blad Weegdag': async (page) => {
-    await page.goto('./#/gewicht');
-    await page.getByRole('button', { name: 'Weegdag aanpassen' }).click();
+    await page.getByRole('button', { name: 'Streefgewicht instellen' }).click();
   },
   'het blad van een medaille': async (page) => {
     await page.goto('./#/meer/badges');

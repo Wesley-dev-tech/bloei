@@ -245,8 +245,7 @@ for (const [breedte, hoogte] of BREEDTES) {
       }
       for (const [knop, toestand] of [
         ['Weging noteren', 'pop-up Weging noteren'],
-        ['Streefgewicht zetten', 'pop-up Streefgewicht'],
-        ['Weegdag aanpassen', 'pop-up Weegdag'],
+        ['Streefgewicht instellen', 'pop-up Streefgewicht'],
       ]) {
         await page.getByRole('button', { name: knop }).first().click();
         await expect(page.locator('dialog[open]')).toBeVisible();
@@ -372,21 +371,17 @@ for (const [breedte, hoogte] of BREEDTES) {
       const verder = page.locator('.welkom__knoppen .knop--primair');
       await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
       await verder.click();
-      await expect(page.getByText('Stap 2 van 5')).toBeVisible();
+      await expect(page.getByText('Stap 2 van 4')).toBeVisible();
       await animatiesKlaar(page);
       await meet('stap 2, geboortedatum');
       await verder.click();
-      await expect(page.getByText('Stap 3 van 5')).toBeVisible();
+      await expect(page.getByText('Stap 3 van 4')).toBeVisible();
       await animatiesKlaar(page);
       await meet('stap 3, hoeveel drinken');
       await verder.click();
-      await expect(page.getByText('Stap 4 van 5')).toBeVisible();
+      await expect(page.getByText('Stap 4 van 4')).toBeVisible();
       await animatiesKlaar(page);
-      await meet('stap 4, weegdag');
-      await verder.click();
-      await expect(page.getByText('Stap 5 van 5')).toBeVisible();
-      await animatiesKlaar(page);
-      await meet('stap 5, vergrendelen');
+      await meet('stap 4, vergrendelen');
       await page.getByRole('button', { name: 'Vergrendeling instellen' }).click();
       await expect(page.locator('.cijferblok')).toBeVisible();
       await animatiesKlaar(page);

@@ -1,12 +1,12 @@
 // Tab Gewicht (V3): de laatste weging, het verloop in een eigen grafiek en een blad om te noteren.
 // Neutraal: geen rood, geen groen als oordeel, geen pijlen, stijging en daling zien er hetzelfde uit.
 import { h } from '../ui/dom.js';
-import { kaart, kaartkop, knop, rij, chips, segment, stapper, tekstveld, bladerkop, blad, bevestig, strook, schermkop } from '../ui/componenten.js';
+import { kaart, kaartkop, knop, rij, segment, stapper, tekstveld, bladerkop, blad, bevestig, strook, schermkop } from '../ui/componenten.js';
 import { eersteToon, komOp, telOp } from '../ui/beweging.js';
 import { grafiek } from '../ui/grafiek.js';
 import { beheerScherm } from './hulp.js';
 import { t } from '../teksten.js';
-import { opmaakDatum, plusDagen, vandaag, weekdag, weekStart } from '../kern/datum.js';
+import { opmaakDatum, plusDagen, vandaag, weekStart } from '../kern/datum.js';
 import { opmaakKg, opmaakVerschil, leesKg } from '../kern/getal.js';
 import { GRENZEN, leesInstelling, zetInstelling } from '../data/instellingen.js';
 import { bewaarWeging, herstelWegingen, leesWegingen, verhuisWeging, verschilMetVorigeWeek, verwijderWeging, wegingVanWeek } from '../data/wegingen.js';
@@ -18,8 +18,7 @@ import { MAANDEN_KORT, verloopCijfers, voortgangNaarStreef, weekKalender, wekenG
 
 const staat = { periode: 'maand', gekozen: null, focusNa: false, focusOp: null }; // focusOp: de knop (selector) die na een hertekening de focus terugkrijgt, als hij nergens anders heen ging
 
-// Het blad "Weging noteren": datum (niet in de toekomst), gewicht met de stapper (tik op het getal om te
-// typen; bij de allereerste weging meteen een typveld) en Noteren. Bestaat er die week al een weging, dan
+// Het blad "Weging noteren": datum (niet in de toekomst), gewicht in een invulvak met min en plus (kgInvoer) en Noteren. Bestaat er die week al een weging, dan
 // eerst de vraag "Vervangen?". Na het bewaren altijd dezelfde strook.
 // kijkstand: voor de uitleg; het blad opent met een voorbeeldgetal, Bewaren schrijft niets en sluiten laat geen weging achter.
 async function openWegingBlad({ weging = null, kijkstand = false } = {}) {
@@ -57,75 +56,29 @@ async function openWegingBlad({ weging = null, kijkstand = false } = {}) {
     );
   tekenKop();
 
-  // Gewicht: stapper met typen op het getal, of meteen een typveld bij de eerste weging
-  let invoer;
-  let veld = null;
-  if (eerste && kg == null && !kijkstand) {
-    veld = tekstveld({
-      plaats: t('gewicht.typPlaats'),
-      label: t('gewicht.waarde'),
-      inputmode: 'decimal',
-      opWijzig: (v) => {
-        kg = leesKg(v);
-        markeerFout(veld, false);
-      },
-    });
-    veld.classList.add('gewicht__typveld');
-    veld.setAttribute('aria-describedby', 'weging-fout');
-    invoer = h('div', { class: 'gewicht__invoer' }, veld);
-  } else {
-    const stap = stapper({ waarde: kg ?? 68, stap: 0.1, min: 20, max: 300, opmaak: opmaakKg, label: t('gewicht.waarde'), opWijzig: (n) => (kg = n) });
-    if (kg == null) kg = 68;
-    const uitvoer = stap.querySelector('.stapper__waarde');
-    uitvoer.classList.add('gewicht__getal');
-    uitvoer.setAttribute('data-uitleg', 'weging-getal');
-    uitvoer.setAttribute('title', t('gewicht.typ'));
-    // Ook met het toetsenbord te typen: het getal is een knop (naam = de waarde, beschrijving = de hint ernaast); Enter of spatie opent het typveld.
-    uitvoer.setAttribute('role', 'button');
-    uitvoer.setAttribute('tabindex', '0');
-    uitvoer.setAttribute('aria-describedby', 'weging-typhint');
-    uitvoer.addEventListener('keydown', (e) => {
-      if (e.key !== 'Enter' && e.key !== ' ') return;
-      e.preventDefault();
-      uitvoer.click();
-    });
-    uitvoer.addEventListener('click', () => {
-      const typ = tekstveld({ waarde: String(kg).replace('.', ','), label: t('gewicht.waarde'), inputmode: 'decimal' });
-      typ.classList.add('gewicht__typveld');
-      uitvoer.hidden = true;
-      uitvoer.after(typ);
-      typ.focus();
-      typ.select?.();
-      const klaar = () => {
-        const n = leesKg(typ.value);
-        if (n != null) {
-          kg = n;
-          stap.zetWaarde(n);
-        }
-        typ.remove();
-        uitvoer.hidden = false;
-      };
-      typ.addEventListener('blur', klaar);
-      typ.addEventListener('keydown', (e) => {
-        if (e.key === 'Enter') {
-          e.preventDefault();
-          typ.blur();
-          uitvoer.focus(); // de focus blijft op het getal in plaats van te verdwijnen
-        } else if (e.key === 'Escape') {
-          e.stopPropagation(); // Escape sluit eerst het typveld; het blad blijft open
-          e.preventDefault();
-          typ.value = '';
-          typ.blur();
-          uitvoer.focus();
-        }
-      });
-    });
-    invoer = h('div', { class: 'gewicht__invoer' }, stap, h('p', { class: 't-klein t-gedempt gewicht__hint', id: 'weging-typhint' }, t('gewicht.typ')));
-  }
+  // Gewicht: altijd een invulvak met min en plus ernaast. Bij de eerste weging is het vak leeg (met een voorbeeld als hint), daarna staat je
+  // laatste weging erin. In de kijkstand van de uitleg staat er een voorbeeldgetal.
+  if (kg == null && kijkstand) kg = 68;
+  const { blok: invoer, veld } = kgInvoer({
+    waarde: kg,
+    start: kg ?? 68,
+    label: t('gewicht.typLabel'),
+    opWijzig: (n) => {
+      kg = n;
+      markeerFout(veld, false);
+    },
+  });
+  veld.setAttribute('aria-describedby', 'weging-fout');
+  invoer.setAttribute('data-uitleg', 'weging-getal');
+  veld.addEventListener('keydown', (e) => {
+    if (e.key !== 'Enter' || e.shiftKey || e.isComposing) return;
+    e.preventDefault();
+    bewaarOpKlik(); // Enter in het vak noteert, zoals in het blad Streefgewicht
+  });
 
   // R2-09: één bewaarbeurt tegelijk; een dubbele tik op Noteren bewaart één keer (de knop staat uit zolang het bewaren loopt).
   let bezig = false;
-  // BESLISSING 492: Noteren en Annuleren staan gecentreerd naast elkaar, met dezelfde helper en klasse als de bladen Streefgewicht en Weegdag.
+  // BESLISSING 492: Noteren en Annuleren staan gecentreerd naast elkaar, met dezelfde helper en klasse als het blad Streefgewicht.
   const bewaarOpKlik = async () => {
       if (kijkstand) {
         b.sluit();
@@ -134,7 +87,7 @@ async function openWegingBlad({ weging = null, kijkstand = false } = {}) {
       if (bezig) return;
       if (kg == null || kg < 20 || kg > 300) {
         markeerFout(veld, true);
-        veld?.focus();
+        veld.focus();
         return;
       }
       bezig = true;
@@ -184,7 +137,7 @@ async function openWegingBlad({ weging = null, kijkstand = false } = {}) {
   kopHouder.setAttribute('data-uitleg', 'weging-datum');
   b.querySelector('.knop--primair')?.setAttribute('data-uitleg', 'weging-bewaar');
   b.open();
-  if (!kijkstand) veld?.focus();
+  if (!kijkstand && kg == null) veld.focus(); // alleen een leeg vak krijgt meteen de focus (en het toetsenbord); staat er al een gewicht, dan kan je ook met min en plus verder
   return b;
 }
 
@@ -192,7 +145,7 @@ async function openWegingBlad({ weging = null, kijkstand = false } = {}) {
 // (BESLISSING 412 en 417): Klaar links, Annuleren in het midden, Verwijderen rechts (alleen als er al een streefgewicht is).
 // Er is geen tussentijdse opslag: Klaar bewaart; Annuleren, Escape, het kruisje en de terugknop sluiten zonder iets te wijzigen.
 // Het streefgewicht staat in dezelfde instelling als bij Algemeen, Gewicht ('gewicht.streefKg').
-// Gedeeld door de bladen Streefgewicht en Weegdag (BESLISSING 463, 469, 477): Klaar (gevuld, met vinkje) en Annuleren, gecentreerd onder de inhoud.
+// Voor het blad Streefgewicht (BESLISSING 463, 469): Klaar (gevuld, met vinkje) en Annuleren, gecentreerd onder de inhoud.
 // bladMetKnoppen geeft het blad terug zonder het te openen; verwijderHouder is er alleen als er iets te verwijderen valt.
 function klaarEnAnnuleer(opKlaar, opAnnuleer, klaarTekst = t('gewicht.klaar')) {
   const klaarKnop = knop(klaarTekst, { soort: 'primair', opKlik: opKlaar });
@@ -211,7 +164,7 @@ function bladMetKnoppen({ titel, klasse, inhoud, klaarKnop, annuleerKnop, verwij
   return b;
 }
 
-// BESLISSING 494: de knop op de kaarten Streefgewicht en Weegdag heeft de volle tekst vanaf 390 px breed en daaronder de korte (Zetten, Aanpassen); css toont de ene of de andere,
+// BESLISSING 494: de knop op de kaart Streefgewicht heeft de volle tekst vanaf 390 px breed en daaronder de korte (Instellen, Aanpassen); css toont de ene of de andere,
 // de schermlezernaam is altijd de volle tekst.
 function kaartKnop(vol, kort, opties) {
   const k = knop(vol, { soort: 'primair', breed: true, label: vol, ...opties });
@@ -221,22 +174,71 @@ function kaartKnop(vol, kort, opties) {
 
 const geldigKg = (n) => n != null && n >= GRENZEN.kg.min && n <= GRENZEN.kg.max;
 
-export function openStreefBlad({ streef = null } = {}) {
+// Het invulvak voor een gewicht in de bladen Weging noteren en Streefgewicht: boven het vak staat wat je doet ("Typ je gewicht"), in het vak
+// het getal met de eenheid kg erachter, en links en rechts min en plus (stappen van 0,1 kg, ingedrukt houden gaat sneller). Je kan ook
+// rechtstreeks typen (komma of punt). Een leeg vak toont een voorbeeld als hint. Min en plus gaan vanuit het getal in het vak, of vanuit
+// start als het vak leeg of ongeldig is. Het gedeelde onderdeel stapper() levert de knoppen; zijn getal blijft als verborgen live-gebied
+// voor de schermlezer bestaan. opWijzig krijgt het gelezen gewicht, of null als het vak leeg of ongeldig is.
+function kgInvoer({ waarde = null, start = 68, label, opWijzig }) {
+  const getalTekst = (n) => opmaakKg(n).split(/\s/)[0];
+  const veld = tekstveld({ waarde: waarde == null ? '' : getalTekst(waarde), plaats: t('gewicht.typPlaats'), label: t('gewicht.waarde'), inputmode: 'decimal' });
+  veld.className = 'gewicht__typveld cijfer';
+  veld.maxLength = 6; // "300,0" met ruimte voor een extra decimaal dat leesKg afrondt
+  const stap = stapper({
+    waarde: waarde ?? start,
+    stap: 0.1,
+    min: GRENZEN.kg.min,
+    max: GRENZEN.kg.max,
+    opmaak: opmaakKg,
+    label: t('gewicht.waarde'),
+    opWijzig: (n) => {
+      veld.value = getalTekst(n);
+      pas();
+      opWijzig(n);
+    },
+  });
+  stap.classList.add('gewicht__stapper');
+  const uitvoer = stap.querySelector('.stapper__waarde');
+  uitvoer.className = 'stapper__lees';
+  // Het getal en kg staan samen in het midden van het vak: het veld is zo breed als zijn tekst (of het voorbeeld), gemeten met een
+  // onzichtbare spiegel in dezelfde letter. Opnieuw na elke wijziging, zodra het blad in beeld staat en als de letters geladen zijn.
+  const spiegel = h('span', { class: 'gewicht__typspiegel', 'aria-hidden': 'true' });
+  const pas = () => {
+    const leeg = veld.value === '';
+    spiegel.textContent = leeg ? veld.placeholder : veld.value;
+    spiegel.classList.toggle('is-voorbeeld', leeg);
+    const b = spiegel.getBoundingClientRect().width;
+    if (b > 0) veld.style.width = Math.ceil(b) + 2 + 'px'; // 2 px voor de cursor achter het laatste teken
+  };
+  // Het vak is het label van het veld: een tik naast het getal (op kg of de rand) zet de cursor ook in het vak, en het hele vak telt als tikvlak.
+  const vak = h('label', { class: 'gewicht__typvak' }, veld, h('span', { class: 'gewicht__typeenheid', 'aria-hidden': 'true' }, t('gewicht.kg')), spiegel);
+  uitvoer.before(vak);
+  requestAnimationFrame(pas);
+  document.fonts?.ready.then(pas);
+  veld.addEventListener('input', () => {
+    pas();
+    const n = leesKg(veld.value);
+    if (n != null) stap.zetWaarde(n);
+    opWijzig(n);
+  });
+  const blok = h('div', { class: 'gewicht__invoer gewicht__invoer--typ' }, h('p', { class: 'label gewicht__typlabel', 'aria-hidden': 'true' }, label), stap);
+  return { blok, veld };
+}
+
+export function openStreefBlad({ streef = null, laatsteKg = null } = {}) {
   const bestaat = streef != null;
   let kg = bestaat ? streef : null;
   const fout = h('p', { class: 'dialoog__tekst foutmelding', id: 'streef-fout', role: 'alert', hidden: true }, t('gewicht.ongeldig'));
-  const invoerVeld = tekstveld({
-    waarde: bestaat ? opmaakKg(streef).split(/\s/)[0] : '',
-    plaats: t('gewicht.typPlaats'),
-    label: t('gewicht.waarde'),
-    inputmode: 'decimal',
-    opWijzig: (v) => {
-      kg = leesKg(v);
-      zetStand(v.trim() !== '' && !geldigKg(kg));
+  // Min en plus beginnen bij het streefgewicht, of anders bij je laatste weging (laatsteKg), of bij 68 kg
+  const { blok: invoerBlok, veld: invoerVeld } = kgInvoer({
+    waarde: streef,
+    start: streef ?? laatsteKg ?? 68,
+    label: t('gewicht.typLabelStreef'),
+    opWijzig: (n) => {
+      kg = n;
+      zetStand(invoerVeld.value.trim() !== '' && !geldigKg(kg));
     },
   });
-  invoerVeld.classList.add('gewicht__typveld');
-  invoerVeld.maxLength = 6; // "300,0" met ruimte voor een extra decimaal dat leesKg afrondt
   invoerVeld.setAttribute('aria-describedby', 'streef-fout');
   // De foutmelding hoort bij het veld (zoals bij een weging): aria-invalid zolang de waarde niet klopt; Klaar staat uit zolang het veld leeg of ongeldig is.
   function zetStand(ongeldig) {
@@ -291,7 +293,7 @@ export function openStreefBlad({ streef = null } = {}) {
   const b = bladMetKnoppen({
     titel: t('gewicht.streefgewicht'),
     klasse: 'streefblad',
-    inhoud: [h('div', { class: 'gewicht__invoer' }, invoerVeld), h('p', { class: 't-klein t-gedempt streefblad__regel' }, t('gewicht.streefHint')), fout],
+    inhoud: [invoerBlok, h('p', { class: 't-klein t-gedempt streefblad__regel' }, t('gewicht.streefHint')), fout],
     klaarKnop,
     annuleerKnop,
     verwijderHouder,
@@ -302,86 +304,11 @@ export function openStreefBlad({ streef = null } = {}) {
   return b;
 }
 
-// Het blad "Weegdag" (BESLISSING 477): de zeven dagen als keuzegroep (hetzelfde onderdeel, chips, als bij Algemeen, Gewicht), de huidige dag
-// voorgekozen. Klaar bewaart in dezelfde instelling als daar ('gewicht.weegdag', verder bijwerken is er niets: de kaart, de weegkalender en
-// de voorbeeldweek lezen die instelling); dezelfde dag kiezen verandert niets en meldt niets. Annuleren, Escape, het kruisje en de terugknop sluiten zonder te wijzigen.
-export function openWeegdagBlad({ weegdag = 1 } = {}) {
-  let gekozen = weegdag;
-  // BESLISSING 481: dezelfde rij als bij Algemeen, Gewicht: dezelfde chips in dezelfde houder (.weegdagen--breed: zeven gelijke kolommen) met de afkortingen.
-  const groep = chips({
-    keuzes: [1, 2, 3, 4, 5, 6, 7].map((n) => ({ id: n, label: t('instellingen.dagen.' + n) })),
-    actief: weegdag,
-    label: t('gewicht.weegdag'),
-    opKies: (n) => {
-      gekozen = n;
-      maakRadio();
-    },
-  });
-  const knoppen = [...groep.querySelectorAll('.chip')];
-  knoppen.forEach((k, i) => k.setAttribute('aria-label', t('algemeen.dagen.' + (i + 1)))); // de schermlezer hoort de volledige naam
-  // Een keuze uit zeven dagen is een radiogroep: één tabstop, pijltjestoetsen binnen de groep, aria-checked in plaats van aria-pressed.
-  function maakRadio() {
-    groep.setAttribute('role', 'radiogroup');
-    knoppen.forEach((k, i) => {
-      k.setAttribute('role', 'radio');
-      k.removeAttribute('aria-pressed');
-      k.setAttribute('aria-checked', String(i + 1 === gekozen));
-      k.tabIndex = i + 1 === gekozen ? 0 : -1;
-    });
-  }
-  maakRadio();
-  groep.addEventListener('keydown', (e) => {
-    const nu = knoppen.indexOf(document.activeElement);
-    if (nu < 0) return;
-    const tel = knoppen.length;
-    const volgende = { ArrowRight: (nu + 1) % tel, ArrowDown: (nu + 1) % tel, ArrowLeft: (nu - 1 + tel) % tel, ArrowUp: (nu - 1 + tel) % tel, Home: 0, End: tel - 1 }[e.key];
-    if (volgende == null) return;
-    e.preventDefault();
-    knoppen[volgende].focus();
-    knoppen[volgende].click();
-  });
-
-  let bezig = false;
-  async function bewaarEnSluit() {
-    if (bezig) return;
-    bezig = true;
-    try {
-      b.sluit(); // eerst sluiten: de focus gaat naar de knop; die tekent daarna opnieuw en krijgt de focus terug (data-fk, en anders staat.focusOp)
-      if (gekozen === weegdag) return; // dezelfde dag: er verandert niets en er komt geen melding
-      staat.focusOp = '.gewicht__weegdag .gewicht__actie .knop';
-      await zetInstelling('gewicht.weegdag', gekozen);
-      strook(t('gewicht.weegdagBewaard'), { duur: 6000, actie: { label: t('algemeen.ongedaan'), opKlik: () => zetInstelling('gewicht.weegdag', weegdag) } });
-    } finally {
-      bezig = false;
-    }
-  }
-  const { klaarKnop, annuleerKnop } = klaarEnAnnuleer(bewaarEnSluit, () => b.sluit());
-  groep.addEventListener('keydown', (e) => {
-    if (e.key !== 'Enter') return;
-    e.preventDefault(); // Enter op een dag = Klaar
-    bewaarEnSluit();
-  });
-  const b = bladMetKnoppen({
-    titel: t('gewicht.weegdag'),
-    klasse: 'weegdagblad',
-    inhoud: [h('p', { class: 't-klein t-gedempt streefblad__regel' }, t('instellingen.weegdagUitleg')), h('div', { class: 'weegdagen weegdagen--breed weegdagblad__dagen' }, groep)],
-    klaarKnop,
-    annuleerKnop,
-  });
-  b.open();
-  (knoppen[gekozen - 1] ?? knoppen[0]).focus();
-  return b;
-}
-
 export function toon(houder) {
   staat.periode = 'maand'; // BESLISSING 197: bij elk bezoek opent de grafiek op 1 maand; een eigen keuze geldt zolang ze op het scherm blijft
 
   const opruim = beheerScherm(houder, async () => {
-    const [wegingen, streef, weegdag] = await Promise.all([
-      leesWegingen(),
-      leesInstelling('gewicht.streefKg'),
-      leesInstelling('gewicht.weegdag'),
-    ]);
+    const [wegingen, streef] = await Promise.all([leesWegingen(), leesInstelling('gewicht.streefKg')]);
     const laatste = wegingen.at(-1) ?? null;
     const verschil = laatste ? await verschilMetVorigeWeek(laatste) : null;
     if (staat.gekozen && !wegingen.some((w) => w.week === staat.gekozen)) staat.gekozen = null;
@@ -486,10 +413,7 @@ export function toon(houder) {
     const weinig = wegingen.length < 2;
     if (!weinig) periodes.classList.add('segment--vol');
 
-    // De eerstvolgende weegdag (voor de weegdagkaart en, bij minder dan twee wegingen, voor het verloop)
     const vandaagDatum = vandaag();
-    const dagenTot = (((weegdag ?? 1) - weekdag(vandaagDatum)) % 7 + 7) % 7;
-    const volgende = plusDagen(vandaagDatum, dagenTot);
 
     // Vanaf twee wegingen: de grafiek met periodekeuze. Daarvoor een vriendelijke, compacte kaart: één zin, het ene punt met waarde
     // en datum en de volgende weging; geen bijna lege grafiek met een losse as.
@@ -510,7 +434,6 @@ export function toon(houder) {
                   h('span', { class: 'label gewicht__puntdatum' }, opmaakDatum(laatste.datum, 'lang')),
                 )
               : null,
-            // De volgende weging staat op de weegdagkaart en in de Weegkalender; hier niet nog eens (anders blijft deze kaart hoger dan haar buurkaart).
           ),
           detail,
         )
@@ -522,14 +445,6 @@ export function toon(houder) {
           detail,
         );
 
-    const weegdagKaart = bovenkaart(
-      'gewicht__weegdag',
-      { tegel: begripOpties('weegdag'), label: t('gewicht.weegdag') },
-      h('p', { class: 'cijfer-groot gewicht__weegdagnaam' }, t('algemeen.dagen.' + (weegdag ?? 1))),
-      dagenTot === 0 ? t('gewicht.weegdagVandaag') : h('span', { class: 'label' }, opmaakDatum(volgende, 'lang')), // BESLISSING 467: een datum alleen als bijschrift is een label
-      kaartKnop(t('gewicht.weegdagAanpassen'), t('gewicht.aanpassen'), { opKlik: async () => openWeegdagBlad({ weegdag: (await leesInstelling('gewicht.weegdag')) ?? 1 }) }), // BESLISSING 477: een pop-up, geen sprong naar Algemeen; de waarde wordt bij het openen vers gelezen (de knop kan van vóór een wijziging zijn)
-    );
-
     // ---- Streefgewicht: een stapper of "Streefgewicht zetten". Hoeveel er nog te gaan is, staat in "Weg naar je streefgewicht" (BESLISSING 289 herroept het weglaten van "nog x kg").
     const streefKaart = bovenkaart(
       'gewichtstreef',
@@ -538,8 +453,8 @@ export function toon(houder) {
         ? h('p', { class: 'cijfer-groot is-leeg' }, '-')
         : h('p', { class: 'cijfer-groot', dataset: { fk: 'streef' } }, opmaakKg(streef).split(/\s/)[0], h('span', { class: 'cijfer-groot__eenheid' }, ' kg')),
       t('gewicht.streefHint'),
-      // BESLISSING 463: beide knoppen openen het blad "Streefgewicht" waarin je zelf een gewicht typt (geen beginwaarde, geen stapper)
-      kaartKnop(t(streef == null ? 'instellingen.streefZetten' : 'gewicht.streefAanpassen'), t(streef == null ? 'instellingen.streefZettenKort' : 'gewicht.aanpassen'), { opKlik: async () => openStreefBlad({ streef: await leesInstelling('gewicht.streefKg') }) }),
+      // BESLISSING 463: beide knoppen openen het blad "Streefgewicht": een invulvak met min en plus (0.6.3), leeg als er nog geen streefgewicht is
+      kaartKnop(t(streef == null ? 'instellingen.streefZetten' : 'gewicht.streefAanpassen'), t(streef == null ? 'instellingen.streefZettenKort' : 'gewicht.aanpassen'), { opKlik: async () => openStreefBlad({ streef: await leesInstelling('gewicht.streefKg'), laatsteKg: laatste?.kg ?? null }) }),
     );
 
     // ---- De lijst van wegingen: tikbaar naar hun punt in de grafiek; leeg een rustige lege toestand
@@ -631,12 +546,11 @@ export function toon(houder) {
 
     // ---- Weegkalender: de laatste twaalf weken, één bolletje per week (statisch: niet aanklikbaar). Gevuld als er die week een weging is,
     // een zachte ring als niet, de lopende week met een ring eromheen; weken vóór haar eerste weging zijn heel licht en tellen niet als gemist.
-    const ddmm = (datum) => `${datum.slice(8, 10)}/${datum.slice(5, 7)}`;
-    const weken = weekKalender(wegingen, vandaagDatum, weegdag);
+    const weken = weekKalender(wegingen, vandaagDatum);
     const telling = wekenGewogen(weken);
     const kalKaart = kaart(
       { klasse: 'gewicht__kal kaart--licht-op' + (laatste ? '' : ' gewicht__kal--leeg') },
-      kaartkop({ tegel: begripOpties('weegdag'), label: t('gewicht.kalKop') }),
+      kaartkop({ tegel: begripOpties('weegkalender'), label: t('gewicht.kalKop') }),
       laatste
         ? h(
             'div',
@@ -650,7 +564,9 @@ export function toon(houder) {
                   { class: ['gewicht__week', w.gevuld && 'is-gevuld', w.isNu && 'is-nu', w.voorEerste && 'is-voor'], 'aria-label': t('gewicht.kalWeek', { datum: opmaakDatum(w.datum, 'kort'), stand: t(w.gevuld ? 'gewicht.kalGewogen' : 'gewicht.kalNiet') }) },
                   h('span', { class: 'gewicht__weekmaand', 'aria-hidden': 'true' }, w.maandLabel),
                   h('span', { class: 'gewicht__bol', 'aria-hidden': 'true' }),
-                  h('span', { class: 'gewicht__weekdatum cijfer', 'aria-hidden': 'true' }, ddmm(w.datum)),
+                  // De maandag van de week: dag en maand. Staan de twaalf weken dicht op elkaar (een smalle kaart), dan toont de css alleen de dag;
+                  // de maand staat dan al boven de eerste week van elke maand.
+                  h('span', { class: 'gewicht__weekdatum cijfer', 'aria-hidden': 'true' }, w.datum.slice(8, 10), h('span', { class: 'gewicht__weekmm' }, '/' + w.datum.slice(5, 7))),
                 ),
               ),
             ),
@@ -658,7 +574,6 @@ export function toon(houder) {
               'div',
               { class: 'gewicht__kalregels' },
               h('p', { class: 'gewicht__kalregel' }, telling.van <= 1 ? t('gewicht.kalTellingEen') : t('gewicht.kalTelling', { gewogen: telling.gewogen, van: telling.van })),
-              h('p', { class: 'gewicht__kalregel gewicht__kalregel--volgende t-gedempt' }, dagenTot === 0 ? t('gewicht.kalVandaag') : t('gewicht.kalVolgende', { datum: opmaakDatum(volgende, 'lang') })),
             ),
           )
         : h('p', { class: 'gewicht__leegregel leegzin t-gedempt' }, t('gewicht.kalLeeg')),
@@ -672,13 +587,13 @@ export function toon(houder) {
       h(
         'div',
         { class: 'gewicht__weetjesrij' },
-        // BESLISSING 567: elk weetje een eigen icoon (de weegdag, het aanpassen, het streefgewicht), in de familie van Gewicht
-        ...['weegdag', 'bewerken', 'streefgewicht'].map((begrip, i) => h('div', { class: 'weetje' }, begripTegel(begrip, { familie: ICOON.gewicht.familie }), h('p', { class: 'weetje__tekst' }, t(`gewicht.weetje${i + 1}`)))),
+        // BESLISSING 567: elk weetje een eigen icoon (de weegkalender, het aanpassen, het streefgewicht), in de familie van Gewicht
+        ...['weegkalender', 'bewerken', 'streefgewicht'].map((begrip, i) => h('div', { class: 'weetje' }, begripTegel(begrip, { familie: ICOON.gewicht.familie }), h('p', { class: 'weetje__tekst' }, t(`gewicht.weetje${i + 1}`)))),
         toonHetMe({ familie: ICOON.gewicht.familie, opKlik: () => startRondleiding({ sleutel: 'gewicht' }), klasse: 'gewicht__toon' }),
       ),
     );
 
-    const kaarten = [hoofd, weegdagKaart, streefKaart, grafiekKaart, lijst, cijferKaart, kalKaart, wegKaart, weetjes].filter(Boolean);
+    const kaarten = [hoofd, streefKaart, grafiekKaart, lijst, cijferKaart, kalKaart, wegKaart, weetjes].filter(Boolean);
     if (opent) komOp(kaarten, { stap: 90 });
     if (staat.focusOp) {
       const doel = staat.focusOp;

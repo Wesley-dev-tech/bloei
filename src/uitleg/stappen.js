@@ -135,7 +135,6 @@ export const STAPPEN = {
   // De periodekeuze bestaat pas vanaf twee wegingen en "Weg naar je streefgewicht" alleen met een streefgewicht: zonder die onderdelen slaat de rondleiding de stap over.
   gewicht: [
     { id: 'weging', doel: '[data-uitleg="weging-knop"], .gewichthoofd .gewicht__actie .knop' },
-    { id: 'weegdag', doel: '.gewicht__weegdag' },
     { id: 'streef', doel: '[data-uitleg="streefgewicht"], .streef' },
     { id: 'periode', doel: '[data-uitleg="grafiek-periode"], .gewichtgrafiek .chips, .gewichtgrafiek .segment' },
     { id: 'grafiek', doel: '[data-uitleg="grafiek-vlak"], .gewichtgrafiek__vlak' },
@@ -487,15 +486,13 @@ export const STUKKEN = {
   },
   'meer/gewicht.kaart': {
     stukken: [
-      { bij: '.instellingen__gewicht > .kaartkop', eigen: true, titel: 'Gewicht instellen', tekst: 'In deze kaart kies je je weegdag en zet je een streefgewicht.' },
-      { bij: '.instellingen__gewicht .instel__rijgroep', titel: 'Je weegdag', tekst: 'Tik op de dag waarop je je weegt. Je keuze wordt meteen bewaard en staat op het tabblad Gewicht, met de datum van je volgende weging.' },
-      { bij: '.instellingen__gewicht .streefrijen', titel: 'Je streefgewicht', tekst: 'Heb je nog geen streefgewicht, dan kies je er een met Zetten. Daarna pas je het aan met min en plus of typ je het getal, en met Wissen haal je het weg.' },
+      { bij: '.instellingen__gewicht > .kaartkop', eigen: true, titel: 'Gewicht instellen', tekst: 'In deze kaart zet je een streefgewicht.' },
+      { bij: '.instellingen__gewicht .streefrijen', titel: 'Je streefgewicht', tekst: 'Heb je nog geen streefgewicht, dan kies je er een met Instellen. Daarna pas je het aan met min en plus of typ je het getal, en met Wissen haal je het weg.' },
     ],
   },
   'meer/gewicht.voorbeeld': {
     stukken: [
       { bij: '.gewvoorbeeld > .kaartkop', eigen: true, titel: 'Zo ziet het eruit', tekst: 'Dit voorbeeld toont wat je instellingen doen op Gewicht.' },
-      { bij: '.gewvoorbeeld__zin', titel: 'Je weegdag in de week', tekst: 'Hier zie je je weegdag in de week en de datum van je volgende weging. Kies je een andere dag, dan verandert het meteen.' },
       { bij: '.gewvoorbeeld__grafiekhouder', titel: 'Je grafiek in het klein', tekst: 'Zo ziet je grafiek eruit, met je streefgewicht als stippellijn als je er een zette. Heb je nog geen weging, dan blijft het vlak leeg.' },
     ],
   },
@@ -710,7 +707,7 @@ export const ONDERWERPEN = [
   { id: 'profiel', sleutel: 'meer/profiel', begrip: 'profiel' },
   { id: 'thema', sleutel: 'h:thema', begrip: 'thema' },
   { id: 'instDrinken', sleutel: 'meer/instellingen', begrip: 'drinken' },
-  { id: 'instGewicht', sleutel: 'meer/gewicht', begrip: 'weegdag' },
+  { id: 'instGewicht', sleutel: 'meer/gewicht', begrip: 'streefgewicht' },
   { id: 'beginscherm', sleutel: 'h:beginscherm', begrip: 'home' },
   { id: 'badges', sleutel: 'meer/badges', begrip: 'badge' },
 ];

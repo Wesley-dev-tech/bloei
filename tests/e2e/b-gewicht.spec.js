@@ -11,14 +11,11 @@ const noteer = async (page, tekst) => {
   await page.getByRole('button', { name: 'Noteren', exact: true }).click();
 };
 
-// Met een bestaande weging staat er een stapper: tik op het getal om te typen.
+// Met een bestaande weging staat je laatste weging in het vak (sinds 0.6.3 altijd een invulvak met min en plus): typ er een ander gewicht in.
 async function noteerMetStapper(page, tekst, dagenTerug = 0) {
   await page.getByRole('button', { name: 'Weging noteren' }).click();
   for (let i = 0; i < dagenTerug; i++) await page.getByRole('button', { name: 'Vorige' }).click();
-  await page.locator('.gewicht__getal').click();
-  const veld = page.getByRole('textbox', { name: 'Gewicht in kg' });
-  await veld.fill(tekst);
-  await veld.press('Enter');
+  await page.getByRole('textbox', { name: 'Gewicht in kg' }).fill(tekst);
   await page.getByRole('button', { name: 'Noteren', exact: true }).click();
 }
 
@@ -75,7 +72,8 @@ test('V3-d: een punt kiezen en verwijderen, streefgewicht en periode wisselen', 
   await expect(page.locator('.grafiek__punt')).toHaveCount(2);
 
   // Het oudste punt kiezen en verwijderen: de zin over het verschil verdwijnt
-  await page.locator('.grafiek__punt').first().click({ force: true });
+  // een klik op het punt zelf, niet op de plaats: de strook Genoteerd (met Ongedaan maken) ligt op een telefoon over de grafiek, die sinds 0.6.3 hoger staat
+  await page.locator('.grafiek__tikgroep').first().dispatchEvent('click');
   await expect(page.locator('.gewicht__gekozen')).toContainText('69,0 kg');
   await page.getByRole('button', { name: 'Verwijderen' }).click();
   await page.getByRole('button', { name: 'Wissen' }).click();
@@ -83,7 +81,7 @@ test('V3-d: een punt kiezen en verwijderen, streefgewicht en periode wisselen', 
   await expect(page.locator('.gewichthoofd__verschil')).toHaveCount(0);
 
   // Streefgewicht: met één weging nog geen grafiek; vanaf twee wegingen een stippellijn met "streef"; "nog x kg" staat in Weg naar je streefgewicht (BESLISSING 289)
-  await page.getByRole('button', { name: 'Streefgewicht zetten' }).click();
+  await page.getByRole('button', { name: 'Streefgewicht instellen' }).click();
   await page.locator('dialog[open]').getByRole('textbox', { name: 'Gewicht in kg' }).fill('68,4');
   await page.locator('dialog[open]').getByRole('button', { name: 'Klaar', exact: true }).click();
   await expect(page.locator('.gewichtstreef .cijfer-groot')).toContainText('68,4');
@@ -110,7 +108,7 @@ test('V3-d: een punt kiezen en verwijderen, streefgewicht en periode wisselen', 
   await expect(page.locator('.grafiek__streef')).toHaveCount(0);
 });
 
-test('Gewicht: kerncijfers, de lijst van wegingen kiest het punt en de weegdagkaart opent de pop-up Weegdag', async ({ page }) => {
+test('Gewicht: kerncijfers, de lijst van wegingen kiest het punt, en er is geen weegdag meer', async ({ page }) => {
   await page.goto('./#/gewicht');
   await expect(page.locator('.gewichthoofd--leeg')).toContainText('Nog geen weging.');
   await expect(page.locator('.gewicht__lijst')).toContainText('Hier komen je wegingen te staan.');
@@ -123,11 +121,10 @@ test('Gewicht: kerncijfers, de lijst van wegingen kiest het punt en de weegdagka
   await expect(page.locator('.gewicht__gekozen')).toContainText('69,0 kg');
   await expect(page.locator('.grafiek__krans')).toHaveCount(1);
 
-  // De weegdagkaart toont de weegdag en opent de pop-up Weegdag (BESLISSING 477)
-  await expect(page.locator('.gewicht__weegdag')).toContainText('Weegdag');
-  await page.getByRole('button', { name: 'Weegdag aanpassen' }).click();
-  await expect(page.locator('dialog[open]').getByRole('radio')).toHaveCount(7);
-  await expect(page).toHaveURL(/#\/gewicht$/);
+  // Sinds 0.6.3 is er geen weegdag meer: geen kaart, geen knop en nergens het woord
+  await expect(page.locator('.gewicht__weegdag')).toHaveCount(0);
+  await expect(page.getByRole('button', { name: 'Weegdag aanpassen' })).toHaveCount(0);
+  await expect(page.locator('#scherm')).not.toContainText(/weegdag/i);
 });
 
 test('Gewicht: het verloop opent op 1 maand, ook na herladen en bij een nieuw bezoek (BESLISSING 197)', async ({ page }) => {
@@ -161,7 +158,7 @@ for (const [breedte, hoogte] of [[1690, 1230], [1720, 950], [390, 844]]) {
       if (breedte >= 1100) {
         const per = Object.fromEntries(kaarten.map((k) => [k.naam, k]));
         // De drie kaarten bovenaan eindigen gelijk; de grafiek eindigt waar "Goed om te weten" eindigt
-        expect(Math.abs(per.gewichthoofd.bodem - per.gewicht__weegdag.bodem)).toBeLessThanOrEqual(2);
+        expect(Math.abs(per.gewichthoofd.bodem - per.gewichtstreef.bodem)).toBeLessThanOrEqual(2);
         expect(Math.abs(per.gewichthoofd.bodem - per.gewichtstreef.bodem)).toBeLessThanOrEqual(2);
         if (wegingen < 2) {
           // Nog geen lijn te tekenen: een compacte grafiekkaart (niet hoger dan 240 px) naast Je wegingen in een rij van gelijke hoogte, met Goed om te weten eronder
@@ -258,23 +255,24 @@ test.describe('Gewicht met het toetsenbord', () => {
     await expect(delen.nth(2)).toHaveAttribute('aria-checked', 'true');
   });
 
-  test('het blad "Weging noteren": het getal is met het toetsenbord te typen en Escape sluit het blad met de focus terug op de knop', async ({ page }) => {
+  test('het blad "Weging noteren": het vak is met het toetsenbord te typen, min en plus werken het bij, Escape sluit het blad met de focus terug op de knop', async ({ page }) => {
     await openMetWegingen(page, 'gewoon');
     await page.getByRole('button', { name: 'Weging noteren' }).focus();
     await page.keyboard.press('Enter');
     const blad = page.locator('dialog[open]');
     await expect(blad).toBeVisible();
-    const getal = blad.locator('.gewicht__getal');
-    await expect(getal).toHaveAttribute('role', 'button');
-    await getal.focus();
-    await page.keyboard.press('Enter');
     const veld = blad.getByRole('textbox', { name: 'Gewicht in kg' });
-    await expect(veld).toBeFocused();
+    await expect(veld).toHaveValue(/^\d+,\d$/); // de laatste weging staat al in het vak
     await expect(veld).toHaveAttribute('inputmode', 'decimal');
+    await veld.focus();
+    await veld.selectText();
     await page.keyboard.type('70,5');
-    await page.keyboard.press('Enter');
-    await expect(getal).toBeFocused();
-    await expect(getal).toContainText('70,5');
+    await expect(veld).toHaveValue('70,5');
+    await blad.getByRole('button', { name: 'Eentje meer, Gewicht in kg' }).press('Enter');
+    await expect(veld).toHaveValue('70,6');
+    await blad.getByRole('button', { name: 'Eentje minder, Gewicht in kg' }).press('Enter');
+    await blad.getByRole('button', { name: 'Eentje minder, Gewicht in kg' }).press('Enter');
+    await expect(veld).toHaveValue('70,4');
     await page.keyboard.press('Escape');
     await expect(page.locator('dialog[open]')).toHaveCount(0);
     await expect(page.getByRole('button', { name: 'Weging noteren' })).toBeFocused();
@@ -288,7 +286,7 @@ test.describe('Gewicht met het toetsenbord', () => {
     await blad.getByRole('button', { name: 'Verwijderen', exact: true }).click();
     await page.getByRole('button', { name: 'Wissen', exact: true }).click();
     await expect(blad).toHaveCount(0);
-    await expect(page.getByRole('button', { name: 'Streefgewicht zetten' })).toBeFocused();
+    await expect(page.getByRole('button', { name: 'Streefgewicht instellen' })).toBeFocused();
     await page.keyboard.press('Enter');
     await blad.getByRole('textbox', { name: 'Gewicht in kg' }).fill('66');
     await page.keyboard.press('Enter');
@@ -321,7 +319,8 @@ test.describe('Gewicht met aanraking', () => {
       const n = await punten.count();
       expect(n).toBeGreaterThan(3);
       const i = Math.floor(n / 2);
-      await punten.nth(i).scrollIntoViewIfNeeded();
+      // in het midden van het venster: onderaan ligt de zwevende tabbalk over de grafiek (sinds 0.6.3 zijn de bovenkaarten lager en staat de grafiek hoger)
+      await punten.nth(i).evaluate((e) => e.scrollIntoView({ block: 'center' }));
       for (const dx of [0, 12, 18, -18]) {
         await page.locator('.grafiek__tikgroep').first().dispatchEvent('click'); // begin steeds bij het eerste punt, zodat een gemiste tik opvalt
         await expect(page.locator('.grafiek__tikgroep').first()).toHaveAttribute('aria-pressed', 'true');

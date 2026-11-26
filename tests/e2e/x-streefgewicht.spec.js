@@ -1,4 +1,4 @@
-// BESLISSING 463: "Streefgewicht zetten" (en "Streefgewicht aanpassen") opent een pop-up waarin je zelf een gewicht typt.
+// BESLISSING 463: "Streefgewicht instellen" (en "Streefgewicht aanpassen") opent een pop-up waarin je zelf een gewicht typt.
 import { test, expect, devices } from '@playwright/test';
 import { vasteKlok, VASTE_DATUM } from './vaste-klok.js';
 import { animatiesKlaar } from './wacht.js';
@@ -78,7 +78,7 @@ const klaarKnop = (page) => dialoog(page).getByRole('button', { name: 'Klaar', e
 const annuleerKnop = (page) => dialoog(page).getByRole('button', { name: 'Annuleren', exact: true });
 const verwijderKnop = (page) => dialoog(page).getByRole('button', { name: 'Verwijderen', exact: true });
 const kruisje = (page) => dialoog(page).getByRole('button', { name: 'Sluiten' });
-const zetKnop = (page) => page.getByRole('button', { name: 'Streefgewicht zetten' });
+const zetKnop = (page) => page.getByRole('button', { name: 'Streefgewicht instellen' });
 const aanpasKnop = (page) => page.getByRole('button', { name: 'Streefgewicht aanpassen' });
 
 const BEELDEN = process.env.PW_BEELDEN || '';
@@ -229,7 +229,7 @@ for (const f of ALLE_FORMATEN) {
     test('de bovenste rij blijft gelijk hoog met en zonder streefgewicht', async ({ page }) => {
       for (const streef of [null, 66]) {
         await zaai(page, { streef });
-        const m = await page.evaluate(() => ['.gewichthoofd', '.gewicht__weegdag', '.gewichtstreef'].map((s) => document.querySelector(s).getBoundingClientRect().height));
+        const m = await page.evaluate(() => ['.gewichthoofd', '.gewichtstreef'].map((s) => document.querySelector(s).getBoundingClientRect().height));
         expect(Math.max(...m) - Math.min(...m), `${f.naam} ${streef}: ${m}`).toBeLessThanOrEqual(1);
       }
     });
@@ -341,11 +341,11 @@ for (const f of CENTREER) {
             const padR = parseFloat(vb.paddingRight);
             return {
               groep: groep.m,
-              veld: midden(blad.querySelector('.veld__invoer')).m,
+              veld: midden(blad.querySelector('.gewicht__typvak')).m, // sinds 0.6.3 het vak met min en plus ernaast
               blad: binnen.left + padL + (binnen.width - padL - padR) / 2,
               regel: midden(regel).m,
               regelAlign: getComputedStyle(regel).textAlign,
-              hoogtes: knoppen.map((k) => k.h),
+              hoogtes: [...rij.querySelectorAll('.knop')].map((k) => k.offsetHeight), // offsetHeight: de schaal van het opkomende blad telt niet mee
               aantal: knoppen.length,
               tussen: knoppen.slice(1).map((k, i) => k.l - knoppen[i].r),
             };
@@ -354,7 +354,8 @@ for (const f of CENTREER) {
           expect(Math.abs(m.groep - m.veld), `groep ${m.groep} veld ${m.veld}`).toBeLessThanOrEqual(1);
           expect(Math.abs(m.groep - m.blad), `groep ${m.groep} blad ${m.blad}`).toBeLessThanOrEqual(1);
           expect(m.regelAlign).toBe('center');
-          for (const h of m.hoogtes) expect(h).toBeGreaterThanOrEqual(44);
+          // Eigenaar 26 november 2026: de knoppen in de bladen van Gewicht zijn 40 px hoog; het tikvlak blijft 44 px (een onzichtbare laag, r-meting.js telt die mee)
+          for (const h of m.hoogtes) expect(Math.round(h)).toBe(40);
           expect(Math.max(...m.tussen) - Math.min(...m.tussen), 'gelijke tussenruimte').toBeLessThanOrEqual(1);
           if (BEELDEN) await page.screenshot({ path: `${BEELDEN}/streef-${thema}-${m.aantal}knoppen-${f.breed}.png` });
         });
@@ -363,42 +364,43 @@ for (const f of CENTREER) {
   }
 }
 
-// BESLISSING 483 en 484: "Weging noteren", "Weegdag aanpassen" en "Streefgewicht zetten/aanpassen" zijn alle drie de gevulde knop in de kleur van
+// BESLISSING 483 en 484: "Weging noteren" en "Streefgewicht instellen/aanpassen" zijn beide de gevulde knop in de kleur van
 // Gewicht: zelfde vorm, kleur, hoogte en onderkant in hun kaart, met en zonder wegingen en op elke breedte; contrast minstens 4,5 in Poeder, Salie en Nacht.
 for (const [breed, hoog] of [[390, 844], [820, 1180], [1280, 800], [1690, 1230]]) {
   for (const [naam, wegingen, streef] of [['zonder weging', [], null], ['met wegingen', [70, 69.2, 68.4], 66]]) {
-    test(`knoppen van de drie bovenkaarten gelijk: ${naam} op ${breed}`, async ({ page }) => {
+    test(`knoppen van de twee bovenkaarten gelijk: ${naam} op ${breed}`, async ({ page }) => {
       await page.setViewportSize({ width: breed, height: hoog });
       await zaai(page, { streef, wegingen, thema: 'nacht' });
       const m = await page.evaluate(() =>
-        ['.gewichthoofd', '.gewicht__weegdag', '.gewichtstreef'].map((s) => {
+        ['.gewichthoofd', '.gewichtstreef'].map((s) => {
           const kaart = document.querySelector(s);
           const k = kaart.querySelector('.gewicht__actie .knop');
           const c = getComputedStyle(k);
           const r = k.getBoundingClientRect();
           const kr = kaart.getBoundingClientRect();
-          return { klasse: k.className, hoogte: Math.round(r.height), links: Math.round(r.left - kr.left), breedte: Math.round(r.width), onder: Math.round(kr.bottom - r.bottom), radius: c.borderTopLeftRadius, kleur: c.color, rand: c.borderTopWidth + c.borderTopStyle, achtergrond: c.backgroundColor, gewicht: c.fontWeight, padding: c.paddingLeft + '|' + c.paddingTop, kaartOnder: Math.round(kr.bottom) };
+          return { klasse: k.className, hoogte: Math.round(r.height), links: Math.round(r.left - kr.left), rechts: Math.round(kr.right - r.right), breedte: Math.round(r.width), onder: Math.round(kr.bottom - r.bottom), radius: c.borderTopLeftRadius, kleur: c.color, rand: c.borderTopWidth + c.borderTopStyle, achtergrond: c.backgroundColor, gewicht: c.fontWeight, padding: c.paddingLeft + '|' + c.paddingTop, kaartOnder: Math.round(kr.bottom) };
         }),
       );
-      const [a, b, c] = m;
-      for (const x of [a, b, c]) {
+      const [a, b] = m; // sinds 0.6.3 twee bovenkaarten: de kaart Weegdag is weg
+      for (const x of [a, b]) {
         expect(x.klasse).toContain('knop--primair');
         expect(x.achtergrond).not.toBe('rgba(0, 0, 0, 0)'); // gevuld, niet transparant
       }
       expect(a.radius).toBe(b.radius);
-      expect(b.radius).toBe(c.radius);
-      for (const x of [b, c]) {
+      for (const x of [b]) {
         expect(x.hoogte).toBe(a.hoogte);
         expect(x.kleur).toBe(a.kleur);
         expect(x.rand).toBe(a.rand);
         expect(x.achtergrond).toBe(a.achtergrond);
         expect(x.gewicht).toBe(a.gewicht);
         expect(x.padding).toBe(a.padding);
-        expect(Math.abs(x.links - a.links)).toBeLessThanOrEqual(1);
+        // vanaf 1100 px staat de knop rechts naast het cijfer (0.6.3): dan lijnen de knoppen rechts uit, anders links
+        if (breed >= 1100) expect(Math.abs(x.rechts - a.rechts)).toBeLessThanOrEqual(1);
+        else expect(Math.abs(x.links - a.links)).toBeLessThanOrEqual(1);
         // de breedte volgt de tekst van de knop (breed naar inhoud, links uitgelijnd): niet gelijk te eisen
         expect(Math.abs(x.onder - a.onder)).toBeLessThanOrEqual(1);
       }
-      if (BEELDEN2 && naam === 'met wegingen') await page.screenshot({ path: `${BEELDEN2}/drie-kaarten-${breed}.png` });
+      if (BEELDEN2 && naam === 'met wegingen') await page.screenshot({ path: `${BEELDEN2}/twee-kaarten-${breed}.png` });
     });
   }
 }
@@ -421,7 +423,7 @@ for (const thema of ['poeder', 'salie', 'nacht']) {
         };
         const lum = ([r, g, b]) => { const f = (v) => { v /= 255; return v <= 0.03928 ? v / 12.92 : ((v + 0.055) / 1.055) ** 2.4; }; return 0.2126 * f(r) + 0.7152 * f(g) + 0.0722 * f(b); };
         const verhouding = (x, y) => { const [h, l] = [lum(x), lum(y)].sort((p, q) => q - p); return (h + 0.05) / (l + 0.05); };
-        return ['.gewichthoofd', '.gewicht__weegdag', '.gewichtstreef'].map((s) => {
+        return ['.gewichthoofd', '.gewichtstreef'].map((s) => {
           const k = document.querySelector(s + ' .gewicht__actie .knop');
           const c = getComputedStyle(k);
           return { bg: c.backgroundColor, fg: c.color, cr: Math.round(verhouding(rgb(c.backgroundColor), rgb(c.color)) * 100) / 100, h: Math.round(k.getBoundingClientRect().height) };
@@ -458,7 +460,7 @@ for (const thema of ['poeder', 'salie', 'nacht']) {
 }
 
 // BESLISSING 492: de pop-up "Weging noteren" heeft Noteren en Annuleren gecentreerd naast elkaar, met dezelfde helper en klasse als de
-// pop-ups Streefgewicht en Weegdag; op een telefoon (tot 430 px) vullen ze samen de breedte zoals bij het maaltijdblad.
+// pop-up Streefgewicht; op een telefoon (tot 430 px) vullen ze samen de breedte zoals bij het maaltijdblad.
 const wegingKnop = (page) => page.getByRole('button', { name: 'Weging noteren' });
 const annuleerKnop2 = (page) => dialoog(page).getByRole('button', { name: 'Annuleren', exact: true });
 for (const [breed, hoog, touch] of [[390, 844, true], [360, 740, true], [430, 900, true], [820, 1180, true], [1280, 800, false]]) {
@@ -495,7 +497,7 @@ for (const [breed, hoog, touch] of [[390, 844, true], [360, 740, true], [430, 90
       expect(w.oudeActies).toBe(0);
       expect(w.vink).toBe(true);
       expect(new Set(w.tops).size, `naast elkaar op ${breed}: ${w.tops}`).toBe(1);
-      expect(Math.min(...w.hoogtes)).toBeGreaterThanOrEqual(44);
+      expect(Math.min(...w.hoogtes)).toBe(40); // eigenaar 26 november 2026: 40 px, het tikvlak blijft 44 px (onzichtbare laag)
       expect(Math.abs(w.midden - w.bladMidden), `gecentreerd op ${breed}`).toBeLessThanOrEqual(1);
       if (breed <= 430) expect(Math.abs(w.breedtes[0] - w.breedtes[1]), `gelijke breedte op ${breed}: ${w.breedtes}`).toBeLessThanOrEqual(1);
       if (BEELDEN2 && (breed === 390 || breed === 1280)) await page.screenshot({ path: `${BEELDEN2}/wegingblad-${breed}.png` });
@@ -546,18 +548,17 @@ test.describe('pop-up Weging noteren: gedrag ongewijzigd', () => {
   });
 });
 
-// BESLISSING 494: de knoptekst op de kaarten Streefgewicht en Weegdag is vanaf 390 px de volle tekst en op smallere telefoons "Zetten" of "Aanpassen";
+// BESLISSING 494: de knoptekst op de kaart Streefgewicht is op een tablet en computer de volle tekst en op een telefoon "Instellen" of "Aanpassen" (sinds 0.6.3);
 // de schermlezernaam is altijd de volle tekst; op 360 breekt de tekst niet en is de kaart Streefgewicht niet hoger dan haar buren.
 for (const breed of [320, 360, 375, 389, 390, 412, 820, 1280]) {
   test.describe(`korte knoptekst op ${breed}`, () => {
     test.use({ viewport: { width: breed, height: 800 }, hasTouch: breed < 800, isMobile: breed < 800 });
-    test('volle tekst vanaf 390, korte daaronder; naam altijd vol; geen afbreken', async ({ page }) => {
+    test('volle tekst vanaf 720, korte daaronder; naam altijd vol; geen afbreken', async ({ page }) => {
       for (const streef of [null, 66]) {
         await zaai(page, { streef, thema: 'nacht' });
-        const smal = breed < 390;
+        const smal = breed < 720; // eigenaar 26 november 2026: op elke telefoon de korte tekst (kleinere knoppen)
         const verwacht = [
-          { kaart: '.gewichtstreef', vol: streef == null ? 'Streefgewicht zetten' : 'Streefgewicht aanpassen', kort: streef == null ? 'Zetten' : 'Aanpassen' },
-          { kaart: '.gewicht__weegdag', vol: 'Weegdag aanpassen', kort: 'Aanpassen' },
+          { kaart: '.gewichtstreef', vol: streef == null ? 'Streefgewicht instellen' : 'Streefgewicht aanpassen', kort: streef == null ? 'Instellen' : 'Aanpassen' },
         ];
         for (const v of verwacht) {
           const knop = page.locator(`${v.kaart} .knop`);
@@ -574,7 +575,7 @@ for (const breed of [320, 360, 375, 389, 390, 412, 820, 1280]) {
           expect(m.regels, `${v.kaart} ${breed} ${streef}: een regel`).toBe(1);
           expect(m.over).toBe(false);
         }
-        const hoogtes = await page.evaluate(() => ['.gewichthoofd', '.gewicht__weegdag', '.gewichtstreef'].map((s) => Math.round(document.querySelector(s).getBoundingClientRect().height * 10) / 10));
+        const hoogtes = await page.evaluate(() => ['.gewichthoofd', '.gewichtstreef'].map((s) => Math.round(document.querySelector(s).getBoundingClientRect().height * 10) / 10));
         if (breed < 720) expect(Math.max(...hoogtes) - Math.min(...hoogtes), `${breed} ${streef}: ${hoogtes}`).toBeLessThanOrEqual(1);
         const scroll = await page.evaluate(() => [document.documentElement.scrollWidth, innerWidth]);
         expect(scroll[0]).toBeLessThanOrEqual(scroll[1]);

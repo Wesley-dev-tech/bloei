@@ -86,7 +86,6 @@ describe('teksten', () => {
       'gewicht.leeg': 'Hier komt je eerste weging.',
       'reeks.samen': '{dagen} dagen bijgehouden · {reeks} op rij',
       'vandaag.leeg': 'Nog niets genoteerd vandaag.',
-      'vandaag.weegdag': 'Het is je weegdag.',
       'wissen.vraag1': 'Alles wat je in Bloei hebt bijgehouden, verdwijnt van dit toestel: je maaltijden, drinken, supplementen, wegingen, notities, badges, je naam, je foto, je geboortedatum en je instellingen. Dit kan je niet ongedaan maken.',
       'wissen.vraag2': 'Je profiel en alles erin worden nu echt verwijderd.',
       'melding.dagboekLeeg': 'Je dag van vandaag is nog leeg. Even bijschrijven?',

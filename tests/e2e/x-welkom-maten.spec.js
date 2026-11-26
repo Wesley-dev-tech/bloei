@@ -94,9 +94,9 @@ for (const [breed, hoog, soort, ruimte] of MATEN) {
         standen[naam] = await page.evaluate(lees);
       };
       await meet('stap 1');
-      for (const n of [2, 3, 4, 5]) {
+      for (const n of [2, 3, 4]) {
         await verder(page).click();
-        await expect(page.getByText(`Stap ${n} van 5`)).toBeVisible();
+        await expect(page.getByText(`Stap ${n} van 4`)).toBeVisible();
         await meet(`stap ${n}`);
       }
       await page.getByRole('radio', { name: /^Face ID/ }).click();
@@ -145,7 +145,7 @@ for (const [breed, hoog, soort, ruimte] of MATEN) {
       }
 
       // BESLISSING 669: in de hoogste stap (4, zonder lucht) overal dezelfde tussenruimte: vraag, uitleg, bediening en de knoppen
-      const s4 = standen['stap 5'];
+      const s4 = standen['stap 4'];
       expect.soft(s4.binnen.length, `${breed}x${hoog}: vraag, uitleg en bediening`).toBe(2);
       for (const [i, tussen] of [...s4.binnen, s4.totKnoppen].entries()) {
         expect.soft(Math.abs(tussen - ruimte), `${breed}x${hoog}: tussenruimte ${i + 1} in stap 4 (${tussen.toFixed(1)})`).toBeLessThanOrEqual(1);
@@ -157,10 +157,10 @@ for (const [breed, hoog, soort, ruimte] of MATEN) {
       const hoofd = stappen.slice(0, 3).map((s) => s.knoppen);
       for (const k of hoofd) expect.soft(k.length, `${breed}x${hoog}: in stap 1 tot 3 staat Verder alleen`).toBe(1);
       expect.soft(new Set(hoofd.map((k) => Math.round(k[0].w))).size, `${breed}x${hoog}: Verder even breed in stap 1 tot 3`).toBe(1);
-      const paar = standen['stap 5'].knoppen;
+      const paar = standen['stap 4'].knoppen;
       expect.soft(paar.length).toBe(2);
       expect.soft(Math.abs(paar[0].w - paar[1].w), `${breed}x${hoog}: Vergrendeling instellen en Nu niet even breed`).toBeLessThanOrEqual(1);
-      const k4 = standen['stap 5'].kaart;
+      const k4 = standen['stap 4'].kaart;
       const links = paar[0].x - k4.left;
       const rechts = k4.right - (paar[1].x + paar[1].w);
       expect.soft(Math.abs(links - rechts), `${breed}x${hoog}: de groep staat in het midden`).toBeLessThanOrEqual(1);
@@ -181,13 +181,13 @@ for (const [breed, hoog] of [[320, 480], [360, 560]]) {
     test.use({ storageState: LEEG, viewport: { width: breed, height: hoog }, isMobile: true, hasTouch: true, userAgent: ANDROID_UA });
     test.beforeEach(async ({ page }) => vasteKlok(page));
 
-    test('stap 5 past zonder scrollen en "Vingerafdruk" staat op een regel in zijn keuzevak', async ({ page }) => {
+    test('stap 4 past zonder scrollen en "Vingerafdruk" staat op een regel in zijn keuzevak', async ({ page }) => {
       await authenticator(page, 'ok');
       await page.goto('./');
       await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
-      for (const n of [2, 3, 4, 5]) {
+      for (const n of [2, 3, 4]) {
         await verder(page).click();
-        await expect(page.getByText(`Stap ${n} van 5`)).toBeVisible();
+        await expect(page.getByText(`Stap ${n} van 4`)).toBeVisible();
       }
       const bio = page.getByRole('radio', { name: /^Vingerafdruk/ });
       await expect(bio.locator('.slot__optielabel')).toHaveText('Vingerafdruk');
@@ -236,7 +236,7 @@ function liggend() {
   const grens = begin + kolommen[0] + tussen / 2;
   const deel = (e) => { const b = r(e); return { tekst: (e.textContent || e.className).trim().slice(0, 24), l: b.left, r: b.right, t: b.top, b: b.bottom, w: b.width, fs: getComputedStyle(e).fontSize }; };
   const SEL = ['.welkom__kop .logo', '.welkom__titel', '.welkom__intro', '.welkom__bolletjes', '.welkom__staptekst',
-    '.welkom__stap.is-actief > .welkom__vraag', '.welkom__stap.is-actief > .welkom__hint', '.welkom__stap.is-actief .welkom__naamveld', '.welkom__stap.is-actief .stapper', '.welkom__stap.is-actief .weegdagen',
+    '.welkom__stap.is-actief > .welkom__vraag', '.welkom__stap.is-actief > .welkom__hint', '.welkom__stap.is-actief .welkom__naamveld', '.welkom__stap.is-actief .stapper',
     '.welkom__stap.is-actief .slot__keuze', '.welkom__stap.is-actief .welkom__slot > p',
     // de zin onder de keuzes houdt haar plaats als de melding er staat (dezelfde plek, BESLISSING 660 tot 664): ze telt mee als vak
     '.welkom__stap.is-actief .welkom__slot > .welkom__slotlater',
@@ -312,13 +312,13 @@ for (const [breed, hoog] of LIGGEND) {
         await meet('stap 1 met melding');
         await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
         await meet('stap 1');
-        for (const n of [2, 3, 4, 5]) {
+        for (const n of [2, 3, 4]) {
           await verder(page).click();
-          await expect(page.getByText(`Stap ${n} van 5`)).toBeVisible();
+          await expect(page.getByText(`Stap ${n} van 4`)).toBeVisible();
           await meet(`stap ${n}`);
         }
         await zet('.welkom__slotmelding', 'Dat lukte niet. Er is nog niets ingesteld. Kies opnieuw of tik op Nu niet.');
-        await meet('stap 5 met melding');
+        await meet('stap 4 met melding');
         await zet('.welkom__slotmelding', '');
         // het cijferblok (Pincode), met de melding als de codes verschillen, en de herstelcode met en zonder melding
         await verder(page).click();
@@ -375,7 +375,7 @@ for (const [breed, hoog] of LIGGEND) {
           expect.soft(Math.abs(top - s.binnen.t - (s.binnen.b - bodem)), `${w}: evenveel ruimte boven als onder het blok`).toBeLessThanOrEqual(1);
           // 8 px tussen alle delen van een kolom; in stap 1 tot 3 staat de kortere stap in het midden van haar vak
           for (const t of s.links) expect.soft(Math.abs(t - 8), `${w}: tussenruimte links (${s.links.join(', ')})`).toBeLessThanOrEqual(1);
-          if (s.code || naam.startsWith('stap 5')) for (const t of s.rechts) expect.soft(Math.abs(t - 8), `${w}: tussenruimte rechts (${s.rechts.join(', ')})`).toBeLessThanOrEqual(1);
+          if (s.code || naam.startsWith('stap 4')) for (const t of s.rechts) expect.soft(Math.abs(t - 8), `${w}: tussenruimte rechts (${s.rechts.join(', ')})`).toBeLessThanOrEqual(1);
           if (s.lucht) expect.soft(Math.abs(s.lucht.boven - s.lucht.onder), `${w}: de stap staat in het midden van haar vak`).toBeLessThanOrEqual(1);
           // elke brede knop vult zijn kolom; het paar van stap 4 samen
           const kolom = s.kolommen[1];

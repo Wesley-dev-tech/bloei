@@ -8,6 +8,18 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.6.3',
+    datum: '2026-11-26',
+    tijd: '21:22',
+    punten: [
+      { begrip: 'gewicht', tekst: 'De weegdag is weg. Je noteert je weging wanneer het jou past, één keer per week is genoeg.' },
+      { begrip: 'gewicht', tekst: 'Je gewicht typ je in een klein vak, met min en plus ernaast. Een voorbeeld toont hoe het moet.' },
+      { begrip: 'gewicht', tekst: 'De cijfers en de knoppen op Gewicht zijn kleiner en rustiger op een telefoon.' },
+      { begrip: 'streefgewicht', tekst: 'Een streefgewicht zet je nu met Instellen.' },
+      { begrip: 'weer', tekst: 'Het weer onder de datum heeft dezelfde ronde hoeken als de kaart eronder.' },
+    ],
+  },
+  {
     versie: '0.6.2',
     datum: '2026-11-26',
     tijd: '18:41',
@@ -417,7 +429,7 @@ export const WIJZIGINGEN = [
     tijd: '22:30',
     punten: [
       { begrip: 'gewicht', tekst: 'De zinnen op Gewicht staan nu in dezelfde letter en maat als de regels in Goed om te weten.' },
-      { begrip: 'weegdag', tekst: 'De datum onder je weegdag heeft dezelfde maat als de tekst op de kaarten ernaast.' },
+      { begrip: 'gewicht', tekst: 'De datum op de kaart Gewicht heeft dezelfde maat als de tekst op de kaarten ernaast.' },
     ],
   },
   {

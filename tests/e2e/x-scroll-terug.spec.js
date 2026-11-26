@@ -161,7 +161,7 @@ for (const [naam, opties] of FORMATEN) {
         await schermKlaar(page, 'dagboek');
         // Zeker scrollbaar, ook op een hoog venster (alleen onderaan extra ruimte).
         await page.evaluate(() => Object.assign(document.querySelector('#scherm').style, { paddingBottom: '1600px' }));
-        const deelLink = page.locator('#scherm').getByRole('button', { name: /^Deze (dag|week|maand) delen/ });
+        const deelLink = page.locator('#scherm').getByRole('link', { name: /^Deze (dag|week|maand) delen/ }); // Delen is een link naar het scherm Delen
         // De knop moet in beeld blijven (de tik scrolt de pagina dan niet): scroll tot hij net boven het midden staat, voor zover de pagina dat toelaat.
         await deelLink.evaluate((el) => window.scrollTo({ top: Math.max(0, Math.round(window.scrollY + el.getBoundingClientRect().top - 120)), behavior: 'instant' }));
         await page.waitForTimeout(250);
@@ -214,7 +214,13 @@ for (const [naam, opties] of FORMATEN) {
       expect(await scrollY(page)).toBe(0);
       // en terug naar Algemeen via het tabblad: een nieuw scherm, dus ook bovenaan
       const meerTab = page.locator('#tabbalk a[href="#/meer"]:visible, #zijbalk a[href="#/meer"]:visible').first();
-      await tik(page, meerTab, aanraking);
+      if (await meerTab.count()) await tik(page, meerTab, aanraking);
+      else {
+        // Op een telefoon staat Algemeen niet in de balk onderaan: de weg ernaartoe is het tandwiel op Vandaag.
+        await tik(page, page.locator('#tabbalk a[href="#/vandaag"]:visible').first(), aanraking);
+        await schermKlaar(page, 'vandaag');
+        await tik(page, page.locator('.begroeting__instellingen'), aanraking);
+      }
       await schermKlaar(page, 'meer');
       expect(await scrollY(page)).toBe(0);
       meld(naam, 'vooruit naar ander tabblad', 0);

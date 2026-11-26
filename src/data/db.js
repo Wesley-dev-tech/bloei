@@ -7,7 +7,7 @@ import { leidAfUitDosis, splitsDosis } from '../logica/supplementen.js';
 import { vandaag } from '../kern/datum.js';
 import { DB_NAAM } from '../kern/demo.js';
 
-export const SCHEMA_VERSIE = 5;
+export const SCHEMA_VERSIE = 6;
 
 // 'bloei-dagboek', of in de demo 'bloei-demo' (kern/demo.js): de demo opent de echte database nooit, ook niet in de service worker.
 export const db = new Dexie(DB_NAAM);
@@ -96,6 +96,16 @@ db.version(5)
       else await maaltijden.put(rest);
     }
     await tx.table('badges').bulkDelete(MEDAILLES_WEG_V5);
+  });
+
+// Versie 6 (0.6.3, beslissing van de eigenaar): Bloei kent geen vaste dag van de week meer om te wegen. Een weging telt op elke dag, één
+// per week. Deze upgrade wist de instellingen die erover gingen van het toestel, onomkeerbaar. Geen wijziging aan stores of sleutels.
+// Dit is de enige plek in Bloei die deze namen nog noemt: zonder kan ze ze niet wissen.
+const INSTELLINGEN_WEG_V6 = ['gewicht.weegdag', 'meldingen.weegdag'];
+db.version(6)
+  .stores({})
+  .upgrade(async (tx) => {
+    await tx.table('instellingen').bulkDelete(INSTELLINGEN_WEG_V6);
   });
 
 export async function openDb() {

@@ -177,7 +177,7 @@ test('Thema: kiezen is meteen zichtbaar en blijft na herladen', async ({ page })
   await expect(page.getByRole('button', { name: 'Poeder', exact: true })).toHaveAttribute('aria-pressed', 'true');
 });
 
-test('Instellingen: kangrootte, dagdoel en weegdag volgen op Drinken, Vandaag en in het menu', async ({ page }) => {
+test('Instellingen: kangrootte en dagdoel volgen op Drinken, Vandaag en in het menu; Gewicht kent geen weegdag', async ({ page }) => {
   await page.goto('./#/meer');
   await page.locator('.meer .rij', { hasText: /^Drinken/ }).click();
   await expect(page).toHaveURL(/#\/meer\/instellingen$/);
@@ -188,12 +188,11 @@ test('Instellingen: kangrootte, dagdoel en weegdag volgen op Drinken, Vandaag en
   await wachtOpInstelling(page, 'drinken.glasMl', 850);
   await wachtOpInstelling(page, 'drinken.dagdoelMl', 2750);
   await page.goto('./#/meer/gewicht');
-  await page.getByRole('button', { name: 'woensdag', exact: true }).click(); // weegdag woensdag
-  await wachtOpInstelling(page, 'gewicht.weegdag', 3);
+  await expect(page.locator('#scherm')).not.toContainText(/weegdag/i); // sinds 0.6.3 geen weegdag meer
 
   await page.goto('./#/meer');
   await expect(page.locator('.meer .rij', { hasText: /^Drinken/ })).toContainText('Je dagdoel en de grootte van je dranken');
-  await expect(page.locator('.meer .rij', { hasText: /^Gewicht/ })).toContainText('Je weegdag en je streefgewicht');
+  await expect(page.locator('.meer .rij', { hasText: /^Gewicht/ })).toContainText('Je streefgewicht');
   await page.goto('./#/meer/instellingen');
   await expect(groep(page, 'Grootte van een kan water')).toContainText('850 ml');
 
@@ -206,8 +205,6 @@ test('Instellingen: kangrootte, dagdoel en weegdag volgen op Drinken, Vandaag en
   await expect(page.getByText('van 2,75 l')).toBeVisible();
 
   await page.reload();
-  await page.goto('./#/meer/gewicht');
-  await expect(page.getByRole('button', { name: 'woensdag', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('./#/meer/instellingen');
   await expect(groep(page, 'Dagdoel')).toContainText('2,75 l');
   await expect(groep(page, 'Grootte van een kan water')).toContainText('850 ml');
@@ -215,7 +212,7 @@ test('Instellingen: kangrootte, dagdoel en weegdag volgen op Drinken, Vandaag en
 
 test('Instellingen: een streefgewicht zetten en wissen', async ({ page }) => {
   await page.goto('./#/meer/gewicht');
-  await page.getByRole('button', { name: 'Zetten' }).click();
+  await page.getByRole('button', { name: 'Instellen' }).click();
   await expect(groep(page, 'Streefgewicht')).toContainText('65,0 kg');
   await wachtOpInstelling(page, 'gewicht.streefKg', 65);
   await page.reload();
@@ -223,7 +220,7 @@ test('Instellingen: een streefgewicht zetten en wissen', async ({ page }) => {
   await page.getByRole('button', { name: 'Wissen' }).click();
   await wachtOpInstelling(page, 'gewicht.streefKg', undefined);
   await page.reload();
-  await expect(page.getByRole('button', { name: 'Zetten' })).toBeVisible();
+  await expect(page.getByRole('button', { name: 'Instellen' })).toBeVisible();
 });
 
 test('Badges: per groep, met telling; na een eerste invoer staat de eerste badge er, met viering, blad en datum, en na herladen nog', async ({ page }) => {
@@ -341,10 +338,10 @@ test('Meer: Drinken en Gewicht zijn aparte subschermen met hun eigen titel', asy
   await expect(page.getByRole('heading', { level: 1, name: 'Drinken' })).toBeVisible();
   await expect(groep(page, 'Dagdoel')).toBeVisible();
   await expect(groep(page, 'Grootte van een kan water')).toBeVisible();
-  await expect(page.getByRole('button', { name: 'woensdag', exact: true })).toHaveCount(0); // weegdag staat bij Gewicht
+  await expect(page.getByRole('button', { name: 'woensdag', exact: true })).toHaveCount(0); // er is geen keuze van een dag
   await page.goto('./#/meer/gewicht');
   await expect(page.getByRole('heading', { level: 1, name: 'Gewicht' })).toBeVisible();
-  await expect(page.getByRole('button', { name: 'woensdag', exact: true })).toBeVisible();
+  await expect(page.locator('.streefrijen')).toBeVisible(); // het streefgewicht staat bij Gewicht
   await expect(groep(page, 'Dagdoel')).toHaveCount(0);
 });
 

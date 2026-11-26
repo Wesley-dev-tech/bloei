@@ -1392,9 +1392,9 @@ for (const [naam, opties] of MATEN) {
         });
       const h1 = await hoogte();
       const verder = page.locator('.welkom__knoppen .knop--primair');
-      for (let n = 2; n <= 5; n += 1) { // vijf stappen sinds 0.4.5 (stap 2 is de geboortedatum)
+      for (let n = 2; n <= 4; n += 1) { // vier stappen (stap 2 is de geboortedatum; geen weegdag sinds 0.6.3)
         await verder.click();
-        await expect(page.getByText(`Stap ${n} van 5`)).toBeVisible();
+        await expect(page.getByText(`Stap ${n} van 4`)).toBeVisible();
       }
       await animatiesKlaar(page);
       const h4 = await hoogte();
@@ -1416,7 +1416,7 @@ for (const [naam, opties] of MATEN) {
       // De methode van het toestel, waarvan de vraag niet lukt: de stap "Dat lukte niet" (BESLISSING 530) in dezelfde kaart. Annuleren onder de
       // herstelcode brengt haar terug bij de keuze, zonder iets te bewaren.
       await stap(page).getByRole('button', { name: 'Annuleren' }).click();
-      await expect(page.getByText('Stap 5 van 5')).toBeVisible();
+      await expect(page.getByText('Stap 4 van 4')).toBeVisible();
       expect(await instelling(page, 'slot.pin')).toBeNull();
       await page.getByRole('radio', { name: /^Face ID|^Vingerafdruk/ }).click();
       await page.evaluate(() => sessionStorage.setItem('__pkc', 'fout'));
@@ -1675,9 +1675,9 @@ test.describe('BESLISSING 530: de code precies twee keer bij het instellen', () 
           const t = teller();
           await page.goto('./');
           await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
-          for (let n = 2; n <= 5; n += 1) {
+          for (let n = 2; n <= 4; n += 1) {
             await page.locator('.welkom__knoppen .knop--primair').click();
-            await expect(page.getByText(`Stap ${n} van 5`)).toBeVisible();
+            await expect(page.getByText(`Stap ${n} van 4`)).toBeVisible();
           }
           if (methode === 'faceid') {
             await page.getByRole('radio', { name: /^Face ID/ }).click();
@@ -2014,9 +2014,9 @@ test.describe('Alles wissen en de herstelcode bij echt verlaten', () => {
       await authenticator(page, 'geen');
       await page.goto('./');
       await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
-      for (let n = 2; n <= 5; n += 1) {
+      for (let n = 2; n <= 4; n += 1) {
         await page.locator('.welkom__knoppen .knop--primair').click();
-        await expect(page.getByText(`Stap ${n} van 5`)).toBeVisible();
+        await expect(page.getByText(`Stap ${n} van 4`)).toBeVisible();
       }
       await page.locator('.welkom__knoppen .knop--primair').click();
       await tik(page, CODE);

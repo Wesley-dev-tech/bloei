@@ -1,6 +1,6 @@
 // BESLISSING 465 in Safari (WebKit): wie teruggaat naar een scherm, komt terug op de plaats waar hij was, met de focus op de rij van vertrek.
-// Wegen terug: de teruglink in de schermkop, de terugknop van de browser, en het tabblad van het scherm waarin ze zit (Algemeen vanuit een
-// instelscherm: terug naar het beginscherm van dat tabblad, zoals een tabbalk op iOS). Een ander tabblad blijft vooruit: bovenaan.
+// Wegen terug: de teruglink in de schermkop en de terugknop van de browser. (Het tabblad Algemeen bestaat op een telefoon niet meer: daar
+// zit Algemeen achter het tandwiel op Vandaag.) Een ander tabblad blijft vooruit: bovenaan.
 // Draait in elke browser van de config; bedoeld voor WebKit met een iPhone-formaat (390x660 en 440x760, isMobile, hasTouch, deviceScaleFactor 3).
 // Playwright kent in mobiel WebKit geen wiel- of veeggebaar (mouse.wheel: "not supported in mobile WebKit"): de stand wordt gezet met
 // scrollTo, zoals een veeg ze achterlaat; elke tik is een echte tap().
@@ -93,7 +93,7 @@ test.beforeEach(async ({ page }) => {
 const NAAR_ALGEMEEN = {
   'de teruglink Algemeen': (page) => kopKnop(page, 'Algemeen').tap(),
   'de terugknop van de browser': (page) => page.goBack(),
-  'het tabblad Algemeen': (page) => tab(page, '#/meer').tap(),
+  // Op een telefoon staat Algemeen niet meer in de balk onderaan (vijf tabbladen): die weg terug bestaat hier niet meer.
 };
 
 for (const [rijNaam, doelPad] of [
@@ -127,13 +127,16 @@ test('Dagboek maand > Dag openen > terug met de keuze Maand en met de browser: z
   }
 });
 
-test('een ander tabblad blijft vooruit: Algemeen > tabblad Dagboek > tabblad Algemeen begint bovenaan', async ({ page }) => {
+test('een ander tabblad blijft vooruit: Algemeen > tabblad Dagboek > Algemeen via het tandwiel begint bovenaan', async ({ page }) => {
   await openAlgemeen(page);
   expect(await scrolNaar(page, menuRij(page, 'Vergrendeling'))).toBeGreaterThan(50);
   await tab(page, '#/dagboek').tap();
   await schermKlaar(page, 'dagboek');
   expect(await scrollY(page)).toBe(0);
-  await tab(page, '#/meer').tap();
+  // Op een telefoon ga je naar Algemeen via het tandwiel op Vandaag: ook dat is vooruit, dus bovenaan.
+  await tab(page, '#/vandaag').tap();
+  await schermKlaar(page, 'vandaag');
+  await page.locator('.begroeting__instellingen').tap();
   await schermKlaar(page, 'meer');
   expect(await scrollY(page)).toBe(0);
 });

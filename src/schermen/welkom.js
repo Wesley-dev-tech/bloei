@@ -1,16 +1,16 @@
 // Welkom (#/welkom): de eerste start, en het begin na "Profiel verwijderen". Eén kaart met het logo, een warme titel en
-// vier stappen, één per keer: je naam, je dagdoel voor drinken, je weegdag en (BESLISSING 444) de vergrendeling. Elke stap heeft Verder
+// de stappen, één per keer: je naam, je geboortedatum, je dagdoel voor drinken en (BESLISSING 444) de vergrendeling. Elke stap heeft Verder
 // en Overslaan, vanaf stap 2 ook Terug. De stappen staan in hetzelfde vak boven elkaar (de hoogste bepaalt de hoogte), zodat de kaart niet
 // verspringt en de knoppen op een vaste plaats staan. Na de laatste stap gaan de keuzes naar dezelfde instellingen als de gewone schermen.
-// Stap 4 gebruikt de instelstroom van het scherm Vergrendeling (vergrendeling/instellen.js): Pincode, of de methode van het toestel (Face ID,
+// De laatste stap gebruikt de instelstroom van het scherm Vergrendeling (vergrendeling/instellen.js): Pincode, of de methode van het toestel (Face ID,
 // op Android vingerafdruk of schermslot) als het toestel ze heeft, en dan altijd eerst een code als terugval (BESLISSING 194).
-// "Nu niet" stelt niets in. In de demo (BESLISSING 364) is er geen vergrendeling en dus geen vierde stap.
+// "Nu niet" stelt niets in. In de demo (BESLISSING 364) is er geen vergrendeling en dus geen laatste stap.
 // BESLISSING 675: de demo toont dit scherm ook als voorbeeld (src/demo/voorbeeld.js, toon(houder, { voorbeeld })): dan altijd vier stappen, en er
 // wordt niets bewaard. Klaar roept voorbeeld.opKlaar(), "Vergrendeling instellen" voorbeeld.opSlot(), Escape voorbeeld.opSluit(). Het uitzicht is hetzelfde.
 import { h } from '../ui/dom.js';
 import { verjaardagKiezer } from '../ui/verjaardag.js';
 import { naAndereBladen } from '../ui/feest.js';
-import { kaart, knop, logo, stapper, tekstveld, chips, strook } from '../ui/componenten.js';
+import { kaart, knop, logo, stapper, tekstveld, strook } from '../ui/componenten.js';
 import { t } from '../teksten.js';
 import { opmaakLiter } from '../kern/getal.js';
 import { GRENZEN, STANDAARD, zetInstelling, zetStartKlaar } from '../data/instellingen.js';
@@ -22,17 +22,15 @@ import { isAndroid } from '../kern/toestel.js';
 import { bewaarNieuwSlot, codeKiezer, naNieuweCode, slotOptie } from '../vergrendeling/instellen.js';
 import { SLOT_SLEUTELS } from '../vergrendeling/herstel.js';
 
-// De stappen: 1 de naam, 2 de geboortedatum (vrijblijvend), 3 het dagdoel, 4 de weegdag en, als het toestel het kan, 5 de vergrendeling.
+// De stappen: 1 de naam, 2 de geboortedatum (vrijblijvend), 3 het dagdoel en, als het toestel het kan, 4 de vergrendeling.
 const GEBOORTE_STAP = 2;
 const DOEL_STAP = 3;
-const WEEG_STAP = 4;
-const SLOT_STAP = 5;
-const DAGEN = [1, 2, 3, 4, 5, 6, 7];
+const SLOT_STAP = 4;
 
 export function toon(houder, { voorbeeld = null } = {}) {
   const metSlot = !DEMO || Boolean(voorbeeld);
-  const aantal = metSlot ? SLOT_STAP : WEEG_STAP;
-  const stand = { naam: '', verjaardag: null, doel: STANDAARD['drinken.dagdoelMl'], weegdag: STANDAARD['gewicht.weegdag'], slotMethode: 'pin' };
+  const aantal = metSlot ? SLOT_STAP : DOEL_STAP;
+  const stand = { naam: '', verjaardag: null, doel: STANDAARD['drinken.dagdoelMl'], slotMethode: 'pin' };
   const overgeslagen = new Set(); // stappen waarvoor de standaard geldt
   let nr = 1;
   let bezig = false;
@@ -80,19 +78,7 @@ export function toon(houder, { voorbeeld = null } = {}) {
   const doelWaarde = doel.querySelector('.stapper__waarde');
   doelWaarde.tabIndex = -1;
 
-  // ---- Stap 3: de weegdag, dezelfde keuzerij als de instelling Gewicht
-  const dagen = h(
-    'div',
-    { class: 'weegdagen weegdagen--breed' },
-    chips({
-      keuzes: DAGEN.map((n) => ({ id: n, label: t('instellingen.dagen.' + n) })),
-      actief: stand.weegdag,
-      label: t('welkom.weegdagLabel'),
-      opKies: (n) => (stand.weegdag = n),
-    }),
-  );
-
-  // ---- Stap 4: de vergrendeling (BESLISSING 444). Dezelfde keuzerijen als op het scherm Vergrendeling (.slot__optie); de tweede keuze
+  // ---- De laatste stap: de vergrendeling (BESLISSING 444). Dezelfde keuzerijen als op het scherm Vergrendeling (.slot__optie); de tweede keuze
   // staat er alleen als het toestel ze heeft (passkeyMogelijk), met de naam uit passkey.js. Pincode is vooraf gekozen.
   let kanMethode = false;
   let inCode = false; // het cijferblok staat open
@@ -146,7 +132,6 @@ export function toon(houder, { voorbeeld = null } = {}) {
     stapEl(1, t('welkom.stap1'), t('welkom.stap1Hint'), naamBlok),
     stapEl(GEBOORTE_STAP, t('verjaardag.welkomVraag'), t('verjaardag.welkomHint'), geboorte, 'welkom__stap--geboorte'),
     stapEl(DOEL_STAP, t('welkom.stap2'), t('welkom.stap2Hint'), doel),
-    stapEl(WEEG_STAP, t('welkom.stap3'), t('welkom.stap3Hint'), dagen),
   ];
   // De hint van stap 4 is de eerlijke regel van de kaart Privacy (BESLISSING 334): de pincode houdt meekijkers buiten, de gegevens zelf zijn niet versleuteld.
   if (metSlot) stappen.push(stapEl(SLOT_STAP, t('welkom.stap4'), t('privacy.regel4'), slotBediening, 'welkom__stap--slot'));
@@ -204,7 +189,7 @@ export function toon(houder, { voorbeeld = null } = {}) {
 
   function zetFocus() {
     const doelEl =
-      nr === 1 ? naamVeld : nr === GEBOORTE_STAP ? geboorte.querySelector('select') : nr === DOEL_STAP ? doelWaarde : nr === WEEG_STAP ? dagen.querySelector('.chip.is-actief') || dagen.querySelector('.chip') : gekozenOptie();
+      nr === 1 ? naamVeld : nr === GEBOORTE_STAP ? geboorte.querySelector('select') : nr === DOEL_STAP ? doelWaarde : gekozenOptie();
     doelEl?.focus({ preventScroll: true });
   }
 
@@ -345,7 +330,6 @@ export function toon(houder, { voorbeeld = null } = {}) {
       if (stand.verjaardag && !overgeslagen.has(GEBOORTE_STAP)) await zetInstelling('profiel.verjaardag', stand.verjaardag);
       await zetInstelling('profiel.verjaardagGevraagd', true); // de vraag is hier gesteld: het blad voor bestaande gebruikers komt niet meer (ui/verjaardag.js)
       await zetInstelling('drinken.dagdoelMl', overgeslagen.has(DOEL_STAP) ? STANDAARD['drinken.dagdoelMl'] : stand.doel);
-      await zetInstelling('gewicht.weegdag', overgeslagen.has(WEEG_STAP) ? STANDAARD['gewicht.weegdag'] : stand.weegdag);
       await zetStartKlaar();
     } catch {
       // R2-16: het bewaren mislukte; ze blijft op deze stap met haar keuzes en kan het opnieuw proberen.
@@ -371,7 +355,7 @@ export function toon(houder, { voorbeeld = null } = {}) {
     if (voorbeeld && e.key === 'Escape') return voorbeeld.opSluit?.();
     if (e.key !== 'Enter' || e.isComposing) return;
     const doelEl = e.target;
-    if (doelEl instanceof HTMLInputElement || doelEl === doelWaarde || doelEl.closest?.('.weegdagen')) {
+    if (doelEl instanceof HTMLInputElement || doelEl === doelWaarde) {
       e.preventDefault();
       verder();
     }

@@ -31,7 +31,7 @@ const meetGaten = (page) =>
           const b = e.getBoundingClientRect();
           if (b.width < 1 || b.height < 1) continue;
           const kop = e.classList.contains('kaartkop');
-          const toont = kop || e.children.length === 0 || ['svg', 'textarea', 'input', 'button'].includes(e.tagName.toLowerCase());
+          const toont = kop || e.children.length === 0 || [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) || ['svg', 'textarea', 'input', 'button'].includes(e.tagName.toLowerCase());
           if (!toont) continue;
           const onder = kop ? b.bottom + parseFloat(getComputedStyle(e).marginBottom) : b.bottom;
           blokken.push([Math.max(b.top, binnenTop), Math.min(onder, binnenBodem)]);
@@ -45,7 +45,7 @@ const meetGaten = (page) =>
           tot = Math.max(tot, naar);
         }
         gat = Math.max(gat, binnenBodem - tot);
-        const naam = [...k.classList].find((c) => /^(gewichthoofd|gewicht__weegdag|gewichtstreef|gewichtgrafiek|gewicht__lijst|gewicht__weetjes)/.test(c)) ?? k.className;
+        const naam = [...k.classList].find((c) => /^(gewichthoofd|gewichtstreef|gewichtgrafiek|gewicht__lijst|gewicht__weetjes)/.test(c)) ?? k.className;
         return [naam, gat];
       }),
     );
@@ -111,9 +111,9 @@ for (const [breed, hoog] of BREED) {
       for (const k of vierde.kolommen) expect(Math.abs(k.tegel - k.links)).toBeLessThanOrEqual(1);
       expect(vierde.onder).toBeLessThanOrEqual(8);
 
-      // De drie bovenkaarten: label, kern, regel en knop op dezelfde vier lijnen
+      // De twee bovenkaarten (sinds 0.6.3 zonder Weegdag): label, kern, regel en knop op dezelfde vier lijnen
       const lijnen = await page.evaluate(() =>
-        ['.gewichthoofd', '.gewicht__weegdag', '.gewichtstreef'].map((sel) => {
+        ['.gewichthoofd', '.gewichtstreef'].map((sel) => {
           const k = document.querySelector(sel);
           const top = (s) => k.querySelector(s).getBoundingClientRect().top;
           const bodem = (s) => k.querySelector(s).getBoundingClientRect().bottom;
@@ -124,14 +124,12 @@ for (const [breed, hoog] of BREED) {
         for (const as of ['label', 'kern', 'regel', 'knop', 'knopHoogte']) expect(Math.abs(l[as] - lijnen[0][as]), `lijn ${as}`).toBeLessThanOrEqual(1);
       }
       await expect(page.locator('.gewichthoofd .gewicht__actie .knop')).toHaveClass(/knop--primair/);
-      await expect(page.locator('.gewicht__weegdag .gewicht__actie .knop')).toHaveClass(/knop--primair/); // BESLISSING 484: alle drie gevuld
       await expect(page.locator('.gewichtstreef .gewicht__actie .knop')).toHaveClass(/knop--primair/);
 
       // Rijen eindigen gelijk, en geen leeg vlak in een kaart
       const kaarten = await meetKaarten(page, '.gewicht__raster');
       for (const [naam, gat] of Object.entries(await meetGaten(page))) expect(gat, `${naam} heeft een leeg vlak van ${Math.round(gat)} px`).toBeLessThanOrEqual(32);
       const per = Object.fromEntries(kaarten.map((k) => [k.naam, k]));
-      expect(Math.abs(per.gewichthoofd.bodem - per.gewicht__weegdag.bodem)).toBeLessThanOrEqual(2);
       expect(Math.abs(per.gewichthoofd.bodem - per.gewichtstreef.bodem)).toBeLessThanOrEqual(2);
       expect(Math.abs(per.gewichtgrafiek.bodem - per.gewicht__lijst.bodem), 'Verloop en Je wegingen eindigen gelijk').toBeLessThanOrEqual(2);
       expect(Math.abs(per.gewichtgrafiek.top - per.gewicht__lijst.top)).toBeLessThanOrEqual(2);

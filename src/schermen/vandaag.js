@@ -655,7 +655,6 @@ export function toon(houder) {
       ),
     );
 
-    // Geen kaart "Weegdag" op het hoofdscherm (BESLISSING 380): de weegdag staat op het tabblad Gewicht.
     staat.animeer = false;
     const scherm = h(
       'div',

@@ -117,10 +117,10 @@ describe('de rijen', () => {
     expect(volledig).toBeLessThan(14);
   });
 
-  test('gewicht: drie wegingen (één weegdag overgeslagen), elk op de weegdag in een eigen week, licht dalend, met streefgewicht', () => {
+  test('gewicht: drie wegingen (één week overgeslagen), elk in een eigen week, licht dalend, met streefgewicht', () => {
     expect(r.wegingen).toHaveLength(3);
     for (const w of r.wegingen) {
-      expect([1, 2]).toContain(weekdag(w.datum)); // de weegdag, of de dag erna als die in het lange weekend viel
+      expect([1, 2]).toContain(weekdag(w.datum)); // de maandag, of de dag erna als die in het lange weekend viel
       expect(w.week).toBe(weekStart(w.datum));
       expect(w.datum <= DAG).toBe(true);
     }

@@ -175,11 +175,6 @@
   border-radius: 0;
 }
 
-.weegdagen .chip {
-  min-width: var(--tap-min);
-  justify-content: center;
-}
-
 .profiel__knoppen {
   align-items: flex-start;
   gap: var(--s-1);

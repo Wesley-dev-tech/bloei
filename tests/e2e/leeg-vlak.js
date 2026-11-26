@@ -60,7 +60,7 @@ export function meetKaarten(page, wortel) {
       for (const e of k.querySelectorAll('*')) {
         const b = e.getBoundingClientRect();
         if (b.width < 1 || b.height < 1) continue;
-        const toont = e.children.length === 0 || ['svg', 'textarea', 'input', 'button'].includes(e.tagName.toLowerCase());
+        const toont = e.children.length === 0 || [...e.childNodes].some((n) => n.nodeType === 3 && n.textContent.trim()) || ['svg', 'textarea', 'input', 'button'].includes(e.tagName.toLowerCase());
         if (!toont) continue;
         blokken.push([Math.max(b.top, binnenTop), Math.min(b.bottom, binnenBodem)]);
       }
@@ -73,7 +73,7 @@ export function meetKaarten(page, wortel) {
         tot = Math.max(tot, naar);
       }
       gat = Math.max(gat, binnenBodem - tot);
-      const naam = [...k.classList].find((c) => /^(dag__|gewichthoofd|gewicht__weegdag|gewichtstreef|gewichtgrafiek|gewicht__lijst|gewicht__weetjes|maand__|week__)/.test(c)) ?? k.className;
+      const naam = [...k.classList].find((c) => /^(dag__|gewichthoofd|gewichtstreef|gewichtgrafiek|gewicht__lijst|gewicht__weetjes|maand__|week__)/.test(c)) ?? k.className;
       return { naam, top: r.top, bodem: r.bottom, links: r.left, hoogte: r.height, gat };
     });
   }, wortel);

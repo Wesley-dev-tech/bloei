@@ -121,7 +121,7 @@ describe('voortgangNaarStreef', () => {
 
 describe('weekKalender', () => {
   test('twaalf weken, oudste eerst, de lopende week laatst', () => {
-    const weken = weekKalender([weging('2026-11-12', 70)], VANDAAG, 4);
+    const weken = weekKalender([weging('2026-11-12', 70)], VANDAAG);
     expect(weken).toHaveLength(12);
     expect(weken.at(-1).week).toBe('2026-11-09');
     expect(weken.at(-1).isNu).toBe(true);
@@ -129,21 +129,16 @@ describe('weekKalender', () => {
     expect(weken[0].week).toBe(plusDagen('2026-11-09', -77));
   });
 
-  test('de datum is de weegdag van die week', () => {
-    const weken = weekKalender([], VANDAAG, 4);
-    expect(weken.at(-1).datum).toBe('2026-11-12'); // donderdag
-    expect(weken.at(-2).datum).toBe('2026-11-05');
-  });
-
-  test('zonder weegdag staat de maandag, en een weging telt op elke dag van de week', () => {
-    const weken = weekKalender([weging('2026-11-14', 70)], VANDAAG, null);
+  test('de datum is de maandag van die week, en een weging telt op elke dag van de week', () => {
+    const weken = weekKalender([weging('2026-11-14', 70)], VANDAAG);
     expect(weken.at(-1).datum).toBe('2026-11-09');
+    expect(weken.at(-2).datum).toBe('2026-11-02');
     expect(weken.at(-1).gevuld).toBe(true);
   });
 
   test('gevuld waar er een weging is; weken vóór de eerste weging zijn voorEerste', () => {
     const lijst = [weging('2026-10-15', 70), weging('2026-11-05', 70), weging('2026-11-12', 70)];
-    const weken = weekKalender(lijst, VANDAAG, 4);
+    const weken = weekKalender(lijst, VANDAAG);
     const gevuld = weken.filter((w) => w.gevuld).map((w) => w.week);
     expect(gevuld).toEqual(['2026-10-12', '2026-11-02', '2026-11-09']);
     const eerste = weken.findIndex((w) => w.gevuld);
@@ -153,14 +148,14 @@ describe('weekKalender', () => {
   });
 
   test('zonder wegingen is elke week voorEerste', () => {
-    expect(weekKalender([], VANDAAG, 1).every((w) => w.voorEerste && !w.gevuld)).toBe(true);
+    expect(weekKalender([], VANDAAG).every((w) => w.voorEerste && !w.gevuld)).toBe(true);
   });
 
   test('een maandlabel bij de eerste week en waar de maand wisselt', () => {
-    const weken = weekKalender([], VANDAAG, 4);
+    const weken = weekKalender([], VANDAAG);
     expect(weken[0].maandLabel).not.toBeNull();
     const labels = weken.filter((w) => w.maandLabel).map((w) => w.maandLabel);
-    // 12 weken tot 12 november 2026: de weegdagen lopen van 27 augustus tot en met 12 november
+    // 12 weken tot 12 november 2026: de maandagen lopen van 24 augustus tot en met 9 november
     expect(labels).toEqual(['aug', 'sep', 'okt', 'nov']);
     for (let i = 1; i < weken.length; i++) expect(Boolean(weken[i].maandLabel)).toBe(weken[i].maand !== weken[i - 1].maand);
   });
@@ -169,22 +164,22 @@ describe('weekKalender', () => {
 describe('wekenGewogen', () => {
   test('telt alleen weken vanaf de eerste weging', () => {
     const lijst = [weging('2026-09-24', 70), weging('2026-10-08', 70), weging('2026-10-15', 70), weging('2026-11-05', 70), weging('2026-11-12', 70)];
-    const weken = weekKalender(lijst, VANDAAG, 4);
+    const weken = weekKalender(lijst, VANDAAG);
     // eerste weging in de week van 21 september: tot en met de lopende week zijn dat 8 weken, 5 gewogen
     expect(wekenGewogen(weken)).toEqual({ gewogen: 5, van: 8 });
   });
 
   test('de lopende week zonder weging is nog niet gemist', () => {
     const lijst = [weging('2026-11-02', 70)];
-    expect(wekenGewogen(weekKalender(lijst, VANDAAG, 4))).toEqual({ gewogen: 1, van: 1 });
+    expect(wekenGewogen(weekKalender(lijst, VANDAAG))).toEqual({ gewogen: 1, van: 1 });
   });
 
   test('twintig wekelijkse wegingen: twaalf van twaalf', () => {
     const lijst = Array.from({ length: 20 }, (_, i) => weging(plusDagen('2026-11-12', -7 * (19 - i)), 70));
-    expect(wekenGewogen(weekKalender(lijst, VANDAAG, 4))).toEqual({ gewogen: 12, van: 12 });
+    expect(wekenGewogen(weekKalender(lijst, VANDAAG))).toEqual({ gewogen: 12, van: 12 });
   });
 
   test('zonder wegingen valt er niets te tellen', () => {
-    expect(wekenGewogen(weekKalender([], VANDAAG, 4))).toEqual({ gewogen: 0, van: 0 });
+    expect(wekenGewogen(weekKalender([], VANDAAG))).toEqual({ gewogen: 0, van: 0 });
   });
 });

@@ -61,11 +61,11 @@ describe('opslag van het streefgewicht', () => {
 
 describe('het blad Streefgewicht in de code', () => {
   const gewicht = bron('src/schermen/gewicht.js');
-  const blad = gewicht.slice(gewicht.indexOf('export function openStreefBlad'), gewicht.indexOf('// Het blad "Weegdag"'));
+  const blad = gewicht.slice(gewicht.indexOf('export function openStreefBlad'), gewicht.indexOf('export function toon'));
   test('er is geen tussentijdse opslag: alleen Klaar en Verwijderen schrijven', () => {
     // zetInstelling staat alleen in bewaarEnSluit, de verwijderknop en de twee Ongedaan-maken-acties
     expect(blad.match(/zetInstelling\(/g)).toHaveLength(4);
-    const invoerBlok = blad.slice(blad.indexOf('opWijzig'), blad.indexOf('invoerVeld.classList'));
+    const invoerBlok = blad.slice(blad.indexOf('opWijzig'), blad.indexOf("invoerVeld.setAttribute('aria-describedby'"));
     expect(invoerBlok).not.toContain('zetInstelling');
   });
   test('de kaart zet geen verzonnen beginwaarde meer en heeft geen eigen stapper', () => {
@@ -88,26 +88,17 @@ describe('teksten van het blad Streefgewicht', () => {
   test('de letterlijke teksten', () => {
     expect(TEKSTEN.gewicht.klaar).toBe('Klaar');
     expect(TEKSTEN.gewicht.streefAanpassen).toBe('Streefgewicht aanpassen');
-    expect(TEKSTEN.instellingen.streefZetten).toBe('Streefgewicht zetten');
+    expect(TEKSTEN.instellingen.streefZetten).toBe('Streefgewicht instellen');
   });
 });
 
-describe('het blad Weegdag in de code (BESLISSING 477)', () => {
-  const gewicht = bron('src/schermen/gewicht.js');
-  const blad = gewicht.slice(gewicht.indexOf('export function openWeegdagBlad'), gewicht.indexOf('export function toon'));
-  test('dezelfde instelling als Algemeen, Gewicht; alleen Klaar (en Ongedaan maken) schrijft', () => {
-    expect(bron('src/schermen/meer-gewicht.js')).toContain("'gewicht.weegdag'");
-    expect(blad.match(/zetInstelling\(/g)).toHaveLength(2);
-    expect(blad).toContain("'gewicht.weegdag'");
-    expect(blad).toContain('if (gekozen === weegdag) return'); // dezelfde dag: niets en geen melding
-  });
-  test('de knop opent het blad in plaats van naar Algemeen te springen', () => {
-    expect(gewicht).toContain('openWeegdagBlad({ weegdag: (await leesInstelling(');
-    expect(gewicht).not.toContain("window.location.hash = '#/meer/gewicht'");
-  });
-  test('de nieuwe tekst bestaat zonder lang streepje', () => {
-    expect(TEKSTEN.gewicht.weegdagBewaard).toBe('Weegdag bewaard.');
-    expect(TEKSTEN.gewicht.weegdagBewaard).not.toMatch(/[\u2013\u2014\u203a\u2039\u2192]/);
+describe('de weegdag bestaat niet meer (0.6.3)', () => {
+  test('geen blad, geen kaart, geen instelling en geen tekst over een weegdag', () => {
+    for (const pad of ['src/schermen/gewicht.js', 'src/schermen/meer-gewicht.js', 'src/schermen/welkom.js', 'src/data/instellingen.js', 'src/teksten.js', 'src/uitleg/stappen.js']) {
+      expect(bron(pad), pad).not.toMatch(/weegdag/i);
+    }
+    // De enige plek die de naam nog noemt: de upgrade die de bewaarde instelling van het toestel wist.
+    expect(bron('src/data/db.js')).toContain("'gewicht.weegdag'");
   });
 });
 
@@ -126,14 +117,12 @@ describe('Gewicht: Weging noteren, het streefveld en de korte knoptekst (BESLISS
     expect(meerGewicht).toContain('leesKg');
     expect(meerGewicht).toContain("inputmode: 'decimal'");
     expect(meerGewicht).toContain("t('instellingen.streefVeld')");
-    expect(meerGewicht).toContain("setAttribute('aria-label', t('algemeen.dagen.'");
   });
   test('494: twee spans, de volle tekst als schermlezernaam; de korte teksten bestaan', () => {
     expect(gewicht).toContain("h('span', { class: 'knop__vol' }, vol)");
     expect(gewicht).toContain('label: vol');
-    expect(TEKSTEN.instellingen.streefZettenKort).toBe('Zetten');
+    expect(TEKSTEN.instellingen.streefZettenKort).toBe('Instellen');
     expect(TEKSTEN.gewicht.aanpassen).toBe('Aanpassen');
-    expect(TEKSTEN.gewicht.weegdagAanpassen).toBe('Weegdag aanpassen');
     expect(TEKSTEN.instellingen.streefVeld).toBe('Streefgewicht in kg');
     expect(TEKSTEN.instellingen.streefVeld).not.toMatch(/[\u2013\u2014\u203a\u2039\u2192\u00d7\u2212\u2026]/);
   });

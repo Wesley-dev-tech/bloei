@@ -252,9 +252,7 @@ test.describe('Welkom', () => {
     await page.getByRole('button', { name: 'Verder' }).click();
     await page.getByRole('button', { name: 'Verder' }).click(); // de geboortedatum (stap 2, sinds 0.4.5) blijft leeg
     await page.getByRole('button', { name: 'Verder' }).click();
-    await expect(page.getByText('Stap 4 van 5')).toBeVisible();
-    await page.getByRole('button', { name: 'Verder' }).click();
-    await expect(page.getByText('Stap 5 van 5')).toBeVisible();
+    await expect(page.getByText('Stap 4 van 4')).toBeVisible(); // sinds 0.6.3 zonder weegdag
     // het bewaren mislukt (bv. een volle opslag)
     await page.evaluate(() => {
       window.__echtPut = IDBObjectStore.prototype.put;
@@ -266,7 +264,7 @@ test.describe('Welkom', () => {
     await expect(page.locator('.strook__tekst')).toHaveText('Dit lukte niet. Probeer het nog eens.');
     await domRustig(page); // het scherm is stil (geen vaste wachttijd): een navigatie naar Vandaag zou nu al gebeurd zijn
     await expect(page).toHaveURL(/#\/welkom$/);
-    await expect(page.getByText('Stap 5 van 5')).toBeVisible();
+    await expect(page.getByText('Stap 4 van 4')).toBeVisible();
     await expect(page.getByRole('textbox', { name: 'Je naam', includeHidden: true })).toHaveValue('Testnaam');
     await expect(page.getByRole('button', { name: 'Nu niet' })).toBeEnabled();
     // daarna lukt het wel

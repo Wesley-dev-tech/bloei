@@ -179,9 +179,9 @@ for (const maat of [...MATEN, [412, 915]]) {
       };
       await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
       await klaar('stap 1');
-      for (const n of [2, 3, 4, 5]) {
+      for (const n of [2, 3, 4]) {
         await page.locator('.welkom__knoppen .knop--primair').click();
-        await expect(page.getByText(`Stap ${n} van 5`)).toBeVisible();
+        await expect(page.getByText(`Stap ${n} van 4`)).toBeVisible();
         await klaar(`stap ${n}`);
       }
       await page.locator('.welkom__knoppen .knop--primair').click();

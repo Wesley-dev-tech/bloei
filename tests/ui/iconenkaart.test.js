@@ -28,7 +28,7 @@ describe('iconenkaart', () => {
       eten: 'maaltijd', favoriet: 'maaltijd', algemeen: 'neutraal', instellingen: 'neutraal', profiel: 'neutraal', thema: 'neutraal',
       vergrendeling: 'neutraal', pincode: 'neutraal', uitleg: 'neutraal',
       // nieuwe families: pas verwacht zodra ze in componenten.css staan
-      gewicht: bestaat('gewicht') ? 'gewicht' : 'neutraal', weegdag: bestaat('gewicht') ? 'gewicht' : 'neutraal', streefgewicht: bestaat('gewicht') ? 'gewicht' : 'neutraal',
+      gewicht: bestaat('gewicht') ? 'gewicht' : 'neutraal', weegkalender: bestaat('gewicht') ? 'gewicht' : 'neutraal', streefgewicht: bestaat('gewicht') ? 'gewicht' : 'neutraal',
       delen: bestaat('delen') ? 'delen' : 'neutraal', verslag: bestaat('delen') ? 'delen' : 'neutraal', periode: bestaat('delen') ? 'delen' : 'neutraal',
     };
     for (const [begrip, familie] of Object.entries(VERWACHT)) expect(ICOON[begrip].familie, begrip).toBe(familie);

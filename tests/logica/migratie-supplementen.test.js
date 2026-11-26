@@ -56,7 +56,7 @@ describe('database schema 2 naar 3', () => {
     const { db, openDb } = await import('../../src/data/db.js');
     const { vandaag } = await import('../../src/kern/datum.js');
     await openDb();
-    expect(db.verno).toBe(5);
+    expect(db.verno).toBe(6);
 
     // Alles wat er stond, staat er nog, ook de tekst van dosis.
     const lijst = (await db.supplementen.toArray()).sort((a, b) => a.volgorde - b.volgorde);

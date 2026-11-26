@@ -1,6 +1,6 @@
 // Meer · Drinken: dagdoel en de grootte per drank (water is de glasgrootte), in de vaste opbouw van een instelscherm
 // (BESLISSING 164): links elke instelling één rij met de bediening rechts op één lijn, rechts "Zo ziet het eruit" dat meebeweegt.
-// Weegdag en streefgewicht staan in meer-gewicht.js. Elke wijziging bewaart zichzelf en is meteen zichtbaar op Vandaag, Drinken en Gewicht.
+// Het streefgewicht staat in meer-gewicht.js. Elke wijziging bewaart zichzelf en is meteen zichtbaar op Vandaag, Drinken en Gewicht.
 import { h } from '../ui/dom.js';
 import { kaart, kaartkop, rij, stapper, icoontegel, schermkop } from '../ui/componenten.js';
 import { DRANKICOON } from '../ui/beeld.js';

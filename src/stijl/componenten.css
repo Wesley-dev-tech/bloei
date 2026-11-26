@@ -454,7 +454,7 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
 .dialoog__acties { display: flex; flex-direction: column; gap: var(--s-2); margin-top: var(--s-3); }
 /* ---------- Knoppenrij (BESLISSING 522, bouwt voort op 469, 492, 516, 519 en 521) ----------
    Eén regel voor elke groep knoppen die bij elkaar horen, onderaan een pop-up of bevestigingsvraag: de bevestigingsvragen (.dialoog__acties met twee of meer
-   knoppen), de bladen Maaltijd, Weging noteren, Streefgewicht en Weegdag (.maaltijd__acties) en de supplementkaart met haar vragen (.supplementkaart__knoppen).
+   knoppen), de bladen Maaltijd, Weging noteren en Streefgewicht (.maaltijd__acties) en de supplementkaart met haar vragen (.supplementkaart__knoppen).
    De groep staat gecentreerd in haar houder en de knoppen zijn onderling even breed, op elk toestel en in elke toestand (twee of drie knoppen):
    - een raster van gelijke kolommen (minmax(0, 1fr)) in een houder zo breed als haar inhoud (fit-content): elke kolom is zo breed als de breedste knop;
    - minstens --rij-min per knop (de gewone minimumbreedte van een knop), nooit breder dan twee keer die maat (geen uitgesmeerde knoppen);
@@ -481,7 +481,7 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
    (--knop-zacht-fg), ook de hoofdknop (.knop--primair leest --knop-bg en --knop-fg, ook voor haar vinkje en icoon via currentColor). Een knop die alleen staat
    (Weging noteren op een kaart, een enkele Verder) blijft gevuld in de familiekleur; een tekstknop naast een gevulde telt niet als groep. Uitgezonderd: de
    wisdialoog (gevaarlijke actie, eigen kleur). Het supplementblad doet mee (BESLISSING 546). Houders: de gedeelde knoppenrij hierboven
-   (bevestigingsvragen en de bladen Maaltijd, Weging, Streefgewicht, Weegdag), Delen, de knoppenrijen van het slot, het herstel en het welkomscherm
+   (bevestigingsvragen en de bladen Maaltijd, Weging, Streefgewicht), Delen, de knoppenrijen van het slot, het herstel en het welkomscherm
    en de installatiestrook. "Verder" onder de herstelcode staat alleen en blijft gevuld (BESLISSING 662): de stap zelf is geen houder, alleen haar paar
    Kopiëren en Bewaren (.herstel__knoppen). Elke kleur komt uit de familie van het blad of het tabblad (tabkleur.css); buiten een familie (het slot) uit de tokens van het thema. */
 :is(.maaltijd__acties, .supplementkaart__knoppen, .dialoog:not(.dialoog--wis) .dialoog__acties:where(:has(> .knop + .knop)), .delen__knoppen, .herstel__keuze, .herstel__knoppen, .slot__acties--kwijt,

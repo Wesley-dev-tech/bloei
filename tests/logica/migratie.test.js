@@ -27,13 +27,16 @@ describe('database schema 1 naar 3', () => {
     await oud.table('badges').put({ id: 'eerste-bladzijde', behaaldOp: 1, gezien: true });
     await oud.table('badges').put({ id: 'gemoed', behaaldOp: 2, gezien: true });
     await oud.table('instellingen').put({ sleutel: 'profiel.naam', waarde: 'Testnaam' });
+    await oud.table('instellingen').put({ sleutel: 'gewicht.weegdag', waarde: 4 });
+    await oud.table('instellingen').put({ sleutel: 'meldingen.weegdag', waarde: { aan: true, uur: '08:00' } });
+    await oud.table('instellingen').put({ sleutel: 'gewicht.streefKg', waarde: 66 });
     expect(oud.verno).toBe(1);
     oud.close();
 
     const { db, openDb, SCHEMA_VERSIE } = await import('../../src/data/db.js');
     await openDb();
-    expect(SCHEMA_VERSIE).toBe(5);
-    expect(db.verno).toBe(5);
+    expect(SCHEMA_VERSIE).toBe(6);
+    expect(db.verno).toBe(6);
     expect(db.tables.map((t) => t.name).sort()).toEqual(
       ['badges', 'dagen', 'dranken', 'favorieten', 'fotos', 'instellingen', 'maaltijden', 'momentinnames', 'supplementen', 'wegingen'],
     );
@@ -54,6 +57,10 @@ describe('database schema 1 naar 3', () => {
     expect(await db.favorieten.count()).toBe(1);
     expect(await db.badges.get('eerste-bladzijde')).toMatchObject({ gezien: true });
     expect(await db.instellingen.get('profiel.naam')).toMatchObject({ waarde: 'Testnaam' });
+    // Schema 6 (0.6.3) wist de weegdag en de oude herinnering op de weegdag; het streefgewicht blijft.
+    expect(await db.instellingen.get('gewicht.weegdag')).toBeUndefined();
+    expect(await db.instellingen.get('meldingen.weegdag')).toBeUndefined();
+    expect(await db.instellingen.get('gewicht.streefKg')).toMatchObject({ waarde: 66 });
     expect(await db.supplementen.count()).toBe(0);
     expect(await db.momentinnames.count()).toBe(0);
 
