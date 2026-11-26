@@ -1554,7 +1554,7 @@ export const TEKSTEN = {
       // motivator die het weer volgt (logica/motivatie.js).
       weer: {
         // Alleen op een telefoon: de regel onder de datum (ui/weerkaart.js, weerregel)
-        regel: { titel: "Het weer in het kort", tekst: "Op Vandaag staat onder de datum het weer in het kort: het weer van nu, met de laagste en de hoogste temperatuur van vandaag. Tik erop en je gaat naar de kaart Het weer onderaan." },
+        regel: { titel: "Het weer in het kort", tekst: "Op Vandaag staat onder de datum het weer in het kort: de temperatuur van nu, de laagste en de hoogste van vandaag en de kans op regen. Tik erop en je gaat naar de kaart Het weer onderaan." },
         nu: { titel: "Het weer van nu", tekst: "Op Vandaag staat de kaart Het weer. Bovenaan zie je de temperatuur van nu, het weerbeeld en hoe het aanvoelt." },
         cijfers: { titel: "Vandaag in tien cijfers", tekst: "Regen is de kans dat het regent, Neerslag hoeveel er valt. Wind staat er in beaufort met de richting, Snelheid in kilometer per uur. De uv-index zegt hoe sterk de zon is." },
         week: { titel: "De komende dagen", tekst: "Per dag zie je het weerbeeld, de hoogste en de laagste temperatuur en de kans op regen. De eerste dag is vandaag." },
@@ -1604,7 +1604,7 @@ export const TEKSTEN = {
         kop: { titel: "Rondleiding", tekst: "Bovenaan staat een vraagteken. Daarmee start je deze rondleiding opnieuw, wanneer je maar wil. Je vindt het op elk scherm terug." },
         instellingen: { titel: "Algemeen", tekst: "Naast Delen staat een tandwiel. Daarachter zit Algemeen: je profiel, je favoriete maaltijden, je badges en alle instellingen." },
         // Alleen op een telefoon: het weer in het kort onder de datum (ui/weerkaart.js, weerregel).
-        weerregel: { titel: "Het weer in het kort", tekst: "Onder de datum staat het weer van nu, met de laagste en de hoogste temperatuur van vandaag. Tik erop en je gaat naar het hele weerbericht onderaan." },
+        weerregel: { titel: "Het weer in het kort", tekst: "Onder de datum staat het weer in het kort: de temperatuur van nu, de laagste en de hoogste van vandaag en de kans op regen. Tik erop en je gaat naar het hele weerbericht onderaan." },
         // De kaart met het weerbericht (ui/weerkaart.js), naast de motivator; op een telefoon helemaal onderaan.
         weer: { titel: "Het weer bij jou", tekst: "Hier staat het weer bij jou: bovenaan de temperatuur van nu, het weerbeeld en hoe het aanvoelt. Daaronder staan tien cijfers van vandaag, van regen en wind tot zon op en zon onder. Onderaan zie je de komende dagen." },
         dag: { titel: "Je dag in één blik", tekst: "Bovenaan staan tegels met hoe je dag ervoor staat: eten, drinken, je dagdoel en supplementen. Je hoeft er niets mee te doen: de cijfers tellen vanzelf mee. De zin eronder moedigt je aan en past bij je dag en bij het weer." },
