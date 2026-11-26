@@ -224,7 +224,7 @@ describe('de regels van de verdeling', () => {
     await openDb();
   });
 
-  // Een dag die niet meer past, schuift door als er dan hoogstens een vijfde van de pagina leeg blijft; anders wordt ze tussen twee rijen gesplitst
+  // Een dag die niet meer past, schuift alleen heel door als er dan bijna niets leeg blijft (0.5.9); anders wordt ze tussen twee rijen gesplitst
   // en krijgt het vervolg de dagkop opnieuw met "(vervolg)". Een dag langer dan een pagina wordt altijd gesplitst.
   test('een dag langer dan een pagina wordt gesplitst, met de dagkop "(vervolg)" en de kolomkop op de volgende pagina', async () => {
     for (let n = 0; n < 3; n += 1) {

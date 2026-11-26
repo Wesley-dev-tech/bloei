@@ -1275,7 +1275,10 @@ a.week__link { min-height: 48px; justify-content: center; }
   .wk__rij.is-toekomst .wk__dagnaam { color: var(--c-text-muted); font-weight: 400; }
   .wk__tabel .wk__teken--moment { width: calc(var(--wk-teken) + 2px); height: calc(var(--wk-teken) + 2px); }
 }
-@media (min-width: 1400px) and (min-height: 1100px) { .wk { --wk-rij: 72px; } }
+/* Een hoog scherm (eigenaar, 0.5.9): de rijen groeien mee met de hoogte van het venster, zodat de week de pagina vult (rond 48 px vrij onderaan)
+   in plaats van een leeg vlak onder het weekschema te laten. 532 px = alles buiten de acht rijen (kop, bladerkop, de kerncijfers, de randen van de
+   kaart, de zin) plus die 48 px; 7,9 = zeven dagrijen en de koprij van 0,9. Nooit lager dan de 72 px van voorheen, nooit hoger dan 92 px. */
+@media (min-width: 1400px) and (min-height: 1100px) { .wk { --wk-rij: clamp(72px, calc((100vh - var(--demo-balk-h, 0px) - 532px) / 7.9), 92px); } }
 
 /* ---------- Dagboek · Maand (BESLISSING 255, herzien): rustige cellen, een gevulde pagina eromheen ---------- */
 /* De kalender: zeven kolommen, cellen breder dan hoog. Per cel linksboven het dagnummer en op één vaste regel eronder het spuitje

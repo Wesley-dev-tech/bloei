@@ -66,7 +66,7 @@
   --c-primary:       #3B2A3C;  /* primaire knop */
   --c-on-primary:    #FBF7F4;
   /* Bewust GEEN rood/waarschuwingskleur voor gewicht. */
-  --c-fout-text:     #A8382C;  /* de tekst van een foutmelding in een formulier (6,4:1 op de kaart, 5,5:1 op de zachte tint); nooit voor gewicht */
+  --c-fout-text:     #A8382C;  /* de tekst van een foutmelding in een formulier (6,4:1 op de kaart, 5,5:1 op de zachte tint); alleen voor een ongeldige invoer, nooit als oordeel over een gewicht */
 
   /* ---- Icoontegels ---- */
   --tile-size: 40px;          /* lijsten; 56px voor de grote drinkknop-iconen */

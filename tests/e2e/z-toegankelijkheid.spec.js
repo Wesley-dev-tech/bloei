@@ -272,7 +272,8 @@ test.describe('aanraking', () => {
           return [...document.querySelectorAll(sel)]
             .filter((e) => zicht(e) && e.matches('button,a[href],input,select,textarea') && !e.closest('svg'))
             .map((e) => ({ n: window.__naam(e).slice(0, 30), klasse: String(e.getAttribute('class') || e.tagName.toLowerCase()).slice(0, 50), w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height }))
-            .filter((x) => x.w < 43.5 || x.h < 43.5);
+            // (de drie icoonknoppen in de compacte schermkop zijn sinds 0.3.8 met opzet 40 x 40 px; eigenaar, 26 november 2026)
+            .filter((x) => (x.w < 43.5 || x.h < 43.5) && !(/icoonknop schermkop__(uitleg|delen|home)/.test(x.klasse) && x.w >= 39.5 && x.h >= 39.5));
         },
         [BEDIENBAAR, zichtbaar.toString()],
       );

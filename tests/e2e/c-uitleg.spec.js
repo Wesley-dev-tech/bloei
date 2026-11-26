@@ -403,7 +403,16 @@ test('eerste bezoek: bij Liever niet start er nooit iets vanzelf, ook niet op ee
 });
 
 // ---- De rondleidingen veranderen niets aan de gegevens ----
-const momentopname = (page) =>
+// Eén uitzondering, met opzet: Bloei onthoudt welke rondleidingen je volgde (instelling kennen.rondleidingen) en geeft daar twee medailles
+// voor. Dat is geen gegeven uit haar dagboek; het telt hier niet mee.
+const RONDLEIDING_MEDAILLES = ['eerste-rondleiding', 'vijf-rondleidingen'];
+const zonderRondleiding = (m) => ({
+  ...m,
+  ...(m.instellingen ? { instellingen: JSON.stringify(JSON.parse(m.instellingen).filter((r) => r.sleutel !== 'kennen.rondleidingen')) } : {}),
+  ...(m.badges ? { badges: JSON.stringify(JSON.parse(m.badges).filter((r) => !RONDLEIDING_MEDAILLES.includes(r.id))) } : {}),
+});
+const momentopname = async (page) => zonderRondleiding(await ruweMomentopname(page));
+const ruweMomentopname = (page) =>
   page.evaluate(
     () =>
       new Promise((klaar, mislukt) => {

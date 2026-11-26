@@ -30,7 +30,7 @@ async function openWegingBlad({ weging = null, kijkstand = false } = {}) {
   let kg = weging?.kg ?? laatste?.kg ?? null;
 
   const kopHouder = h('div');
-  const fout = h('p', { class: 'dialoog__tekst', id: 'weging-fout', role: 'alert', hidden: true }, t('gewicht.ongeldig'));
+  const fout = h('p', { class: 'dialoog__tekst foutmelding', id: 'weging-fout', role: 'alert', hidden: true }, t('gewicht.ongeldig'));
   // De foutmelding hoort bij het gewichtsveld: aria-describedby op het veld, aria-invalid zolang de waarde niet klopt.
   const markeerFout = (invoerVeld, ongeldig) => {
     fout.hidden = !ongeldig;
@@ -224,7 +224,7 @@ const geldigKg = (n) => n != null && n >= GRENZEN.kg.min && n <= GRENZEN.kg.max;
 export function openStreefBlad({ streef = null } = {}) {
   const bestaat = streef != null;
   let kg = bestaat ? streef : null;
-  const fout = h('p', { class: 'dialoog__tekst', id: 'streef-fout', role: 'alert', hidden: true }, t('gewicht.ongeldig'));
+  const fout = h('p', { class: 'dialoog__tekst foutmelding', id: 'streef-fout', role: 'alert', hidden: true }, t('gewicht.ongeldig'));
   const invoerVeld = tekstveld({
     waarde: bestaat ? opmaakKg(streef).split(/\s/)[0] : '',
     plaats: t('gewicht.typPlaats'),

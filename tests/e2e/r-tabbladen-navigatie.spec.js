@@ -20,7 +20,8 @@ const SCHERMEN = ['drinken', 'supplementen', 'gewicht'];
 //  - de zeven staven van "Deze week" (Drinken) zijn 256 px hoog en op een telefoon ± 40 px breed: ze zijn tikdoelen binnen een rij van zeven, begrensd door de kaartbreedte;
 //  - de lege toestand van Supplementen (een gecentreerd beeldmerk met één zin) en het dagschema (een tabel met twee delen) hebben bewust ruimte.
 const LEEG_OK = /supplementen__leegkaart|supplementen__uitleg|overzichtkaart/;
-const KLEIN_OK = /^a\.weekstaaf (3\d|4[0-3])x/;
+// (de drie icoonknoppen in de compacte schermkop zijn sinds 0.3.8 met opzet 40 x 40 px; eigenaar, 26 november 2026)
+const KLEIN_OK = /^a\.weekstaaf (3\d|4[0-3])x|^(button|a)\.icoonknop 40x40 "(Rondleiding van dit sche|Delen|Naar vandaag)/;
 const TEKST_OK = /alleen-lezer/;
 //  - de naam in een rij van het dagschema (Supplementen) is een knop van 24 px hoog met een tikvlak van 44 px (10 px erboven en eronder, binnen de cel); de rijen van de tabel liggen 49 px
 //    onder elkaar, dus de tikvlakken van twee rijen liggen 5 px uit elkaar. Elke rij opent bovendien zelf dezelfde kaart met een tik: een tik tussen twee namen opent het supplement van de rij waarin ze valt.

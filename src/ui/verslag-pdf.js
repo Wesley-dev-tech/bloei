@@ -640,14 +640,17 @@ function opmaak(tk, doc) {
 //    het vervolg begint met de kop opnieuw: bij een dag de band met "(vervolg)" en de kolomkop, bij het gewicht de kolomkop.
 // Van alle mogelijke indelingen kiezen we, in deze volgorde:
 //  1. zo weinig mogelijk pagina's;
-//  2. zo weinig mogelijk tekort: elke pagina behalve de laatste minstens voor VOL gevuld (hoogstens een vijfde leeg), en de laatste pagina
+//  2. zo weinig mogelijk tekort: elke pagina behalve de laatste minstens voor VOL gevuld, en de laatste pagina
 //     van een verslag van meer dan één pagina minstens MIN_LAATSTE hoog (geen weeskind);
-//  3. zo weinig mogelijk gesplitste dagen en zo weinig mogelijk lege ruimte: een dag die niet meer past, schuift dus heel door als er daardoor
-//     hoogstens een vijfde leeg blijft, en wordt anders tussen twee rijen gesplitst. Een dag langer dan een pagina wordt altijd gesplitst.
+//  3. zo weinig mogelijk lege ruimte en dan zo weinig mogelijk gesplitste dagen: een dag die niet meer past, schuift alleen heel door als er
+//     daardoor bijna niets leeg blijft (rond een twintigste), en wordt anders tussen twee rijen gesplitst. Een dag langer dan een pagina
+//     wordt altijd gesplitst.
 // Het zoeken is een kortste-pad over de breekpunten (zoals een zetprogramma alinea's breekt): exact en snel, ook voor 366 dagen.
-const VOL = 0.8;
+// Eigenaar, 0.5.9: geen wit onderaan een pagina. Een dag die niet meer past, wordt tussen twee rijen gesplitst zodra er anders meer dan
+// ongeveer een twintigste van de pagina leeg zou blijven; het vervolg begint met de kop en "(vervolg)".
+const VOL = 0.93;
 const MIN_LAATSTE = 150;
-const SPLITS = 5; // de prijs van een gesplitste dag, tegenover 100 x (leeg deel van de pagina)²: een vijfde leeg kost 4
+const SPLITS = 0.3; // de prijs van een gesplitste dag, tegenover 100 x (leeg deel van de pagina)²: 5,5 procent leeg kost evenveel
 const LEEG = 100;
 
 function verdeel(groepen) {

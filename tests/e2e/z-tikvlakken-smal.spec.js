@@ -25,6 +25,9 @@ const IPHONE_UA = 'Mozilla/5.0 (iPhone; CPU iPhone OS 18_1 like Mac OS X) AppleW
 const UITZONDERINGEN = [
   // Een label dat alleen de focus naar een invoerveld stuurt: het veld zelf (minstens 44 px hoog) is het tikvlak, het label is de tekst erboven.
   { regel: 'label boven een invoerveld (het veld is het tikvlak)', past: (it) => /^label..*herstel__label/.test(it.klasse) },
+  // De drie icoonknoppen in de compacte schermkop (Rondleiding, Delen, huisje) zijn sinds 0.3.8 met opzet 40 x 40 px, zodat de titel en de
+  // knoppen op één regel staan. Eigenaar, 26 november 2026: de app blijft zo, de test laat 40 px toe voor deze knoppen.
+  { regel: 'icoonknop in de compacte schermkop: 40 x 40 px (eigenaar)', past: (it) => /icoonknop.*schermkop__(uitleg|delen|home)/.test(it.klasse) && it.vlak.w >= 39.5 && it.vlak.h >= 39.5 },
 ];
 
 // BESLISSING 524 (eigenaar): "Zo laten op de smalste telefoons". Zeven vlakken naast elkaar (de week-stippen en de kalender op Vandaag, de maandkalender van het Dagboek, de

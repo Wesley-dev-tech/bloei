@@ -825,7 +825,7 @@ for (const [breedte, hoogte] of [[1690, 1230], [1720, 950], [1100, 900], [390, 8
       await expect(page.locator('.wk__rij').first()).toBeVisible();
       const rij = await page.locator('.wk__rij').first().evaluate((e) => e.getBoundingClientRect().height);
       expect(rij).toBeGreaterThanOrEqual(56);
-      expect(rij).toBeLessThanOrEqual(72);
+      expect(rij).toBeLessThanOrEqual(92); // 0.5.9: op een hoog scherm groeien de rijen mee (72 tot 92 px), zodat de week de pagina vult
       if (hoogte >= 1200) {
         const onder = await page.evaluate(() => {
           const lijst = [...document.querySelectorAll('.wk > *')].filter((e) => e.getBoundingClientRect().height > 0);

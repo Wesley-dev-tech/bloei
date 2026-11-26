@@ -77,8 +77,10 @@ export const STAPPEN = {
     { id: 'supplementen', doel: '.dag__supplementen', stukken: 'dagboek.supplementen' },
     // weekweergave
     { id: 'weekcijfers', doel: '.wk__samenvatting', stukken: 'dagboek.weekcijfers' }, // in delen: elk deel noemt de cijfers die erin staan
-    // heel (eigenaar, 0.5.8): altijd het hele weekschema, nooit een paar rijen ervan; past het niet naast de kaart, dan ligt de kaart over het onderste deel.
-    { id: 'weekschema', doel: '.wk__schemakaart', heel: true },
+    // heel (eigenaar, 0.5.8): op tablet en desktop altijd het hele weekschema; past het niet naast de kaart, dan ligt de kaart over het onderste
+    // deel. Op een telefoon past het hele schema nooit naast de kaart: daar een afgerond blok van hele rijen (klein, BESLISSING 548), met de
+    // vaste ruimte tussen het vak en de kaart (eigenaar: het vak en de tekst plakken niet tegen elkaar).
+    { id: 'weekschema', doel: '.wk__schemakaart', heel: true, klein: [{ doel: '.wk__compactlijst' }, { doel: '.wk__compactlijst > .wk__compactitem:first-child', ook: '.wk__compactlijst > .wk__compactitem:nth-child(3)' }, { doel: '.wk__compactlijst > .wk__compactitem:first-child' }] },
     // maandweergave
     { id: 'cijfers', doel: '.maand__cijferkaart', stukken: 'dagboek.cijfers' }, // in delen: elk deel noemt de cijfers die erin staan
     // De kalender in een stap: de hele kaart, of op een telefoon het rooster zelf (klein), zonder de legenda: die heeft een eigen stap (tekens).

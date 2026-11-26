@@ -108,7 +108,8 @@ export const tikdoelen = (page, { minimum = 44, wortel = 'body' } = {}) =>
         // buiten het zichtbare deel van een scrollende houder telt niet
         lijst.push({ e, r });
         // een kalendercel mag 40 px zijn (BESLISSING 308); in de slide-over van 320 px laat de schermmarge van 20 px (layout.css) geen 40 px toe: daar 34 px
-        const eis = e.matches('.kalender__dag, .mk__dag') ? (window.innerWidth < 340 ? 34 : 40) : min;
+        // de drie icoonknoppen in de compacte schermkop (Rondleiding, Delen, huisje) zijn sinds 0.3.8 met opzet 40 px (eigenaar, 26 november 2026)
+        const eis = e.matches('.kalender__dag, .mk__dag') ? (window.innerWidth < 340 ? 34 : 40) : e.matches('.schermkop .icoonknop') ? Math.min(min, 40) : min;
         // BESLISSING 524: de zeven week-stippen op een rij zijn onder 370 px zo breed als hun kolom (minstens 32 px), minstens 43,5 px hoog (z-tikvlakken-smal.spec.js)
         const eisB = e.matches('a.week__link') && window.innerWidth < 370 ? 32 : eis;
         if (r.width < eisB - 0.5 || r.height < eis - 0.5) uit.push(`klein ${Math.round(r.width)}x${Math.round(r.height)}: ${e.tagName.toLowerCase()}.${String(e.className).split(' ')[0]} "${(e.getAttribute('aria-label') || e.textContent || '').trim().slice(0, 24)}"`);
