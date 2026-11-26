@@ -344,14 +344,15 @@
    er steekt nooit iets buiten de pil: past alles niet met de gewone letters (15 px), dan zet weerkaart.js de hele pil net zoveel kleiner
    als nodig. Daarom hangen alle maten aan één lettermaat (em): de letters, het icoon, de binnenruimte, de tussenruimtes en de hoogte
    krimpen samen, zodat de pil één geheel blijft.
-   De maten (gemeten op de inkt, 320 tot 440 px): tussen begroeting en datum en tussen datum en pil staat telkens 8 px wit; onder de pil
-   16 px tot de eerste kaart, zoals tussen twee kaarten. Het tikvlak is altijd 44 px hoog en ligt nergens over de datum. */
+   De maten (gemeten op de inkt, 320 tot 440 px): tussen begroeting en datum 8 px wit; tussen datum en pil en onder de pil telkens 16 px,
+   zoals tussen twee kaarten (eigenaar 26 november 2026: de pil staat even ver van de datum als van de kaart). Het tikvlak is altijd 44 px
+   hoog en ligt nergens over de datum. */
 .weerregel { display: none; }
 @media (max-width: 719.98px) {
   /* De lettermaat staat op de rij (weerkaart.js zet ze kleiner als de tekst anders niet past); alles eronder rekent in em. De knop is
      altijd 44 px hoog (het tikvlak): 4 px boven de pil en de rest eronder, met dezelfde negatieve marge, zodat de kaart 16 px onder de pil
-     blijft, hoe hoog de pil ook is. */
-  .weerregel { display: block; min-width: 0; margin: 0 0 calc(2.286em - 40px); font-family: var(--font-ui); font-size: .9375rem; line-height: 1.3; }
+     blijft, hoe hoog de pil ook is. De marge van 8 px erboven brengt de pil 16 px onder de datum. */
+  .weerregel { display: block; min-width: 0; margin: 8px 0 calc(2.286em - 40px); font-family: var(--font-ui); font-size: .9375rem; line-height: 1.3; }
   .weerregel__knop { display: flex; width: 100%; min-width: 0; margin: 0; padding: 4px 0 calc(40px - 2.286em); border: 0; border-radius: var(--r-md); background: none; font: inherit; color: var(--c-text); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
   /* De vakken (nu, Min., Max., regen, hoeveelheid) staan gelijk verdeeld over de breedte: elk puntje ertussen neemt evenveel van de vrije
      ruimte, met het puntje precies in het midden tussen twee vakken. Het eerste vak begint links, het laatste eindigt rechts. Bij een
