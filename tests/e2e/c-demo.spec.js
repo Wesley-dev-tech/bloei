@@ -77,7 +77,8 @@ test.describe('de demo', { tag: '@demo' }, () => {
     const vreemd = [];
     context.on('request', (v) => {
       const url = v.url();
-      if (!url.startsWith(OORSPRONG + '/') && !url.startsWith('data:') && !url.startsWith('blob:')) vreemd.push(url);
+      // (de weerdienst van het weerbericht op Vandaag, sinds 0.5.8, is de enige toegelaten externe dienst)
+      if (!url.startsWith(OORSPRONG + '/') && !url.startsWith('data:') && !url.startsWith('blob:') && !url.startsWith('https://api.open-meteo.com/')) vreemd.push(url);
     });
     await page.goto('./');
     await expect(page.locator('#scherm[data-scherm]')).toBeAttached();

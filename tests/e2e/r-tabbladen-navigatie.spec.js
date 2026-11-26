@@ -112,7 +112,8 @@ test.describe('navigatie', () => {
           tabbalk: zichtbaar(tab),
           zijbalk: zichtbaar(zij),
           aantal: items.length,
-          klein: items.filter((e) => e.getBoundingClientRect().height < 44 || e.getBoundingClientRect().width < 44).length,
+          // (de tab Algemeen staat in de balk, maar wordt op een telefoon niet getoond: daar staat Algemeen als knop bij de begroeting)
+          klein: items.filter((e) => e.getClientRects().length > 0 && (e.getBoundingClientRect().height < 44 || e.getBoundingClientRect().width < 44)).length,
           scroll: document.documentElement.scrollWidth - document.documentElement.clientWidth,
         };
       });
@@ -132,7 +133,7 @@ test.describe('tabbalk', () => {
       await start(page, breed, hoog);
       await open(page, 'supplementen');
       const m = await page.evaluate(() => {
-        const tabs = [...document.querySelectorAll('#tabbalk .tabbalk__item')].map((e) => {
+        const tabs = [...document.querySelectorAll('#tabbalk .tabbalk__item')].filter((e) => e.getClientRects().length > 0).map((e) => { // alleen de getoonde tabs (Algemeen niet op een telefoon)
           const l = e.querySelector('.tabbalk__label');
           const bereik = document.createRange();
           bereik.selectNodeContents(l);

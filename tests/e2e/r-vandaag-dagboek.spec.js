@@ -262,7 +262,8 @@ const meetBegroeting = (page) =>
   page.evaluate(() => {
     const t = document.querySelector('.vandaag__begroeting .begroeting__titel');
     const r = t.getBoundingClientRect();
-    const knoppen = [...document.querySelectorAll('.vandaag__begroeting .begroeting__uitleg, .vandaag__begroeting .begroeting__delen')].map((e) => e.getBoundingClientRect());
+    // (een knop die op deze breedte niet getoond wordt, zoals Algemeen op een desktop, telt niet mee)
+    const knoppen = [...document.querySelectorAll('.vandaag__begroeting .begroeting__uitleg, .vandaag__begroeting .begroeting__delen')].map((e) => e.getBoundingClientRect()).filter((r) => r.width > 0);
     const tekstRechts = Math.max(...[...t.children].map((c) => c.getBoundingClientRect().right));
     return {
       regels: Math.round(r.height / parseFloat(getComputedStyle(t).lineHeight)),

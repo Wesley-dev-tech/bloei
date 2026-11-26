@@ -278,14 +278,14 @@ for (const [breedte, hoogte, naam] of MATEN) {
       await page.goto('http://localhost:' + (process.env.PW_POORT || '4173') + '/');
       await expect(page.locator('.welkom__kaart')).toBeVisible();
       await wachtOpRust(page); // de kaart is opgekomen (geen vaste wachttijd)
-      for (const stap of [1, 2, 3, 4]) { // BESLISSING 444: stap 4 is Bloei vergrendelen
+      for (const stap of [1, 2, 3, 4, 5]) { // BESLISSING 444: de laatste stap is Bloei vergrendelen (stap 2 is sinds 0.4.5 de geboortedatum)
         if (stap === 2) {
           await page.getByRole('textbox', { name: 'Je naam' }).fill('Een heel erg lange naam van dertig');
           await page.getByRole('button', { name: 'Verder' }).tap();
         }
-        if (stap === 3 || stap === 4) await page.getByRole('button', { name: 'Verder' }).tap();
+        if (stap >= 3) await page.getByRole('button', { name: 'Verder' }).tap();
         // de overgang naar deze stap is voorbij en de kaart ligt stil (geen vaste wachttijd)
-        await expect(page.getByText(`Stap ${stap} van 4`)).toBeVisible();
+        await expect(page.getByText(`Stap ${stap} van 5`)).toBeVisible();
         await wachtOpRust(page);
         await wachtTotStil(page, () => page.locator('.welkom__kaart').boundingBox());
         const geheel = { scroll: await horizontaleScroll(page), buiten: await buitenVenster(page), afbrekingen: await afbrekingen(page, '.welkom'), overlap: await overlappen(page, '.welkom'), letters: await kleineLetters(page) };

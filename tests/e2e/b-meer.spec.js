@@ -1,6 +1,7 @@
 // Meer (stap H7): profiel, thema, instellingen, badges en favorieten, elk met een herlaadbeurt.
 import { test, expect } from '@playwright/test';
 import { schermKlaar } from './wacht.js';
+import { ALLE_BADGES, GROEPEN } from '../../src/logica/badgeregels.js';
 import { wachtOpRust, wachtOpInstelling, maaltijdblad, BEWAAR_MAALTIJD } from './r-wacht.js';
 
 async function testFoto(page) {
@@ -230,9 +231,9 @@ test('Badges: per groep, met telling; na een eerste invoer staat de eerste badge
   // Zonder badges toont de brede kaart de volgende medaille; geen lege plek
   await expect(page.locator('.badgehero')).toContainText('De volgende');
   // Medailles per groep, nog niet behaalde omlijnd en gedempt; de telling staat bovenaan
-  await expect(page.locator('.badgegroep')).toHaveCount(8);
+  await expect(page.locator('.badgegroep')).toHaveCount(GROEPEN.length); // het aantal groepen en medailles volgt de app
   await expect(page.locator('.medaille.is-open').first()).toBeVisible();
-  await expect(page.locator('.badgehero__telling')).toHaveText('0 van 33 behaald');
+  await expect(page.locator('.badgehero__telling')).toHaveText(`0 van ${ALLE_BADGES.length} behaald`);
   // Een kaart opent een blad met uitleg en de stand
   await page.getByRole('button', { name: /^Zeven dagen,/ }).click();
   await expect(page.getByRole('dialog')).toContainText('Houd zeven dagen iets bij.');
@@ -252,14 +253,15 @@ test('Badges: per groep, met telling; na een eerste invoer staat de eerste badge
   await expect(page.locator('.viering')).toContainText('Eerste dag', { timeout: 8000 });
 
   await page.goto('./#/meer/badges');
-  await expect(page.locator('.badgehero__telling')).toHaveText('1 van 33 behaald');
+  // het eerste glas geeft twee medailles: Eerste dag en de eerste medaille van Drinken
+  await expect(page.locator('.badgehero__telling')).toHaveText(`2 van ${ALLE_BADGES.length} behaald`);
   await expect(page.getByText(/Behaald op/).first()).toBeVisible();
   await expect(page.locator('.medaille.is-behaald')).not.toHaveCount(0);
   await expect(page.locator('.badgegroep').first().locator('.badgegroep__telling')).toContainText('1 van');
   await page.reload();
   await expect(page.getByText(/Behaald op/).first()).toBeVisible();
   await page.goto('./#/meer');
-  await expect(page.locator('.meer__badges')).toContainText(/1 van [0-9]+ behaald/); // R2-10: de kaart is geen knop meer
+  await expect(page.locator('.meer__badges')).toContainText(/2 van [0-9]+ behaald/); // R2-10: de kaart is geen knop meer
 });
 
 test('Favorieten: bewaren bij een maaltijd, toevoegen en weghalen onder Meer', async ({ page }) => {

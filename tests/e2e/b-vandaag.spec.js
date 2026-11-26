@@ -253,7 +253,7 @@ for (const [breedte, hoogte] of [[390, 844], [360, 760]]) {
 
 test('Delen: op Vandaag staat een knop Delen bij de begroeting die naar #/delen leidt', async ({ page }) => {
   await page.goto('./#/vandaag');
-  const knop = page.locator('.vandaag__begroeting a.begroeting__delen'); // de uitlegknop van de rondleiding deelt de klasse
+  const knop = page.locator('.vandaag__begroeting a.begroeting__delen:not(.begroeting__instellingen)'); // de uitlegknop van de rondleiding en de knop Algemeen delen de klasse
   await expect(knop).toBeVisible();
   await expect(knop).toHaveAccessibleName('Delen');
   await knop.click();
@@ -301,11 +301,12 @@ test('Badges in de motivator: alleen medailles zonder tekst ernaast, hover en fo
   // na een glas staat ook de laatste er, en de hoogte van de motivator blijft gelijk
   const voor = await page.locator('.voortgang').evaluate((e) => e.getBoundingClientRect().height);
   await page.locator('.drankknop[data-soort="water"]').click();
-  await expect(blok.locator('.badgeblok__laatst')).toHaveCount(1, { timeout: 8000 });
-  await expect(blok.locator('.badgeblok__laatst')).toHaveAttribute('aria-label', /Eerste dag/);
+  // het eerste glas geeft twee medailles: Eerste dag en de eerste medaille van Drinken
+  await expect(blok.locator('.badgeblok__laatst')).toHaveCount(2, { timeout: 8000 });
+  await expect(blok.locator('.badgeblok__laatst[aria-label*="Eerste dag"]')).toHaveCount(1);
   const na = await page.locator('.voortgang').evaluate((e) => e.getBoundingClientRect().height);
   expect(Math.abs(voor - na)).toBeLessThan(1);
-  await blok.locator('.badgeblok__laatst').click();
+  await blok.locator('.badgeblok__laatst').first().click();
   await expect(page).toHaveURL(new RegExp('#/meer/badges$'));
 });
 });
@@ -454,7 +455,8 @@ test.describe('Kop van Vandaag op een desktop', () => {
 test.use({ viewport: { width: 1690, height: 900 }, hasTouch: false, isMobile: false });
 test('Kop van Vandaag: Uitleg en Delen zijn gevulde knoppen in de tabbladkleur en bij hover licht alleen het icoon op', async ({ page }) => {
   await page.goto('./#/vandaag');
-  const knoppen = page.locator('.vandaag__begroeting .begroeting__delen');
+  // (de knop Algemeen deelt de klasse; hij staat alleen op een telefoon en hoort niet bij deze test)
+  const knoppen = page.locator('.vandaag__begroeting .begroeting__delen:not(.begroeting__instellingen)');
   await expect(knoppen).toHaveCount(2);
   const stijl = (k) => k.evaluate((el) => { const s = getComputedStyle(el); return { bg: s.backgroundColor, kleur: s.color, h: s.height, fs: s.fontSize, tf: s.transform, bs: s.boxShadow }; });
   const verwacht = await page.evaluate(() => {

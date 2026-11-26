@@ -215,7 +215,7 @@ export function meetPagina(page) {
 
     // 8. tabbalk: labels
     const tabbalk = document.querySelector('#tabbalk');
-    const tabs = tabbalk && zichtbaar(tabbalk) ? [...tabbalk.querySelectorAll('.tabbalk__item')].map((e) => { const r = e.getBoundingClientRect(); const lab = e.querySelector('.tabbalk__label, span:last-child'); return { b: Math.round(r.width), h: Math.round(r.height), over: lab ? lab.scrollWidth > lab.clientWidth + 1 : false, tekst: (e.textContent || '').trim() }; }) : [];
+    const tabs = tabbalk && zichtbaar(tabbalk) ? [...tabbalk.querySelectorAll('.tabbalk__item')].filter((e) => e.getClientRects().length > 0).map((e) => { const r = e.getBoundingClientRect(); const lab = e.querySelector('.tabbalk__label, span:last-child'); return { b: Math.round(r.width), h: Math.round(r.height), over: lab ? lab.scrollWidth > lab.clientWidth + 1 : false, tekst: (e.textContent || '').trim() }; }) : [];
 
     return { fouten, klein, dicht, rijen, tabs, breed, hoog, scrollHoogte: document.documentElement.scrollHeight, tabbalkTop: tabbalk && zichtbaar(tabbalk) ? Math.round(tabbalk.getBoundingClientRect().top) : null };
   });

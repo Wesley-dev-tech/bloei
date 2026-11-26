@@ -28,7 +28,7 @@ test.use({ viewport: { width: 1280, height: 800 }, hasTouch: false, isMobile: fa
 // BESLISSING 342 en 372: Delen opent via de navigatie altijd op Vandaag, ook na een bezoek aan het Dagboek met een eigen periode.
 test('Delen: via de navigatie opent het op Vandaag, ook na een periode vanuit het Dagboek', async ({ page }) => {
   await page.goto('./#/dagboek/week');
-  await page.getByRole('button', { name: 'Deze week delen' }).click();
+  await page.getByRole('link', { name: 'Deze week delen' }).click();
   await expect(page.locator('.delen__periode .chip.is-actief')).toBeVisible();
   await page.goto('./#/vandaag');
   await page.goto('./#/delen');
@@ -425,7 +425,7 @@ test('Delen: opent met Vandaag; de knop bij de week opent Delen met die week (De
   await page.goto('./#/delen');
   await expect(page.getByRole('button', { name: 'Vandaag', exact: true })).toHaveAttribute('aria-pressed', 'true'); // de periode wordt niet onthouden
   await page.goto('./#/dagboek/week');
-  await page.getByRole('button', { name: 'Delen' }).click();
+  await page.getByRole('link', { name: 'Deze week delen' }).click(); // de knop Delen van het Dagboek is een link naar Delen met die periode
   await expect(page).toHaveURL(/#\/delen\/\d{4}-\d{2}-\d{2}\/\d{4}-\d{2}-\d{2}$/);
   await expect(page.getByRole('button', { name: 'Deze week' })).toHaveAttribute('aria-pressed', 'true');
   await page.goto('./#/delen/2020-01-06/2020-01-12');

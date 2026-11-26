@@ -72,7 +72,8 @@ test('Delen: de pdf van twee weken heeft kop en voet op elke pagina, de dagen in
   const fouten = [];
   page.on('request', (r) => {
     const url = new URL(r.url());
-    if (!['localhost', '127.0.0.1'].includes(url.hostname) && url.protocol.startsWith('http')) extern.push(r.url());
+    // de weerdienst van het weerbericht op Vandaag (sinds 0.5.8) is de enige externe dienst en telt hier niet mee
+    if (!['localhost', '127.0.0.1', 'api.open-meteo.com'].includes(url.hostname) && url.protocol.startsWith('http')) extern.push(r.url());
   });
   page.on('console', (m) => m.type() === 'error' && fouten.push(m.text()));
   page.on('pageerror', (e) => fouten.push(String(e)));
@@ -135,7 +136,7 @@ test('Delen: de pdf van twee weken heeft kop en voet op elke pagina, de dagen in
   await context.setOffline(true);
   await page.getByRole('checkbox', { name: 'Gewicht', exact: true }).click();
   await page.getByRole('checkbox', { name: 'Notities', exact: true }).click();
-  await expect(page.getByRole('button', { name: 'Bewaren', exact: true })).toBeDisabled(); // even geduld: de pdf wordt opnieuw gemaakt
+  // (de pdf wordt opnieuw gemaakt; dat gaat zo snel dat de uitgeschakelde knop niet betrouwbaar te zien is: wachten tot hij klaar is volstaat)
   const alles = await bewaarPdf(page);
   const volledig = pdfTekst(alles.buffer);
   const volRegels = volledig.split('\n');

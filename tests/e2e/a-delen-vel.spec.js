@@ -502,7 +502,7 @@ test('Delen: uit de vorige week van het Dagboek staat "Vorige week" aan', async 
   await vul(page);
   await page.goto('./#/dagboek/week');
   await page.getByRole('button', { name: 'Vorige', exact: true }).click();
-  await page.getByRole('button', { name: 'Deze week delen' }).click();
+  await page.getByRole('link', { name: 'Deze week delen' }).click();
   await expect(page).toHaveURL(/#\/delen\/2026-11-02\/2026-11-08$/);
   await expect(page.getByRole('button', { name: 'Vorige week', exact: true })).toHaveAttribute('aria-pressed', 'true');
   await expect(page.getByRole('button', { name: 'Aangepast', exact: true })).toHaveAttribute('aria-pressed', 'false');

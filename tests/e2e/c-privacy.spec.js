@@ -155,7 +155,8 @@ test('alle zes tabs, een glas, een maaltijd en een moment: elk verzoek gaat naar
 
   const vreemd = verzoeken.filter((u) => {
     const url = new URL(u);
-    return (url.protocol === 'http:' || url.protocol === 'https:') && url.origin !== OORSPRONG;
+    // (de weerdienst van het weerbericht op Vandaag, sinds 0.5.8, is de enige toegelaten externe dienst)
+    return (url.protocol === 'http:' || url.protocol === 'https:') && url.origin !== OORSPRONG && url.hostname !== 'api.open-meteo.com';
   });
   expect(vreemd).toEqual([]);
   expect(meldingen.filter((m) => /content security policy|refused to|violat/i.test(m))).toEqual([]);

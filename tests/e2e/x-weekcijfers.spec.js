@@ -215,7 +215,7 @@ test.describe('Het verslag van "Deze week" in Delen (BESLISSINGEN 448 en 449)', 
     await opDag(page, '2026-11-16');
     await page.goto('./#/dagboek/week/2026-11-16');
     await schermKlaar(page, '#/dagboek/week/2026-11-16');
-    await page.getByRole('button', { name: 'Deze week delen' }).click();
+    await page.getByRole('link', { name: 'Deze week delen' }).click();
     await schermKlaar(page, '#/delen');
     const v = await leesVel(page, 'Deze week');
     expect(v.cijfers).toEqual(MAANDAG_WEEK);
@@ -226,7 +226,7 @@ test.describe('Het verslag van "Deze week" in Delen (BESLISSINGEN 448 en 449)', 
     await opDag(page, '2026-11-18');
     await page.goto('./#/dagboek/week/2026-11-09');
     await schermKlaar(page, '#/dagboek/week/2026-11-09');
-    await page.getByRole('button', { name: 'Deze week delen' }).click();
+    await page.getByRole('link', { name: 'Deze week delen' }).click();
     await schermKlaar(page, '#/delen');
     const v = await leesVel(page, 'Vorige week');
     expect(v.dagen).toBe(7);
@@ -237,7 +237,7 @@ test.describe('Het verslag van "Deze week" in Delen (BESLISSINGEN 448 en 449)', 
     await opDag(page, '2026-11-18');
     await page.goto('./#/dagboek/week/2026-11-02');
     await schermKlaar(page, '#/dagboek/week/2026-11-02');
-    await page.getByRole('button', { name: 'Deze week delen' }).click();
+    await page.getByRole('link', { name: 'Deze week delen' }).click();
     await schermKlaar(page, '#/delen');
     await expect(page.getByRole('button', { name: 'Aangepast', exact: true })).toHaveAttribute('aria-pressed', 'true');
     await expect(page.getByRole('button', { name: 'Vorige week', exact: true })).toHaveAttribute('aria-pressed', 'false');

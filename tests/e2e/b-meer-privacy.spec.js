@@ -163,7 +163,7 @@ for (const [breedte, hoogte] of [[1690, 1230], [1180, 820], [820, 1180], [390, 8
   test('met alle badges behaald staat de medaille naast haar tekst, zonder leeg vak', async ({ page }) => {
     await begin(page, 'meer', 'vol');
     const kaart = page.locator('.meer__badges');
-    await expect(kaart.locator('.meer__allebehaald')).toHaveText('Alle 33 badges behaald.');
+    await expect(kaart.locator('.meer__allebehaald')).toHaveText(`Alle ${ALLE_BADGES.length} badges behaald.`); // het aantal volgt de app (126 sinds 0.5.8)
     const m = await page.evaluate(() => {
       const k = document.querySelector('.meer__badges').getBoundingClientRect();
       const label = document.querySelector('.meer__medaillelabel');

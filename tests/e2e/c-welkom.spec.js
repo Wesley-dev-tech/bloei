@@ -24,7 +24,7 @@ test('Een lege database toont het welkomscherm zonder navigatie en met focus op 
   await expect(page.locator('#tabbalk')).toBeHidden();
   await expect(page.locator('#zijbalk')).toBeHidden();
   await expect(page.locator('.schermkop__uitleg, .schermkop__home')).toHaveCount(0);
-  await expect(page.getByText('Stap 1 van 4')).toBeVisible();
+  await expect(page.getByText('Stap 1 van 5')).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Je naam' })).toBeFocused();
   await expect(page.getByRole('button', { name: 'Terug' })).toBeHidden();
   // BESLISSING 287: de naam is verplicht: geen Overslaan, Verder uitgeschakeld, de hint komt pas na een poging
@@ -36,7 +36,7 @@ test('Een lege database toont het welkomscherm zonder navigatie en met focus op 
   await veld.fill('   ');
   await expect(verder(page)).toBeDisabled(); // spaties tellen niet
   await veld.press('Enter');
-  await expect(page.getByText('Stap 1 van 4')).toBeVisible();
+  await expect(page.getByText('Stap 1 van 5')).toBeVisible();
   await expect(page.locator('#welkom-naamhint')).toHaveText('Vul je voornaam in om verder te gaan.');
   await veld.fill('Testnaam');
   await expect(page.locator('#welkom-naamhint')).toBeEmpty();
@@ -48,36 +48,44 @@ test('Een lege database toont het welkomscherm zonder navigatie en met focus op 
   expect(fouten).toEqual([]);
 });
 
-test('Vier stappen doorlopen: naam, 3 l, woensdag, nu geen vergrendeling; daarna Vandaag, en na herladen komt welkom niet terug', async ({ page }) => {
+test('Vijf stappen doorlopen: naam, geboortedatum (leeg laten), 3 l, woensdag, nu geen vergrendeling; daarna Vandaag, en na herladen komt welkom niet terug', async ({ page }) => {
   await page.goto('./');
   await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam Achternaam');
   await page.getByRole('textbox', { name: 'Je naam' }).press('Enter'); // Enter gaat verder
-  await expect(page.getByText('Stap 2 van 4')).toBeVisible();
+  // sinds 0.4.5 is stap 2 de geboortedatum; ze mag leeg blijven
+  await expect(page.getByText('Stap 2 van 5')).toBeVisible();
+  await expect(page.getByRole('heading', { name: 'Wanneer ben je geboren?' })).toBeVisible();
+  await verder(page).click();
+  await expect(page.getByText('Stap 3 van 5')).toBeVisible();
   await expect(page.getByRole('heading', { name: 'Hoeveel wil je drinken?' })).toBeVisible();
   await expect(page.locator('.welkom__stap.is-actief .stapper__waarde')).toHaveText(/2,5/);
   await expect(page.locator('.welkom__stap.is-actief .stapper__waarde')).toBeFocused();
   await page.getByRole('button', { name: 'Terug' }).click();
-  await expect(page.getByText('Stap 1 van 4')).toBeVisible();
+  await expect(page.getByText('Stap 2 van 5')).toBeVisible();
+  await page.getByRole('button', { name: 'Terug' }).click();
+  await expect(page.getByText('Stap 1 van 5')).toBeVisible();
   await expect(page.getByRole('textbox', { name: 'Je naam' })).toHaveValue('Testnaam Achternaam');
   await verder(page).click();
+  await verder(page).click();
+  await expect(page.getByText('Stap 3 van 5')).toBeVisible();
   const plus = page.locator('.welkom__stap.is-actief').getByRole('button', { name: /meer|plus|\+/i });
   await plus.click();
   await plus.click();
   await expect(page.locator('.welkom__stap.is-actief .stapper__waarde')).toHaveText(/3/);
   await verder(page).click();
-  await expect(page.getByText('Stap 3 van 4')).toBeVisible();
+  await expect(page.getByText('Stap 4 van 5')).toBeVisible();
   await page.getByRole('radio', { name: 'wo' }).or(page.getByRole('button', { name: 'wo', exact: true })).first().click();
   await verder(page).click();
-  // BESLISSING 444: stap 4, Bloei vergrendelen; "Nu niet" gaat naar Vandaag zonder slot
-  await expect(page.getByText('Stap 4 van 4')).toBeVisible();
+  // BESLISSING 444: de laatste stap, Bloei vergrendelen; "Nu niet" gaat naar Vandaag zonder slot
+  await expect(page.getByText('Stap 5 van 5')).toBeVisible();
   await expect(page.locator('.welkom__stap.is-actief')).toContainText('Wil je Bloei vergrendelen?');
   const keuze = page.getByRole('radiogroup', { name: 'Bloei openen met' });
   await expect(keuze.getByRole('radio', { name: 'Pincode' })).toBeChecked();
   await expect(page.getByRole('button', { name: 'Vergrendeling instellen' })).toBeVisible();
   await page.getByRole('button', { name: 'Terug' }).click();
-  await expect(page.getByText('Stap 3 van 4')).toBeVisible();
+  await expect(page.getByText('Stap 4 van 5')).toBeVisible();
   await verder(page).click();
-  await expect(page.getByText('Stap 4 van 4')).toBeVisible();
+  await expect(page.getByText('Stap 5 van 5')).toBeVisible();
   await page.getByRole('button', { name: 'Nu niet' }).click();
 
   await expect(page).toHaveURL(/#\/vandaag$/);
@@ -101,8 +109,8 @@ test('Alles overslaan geeft de standaarden: 2,5 l en maandag', async ({ page }) 
   await page.goto('./');
   await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
   await verder(page).click();
-  for (let i = 0; i < 2; i += 1) await page.getByRole('button', { name: 'Overslaan' }).click();
-  await expect(page.getByText('Stap 4 van 4')).toBeVisible(); // BESLISSING 444: de vergrendeling is de vierde stap
+  for (let i = 0; i < 3; i += 1) await page.getByRole('button', { name: 'Overslaan' }).click(); // geboortedatum, dagdoel en weegdag
+  await expect(page.getByText('Stap 5 van 5')).toBeVisible(); // BESLISSING 444: de vergrendeling is de laatste stap
   await page.getByRole('button', { name: 'Nu niet' }).click();
   await expect(page).toHaveURL(/#\/vandaag$/);
   await expect(page.locator('.vandaag h1')).toContainText('Testnaam');
@@ -149,10 +157,10 @@ for (const [breed, hoog] of [[1690, 1230], [390, 844]]) {
     await page.goto('./');
     const hoogtes = [];
     const knoppenY = [];
-    // Vier stappen (BESLISSING 444); op stap 4 heet de hoofdknop "Vergrendeling instellen" in plaats van "Verder".
-    const hoofdknop = (i) => (i === 3 ? page.getByRole('button', { name: 'Vergrendeling instellen' }) : verder(page));
-    for (let i = 0; i < 4; i += 1) {
-      await expect(page.getByText(`Stap ${i + 1} van 4`)).toBeVisible();
+    // Vijf stappen (BESLISSING 444, en de geboortedatum sinds 0.4.5); op de laatste stap heet de hoofdknop "Vergrendeling instellen" in plaats van "Verder".
+    const hoofdknop = (i) => (i === 4 ? page.getByRole('button', { name: 'Vergrendeling instellen' }) : verder(page));
+    for (let i = 0; i < 5; i += 1) {
+      await expect(page.getByText(`Stap ${i + 1} van 5`)).toBeVisible();
       if (i === 0) {
         // ook mét de hint onder het lege naamveld blijft de kaart even hoog
         await page.getByRole('textbox', { name: 'Je naam' }).press('Enter');
@@ -167,9 +175,9 @@ for (const [breed, hoog] of [[1690, 1230], [390, 844]]) {
       // Schermafbeeldingen alleen op verzoek (SHOTDIR)
       if (process.env.SHOTDIR) await page.screenshot({ path: `${process.env.SHOTDIR}/stap${i + 1}-${breed}.png` });
       if (i === 0) await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
-      if (i < 3) await verder(page).click();
+      if (i < 4) await verder(page).click();
     }
-    expect(hoogtes).toHaveLength(4);
+    expect(hoogtes).toHaveLength(5);
     expect(Math.max(...hoogtes) - Math.min(...hoogtes)).toBeLessThanOrEqual(1);
     expect(Math.max(...knoppenY) - Math.min(...knoppenY)).toBeLessThanOrEqual(1);
     const b = await kaart(page).boundingBox();
@@ -182,12 +190,12 @@ for (const [breed, hoog] of [[1690, 1230], [390, 844]]) {
 test('Geen horizontale scroll op 360 px', async ({ page }) => {
   await page.setViewportSize({ width: 360, height: 740 });
   await page.goto('./');
-  for (let i = 0; i < 4; i += 1) {
+  for (let i = 0; i < 5; i += 1) {
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
     if (i === 0) await page.getByRole('textbox', { name: 'Je naam' }).fill('Testnaam');
-    if (i < 3) await verder(page).click();
+    if (i < 4) await verder(page).click();
   }
-  await expect(page.getByText('Stap 4 van 4')).toBeVisible();
+  await expect(page.getByText('Stap 5 van 5')).toBeVisible();
   await expect(page.getByRole('button', { name: 'Vergrendeling instellen' })).toBeInViewport();
 });
 
