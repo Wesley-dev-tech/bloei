@@ -152,7 +152,7 @@ for (const [breed, hoog, soort, ruimte] of MATEN) {
       }
 
       // dezelfde soort tekst en knop heeft op elke stap dezelfde maat
-      const stappen = [1, 2, 3, 4, 5].map((n) => standen[`stap ${n}`]);
+      const stappen = [1, 2, 3, 4].map((n) => standen[`stap ${n}`]);
       for (const deel of ['vraag', 'hint']) expect.soft(new Set(stappen.map((s) => s.fs[deel])).size, `${breed}x${hoog}: lettermaat ${deel} in elke stap gelijk`).toBe(1);
       const hoofd = stappen.slice(0, 3).map((s) => s.knoppen);
       for (const k of hoofd) expect.soft(k.length, `${breed}x${hoog}: in stap 1 tot 3 staat Verder alleen`).toBe(1);

@@ -98,6 +98,7 @@ test.describe('de echte versie', () => {
     for (const route of ['dagboek/dag', 'vandaag']) {
       test(`${route}: de rij volgt de bewaarde tekst, en Escape sluit het blad met de focus op de rij`, async ({ page }) => {
         await page.goto('./#/' + route);
+        if (route === 'vandaag') await page.reload(); // dezelfde route als bij het zaaien: herladen, zodat de gezaaide maaltijd er zeker staat
         const regel = page.locator('.maaltijd[data-soort="middagmaal"]');
         const kop = regel.locator('> .rij');
         await expect(kop).toContainText('Origineel');
@@ -135,6 +136,7 @@ test.describe('de echte versie', () => {
     for (const route of ['dagboek/dag', 'vandaag']) {
       test(`${route}: Annuleren zet tekst en uur terug zoals bij het openen, in de database en op het scherm`, async ({ page }) => {
         await page.goto('./#/' + route);
+        if (route === 'vandaag') await page.reload(); // dezelfde route als bij het zaaien: herladen, zodat de gezaaide maaltijd er zeker staat
         const regel = page.locator('.maaltijd[data-soort="middagmaal"]');
         await regel.locator('> .rij').click();
         await blad(page).locator('textarea').fill('Nieuwe tekst');

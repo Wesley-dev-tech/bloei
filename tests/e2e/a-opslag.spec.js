@@ -7,7 +7,7 @@ test('er is geen proefpagina: #/proef gaat naar Vandaag', async ({ page }) => {
   expect(await page.evaluate(() => 'window.__schrift' in window || window.__schrift !== undefined)).toBe(false);
 });
 
-test('de database bestaat na de start met schema 5 en tien stores', async ({ page }) => {
+test('de database bestaat na de start met schema 6 en tien stores', async ({ page }) => {
   await page.goto('./');
   await expect(page.locator('#tabbalk')).toBeVisible();
   const info = await page.evaluate(
@@ -22,7 +22,7 @@ test('de database bestaat na de start met schema 5 en tien stores', async ({ pag
         };
       }),
   );
-  // Dexie bewaart schemaversie 5 als IndexedDB-versie 50 (versie 1 was 10, 2 was 20, 3 was 30, 4 was 40).
-  expect(info.versie).toBe(50);
+  // Dexie bewaart schemaversie 6 als IndexedDB-versie 60 (versie 1 was 10, 2 was 20, ..., 5 was 50; 6 wist de weegdag, 0.6.3).
+  expect(info.versie).toBe(60);
   expect(info.stores).toEqual(['badges', 'dagen', 'dranken', 'favorieten', 'fotos', 'instellingen', 'maaltijden', 'momentinnames', 'supplementen', 'wegingen']);
 });

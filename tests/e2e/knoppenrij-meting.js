@@ -381,7 +381,8 @@ export async function meetGroep(page, groep) {
       afgekapt,
       rijen,
       verschilBreedte: rond(Math.max(...rects.map((r) => r.width)) - Math.min(...rects.map((r) => r.width))),
-      minHoogte: rond(Math.min(...rects.map((r) => r.height))),
+      // het tikvlak: de knop zelf, of een onzichtbare laag (::after) die hoger is (de knoppen van 40 px in de bladen van Gewicht, 0.6.3)
+      minHoogte: rond(Math.min(...knoppen.map((k, i) => { const na = getComputedStyle(k, '::after'); const laag = na.position === 'absolute' && na.content !== 'none' ? parseFloat(na.height) || 0 : 0; return Math.max(rects[i].height, laag); }))),
       minBreedte: rond(Math.min(...rects.map((r) => r.width))),
       groepRect: (() => { const r = g.getBoundingClientRect(); return [rond(r.left), rond(r.top), rond(r.width), rond(r.height)]; })(),
     };

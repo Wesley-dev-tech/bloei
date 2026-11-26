@@ -271,7 +271,13 @@ test.describe('aanraking', () => {
           const zicht = new Function('el', 'return (' + zichtbaarFn + ')(el)');
           return [...document.querySelectorAll(sel)]
             .filter((e) => zicht(e) && e.matches('button,a[href],input,select,textarea') && !e.closest('svg'))
-            .map((e) => ({ n: window.__naam(e).slice(0, 30), klasse: String(e.getAttribute('class') || e.tagName.toLowerCase()).slice(0, 50), w: e.getBoundingClientRect().width, h: e.getBoundingClientRect().height }))
+            .map((e) => {
+              // een onzichtbare laag (::after) telt mee als tikvlak (de knoppen van 36 px op de kaarten van Gewicht, 0.6.3)
+              const na = getComputedStyle(e, '::after');
+              const laag = na.position === 'absolute' && na.content !== 'none';
+              const r = e.getBoundingClientRect();
+              return { n: window.__naam(e).slice(0, 30), klasse: String(e.getAttribute('class') || e.tagName.toLowerCase()).slice(0, 50), w: Math.max(r.width, laag ? parseFloat(na.width) || 0 : 0), h: Math.max(r.height, laag ? parseFloat(na.height) || 0 : 0) };
+            })
             // (de drie icoonknoppen in de compacte schermkop zijn sinds 0.3.8 met opzet 40 x 40 px; eigenaar, 26 november 2026)
             .filter((x) => (x.w < 43.5 || x.h < 43.5) && !(/icoonknop schermkop__(uitleg|delen|home)/.test(x.klasse) && x.w >= 39.5 && x.h >= 39.5));
         },

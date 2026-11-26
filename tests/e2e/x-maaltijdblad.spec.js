@@ -71,6 +71,8 @@ for (const f of FORMATEN) {
         await zetRij(page, 'maaltijden', { ...record('ontbijt', 'Muesli met noten'), datum: GISTEREN });
         await zetRij(page, 'maaltijden', record('middagmaal', 'Soep met brood'));
         await page.goto('./#/' + s.route);
+        // dezelfde route als bij het zaaien is geen nieuwe navigatie: herladen, zodat Vandaag de gezaaide maaltijden leest (anders hangt het af van wie eerst klaar is)
+        if (s.route === 'vandaag') await page.reload();
         const rij = (soort) => page.locator(s.regel(soort) + ' > .rij');
         await expect(rij('middagmaal')).toContainText('Soep met brood');
         await animatiesKlaar(page); // de kaarten zijn opgekomen

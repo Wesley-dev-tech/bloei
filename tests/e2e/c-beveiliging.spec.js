@@ -361,7 +361,7 @@ test.describe('wissen', () => {
     const opslag = await alleOpslag(page);
     // Wat de app bij het opstarten zelf terugschrijft (migratievlaggen) is geen gegeven van haar.
     for (const [naam, rijen] of Object.entries(opslag.idb)) {
-      const eigen = naam.endsWith('/instellingen') ? rijen.filter((r) => !/Omgezet$|uitgebreid$/.test(r.sleutel)) : rijen;
+      const eigen = naam.endsWith('/instellingen') ? rijen.filter((r) => !/Omgezet$|uitgebreid\d*$|^versie\.(gezien|nummering)$/.test(r.sleutel)) : rijen;
       expect(eigen, naam).toEqual([]);
     }
     expect(JSON.stringify(opslag)).not.toContain(MERK);
@@ -1361,7 +1361,7 @@ test.describe('alles wissen wist ook de herstelgegevens', () => {
     const instellingen = opslag.idb['bloei-dagboek/instellingen'] ?? [];
     expect(instellingen.filter((r) => r.sleutel.startsWith('slot.')).map((r) => `${r.sleutel} = ${JSON.stringify(r.waarde)}`)).toEqual([]);
     for (const [naam, rijen] of Object.entries(opslag.idb)) {
-      const eigen = naam.endsWith('/instellingen') ? rijen.filter((r) => !/Omgezet$|uitgebreid$/.test(r.sleutel)) : rijen;
+      const eigen = naam.endsWith('/instellingen') ? rijen.filter((r) => !/Omgezet$|uitgebreid\d*$|^versie\.(gezien|nummering)$/.test(r.sleutel)) : rijen;
       expect(eigen, naam).toEqual([]);
     }
     const alles = JSON.stringify(opslag);
