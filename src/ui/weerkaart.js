@@ -11,7 +11,7 @@
 // toestel, anders de noodplek, anders het bewaarde weerbericht).
 // weerkaart(stand) → { el, teken(stand) }: teken past de kaart ter plaatse aan bij 'weer:gewijzigd'.
 import { WEEKDAGEN, uvWoord, weerBeeld, windkracht, windrichting } from '../logica/weer.js';
-import { naarDatum, plusDagen, vandaag } from '../kern/datum.js';
+import { naarDatum, opmaakDatum, plusDagen, vandaag } from '../kern/datum.js';
 import { t } from '../teksten.js';
 import { h } from './dom.js';
 import { icoontegel, kaart, kaartkop } from './componenten.js';
@@ -158,9 +158,11 @@ export function weerkaart(stand) {
       vak('vocht', t('weer.vocht'), w?.vocht != null ? t('weer.procent', { aantal: w.vocht }) : null),
     );
 
-    // ---- de week: zeven dagen vanaf vandaag. Zonder weer staan de dagen er al, met een streepje.
+    // ---- de week: de zeven dagen na vandaag (vandaag zelf staat erboven). Zonder weer staan de dagen er al, met een streepje.
     const eerste = vandaag();
-    const dagen = w?.dagen?.length >= WEEKDAGEN ? w.dagen.slice(0, WEEKDAGEN) : Array.from({ length: WEEKDAGEN }, (_, i) => ({ datum: plusDagen(eerste, i), ...(w?.dagen?.[i] ?? {}) }));
+    const dagen = w?.dagen?.length > WEEKDAGEN ? w.dagen.slice(1, WEEKDAGEN + 1) : Array.from({ length: WEEKDAGEN }, (_, i) => ({ datum: plusDagen(eerste, i + 1), ...(w?.dagen?.[i + 1] ?? {}) }));
+    // Een korte datum onder de dag: 27/11
+    const korteDatum = (datum) => `${datum.slice(8, 10)}/${datum.slice(5, 7)}`;
     const week = h(
       'div',
       { class: 'weerkaart__week' },
@@ -168,16 +170,18 @@ export function weerkaart(stand) {
       h(
         'ul',
         { class: 'weerweek' },
-        ...dagen.map((d, i) => {
+        ...dagen.map((d) => {
           const beeld = weerBeeld({ code: d.code });
           const naam = beeld ? t('weer.' + beeld.naam) : '';
+          const dag = opmaakDatum(d.datum, 'lang'); // de schermlezer hoort de hele datum: vrijdag 27 november
           const voorLezer = beeld
-            ? [`${i === 0 ? t('weer.vandaag') : dagNaam(d.datum)}: ${naam}`, d.max != null && d.min != null && t('weer.labelDag', { min: d.min, max: d.max }), d.kans != null && t('weer.labelKansDag', { aantal: d.kans })].filter(Boolean).join(', ')
-            : dagNaam(d.datum);
+            ? [`${dag}: ${naam}`, d.max != null && d.min != null && t('weer.labelDag', { min: d.min, max: d.max }), d.kans != null && t('weer.labelKansDag', { aantal: d.kans })].filter(Boolean).join(', ')
+            : dag;
           return h(
             'li',
-            { class: ['weerweek__dag', i === 0 && 'is-vandaag'], role: 'img', 'aria-label': voorLezer },
+            { class: 'weerweek__dag', role: 'img', 'aria-label': voorLezer },
             h('span', { class: 'label weerweek__naam', 'aria-hidden': 'true' }, dagNaam(d.datum).slice(0, 2)),
+            h('span', { class: 'weerweek__datum cijfer', 'aria-hidden': 'true' }, korteDatum(d.datum)),
             icoontegel(beeld?.icoon ?? 'cloud', beeld ? 'dag' : 'neutraal', { gedimd: !beeld }),
             h('span', { class: 'weerweek__max cijfer', 'aria-hidden': 'true' }, graden(d.max)),
             h('span', { class: 'weerweek__min cijfer', 'aria-hidden': 'true' }, graden(d.min)),

@@ -84,16 +84,16 @@ describe('wat er naar de weerdienst gaat', () => {
     expect(graad(1e-7)).not.toMatch(/e/i);
   });
 
-  test('het adres bevat alleen de plaats en de gevraagde waarden: nu, de uren van een week en veertien dagen', () => {
+  test('het adres bevat alleen de plaats en de gevraagde waarden: nu, de uren van een week en vijftien dagen', () => {
     const url = new URL(weerAdres(51.16234567891234, 5.18345678912345));
     expect(url.origin + url.pathname).toBe(WEER_ORIGIN + '/v1/forecast');
     expect(url.searchParams.get('latitude')).toBe('51.16234567891234');
     expect(url.searchParams.get('longitude')).toBe('5.18345678912345');
     expect([...url.searchParams.keys()].sort()).toEqual(['current', 'daily', 'forecast_days', 'forecast_hours', 'hourly', 'latitude', 'longitude', 'timezone']);
-    // De kaart toont zeven dagen. Bloei vraagt er veertien, en de uren van een week: zo staat er ook weer als de dienst dagen niet antwoordt.
+    // De kaart toont de zeven dagen na vandaag. Bloei vraagt er vijftien, en de uren van een week: zo staat er ook weer als de dienst dagen niet antwoordt.
     expect(WEEKDAGEN).toBe(7);
     expect(url.searchParams.get('forecast_days')).toBe(String(BEWAARDAGEN));
-    expect(BEWAARDAGEN).toBe(14);
+    expect(BEWAARDAGEN).toBe(15); // vandaag en de zeven dagen erna, ook met een weerbericht van een week oud (0.6.4)
     expect(url.searchParams.get('forecast_hours')).toBe(String(BEWAARUREN));
     expect(BEWAARUREN).toBe(168);
     expect(url.searchParams.get('hourly')).toBe(url.searchParams.get('current'));
@@ -154,7 +154,7 @@ describe('het antwoord van de weerdienst', () => {
 });
 
 describe('het bewaarde weerbericht, voor nu', () => {
-  // Een antwoord van woensdag 25 november 2026, 20 uur: veertien dagen en de uren van een week.
+  // Een antwoord van woensdag 25 november 2026, 20 uur: vijftien dagen en de uren van een week.
   const p = (n) => String(n).padStart(2, '0');
   const dagNa = (n) => { const d = new Date(2026, 10, 25 + n, 12); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`; };
   const uurNa = (n) => { const d = new Date(2026, 10, 25, 20 + n); return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}T${p(d.getHours())}:00`; };
@@ -162,19 +162,19 @@ describe('het bewaarde weerbericht, voor nu', () => {
   const weer = leesAntwoord({
     current: { temperature_2m: 6.3, apparent_temperature: 3.4, relative_humidity_2m: 87, weather_code: 61, wind_speed_10m: 17.6, wind_direction_10m: 232, is_day: 0 },
     hourly: { time: rij(168, uurNa), temperature_2m: rij(168, (i) => 10 + (i % 24) / 10), apparent_temperature: rij(168, (i) => 8 + (i % 24) / 10), relative_humidity_2m: rij(168, () => 80), weather_code: rij(168, (i) => (i < 24 ? 61 : 3)), wind_speed_10m: rij(168, () => 12), wind_direction_10m: rij(168, () => 225), is_day: rij(168, (i) => ((20 + i) % 24 >= 8 && (20 + i) % 24 < 17 ? 1 : 0)) },
-    daily: { time: rij(14, dagNa), weather_code: rij(14, (i) => (i === 3 ? 80 : 3)), temperature_2m_min: rij(14, (i) => i), temperature_2m_max: rij(14, (i) => 10 + i), precipitation_probability_max: rij(14, (i) => i * 5), precipitation_sum: rij(14, (i) => i / 10), snowfall_sum: rij(14, () => 0), sunrise: rij(14, (i) => `${dagNa(i)}T08:${p(10 + i)}`), sunset: rij(14, (i) => `${dagNa(i)}T16:${p(40 - i)}`), uv_index_max: rij(14, () => 1) },
+    daily: { time: rij(15, dagNa), weather_code: rij(15, (i) => (i === 3 ? 80 : 3)), temperature_2m_min: rij(15, (i) => i), temperature_2m_max: rij(15, (i) => 10 + i), precipitation_probability_max: rij(15, (i) => i * 5), precipitation_sum: rij(15, (i) => i / 10), snowfall_sum: rij(15, () => 0), sunrise: rij(15, (i) => `${dagNa(i)}T08:${p(10 + i)}`), sunset: rij(15, (i) => `${dagNa(i)}T16:${p(40 - i)}`), uv_index_max: rij(15, () => 1) },
   });
 
-  test('het antwoord houdt veertien dagen en 168 uren bij', () => {
-    expect(weer.dagen).toHaveLength(14);
+  test('het antwoord houdt vijftien dagen en 168 uren bij', () => {
+    expect(weer.dagen).toHaveLength(15);
     expect(weer.uren).toHaveLength(168);
     expect(weer.uren[0]).toEqual({ uur: '2026-11-25T20:00', code: 61, temp: 10, gevoel: 8, vocht: 80, wind: 12, richting: 225, dag: false });
   });
 
-  test('hetzelfde uur: het weer van dat uur, van vandaag en van zeven dagen', () => {
+  test('hetzelfde uur: het weer van dat uur, van vandaag en van de zeven dagen erna (0.6.4)', () => {
     const nu = weerVoorNu(weer, new Date(2026, 10, 25, 21, 30));
     expect(nu).toMatchObject({ code: 61, temp: 10, gevoel: 8, vocht: 80, wind: 12, richting: 225, dag: false, min: 0, max: 10, kans: 0, zonOp: '08:10', zonOnder: '16:40' });
-    expect(nu.dagen).toHaveLength(7);
+    expect(nu.dagen).toHaveLength(8);
     expect(nu.dagen[0].datum).toBe('2026-11-25');
     expect(weerBeeld(nu)).toEqual({ icoon: 'cloud-rain', naam: 'lichteRegen' });
   });
@@ -183,7 +183,7 @@ describe('het bewaarde weerbericht, voor nu', () => {
     const nu = weerVoorNu(weer, new Date(2026, 10, 28, 10, 15));
     expect(nu).toMatchObject({ code: 3, dag: true, min: 3, max: 13, kans: 15, mm: 0.3, zonOp: '08:13', zonOnder: '16:37' });
     expect(nu.temp).toBe(Math.round(10 + ((62 % 24) / 10))); // 62 uur na het antwoord
-    expect(nu.dagen.map((d) => d.datum)).toEqual([3, 4, 5, 6, 7, 8, 9].map(dagNa));
+    expect(nu.dagen.map((d) => d.datum)).toEqual([3, 4, 5, 6, 7, 8, 9, 10].map(dagNa));
     expect(nu.dagen[0].code).toBe(80);
     expect(nu).not.toHaveProperty('uur');
     expect(nu).not.toHaveProperty('datum');
@@ -197,8 +197,8 @@ describe('het bewaarde weerbericht, voor nu', () => {
   });
 
   test('zonder een volle week vooruit, of zonder bruikbare bewaring: geen weer', () => {
-    expect(weerVoorNu({ ...weer, dagen: weer.dagen.slice(0, 9) }, new Date(2026, 10, 28, 10, 0))).toBe(null); // nog maar zes dagen vooruit
-    expect(weerVoorNu({ ...weer, dagen: weer.dagen.slice(0, 10) }, new Date(2026, 10, 28, 10, 0))).not.toBe(null);
+    expect(weerVoorNu({ ...weer, dagen: weer.dagen.slice(0, 10) }, new Date(2026, 10, 28, 10, 0))).toBe(null); // nog maar zes dagen na vandaag
+    expect(weerVoorNu({ ...weer, dagen: weer.dagen.slice(0, 11) }, new Date(2026, 10, 28, 10, 0))).not.toBe(null); // zeven dagen na vandaag (0.6.4)
     for (const fout of [null, undefined, {}, { dagen: [] }, { dagen: weer.dagen }, { uren: weer.uren }, voorbeeldWeer('2026-11-25')]) expect(weerVoorNu(fout, new Date(2026, 10, 25, 21, 0))).toBe(null);
   });
 });
@@ -270,7 +270,7 @@ describe('de demo', () => {
       expect(weer.min, sleutel).toBeLessThanOrEqual(weer.max);
       expect(weer.zonOp, sleutel).toMatch(/^\d\d:\d\d$/);
       expect(weer.zonOnder, sleutel).toMatch(/^\d\d:\d\d$/);
-      expect(weer.dagen, sleutel).toHaveLength(7);
+      expect(weer.dagen, sleutel).toHaveLength(8); // vandaag en de zeven dagen erna (0.6.4)
       expect(weer.dagen[0].datum, sleutel).toBe(sleutel);
     }
     // Vast per dag: twee bezoekers zien hetzelfde.

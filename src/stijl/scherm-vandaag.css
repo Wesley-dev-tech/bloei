@@ -431,7 +431,10 @@
 .weerweek__dag { flex: none; width: var(--s-8); display: flex; flex-direction: column; align-items: center; gap: var(--s-1); font-family: var(--font-ui); line-height: 1.2; white-space: nowrap; }
 .weerweek__dag > .tegel { width: var(--s-8); height: var(--s-8); border-radius: var(--r-sm); }
 .weerweek__dag > .tegel svg { width: 15px; height: 15px; }
-.weerweek__dag.is-vandaag .weerweek__naam { color: var(--c-text); font-weight: 600; }
+/* De korte datum onder de dag (27/11, 0.6.4): klein en gedempt, zoals de datums van de weegkalender */
+.weerweek__datum { margin-top: calc(var(--s-1) * -1); font-size: .6875rem; letter-spacing: .02em; color: var(--c-text-muted); font-variant-numeric: lining-nums tabular-nums; }
+/* Op de smalste telefoons (onder 360 px) iets kleiner: zo blijft er tussen twee datums een duidelijke ruimte. */
+@media (max-width: 359.98px) { .weerweek__datum { font-size: .625rem; letter-spacing: 0; } }
 /* De temperaturen van de week zijn even groot als de waarden in de lijst erboven (zelfde maat en gewicht); de laagste is alleen gedempt. */
 .weerweek__max { font-size: var(--fs-small); font-weight: 500; color: var(--c-text); }
 .weerweek__min { font-size: var(--fs-small); color: var(--c-text-muted); }

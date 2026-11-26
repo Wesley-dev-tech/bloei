@@ -54,14 +54,14 @@ export const plekVanTijdzone = (tijdzone) => TIJDZONEPLEK[tijdzone] ?? STANDAARD
 export const rondePlek = (breedte, lengte) => (geldigePlek(breedte, lengte) ? [Math.round(breedte * 100) / 100, Math.round(lengte * 100) / 100] : null);
 
 // ---- Het weer ----
-export const WEEKDAGEN = 7; // zoveel dagen toont de kaart
-export const BEWAARDAGEN = 14; // zoveel dagen vraagt Bloei: zo staat er een week vooruit, ook met een weerbericht van een week oud
+export const WEEKDAGEN = 7; // zoveel dagen toont de kaart: de zeven dagen na vandaag (0.6.4; vroeger vandaag en de zes dagen erna)
+export const BEWAARDAGEN = 15; // zoveel dagen vraagt Bloei: zo staan er de zeven dagen na vandaag, ook met een weerbericht van een week oud
 export const BEWAARUREN = 168; // de uren vanaf nu, per uur: daarmee kent Bloei het weer van "nu" ook als de dienst een tijd niet antwoordt
 
 // Het adres van de vraag: alleen de plaats en wat Bloei wil weten.
 //   van nu       temperatuur, gevoelstemperatuur, luchtvochtigheid, weercode, wind (snelheid en richting), dag of nacht;
 //   per uur      hetzelfde, voor de komende 168 uur;
-//   per dag      veertien dagen vanaf vandaag: het weerbeeld, de laagste en de hoogste temperatuur, de kans op neerslag en hoeveel er
+//   per dag      vijftien dagen vanaf vandaag: het weerbeeld, de laagste en de hoogste temperatuur, de kans op neerslag en hoeveel er
 //                verwacht wordt, zonsopgang en zonsondergang en de uv-index (daarvoor wil de dienst een tijdzone: 'auto' is die van de plaats).
 const NU = 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,is_day';
 export function weerAdres(breedte, lengte) {
@@ -89,7 +89,7 @@ const ogenblik = (bron, i) => {
 // Het antwoord van de dienst → het weer zoals de kaart het toont, of null als het niet is wat Bloei verwacht (dan komt er geen weer).
 //   nu:       code, temp, gevoel, vocht (luchtvochtigheid in procent), wind (km per uur), richting (graden, waar de wind vandaan komt), dag (true overdag)
 //   vandaag:  min, max, kans (procent), mm (verwachte neerslag), sneeuw (cm), zonOp, zonOnder ('UU:MM'), uv
-//   dagen:    tot veertien dagen vanaf vandaag: [{ datum: 'JJJJ-MM-DD', code, min, max, kans, mm, sneeuw, zonOp, zonOnder, uv }]
+//   dagen:    tot vijftien dagen vanaf vandaag: [{ datum: 'JJJJ-MM-DD', code, min, max, kans, mm, sneeuw, zonOp, zonOnder, uv }]
 //   uren:     tot 168 uur vanaf nu: [{ uur: 'JJJJ-MM-DDTUU:00', code, temp, gevoel, vocht, wind, richting, dag }]
 // Ontbreekt een waarde, dan is ze null en toont de kaart een streepje.
 export function leesAntwoord(json) {
@@ -123,7 +123,7 @@ export function leesAntwoord(json) {
   return { ...nu, ...vandaag, dagen: datums.map((datum, i) => ({ datum, ...dagVan(i) })), uren };
 }
 
-// Het bewaarde weerbericht, voor nu: wat de dienst eerder voorspelde voor dit uur en voor vandaag en de zes dagen erna.
+// Het bewaarde weerbericht, voor nu: wat de dienst eerder voorspelde voor dit uur, voor vandaag en voor de zeven dagen erna.
 //   weer   wat leesAntwoord gaf (met dagen en uren), bewaard op het toestel
 //   nu     het ogenblik van nu, in de tijd van het toestel
 // Geeft het weer zoals de kaart het toont, of null als het bewaarde weerbericht daarvoor te oud is (dit uur staat er niet meer in, of er
@@ -134,8 +134,8 @@ export function weerVoorNu(weer, nu = new Date()) {
   const vandaag = `${nu.getFullYear()}-${p(nu.getMonth() + 1)}-${p(nu.getDate())}`;
   const i = weer.dagen.findIndex((d) => d?.datum === vandaag);
   const ditUur = weer.uren.find((x) => x?.uur === `${vandaag}T${p(nu.getHours())}:00`);
-  if (i < 0 || !ditUur || weer.dagen.length - i < WEEKDAGEN) return null;
-  const dagen = weer.dagen.slice(i, i + WEEKDAGEN);
+  if (i < 0 || !ditUur || weer.dagen.length - i < WEEKDAGEN + 1) return null;
+  const dagen = weer.dagen.slice(i, i + WEEKDAGEN + 1); // vandaag en de zeven dagen erna
   const { datum: _datum, code: _code, ...vanVandaag } = dagen[0];
   const { uur: _uur, ...vanNu } = ditUur;
   return { ...vanNu, ...vanVandaag, dagen };
@@ -255,7 +255,7 @@ export function voorbeeldWeer(datumSleutel) {
   const warm = [6, 7, 8].includes(maand);
   const lijst = koud ? winter : warm ? zomer : tussen;
   const sleutel = (d) => `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, '0')}-${String(d.getDate()).padStart(2, '0')}`;
-  const dagen = Array.from({ length: WEEKDAGEN }, (_, i) => {
+  const dagen = Array.from({ length: WEEKDAGEN + 1 }, (_, i) => {
     const w = lijst[(dagNr + i) % lijst.length];
     return { datum: sleutel(new Date(jaar, maand - 1, dagNr + i, 12)), code: w.code, min: w.temp - 4, max: w.temp + 2, kans: w.kans, mm: w.mm };
   });

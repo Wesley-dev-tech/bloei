@@ -13,7 +13,7 @@
 //    bewaard) en anders de hoofdstad van de tijdzone van het toestel. Is er na NOOD_MS nog niets in beeld, dan komt dat weer er al,
 //    terwijl Bloei verder naar de plek luistert.
 // 3. Antwoordt de weerdienst niet of is er geen netwerk, dan toont Bloei het weerbericht dat dit toestel het laatst kreeg: wat de
-//    dienst toen voorspelde voor dit uur, voor vandaag en voor de zes dagen erna (logica/weer.js, weerVoorNu). Dat weerbericht gaat
+//    dienst toen voorspelde voor dit uur, voor vandaag en voor de zeven dagen erna (logica/weer.js, weerVoorNu). Dat weerbericht gaat
 //    een week mee. Bloei probeert het intussen opnieuw: na 3, 6, 12 en 24 seconden en daarna elke minuut.
 //    De kaart is dus alleen zonder weer zolang dit toestel nog nooit een antwoord van de weerdienst kreeg (of een week lang geen):
 //    dan staat ze er met streepjes, zoals in de tel waarin het weer geladen wordt, tot het eerste antwoord er is.
@@ -22,7 +22,7 @@
 //    bewaarde weerbericht er meteen, tot het nieuwe er is.
 //
 // Wat het toestel bewaart (localStorage, sleutel 'bloei-weer'; nooit in de database, dus nooit in een reservekopie of een verslag): de
-// laatste plek, afgerond, en het laatste weerbericht (veertien dagen en de uren van een week). "Alles wissen" wist het mee.
+// laatste plek, afgerond, en het laatste weerbericht (vijftien dagen en de uren van een week). "Alles wissen" wist het mee.
 //
 // De stand gaat uit met 'weer:gewijzigd': { fase, weer?, tijd?, voorbeeld? }.
 //   'laden'   er is nog geen weer (de kaart staat er met streepjes)
