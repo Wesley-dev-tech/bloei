@@ -1,4 +1,3 @@
-// Dagboek · Dag (BESLISSING 260, 264, 267): geen lege witruimte, Drinken en Supplementen op twee lijnen, Stemming en energie als op het hoofdscherm,
 // de Notitie ernaast op dezelfde lijnen. Verzonnen gegevens.
 import { test, expect } from '@playwright/test';
 import { vul, meetKaarten } from './leeg-vlak.js';
@@ -34,7 +33,7 @@ async function vulExtra(page, { supplementen = false, spuit = false, notitie = '
             [1, 2].forEach((id, i) => tx.objectStore('momentinnames').add({ datum: dag, supplementId: id, moment: ['ochtend', 'middag'][i], tijdstip: Date.now(), voorbeeld: false }));
           }
           if (metSpuit) tx.objectStore('supplementen').add({ naam: 'Testspuit', dosis: '', hoeveelheid: 'een halve ampule', aanwijzing: '', momenten: [], ritme: { soort: 'interval', dagen: 14, start: dag }, volgorde: 9, actief: true, voorbeeld: false, aangemaaktOp: 1 });
-          if (tekst) tx.objectStore('dagen').put({ datum: dag, stemming: 4, energie: 3, notitie: tekst, gewijzigdOp: Date.now() });
+          if (tekst) tx.objectStore('dagen').put({ datum: dag, notitie: tekst, gewijzigdOp: Date.now() });
           tx.oncomplete = () => { idb.close(); klaar(); };
           tx.onerror = () => fout(tx.error);
         };
@@ -85,7 +84,8 @@ const notitieBewaard = (page, tekst) =>
 const meetKolommen = (page) =>
   page.evaluate(() => {
     const kaarten = ['eten', 'drinken', 'supplementen', 'notitie'].map((naam) => { const b = document.querySelector('.dag__' + naam).getBoundingClientRect(); return { naam, links: b.left, top: b.top, bottom: b.bottom }; });
-    const midden = document.querySelector('.dag__stemming').getBoundingClientRect().left + document.querySelector('.dag__stemming').getBoundingClientRect().width / 2;
+    const raster = document.querySelector('.dag__raster').getBoundingClientRect();
+    const midden = raster.left + raster.width / 2;
     const van = (links) => kaarten.filter((k) => (k.links < midden) === links).sort((a, b) => a.top - b.top);
     return { links: van(true), rechts: van(false) };
   });
@@ -109,19 +109,10 @@ for (const [breedte, hoogte] of [[1690, 1230], [1720, 950]]) {
       expect(rijen).toHaveLength(6);
       for (const r of rijen) expect(r, 'een maaltijdrij is hoger dan 70 px').toBeLessThanOrEqual(70);
       for (const k of await meetKaarten(page, '.dag__raster')) expect(k.gat, `${k.naam} heeft een leeg vlak van ${Math.round(k.gat)} px`).toBeLessThanOrEqual(32);
-      const m = await page.evaluate(() => {
-        const r = (s) => document.querySelector(s).getBoundingClientRect();
-        return { eten: r('.dag__eten'), drinken: r('.dag__drinken'), supp: r('.dag__supplementen'), stemming: r('.dag__stemming'), notitie: r('.dag__notitie') };
-      });
-      // Twee kolommen (BESLISSING 299): Eten staat linksboven, Drinken of Supplementen rechtsboven, de Notitie vult de kortste kolom; Stemming en energie eronder over de volle breedte
       const kol = await kolommen(page);
       expect(Math.abs(kol.links[0].top - kol.rechts[0].top)).toBeLessThanOrEqual(1);
       expect(kol.links[0].naam).toBe('eten');
-      expect(m.stemming.top).toBeGreaterThanOrEqual(Math.max(kol.links.at(-1).bottom, kol.rechts.at(-1).bottom) - 1);
-      expect(m.stemming.width, 'Stemming en energie staat niet over de volle breedte').toBeGreaterThan(m.eten.width * 1.9);
-      // geen strook pagina-achtergrond hoger dan 40 px tussen twee kaarten in dezelfde kolom, en niet tussen de kolommen en Stemming en energie
       for (const kolom of [kol.links, kol.rechts]) kolom.slice(1).forEach((k, i) => expect(k.top - kolom[i].bottom, `strook boven ${k.naam}`).toBeLessThanOrEqual(40));
-      expect(m.stemming.top - Math.max(kol.links.at(-1).bottom, kol.rechts.at(-1).bottom), 'strook boven Stemming en energie').toBeLessThanOrEqual(40);
       // de onderkanten van de twee kolommen liggen gelijk zolang de Notitie boven haar minimum zit
       const vak = await page.evaluate(() => {
         const k = document.querySelector('.dag__notitie').getBoundingClientRect();
@@ -202,57 +193,13 @@ test('Dag: de weghaal-knop is een tikvlak van 44 px en overlapt geen tekst; dran
   await expect(drinken.locator('.dagdranklijst__rij[data-soort="thee"]')).toHaveCount(1);
 });
 
-test('Dag: gezichtjes en blaadjes staan op dezelfde vijf x-posities; stemming, energie en notitie blijven na herladen', async ({ page }) => {
+test('Dag: de notitie blijft na herladen', async ({ page }) => {
   await page.setViewportSize({ width: 1690, height: 1230 });
   await opbouw(page, 1690, 1230, { dranken: 0, maaltijden: 0 });
-  const centra = (sel) => page.locator(sel).evaluateAll((els) => els.map((e) => { const b = e.getBoundingClientRect(); return (b.left + b.right) / 2; }));
-  const centraY = (sel) => page.locator(sel).evaluateAll((els) => els.map((e) => { const b = e.getBoundingClientRect(); return b.top + b.height / 2; }));
-  const gez = await centra('.dag__stemming .stemming__vraag .gevoel__optie');
-  const bla = await centra('.dag__stemming .vandaag__energie .energie__tik');
-  expect(gez).toHaveLength(5);
-  expect(bla).toHaveLength(5);
-  // naast elkaar: eerst de vijf gezichtjes, dan de vijf blaadjes, op dezelfde horizontale lijn en elk in een eigen raster van vijf gelijke kolommen
-  expect(Math.max(...gez)).toBeLessThan(Math.min(...bla));
-  const gezY = await centraY('.dag__stemming .stemming__vraag .gevoel__optie');
-  const blaY = await centraY('.dag__stemming .vandaag__energie .energie__tik');
-  gezY.forEach((y, i) => expect(Math.abs(y - blaY[i])).toBeLessThanOrEqual(2));
-  for (const rij of [gez, bla]) {
-    const st = rij.slice(1).map((x, i) => x - rij[i]);
-    st.forEach((s) => expect(Math.abs(s - st[0])).toBeLessThanOrEqual(1));
-  }
-  const stemH = await page.evaluate(() => document.querySelector('.dag__stemming').getBoundingClientRect().height);
-  expect(stemH).toBeLessThanOrEqual(260);
-  // de keuzes zijn gelijke tegels die hun helft vullen: de tussenruimte is nooit groter dan een tegel, de eerste en laatste staan op de binnenrand van de helft
-  for (const sel of ['.dag__stemming .stemming__vraag .gevoel__optie', '.dag__stemming .vandaag__energie .energie__tik']) {
-    const dozen = await page.locator(sel).evaluateAll((els) => els.map((e) => { const b = e.getBoundingClientRect(); return [b.left, b.right, b.width]; }));
-    expect(dozen[0][2]).toBeGreaterThanOrEqual(56);
-    for (let i = 1; i < dozen.length; i += 1) {
-      expect(dozen[i][0] - dozen[i - 1][1], 'tussenruimte tussen twee keuzetegels').toBeLessThanOrEqual(dozen[i][2]);
-      expect(Math.abs(dozen[i][2] - dozen[0][2])).toBeLessThanOrEqual(1);
-    }
-  }
-  const deel = await page.evaluate(() => {
-    const r = (s) => document.querySelector(s).getBoundingClientRect();
-    const o = [...document.querySelectorAll('.dag__stemming .stemming__vraag .gevoel__optie')].map((e) => e.getBoundingClientRect());
-    const b = [...document.querySelectorAll('.dag__stemming .vandaag__energie .energie__tik')].map((e) => e.getBoundingClientRect());
-    return { v: r('.dag__stemming .stemming__vraag'), e: r('.dag__stemming .vandaag__energie'), o, b };
-  });
-  expect(Math.abs(deel.o[0].left - deel.v.left)).toBeLessThanOrEqual(1);
-  expect(Math.abs(deel.o[4].right - deel.v.right)).toBeLessThanOrEqual(1);
-  expect(Math.abs(deel.b[0].left - deel.e.left)).toBeLessThanOrEqual(1);
-  expect(Math.abs(deel.b[4].right - deel.e.right)).toBeLessThanOrEqual(1);
-  // het hintje is de laatste regel van de kaart
-  const hint = await page.evaluate(() => { const k = document.querySelector('.dag__stemming'); return k.lastElementChild.querySelector('.dag__wis') !== null || k.querySelector('.stemming__inhoud').lastElementChild.classList.contains('dag__wis'); });
-  expect(hint).toBe(true);
-  await page.locator('.dag__stemming .gevoel__optie[data-stap="4"]').click();
-  await page.locator('.dag__stemming .energie__tik').nth(1).click();
-  await expect(page.locator('.dag__stemming .energie__tik[aria-checked="true"]')).toHaveAttribute('aria-label', 'rustig'); // BESLISSING 468: de keuze via aria-checked
   await page.locator('.dag__notitie textarea').fill('rustige dag');
   await page.locator('.dag__notitie textarea').blur();
   await notitieBewaard(page, 'rustige dag');
   await page.reload();
-  await expect(page.locator('.dag__stemming .gevoel__optie[data-stap="4"]')).toHaveAttribute('aria-checked', 'true');
-  await expect(page.locator('.dag__stemming .energie__tik[aria-checked="true"]')).toHaveAttribute('aria-label', 'rustig'); // BESLISSING 468: de keuze via aria-checked
   await expect(page.locator('.dag__notitie textarea')).toHaveValue('rustige dag');
 });
 
@@ -269,7 +216,7 @@ test('Dag: momenten en de spuit vink je af en weer uit (momenten), de data-uitle
   await expect(spuit).toContainText('Testspuit');
   await spuit.click();
   await expect(supp.locator('.dag__spuit')).toContainText('Afgevinkt');
-  for (const naam of ['dag-stand', 'dag-drinken', 'dag-supplementen', 'dag-stemming', 'dag-notitie']) await expect(page.locator(`.dag [data-uitleg="${naam}"]`)).toHaveCount(1);
+  for (const naam of ['dag-stand', 'dag-drinken', 'dag-supplementen', 'dag-notitie']) await expect(page.locator(`.dag [data-uitleg="${naam}"]`)).toHaveCount(1);
 });
 
 for (const [breedte, hoogte] of [[390, 844], [360, 780]]) {
@@ -277,7 +224,7 @@ for (const [breedte, hoogte] of [[390, 844], [360, 780]]) {
     await opbouw(page, breedte, hoogte, { dranken: 15, maaltijden: 6, supplementen: true, spuit: true, notitie: LANG, lang: true });
     const rijen = await page.locator('.dag__eten .maaltijd').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height));
     for (const r of rijen) expect(r).toBeLessThanOrEqual(70);
-    const volgorde = await page.evaluate(() => ['.dag__eten', '.dag__drinken', '.dag__supplementen', '.dag__stemming', '.dag__notitie'].map((s) => document.querySelector(s).getBoundingClientRect().top));
+    const volgorde = await page.evaluate(() => ['.dag__eten', '.dag__drinken', '.dag__supplementen', '.dag__notitie'].map((s) => document.querySelector(s).getBoundingClientRect().top));
     expect([...volgorde].sort((a, b) => a - b)).toEqual(volgorde);
     for (const k of await meetKaarten(page, '.dag__raster')) expect(k.gat, `${k.naam} heeft een leeg vlak van ${Math.round(k.gat)} px`).toBeLessThanOrEqual(32);
     expect(await page.evaluate(() => document.documentElement.scrollWidth <= window.innerWidth)).toBe(true);
@@ -321,7 +268,6 @@ for (const [breedte, hoogte] of [[1690, 1230], [1440, 900], [1280, 800]]) {
               }
             };
             const kol = await herhaal(() => kolommen(page));
-            const stem = await herhaal(() => page.evaluate(() => document.querySelector('.dag__stemming').getBoundingClientRect().top));
             const vakH = await herhaal(() => page.evaluate(() => document.querySelector('.dag__notitie textarea').getBoundingClientRect().height));
             const eind = (kolom) => kolom.at(-1).bottom;
             const hoogteZonder = (kolom) => { const rest = kolom.filter((k) => k.naam !== 'notitie'); return rest.length ? rest.at(-1).bottom - rest[0].top : 0; };
@@ -332,7 +278,6 @@ for (const [breedte, hoogte] of [[1690, 1230], [1440, 900], [1280, 800]]) {
             const andere = hoogteZonder(metNotitie === 'links' ? kol.rechts : kol.links);
             if (eigen > andere + 1) fouten.push(`${naam}: de Notitie staat in de langste kolom (${Math.round(eigen)} tegen ${Math.round(andere)} px)`);
             for (const kolom of [kol.links, kol.rechts]) kolom.slice(1).forEach((k, i) => { if (k.top - kolom[i].bottom > 40) fouten.push(`${naam}: strook van ${Math.round(k.top - kolom[i].bottom)} px boven ${k.naam}`); });
-            if (stem - Math.max(eind(kol.links), eind(kol.rechts)) > 40) fouten.push(`${naam}: strook boven Stemming en energie`);
             for (const k of await herhaal(() => meetKaarten(page, '.dag__raster'))) if (k.gat > 32.5) fouten.push(`${naam}: ${k.naam} heeft een leeg vlak van ${Math.round(k.gat)} px`);
             const rijen = await herhaal(() => page.locator('.dag__eten .maaltijd, .dag__momenten .momentrij').evaluateAll((els) => els.map((e) => e.getBoundingClientRect().height)));
             if (rijen.some((r) => r > 76)) fouten.push(`${naam}: een rij is uitgerekt tot ${Math.round(Math.max(...rijen))} px`);
@@ -365,7 +310,7 @@ test('Dag: de Notitie en alle andere kaarten hebben dezelfde rechthoek bij een l
   const lang = Array.from({ length: 40 }, (_, i) => `Regel ${i + 1} van een lange notitie over een rustige dag met veel gedachten en nog wat extra woorden.`).join('\n').padEnd(2000, 'x');
   const meetAlles = () => page.evaluate(() => {
     const r = (s) => { const b = document.querySelector(s).getBoundingClientRect(); return [b.left + scrollX, b.top + scrollY, b.width, b.height].map(Math.round); };
-    return { kaarten: ['.dag__eten', '.dag__drinken', '.dag__supplementen', '.dag__stemming', '.dag__notitie'].map(r), pagina: document.documentElement.scrollHeight };
+    return { kaarten: ['.dag__eten', '.dag__drinken', '.dag__supplementen', '.dag__notitie'].map(r), pagina: document.documentElement.scrollHeight };
   });
   const stabiel = async () => { await wachtOpRust(page); return wachtTotStil(page, meetAlles); };
   for (const [b, h] of [[1690, 1230], [820, 1180], [390, 844]]) {
@@ -464,7 +409,6 @@ for (const [breedte, hoogte, telefoon] of [[1690, 1230, false], [1280, 800, fals
 }
 
 // BESLISSING 299 en 330: de kaarten wisselen op een breed scherm met een script van kolom; de tabvolgorde moet de zichtbare volgorde volgen
-// (kolom voor kolom, van boven naar onder, links eerst; Stemming en energie over de volle breedte als laatste), in elke indeling van de kolommen.
 for (const [breedte, hoogte] of [[1280, 800], [1690, 1230]]) {
   for (const c of [{ naam: 'volle dag', opties: { dranken: 15, maaltijden: 6, supplementen: true, spuit: true, lang: true } }, { naam: 'gewone dag', opties: { dranken: 3, maaltijden: 3, supplementen: true } }, { naam: 'lege dag', opties: { dranken: 0, maaltijden: 0 } }]) {
     test(`Dag (330) ${breedte}, ${c.naam}: de tabvolgorde volgt de kolommen die je ziet`, async ({ page }) => {
@@ -482,7 +426,7 @@ for (const [breedte, hoogte] of [[1280, 800], [1690, 1230]]) {
           const r = e.getBoundingClientRect();
           const k = kaart.getBoundingClientRect();
           const breed = k.width > raster.width * 0.75;
-          return { kaart: (kaart.className.match(/dag__(eten|drinken|supplementen|stemming|notitie)/) ?? [])[1], kolom: breed ? 2 : k.left + k.width / 2 < raster.left + raster.width / 2 ? 0 : 1, y: r.top + scrollY };
+          return { kaart: (kaart.className.match(/dag__(eten|drinken|supplementen|notitie)/) ?? [])[1], kolom: breed ? 2 : k.left + k.width / 2 < raster.left + raster.width / 2 ? 0 : 1, y: r.top + scrollY };
         });
         if (s === 'buiten' && stops.length) break;
         if (s && s !== 'buiten') stops.push(s);

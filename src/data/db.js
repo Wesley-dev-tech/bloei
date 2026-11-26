@@ -7,7 +7,7 @@ import { leidAfUitDosis, splitsDosis } from '../logica/supplementen.js';
 import { vandaag } from '../kern/datum.js';
 import { DB_NAAM } from '../kern/demo.js';
 
-export const SCHEMA_VERSIE = 4;
+export const SCHEMA_VERSIE = 5;
 
 // 'bloei-dagboek', of in de demo 'bloei-demo' (kern/demo.js): de demo opent de echte database nooit, ook niet in de service worker.
 export const db = new Dexie(DB_NAAM);
@@ -70,6 +70,32 @@ db.version(4)
       if (s.hoeveelheid !== undefined || s.aanwijzing !== undefined) continue;
       await lijst.put({ ...s, ...splitsDosis(s.dosis) });
     }
+  });
+
+// Versie 5 (0.5.8, beslissing van de eigenaar): Bloei houdt geen stemming, geen energie en geen gevoel bij een maaltijd meer bij, en bewaart
+// er ook niets meer van. Deze upgrade wist wat er op het toestel nog van stond, onomkeerbaar:
+// - bij elke dag de velden stemming en energie;
+// - bij elke maaltijd het veld gevoel; een maaltijd die daarna niets meer heeft (geen tekst, geen foto) verdwijnt, zoals elke lege maaltijd;
+// - de behaalde medailles die erover gingen.
+// Geen wijziging aan stores of sleutels. Dit is de enige plek in Bloei die deze namen nog noemt: zonder kan ze ze niet wissen.
+const MEDAILLES_WEG_V5 = ['gemoed', 'dertig-stemmingen', 'honderd-stemmingen', 'zeven-energie', 'dertig-energie', 'gezichtje-en-blaadje', 'week-gezichtjes', 'maand-gezichtjes', 'tien-gevoel'];
+db.version(5)
+  .stores({})
+  .upgrade(async (tx) => {
+    const dagen = tx.table('dagen');
+    for (const dag of await dagen.toArray()) {
+      if (!('stemming' in dag) && !('energie' in dag)) continue;
+      const { stemming: _s, energie: _e, ...rest } = dag;
+      await dagen.put(rest);
+    }
+    const maaltijden = tx.table('maaltijden');
+    for (const maaltijd of await maaltijden.toArray()) {
+      if (!('gevoel' in maaltijd)) continue;
+      const { gevoel: _g, ...rest } = maaltijd;
+      if (String(rest.tekst ?? '').trim() === '' && rest.fotoId == null) await maaltijden.delete([maaltijd.datum, maaltijd.soort]);
+      else await maaltijden.put(rest);
+    }
+    await tx.table('badges').bulkDelete(MEDAILLES_WEG_V5);
   });
 
 export async function openDb() {

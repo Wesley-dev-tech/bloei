@@ -270,7 +270,7 @@ De volledige uitleg staat in `worker/README.md`. Alle commando's in dit deel voe
 
 9. Bouw opnieuw, want een variabele werkt pas bij de volgende bouw: **Deployments**, de bovenste bouw met het label Production, het menu **⋯**, **Redeploy**.
 
-10. Kijk na dat het adres van de dienst in de app zit. Dit moet een regel met `connect-src 'self' https://bloei-herinneringen...` tonen:
+10. Kijk na dat het adres van de dienst in de app zit. Dit moet een regel met `connect-src 'self' https://bloei-herinneringen...` tonen (daarachter staat ook `https://api.open-meteo.com`, de weerdienst):
 
     ```
     curl.exe -s https://jouw-project.vercel.app/ | Select-String "connect-src"
@@ -365,7 +365,8 @@ Doe dit **op elk toestel apart**. De gegevens staan per toestel en worden niet g
 8. **Proefmelding.** De app heeft geen knop voor een proefmelding; zet daarom een herinnering op het volgende kwartier (om 14:15 als het nu 14:07 is) en sluit de app volledig (veeg ze weg uit de lijst met geopende apps). Rond dat kwartier komt de melding. De dienst kijkt om de 15 minuten en rekent in Belgische tijd; een paar minuten vertraging kan. Tik op de melding: ze opent Bloei op het juiste scherm. Komt er na 15 minuten niets, zie deel 10.
 9. Zet de vergrendeling aan (Algemeen, Vergrendeling) en laat opnieuw een melding komen. Er staat nu alleen een algemene tekst in, niets over eten, drinken of supplementen.
 10. Wil je stoppen met meldingen: zet de hoofdschakelaar bij Herinneringen uit. De app meldt het toestel dan af bij de dienst.
-11. Herhaal alles op het andere toestel.
+11. **Het weerbericht.** Op Vandaag vraagt het toestel één keer of Bloei de locatie mag gebruiken: tik **Sta toe**. De weerkaart staat onderaan Vandaag (op een breed scherm naast de dag) en toont het weer van nu, de cijfers van vandaag en de komende dagen. Het weer staat er altijd: geeft het toestel geen plek (de locatie staat uit, of een computer zonder locatiedienst), dan toont Bloei het weer van de laatste plek van dat toestel en anders van Brussel; antwoordt de weerdienst even niet, dan toont Bloei het weerbericht dat het toestel het laatst kreeg. Voor het weer van de exacte plek: open Instellingen op het toestel en geef Bloei (of Safari-websites) toegang tot de locatie bij gebruik van de app, met **Exacte locatie** aan (**na te kijken**: de plaats van die keuze verschilt per versie van iOS).
+12. Herhaal alles op het andere toestel.
 
 ## 6b. Android: de apk maken met Bubblewrap
 

@@ -1,4 +1,4 @@
-// De zes maaltijden per dag. Een maaltijd zonder tekst, foto en gevoel bestaat niet als record:
+// De zes maaltijden per dag. Een maaltijd zonder tekst en foto bestaat niet als record:
 // een overgeslagen maaltijd blijft gewoon leeg.
 import { db, isEigen } from './db.js';
 import { zend } from '../kern/bus.js';
@@ -30,7 +30,6 @@ function nieuweMaaltijd(datum, soort) {
     tijd: datum === vandaag() ? nuAlsTijd() : STANDAARDTIJD[soort],
     tekst: '',
     fotoId: null,
-    gevoel: null,
     voorbeeld: false,
     gewijzigdOp: 0,
     // Wanneer de tekst zelf het laatst geschreven is (ms); 0 = nog nooit. Alleen bewaarMaaltijd zet dit, en alleen als de wijziging
@@ -40,7 +39,7 @@ function nieuweMaaltijd(datum, soort) {
   };
 }
 
-const isHelemaalLeeg = (m) => m.tekst.trim() === '' && m.fotoId == null && m.gevoel == null;
+const isHelemaalLeeg = (m) => m.tekst.trim() === '' && m.fotoId == null;
 
 // Een maaltijd is ingevuld als er tekst of een foto is (een foto alleen nog in oude gegevens: die blijven zo ingevuld).
 export function isIngevuld(m) {
@@ -69,13 +68,11 @@ export async function leesMaaltijden(datum) {
   return perSoort;
 }
 
-// wijziging: { tijd?, tekst?, gevoel? }. Alleen de velden in de wijziging veranderen, op het record zoals het nu in de database staat:
+// wijziging: { tijd?, tekst? }. Alleen de velden in de wijziging veranderen, op het record zoals het nu in de database staat:
 // lezen en schrijven in één transactie (R5-01), zodat een ander tabblad of een gelijktijdige tik geen ander veld overschrijft.
 export async function bewaarMaaltijd(datum, soort, wijziging = {}) {
   controleer(datum, soort);
   if (wijziging.tijd !== undefined && !/^([01]\d|2[0-3]):[0-5]\d$/.test(wijziging.tijd)) throw new Error('tijd');
-  const { gevoel } = wijziging;
-  if (gevoel !== undefined && gevoel !== null && (!Number.isInteger(gevoel) || gevoel < 1 || gevoel > 5)) throw new Error('schaal');
   const resultaat = await db.transaction('rw', db.maaltijden, async () => {
     const nieuw = { ...((await db.maaltijden.get([datum, soort])) ?? nieuweMaaltijd(datum, soort)) };
     if (wijziging.tijd !== undefined) nieuw.tijd = wijziging.tijd;
@@ -83,7 +80,6 @@ export async function bewaarMaaltijd(datum, soort, wijziging = {}) {
       nieuw.tekst = begrens(wijziging.tekst, MAX_LENGTE.maaltijd);
       nieuw.tekstOp = Date.now();
     }
-    if (gevoel !== undefined) nieuw.gevoel = gevoel;
     return schrijf(nieuw);
   });
   zend('data:gewijzigd', { store: 'maaltijden', datum });
@@ -111,7 +107,7 @@ export async function wisMaaltijd(datum, soort) {
   zend('data:gewijzigd', { store: 'maaltijden', datum });
 }
 
-// Neemt alleen de tekst van gisteren over; foto en gevoel horen bij het moment zelf.
+// Neemt alleen de tekst van gisteren over; een foto hoort bij het moment zelf.
 export async function zelfdeAlsGisteren(datum, soort) {
   controleer(datum, soort);
   const gisteren = await db.maaltijden.get([plusDagen(datum, -1), soort]);

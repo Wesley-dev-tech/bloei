@@ -3,7 +3,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { beforeEach, describe, expect, test } from 'vitest';
 import { db, openDb } from '../../src/data/db.js';
 import { plusDagen, vandaag } from '../../src/kern/datum.js';
-import { zetEnergie, zetNotitie, zetStemming } from '../../src/data/dagen.js';
+import { zetNotitie } from '../../src/data/dagen.js';
 import { bewaarMaaltijd } from '../../src/data/maaltijden.js';
 import { voegDrankToe } from '../../src/data/dranken.js';
 import { bewaarWeging } from '../../src/data/wegingen.js';
@@ -35,12 +35,10 @@ beforeEach(async () => {
 
 async function vulWeek() {
   for (const n of [-6, -5, -4, -3, -2, -1]) {
-    await bewaarMaaltijd(dag(n), 'ontbijt', { tekst: 'havermout met fruit en noten', tijd: '08:15', gevoel: 3 });
-    await bewaarMaaltijd(dag(n), 'middagmaal', { tekst: 'soep met brood, daarna een appel', tijd: '12:30', gevoel: 4 });
+    await bewaarMaaltijd(dag(n), 'ontbijt', { tekst: 'havermout met fruit en noten', tijd: '08:15' });
+    await bewaarMaaltijd(dag(n), 'middagmaal', { tekst: 'soep met brood, daarna een appel', tijd: '12:30' });
     await voegDrankToe(dag(n), 'water', 500);
     await voegDrankToe(dag(n), 'thee', 200);
-    await zetStemming(dag(n), 1 + (n + 7) % 5);
-    await zetEnergie(dag(n), 1 + (n + 8) % 5);
   }
   await zetNotitie(dag(-2), 'Een rustige dag, goed geslapen en een wandeling gemaakt.');
   await bewaarWeging(dag(-2), 68.4);
@@ -67,7 +65,7 @@ describe('pdf-tokens', () => {
   test('Poeder komt uit tokens.css, zonder var()', () => {
     const tk = poederTokens();
     expect(tk['--c-text']).toMatch(/^#[0-9a-f]{6}$/i);
-    expect(tk['--energy-on']).toBe(tk['--c-accent']);
+    expect(tk['--c-accent']).toMatch(/^#[0-9a-f]{6}$/i);
     expect(kleur('--c-text')).toHaveLength(3);
   });
 });
@@ -75,7 +73,7 @@ describe('pdf-tokens', () => {
 describe('verslag in de huisstijl', () => {
   test('het model heeft kop, samenvatting, dagen met rijen en een voet; zonder oordeel of percentage', async () => {
     await vulWeek();
-    const verslag = await leesVerslag({ van: dag(-6), tot: dag(0), onderdelen: { eten: true, drinken: true, supplementen: true, stemming: true, gewicht: true, notities: true } }); // de verdwenen onderdelen worden genegeerd
+    const verslag = await leesVerslag({ van: dag(-6), tot: dag(0), onderdelen: { eten: true, drinken: true, supplementen: true, gewicht: true, notities: true } }); // de verdwenen onderdelen worden genegeerd
     const doc = bouwVerslagModel(verslag, 'Marie Peeters');
     expect(doc.kop).toMatchObject({ titel: 'Verslag', voornaam: 'Van Marie' });
     expect(doc.samenvatting[0].waarde).toBe('6 van 7');
@@ -84,8 +82,6 @@ describe('verslag in de huisstijl', () => {
     expect(d.notitie).toContain('rustige dag');
     expect(doc.dagen.at(-1).leeg).toBe(true);
     expect(doc.bijlage).toBeUndefined();
-    expect(d.rijen[0]).not.toHaveProperty('gevoel'); // het gevoel na een maaltijd (3) komt nergens in het verslag
-    expect(JSON.stringify(doc).toLowerCase()).not.toContain('gevoel');
     expect(Object.keys(d).sort()).toEqual(['aantalMaaltijden', 'bandTekst', 'datum', 'datumJaar', 'drinkenMl', 'kort', 'leeg', 'notitie', 'notitieAanwezig', 'rijen', 'titel', 'titelJaar']);
     const tekst = JSON.stringify(doc);
     for (const woord of ['upplement', 'temming', 'nergie', 'Vitamine D']) expect(tekst).not.toContain(woord);
@@ -159,7 +155,7 @@ describe('verslag in de huisstijl', () => {
     await zetInstelling('drinken.dagdoelMl', 2500);
     // een maaltijd telt alleen als er tekst of foto is (zoals de tabel); wel gewogen: getal in kg, het verschil met de vorige weging
     await bewaarMaaltijd(dag(0), 'ontbijt', { tekst: 'brood', tijd: '08:00' });
-    await bewaarMaaltijd(dag(0), 'middagmaal', { tekst: '', tijd: '12:00', gevoel: 3 });
+    await bewaarMaaltijd(dag(0), 'middagmaal', { tekst: '', tijd: '12:00' });
     await bewaarWeging(dag(-8), 72.7);
     await bewaarWeging(dag(0), 72.4);
     const gewogen = await lees1();
@@ -183,7 +179,7 @@ describe('verslag in de huisstijl', () => {
 
   test('de pdf heeft ingebedde lettertypes, vectoriconen, een voet op elke pagina en blijft klein', async () => {
     await vulWeek();
-    const verslag = await leesVerslag({ van: dag(-6), tot: dag(0), onderdelen: { eten: true, drinken: true, supplementen: true, stemming: true, gewicht: false, notities: true } });
+    const verslag = await leesVerslag({ van: dag(-6), tot: dag(0), onderdelen: { eten: true, drinken: true, supplementen: true, gewicht: false, notities: true } });
     const bytes = maakPdf(bouwVerslagModel(verslag, 'Marie'), fonts());
     const tekst = Buffer.from(bytes).toString('latin1');
     expect(tekst.startsWith('%PDF-')).toBe(true);
@@ -200,15 +196,13 @@ describe('verslag in de huisstijl', () => {
 
   test('een verslag van een maand met veel gegevens blijft ruim onder 1 MB', async () => {
     for (let n = -29; n <= -1; n += 1) {
-      await bewaarMaaltijd(dag(n), 'ontbijt', { tekst: 'havermout met fruit en noten', tijd: '08:15', gevoel: 3 });
-      await bewaarMaaltijd(dag(n), 'middagmaal', { tekst: 'soep met brood, daarna een appel', tijd: '12:30', gevoel: 4 });
+      await bewaarMaaltijd(dag(n), 'ontbijt', { tekst: 'havermout met fruit en noten', tijd: '08:15' });
+      await bewaarMaaltijd(dag(n), 'middagmaal', { tekst: 'soep met brood, daarna een appel', tijd: '12:30' });
       await bewaarMaaltijd(dag(n), 'avondmaal', { tekst: 'rijst met groenten en kip', tijd: '18:30' });
       await voegDrankToe(dag(n), 'water', 500);
       await voegDrankToe(dag(n), 'koffie', 150);
-      await zetStemming(dag(n), 1 + ((n + 30) % 5));
-      await zetEnergie(dag(n), 1 + ((n + 31) % 5));
     }
-    const verslag = await leesVerslag({ van: dag(-29), tot: dag(0), onderdelen: { eten: true, drinken: true, supplementen: true, stemming: true, gewicht: true, notities: true } });
+    const verslag = await leesVerslag({ van: dag(-29), tot: dag(0), onderdelen: { eten: true, drinken: true, supplementen: true, gewicht: true, notities: true } });
     const bytes = maakPdf(bouwVerslagModel(verslag, 'Marie'), fonts());
     expect(bytes.length).toBeLessThan(1024 * 1024);
     if (process.env.PDF_MAAND) writeFileSync(process.env.PDF_MAAND, bytes);
@@ -216,7 +210,7 @@ describe('verslag in de huisstijl', () => {
   });
 
   test('een lege week geeft rustige regels en een geldige pdf', async () => {
-    const verslag = await leesVerslag({ van: dag(-6), tot: dag(0), onderdelen: { eten: true, drinken: true, supplementen: true, stemming: true, gewicht: false, notities: false } });
+    const verslag = await leesVerslag({ van: dag(-6), tot: dag(0), onderdelen: { eten: true, drinken: true, supplementen: true, gewicht: false, notities: false } });
     const doc = bouwVerslagModel(verslag, '');
     expect(doc.kop.voornaam).toBe('');
     expect(doc.leeg).toBe(true);

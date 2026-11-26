@@ -2,7 +2,7 @@
 
 De eigenaar vindt de lay-out tot nu toe niet goed. De app krijgt een nieuwe huisstijl:
 vrouwelijk, aantrekkelijk (gezondheid), elegant, strak en modern. De map `bloei-huisstijl/`
-in de projectroot bevat alles: HUISSTIJL.md, tokens.css, logo/, icons/, splash/ en energie/.
+in de projectroot bevat alles: HUISSTIJL.md, tokens.css, logo/, icons/ en splash/.
 
 Lees eerst CLAUDE.md, EISEN.md, BESLISSINGEN.md, PLAN.md en daarna `bloei-huisstijl/HUISSTIJL.md`
 volledig. Voor alles wat visueel is, wint HUISSTIJL.md. Werk PLAN.md (design tokens en visuele
@@ -21,18 +21,13 @@ Start het team opnieuw op (strategie C, teamwerk):
   knoppen, chips, tabbalk, zijbalk, invoer) en een stijlpagina `/stijl.html`.
   **Stop daarna en laat de eigenaar de stijlpagina goedkeuren.**
 - **Spoor B - schermen, iconen en beeld:** Vandaag, Dagboek, Drinken, Gewicht en Meer herbouwen
-  op de nieuwe componenten, met het logo bovenaan Vandaag. Pas **elk** icoon, gezichtje en beeld
+  op de nieuwe componenten, met het logo bovenaan Vandaag. Pas **elk** icoon en beeld
   aan de huisstijl aan:
   - alle iconen volgens HUISSTIJL.md §5 en §5.1 (icoontegels per familie, kleuren uit de tokens);
-  - de gevoelschaal volgens §5.2 (vijf Font Awesome-gezichtjes met `--mood-1` t.e.m. `--mood-5`),
-    dezelfde kleuren in de maandkalender (E2) en de stemming op Vandaag;
-  - de energiekaartjes en energie-kaarsjes volledig vervangen door de energieschaal met
-    blaadjes volgens §5.3 (energiekaart, kiezer, en het kleine blaadje in de maandkalender);
   - maaltijdfoto's, miniaturen, profielfoto, badges en lege toestanden volgens §6;
-  - alle emoji, oude zelfgetekende gezichtjes, illustraties en losse SVG's/afbeeldingen die niet
+  - alle emoji, oude zelfgetekende tekeningen, illustraties en losse SVG's/afbeeldingen die niet
     uit `bloei-huisstijl/` komen, verwijderen.
-  Bestaande data en het datamodel blijven ongewijzigd; oude stemmingswaarden mappen 1-op-1 op
-  de vijf nieuwe stappen (geen migratie van opgeslagen data).
+  Bestaande data en het datamodel blijven ongewijzigd (geen migratie van opgeslagen data).
 - **Spoor C - PWA en layout:** manifest, favicon, app-iconen en apple-touch-icon uit `icons/`,
   de opstartschermen uit `splash/` (licht en Nacht, met de juiste `media`-queries per iPhone),
   logo-varianten uit `logo/` (Nacht-thema gebruikt `bloei-mark-nacht.svg`), meta-tags, safe-areas,

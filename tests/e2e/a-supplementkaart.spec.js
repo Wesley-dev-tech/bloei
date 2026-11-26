@@ -48,8 +48,13 @@ const lees = (page) =>
   );
 
 const kaart = (page) => page.locator('dialog.supplementkaart');
-const openNieuw = (page) => page.getByRole('button', { name: 'Open supplementkaart (nieuw)' }).click();
-const openBestaand = (page) => page.getByRole('button', { name: 'Open supplementkaart (bestaand)' }).click();
+// De kaart opent een ogenblik na de klik: eerst wachten tot ze er staat, anders valt de volgende toets of tik naast een kaart die er nog niet is.
+const openKaart = async (page, naam) => {
+  await page.getByRole('button', { name: naam }).click();
+  await expect(kaart(page)).toBeVisible();
+};
+const openNieuw = (page) => openKaart(page, 'Open supplementkaart (nieuw)');
+const openBestaand = (page) => openKaart(page, 'Open supplementkaart (bestaand)');
 
 test('Nieuw: de focus staat in Naam, toevoegen bewaart in één keer en sluit de kaart; de focus keert terug', async ({ page }) => {
   await start(page);
@@ -122,7 +127,7 @@ test('Verwijderen vraagt een bevestiging in de kaart en haalt het supplement weg
   await start(page, [{ naam: 'Oudekuur', hoeveelheid: '1 tablet' }]);
   await openBestaand(page);
   await kaart(page).getByRole('button', { name: 'Verwijderen' }).click();
-  await expect(kaart(page)).toContainText('Verwijderen? Wat je al afvinkte blijft in je Dagboek.');
+  await expect(kaart(page)).toContainText('Verwijderen? Wat je al afvinkte, blijft in je Dagboek.');
   await kaart(page).getByRole('group').getByRole('button', { name: 'Annuleren' }).click();
   expect(await lees(page)).toHaveLength(1);
   await kaart(page).getByRole('button', { name: 'Verwijderen' }).click();
@@ -134,9 +139,19 @@ test('Verwijderen vraagt een bevestiging in de kaart en haalt het supplement weg
 test('Foutmeldingen staan bij het veld, in gewone taal', async ({ page }) => {
   await start(page);
   await openNieuw(page);
-  await kaart(page).getByRole('button', { name: 'Bewaren', exact: true }).click();
-  await expect(kaart(page).getByRole('alert').filter({ hasText: 'Geef het supplement een naam.' })).toBeVisible();
+  const bewaren = kaart(page).getByRole('button', { name: 'Bewaren', exact: true });
+  await bewaren.click();
+  const melding = kaart(page).getByRole('alert').filter({ hasText: 'Geef het supplement een naam.' });
+  await expect(melding).toBeVisible();
+  // 0.5.8: de melding valt op (de foutkleur, niet de gewone tekstkleur) en Bewaren wacht tot de fout opgelost is; Annuleren blijft werken
+  const kleuren = await melding.evaluate((e) => [getComputedStyle(e).color, getComputedStyle(e.closest('dialog').querySelector('.label')).color, getComputedStyle(document.body).color]);
+  expect(kleuren[0]).not.toBe(kleuren[1]);
+  expect(kleuren[0]).not.toBe(kleuren[2]);
+  await expect(bewaren).toBeDisabled();
+  await expect(kaart(page).getByRole('button', { name: 'Annuleren' })).toBeEnabled();
   await kaart(page).getByLabel('Naam').fill('Testkuur');
+  await expect(bewaren).toBeEnabled(); // de fout is opgelost
+  await expect(kaart(page).getByRole('alert').filter({ hasText: 'Geef het supplement een naam.' })).toHaveCount(0);
   await kaart(page).getByRole('button', { name: 'Ochtend' }).click(); // geen moment meer
   await kaart(page).getByRole('button', { name: 'Bewaren', exact: true }).click();
   await expect(kaart(page).getByRole('alert').filter({ hasText: 'Kies minstens één moment.' })).toBeVisible();
@@ -149,8 +164,20 @@ test('Foutmeldingen staan bij het veld, in gewone taal', async ({ page }) => {
   await kaart(page).getByLabel('Begint op').fill('2026-12-05');
   await kaart(page).getByLabel('Stopt na').fill('2026-12-04');
   await kaart(page).getByRole('button', { name: 'Bewaren', exact: true }).click();
-  await expect(kaart(page).getByRole('alert').filter({ hasText: 'op of na Begint op' })).toBeVisible();
+  await expect(kaart(page).getByRole('alert').filter({ hasText: 'Je supplement stopt voor het begint. Kies bij Stopt na een latere dag.' })).toBeVisible();
+  await expect(bewaren).toBeDisabled();
   expect(await lees(page)).toHaveLength(0); // niets bewaard
+  // een latere dag kiezen lost de fout op; met de fout nog in beeld kan ze ook gewoon annuleren
+  await kaart(page).getByLabel('Stopt na').fill('2026-12-20');
+  await expect(bewaren).toBeEnabled();
+  await kaart(page).getByLabel('Stopt na').fill('2026-12-01');
+  await bewaren.click(); // opnieuw fout: de melding komt bij het bewaren, en Bewaren wacht weer
+  await expect(bewaren).toBeDisabled();
+  await kaart(page).getByRole('button', { name: 'Annuleren' }).click();
+  await expect(kaart(page).getByRole('button', { name: 'Niet bewaren' })).toBeVisible(); // er zijn wijzigingen: eerst de vraag
+  await kaart(page).getByRole('button', { name: 'Niet bewaren' }).click();
+  await expect(kaart(page)).toHaveCount(0);
+  expect(await lees(page)).toHaveLength(0);
 });
 
 test('Begint op en Stopt na bewaren en leegmaken; een periodiek ritme bewaart "Volgende keer op"', async ({ page }) => {

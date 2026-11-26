@@ -20,7 +20,7 @@ async function vul(page) {
       for (let i = 0; i < 11; i += 1) {
         const d = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - i);
         const datum = sleutel(d);
-        tx.objectStore('maaltijden').put({ datum, soort: 'ontbijt', tijd: '08:15', tekst: 'testmaaltijd', fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: 1 });
+        tx.objectStore('maaltijden').put({ datum, soort: 'ontbijt', tijd: '08:15', tekst: 'testmaaltijd', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
         tx.objectStore('dranken').add({ datum, tijdstip: Date.now() - 1000 - i, soort: 'water', ml: 1500, voorbeeld: false });
         if (i === 0 || i === 7) {
           const maandag = sleutel(new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7)));

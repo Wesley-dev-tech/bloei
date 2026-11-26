@@ -80,18 +80,16 @@ test.describe('Dagwissel terwijl de app open blijft', () => {
     await expect(avond(page)).toHaveAttribute('aria-checked', 'false');
   });
 
-  test('Drinken en de stemming op Vandaag beginnen op dag 2 weer op nul, zonder herladen', async ({ page }) => {
+  test('Drinken begint op dag 2 weer op nul, zonder herladen', async ({ page }) => {
     await page.clock.setFixedTime(DAG1);
     await page.goto('./#/drinken');
     await page.locator('.drankknop[data-soort="water"]').first().click();
     await expect(page.locator('.drinkhoofd .cijfer-groot')).not.toContainText(/^0$/);
     await page.goto('./#/vandaag');
-    await page.locator('.vc--stemming .gevoel__optie').nth(3).click();
-    await expect(page.locator('.vc--stemming .gevoel__optie[aria-checked="true"]')).toHaveCount(1);
+    await expect(page.locator('.drinkkaart')).toBeVisible();
 
     await page.clock.setFixedTime(DAG2);
     await keerTerug(page);
-    await expect(page.locator('.vc--stemming .gevoel__optie[aria-checked="true"]')).toHaveCount(0);
     await page.goto('./#/drinken');
     await expect(page.locator('.drinkhoofd .cijfer-groot')).toContainText('0');
     await expect(page.locator('.drank__weg')).toHaveCount(0);

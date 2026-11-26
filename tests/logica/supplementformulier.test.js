@@ -15,7 +15,7 @@ describe('controleer', () => {
     expect(controleer({ ...goed(), soort: 'interval', dagen: 1 })).toEqual({ code: 'ritme', veld: 'dagen' });
     expect(controleer({ ...goed(), soort: 'interval', dagen: 14, start: '' })).toEqual({ code: 'ritme', veld: 'start' });
     expect(controleer({ ...goed(), vanaf: '2026-12-05', tot: '2026-12-04' })).toEqual({ code: 'periode', veld: 'tot' });
-    expect(controleer({ ...goed(), vanaf: '5 december' })).toEqual({ code: 'periode', veld: 'vanaf' });
+    expect(controleer({ ...goed(), vanaf: '5 december' })).toEqual({ code: 'datum', veld: 'vanaf' }); // een datum die niet bestaat heeft haar eigen melding
   });
   test('bij een periodiek ritme zijn de momenten niet nodig', () => {
     expect(controleer({ ...goed(), soort: 'maand', momenten: [] })).toBeNull();

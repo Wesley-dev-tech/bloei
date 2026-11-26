@@ -5,7 +5,7 @@ import { luister, zend } from '../kern/bus.js';
 import { eigenBijgehoudenDatums, leesMomentopname, leesStats } from './statistiek.js';
 import { isIngevuld } from './maaltijden.js';
 import { leesInstelling, zetInstelling, STANDAARD } from './instellingen.js';
-import { DOEL, FEESTBADGES, HERHAALBAAR, verdiendAlle, langsteReeks, langsteWeekReeks, terugDagen, dagRondDagen, rondeDagenUit, volleMaandenUit, volleWekenUit } from '../logica/badgeregels.js';
+import { ALLE_BADGES, DOEL, FEESTBADGES, HERHAALBAAR, verdiendAlle, langsteReeks, langsteWeekReeks, terugDagen, dagRondDagen, rondeDagenUit, volleMaandenUit, volleWekenUit, isLangeNotitie, telVerslag, verslagTellers } from '../logica/badgeregels.js';
 import { isDagRond, ETEN_KLAAR } from '../logica/motivatie.js';
 import { isPeriodiek, rooster, telMomenten } from '../logica/supplementen.js';
 import { isStandalone } from '../kern/toestel.js';
@@ -16,6 +16,8 @@ import { isBijgehouden } from '../logica/bijgehouden.js';
 import { naarSleutel, vandaag } from '../kern/datum.js';
 
 const WACHT_MS = 500;
+// Eén vlag per uitbreiding van de medailles: ontbreekt er een, dan krijgt wie Bloei al gebruikte de nieuwe medailles stil (zie kijkNa).
+const UITBREIDINGEN = ['badges.uitgebreid', 'badges.uitgebreid2', 'badges.uitgebreid3', 'badges.uitgebreid4'];
 let afmelden = null;
 let timer = null;
 let bezig = Promise.resolve();
@@ -26,7 +28,7 @@ let bezig = Promise.resolve();
 export async function leesBadgeStats(rijen) {
   const r = rijen ?? (await leesMomentopname());
   // Via leesInstelling, zoals de rest van de app: zonder bewaarde rij geldt het standaard dagdoel (R1-01).
-  const [basis, favorieten, doelMlRuw, verslag, bijgehouden, verslagenRuw, rondleidingenRuw, thema, kaft, naam, avatar, slotAan, mDagboek, mDrinken, mSupplementen, medailles, geboortedatum, gevierd, jarigJaren] = await Promise.all([
+  const [basis, favorieten, doelMlRuw, verslag, bijgehouden, verslagenRuw, rondleidingenRuw, thema, kaft, naam, avatar, slotAan, mDagboek, mDrinken, mSupplementen, medailles, geboortedatum, gevierd, jarigJaren, verslagTelling] = await Promise.all([
     leesStats(r),
     db.favorieten.count(),
     leesInstelling('drinken.dagdoelMl'),
@@ -42,10 +44,11 @@ export async function leesBadgeStats(rijen) {
     leesInstelling('meldingen.dagboek'),
     leesInstelling('meldingen.drinken'),
     leesInstelling('meldingen.supplementenUren'),
-    db.badges.count(),
+    telBewaardeBadges(),
     leesInstelling('profiel.verjaardag'),
     leesInstelling('profiel.verjaardagGevierd'),
     leesInstelling('profiel.verjaardagJaren'),
+    leesInstelling('delen.verslagTelling'),
   ]);
   const maaltijden = r.maaltijden.filter((m) => isEigen(m) && isIngevuld(m));
   const dranken = r.dranken.filter(isEigen);
@@ -64,9 +67,9 @@ export async function leesBadgeStats(rijen) {
     return totaal > 0 && klaar === totaal;
   });
   const periodiekIds = new Set(supplementen.filter(isPeriodiek).map((x) => x.id));
-  const metStemming = dagen.filter((d) => d.stemming != null);
   const heeftNotitie = (d) => (d.notitie ?? '').trim() !== '';
-  const helemaal = new Set(dagen.filter((d) => d.stemming != null && d.energie != null && heeftNotitie(d)).map((d) => d.datum));
+  // Een volledige dag: rond (eten, supplementen, drinkdoel) en met een notitie.
+  const helemaal = new Set(dagen.filter((d) => heeftNotitie(d)).map((d) => d.datum));
   const aan = (m) => [m].flat().some((x) => x?.aan);
   const verslagen = Math.max(Number(verslagenRuw) || 0, verslag ? 1 : 0);
   return {
@@ -74,7 +77,6 @@ export async function leesBadgeStats(rijen) {
     volleWeken: volleWekenUit(bijgehouden),
     volleMaanden: volleMaandenUit(bijgehouden),
     etenKlaarDagen: [...soortenPerDag.values()].filter((soorten) => ETEN_KLAAR.every((x) => soorten.has(x))).length,
-    gevoelMaaltijden: maaltijden.filter((m) => m.gevoel != null).length,
     dranken: dranken.length,
     liters: Math.floor(dranken.reduce((som, d) => som + d.ml, 0) / 1000),
     drankSoorten: new Set(dranken.map((d) => d.soort)).size,
@@ -82,8 +84,6 @@ export async function leesBadgeStats(rijen) {
     innames: innames.length,
     periodiekInnames: innames.filter((i) => periodiekIds.has(i.supplementId)).length,
     langsteVolReeks: langsteReeks(volleDatums),
-    langsteStemmingReeks: langsteReeks(metStemming.map((d) => d.datum)),
-    beideDagen: metStemming.filter((d) => d.energie != null).length,
     langsteWeegReeks: langsteWeekReeks(wegingen.map((w) => w.week)),
     langsteRondReeks: langsteReeks(rondeDatums),
     helemaalDagen: rondeDatums.filter((datum) => helemaal.has(datum)).length,
@@ -102,13 +102,16 @@ export async function leesBadgeStats(rijen) {
     ...Object.fromEntries(Object.keys(FEESTBADGES).map((feest) => ['feest:' + feest, bijgehouden.filter((datum) => feestdagOp(datum) === feest).length])),
     maaltijden: maaltijden.length,
     favorieten,
-    energieDagen: dagen.filter((d) => d.energie != null).length,
     wegingen: wegingen.length,
     langsteDoelReeks: langsteReeks(dagen.filter((d) => d.doelGehaald).map((d) => d.datum)),
     dagRondDagen: dagRondDagen(ronde),
-    // "Weer thuis" telt elke bijgehouden dag (BESLISSING 168), ook een dag met alleen een stemming, notitie of weging (R1-06).
+    // "Weer thuis" telt elke bijgehouden dag (BESLISSING 168), ook een dag met alleen een notitie of een weging (R1-06).
     terugDagen: terugDagen(bijgehouden),
     verslagen,
+    // 0.5.8: dagen na elkaar met een notitie, lange notities, en hoe de verslagen gemaakt werden (telVerslag in logica/badgeregels.js).
+    langsteNotitieReeks: langsteReeks(dagen.filter(heeftNotitie).map((d) => d.datum)),
+    langeNotities: dagen.filter((d) => isLangeNotitie(d.notitie)).length,
+    ...verslagTellers(verslagTelling),
   };
 }
 
@@ -123,14 +126,13 @@ async function feitenPerDag(rijen) {
   const periodiekIds = new Set(supplementen.filter(isPeriodiek).map((x) => x.id));
   const dagen = new Map();
   const dag = (datum) => {
-    if (!dagen.has(datum)) dagen.set(datum, { datum, maaltijden: 0, gevoel: 0, dranken: 0, ml: 0, soorten: [], innames: 0, periodiek: 0, wegingen: [], soortenEten: new Set(), stemming: null, energie: null, notitie: false, doel: false, weging: false });
+    if (!dagen.has(datum)) dagen.set(datum, { datum, maaltijden: 0, dranken: 0, ml: 0, soorten: [], innames: 0, periodiek: 0, wegingen: [], soortenEten: new Set(), notitie: false, langeNotitie: false, doel: false, weging: false });
     return dagen.get(datum);
   };
   for (const m of maaltijden) {
     const d = dag(m.datum);
     d.maaltijden += 1;
     d.soortenEten.add(m.soort);
-    if (m.gevoel != null) d.gevoel += 1;
   }
   for (const x of dranken) {
     const d = dag(x.datum);
@@ -145,9 +147,8 @@ async function feitenPerDag(rijen) {
   }
   for (const x of r.dagen.filter(isEigen)) {
     const d = dag(x.datum);
-    d.stemming = x.stemming ?? null;
-    d.energie = x.energie ?? null;
     d.notitie = (x.notitie ?? '').trim() !== '';
+    d.langeNotitie = isLangeNotitie(x.notitie);
     d.doel = Boolean(x.doelGehaald);
   }
   for (const w of r.wegingen.filter(isEigen)) {
@@ -164,7 +165,7 @@ async function feitenPerDag(rijen) {
       return {
         ...d,
         etenKlaar,
-        bij: isBijgehouden({ maaltijden: d.maaltijden, ml: d.ml, innames: d.innames, stemming: d.stemming, energie: d.energie, notitie: d.notitie, weging: d.weging }),
+        bij: isBijgehouden({ maaltijden: d.maaltijden, ml: d.ml, innames: d.innames, notitie: d.notitie, weging: d.weging }),
         vol: d.innames > 0 && momenten.totaal > 0 && momenten.klaar === momenten.totaal,
         rond: d.soortenEten.size > 0 && isDagRond({ etenKlaar, supplementen: { genomen: momenten.klaar, totaal: momenten.totaal }, ml: d.ml, doelMl }),
       };
@@ -195,9 +196,9 @@ export function controleerBadges() {
     const nieuw = [];
     const opnieuw = []; // een medaille van een feestdag of van haar verjaardag, dit jaar opnieuw behaald
     // Bij de eerste start na een uitbreiding worden de nieuwe badges voor wat al in het dagboek staat stil toegekend: geen reeks vieringen,
-    // hoogstens één rustige melding. De vlaggen 'badges.uitgebreid' (naar 33), 'badges.uitgebreid2' (naar 100) en 'badges.uitgebreid3' (de feestdagen) onthouden dat
-    // dit gebeurd is.
-    const vlaggen = await Promise.all(['badges.uitgebreid', 'badges.uitgebreid2', 'badges.uitgebreid3'].map((sleutel) => db.instellingen.get(sleutel)));
+    // hoogstens één rustige melding. De vlaggen 'badges.uitgebreid' (naar 33), 'badges.uitgebreid2' (naar 100), 'badges.uitgebreid3' (de feestdagen) en
+    // 'badges.uitgebreid4' (0.5.8: notities en verslagen, naar 126) onthouden dat dit gebeurd is.
+    const vlaggen = await Promise.all(UITBREIDINGEN.map((sleutel) => db.instellingen.get(sleutel)));
     const stil = vlaggen.some((rij) => !rij?.waarde);
     // Stil toegekende medailles horen bij de dag waarop ze echt verdiend werden (logica/badgehistorie.js), niet bij de dag van de update.
     let historie = new Map();
@@ -220,7 +221,7 @@ export function controleerBadges() {
       // Hoogstens een paar rondes: een medaille van Je verzameling (tien medailles, ...) kan pas volgen als de andere bewaard zijn.
       for (let ronde = 0; ronde < 4; ronde++) {
         let erbij = 0;
-        for (const id of verdiendAlle({ ...stats, medailles: await db.badges.count() })) {
+        for (const id of verdiendAlle({ ...stats, medailles: await telBewaardeBadges() })) {
           // Het schrift is intussen leeggemaakt of vervangen: niets bewaren.
           if (epoch !== huidigeEpoch()) return;
           const rij = await db.badges.get(id);
@@ -252,9 +253,7 @@ export function controleerBadges() {
         }
       }
       if (stil && epoch === huidigeEpoch()) {
-        await db.instellingen.put({ sleutel: 'badges.uitgebreid', waarde: true });
-        await db.instellingen.put({ sleutel: 'badges.uitgebreid2', waarde: true });
-        await db.instellingen.put({ sleutel: 'badges.uitgebreid3', waarde: true });
+        for (const sleutel of UITBREIDINGEN) await db.instellingen.put({ sleutel, waarde: true });
       }
     });
     // De viering volgt pas als het bewaren gelukt is.
@@ -284,10 +283,12 @@ export function startBadges() {
   const stopData = luister('data:gewijzigd', plan);
   // Een verslag verstuurd of bewaard (scherm Delen): de badge Eerste verslag.
   // Elk verslag telt (Vijf verslagen, Tien verslagen): Bloei telt ze sinds 0.4.4; wie er vroeger al een maakte, begint bij 1.
-  const stopVerslag = luister('verslag:gemaakt', async () => {
+  const stopVerslag = luister('verslag:gemaakt', async (verslag = {}) => {
     try {
-      const [aantal, eerder] = await Promise.all([leesInstelling('delen.verslagen'), leesInstelling('delen.verslagGemaakt')]);
+      const [aantal, eerder, telling] = await Promise.all([leesInstelling('delen.verslagen'), leesInstelling('delen.verslagGemaakt'), leesInstelling('delen.verslagTelling')]);
       await zetInstelling('delen.verslagen', Math.max(Number(aantal) || 0, eerder ? 1 : 0) + 1);
+      // Hoe het verslag gemaakt werd, voor de medailles van 0.5.8: verstuurd of bewaard, volledig, een week of een maand, en in welke maand.
+      await zetInstelling('delen.verslagTelling', telVerslag(telling, verslag, vandaag().slice(0, 7)));
       await zetInstelling('delen.verslagGemaakt', Date.now());
     } finally {
       plan();
@@ -323,8 +324,14 @@ export function stopBadges() {
 }
 
 // Oudste eerst.
+// De medailles die Bloei nu kent. Een bewaarde medaille die niet meer bestaat, telt nergens mee (ook niet voor Je verzameling).
+const BESTAAT = new Set(ALLE_BADGES.map((b) => b.id));
+const telBewaardeBadges = async () => (await db.badges.toArray()).filter((b) => BESTAAT.has(b.id)).length;
+
+// Alleen medailles die nog bestaan: een medaille die uit Bloei verdween, kan nog bewaard staan op een
+// toestel dat ze eerder behaalde. Ze telt niet meer mee en komt nergens meer in beeld.
 export async function leesBadges() {
-  return (await db.badges.toArray()).sort((a, b) => a.behaaldOp - b.behaaldOp);
+  return (await db.badges.toArray()).filter((b) => BESTAAT.has(b.id)).sort((a, b) => a.behaaldOp - b.behaaldOp);
 }
 
 export async function markeerGezien(id) {

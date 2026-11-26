@@ -62,8 +62,8 @@ test('Naam en profielfoto: het voorbeeld, de rijen en de weetjes zijn statisch',
   await page.setViewportSize({ width: 1280, height: 900 });
   await page.goto('./#/meer/profiel');
   await expect(page.locator('.profielvoorbeeld__vak')).toHaveCount(4);
-  // Het derde label is "Supplementen": volledig zichtbaar, op één regel en niet afgekapt.
-  const derde = page.locator('.profielvoorbeeld__vak .label').nth(2);
+  // Het langste label is "Supplementen" (sinds 0.5.8 het vierde vak, na Dagdoel): volledig zichtbaar, op één regel en niet afgekapt.
+  const derde = page.locator('.profielvoorbeeld__vak .label').nth(3);
   await expect(derde).toHaveText('Supplementen');
   await expect(derde).toBeVisible();
   const maat = await derde.evaluate((e) => ({ hoogte: e.getBoundingClientRect().height, regel: parseFloat(getComputedStyle(e).lineHeight) || parseFloat(getComputedStyle(e).fontSize) * 1.5, afgekapt: e.scrollWidth > e.clientWidth + 1 }));

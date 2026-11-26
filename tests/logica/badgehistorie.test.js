@@ -4,12 +4,12 @@ import { eersteDatums } from '../../src/logica/badgehistorie.js';
 import { plusDagen } from '../../src/kern/datum.js';
 
 const dag = (n) => plusDagen('2026-09-07', n); // maandag 7 september 2026
-const feit = (n, extra = {}) => ({ datum: dag(n), bij: true, maaltijden: 0, gevoel: 0, dranken: 0, ml: 0, soorten: [], innames: 0, periodiek: 0, wegingen: [], stemming: null, energie: null, notitie: false, doel: false, vol: false, rond: false, etenKlaar: false, ...extra });
+const feit = (n, extra = {}) => ({ datum: dag(n), bij: true, maaltijden: 0, dranken: 0, ml: 0, soorten: [], innames: 0, periodiek: 0, wegingen: [], notitie: false, doel: false, vol: false, rond: false, etenKlaar: false, ...extra });
 
 describe('eersteDatums', () => {
   test('tellers halen hun drempel op de dag zelf', () => {
-    const feiten = Array.from({ length: 12 }, (_, n) => feit(n, { maaltijden: 1, dranken: 1, ml: 10000, soorten: [['water', 'thee', 'koffie'][n % 3]], doel: n >= 2, stemming: n >= 3 ? 3 : null, energie: n >= 5 ? 2 : null }));
-    const uit = eersteDatums(feiten, ['tien-maaltijden', 'vijf-op-rij', 'tien-op-rij', 'volle-week', 'eerste-slok', 'drie-soorten', 'drie-dagen-water', 'honderd-liter', 'week-gezichtjes', 'gezichtje-en-blaadje', 'duizend-dagen', 'eigen-kleur']);
+    const feiten = Array.from({ length: 12 }, (_, n) => feit(n, { maaltijden: 1, dranken: 1, ml: 10000, soorten: [['water', 'thee', 'koffie'][n % 3]], doel: n >= 2 }));
+    const uit = eersteDatums(feiten, ['tien-maaltijden', 'vijf-op-rij', 'tien-op-rij', 'volle-week', 'eerste-slok', 'drie-soorten', 'drie-dagen-water', 'honderd-liter', 'duizend-dagen', 'eigen-kleur']);
     expect(uit.get('tien-maaltijden')).toBe(dag(9));
     expect(uit.get('vijf-op-rij')).toBe(dag(4));
     expect(uit.get('tien-op-rij')).toBe(dag(9));
@@ -18,8 +18,6 @@ describe('eersteDatums', () => {
     expect(uit.get('drie-soorten')).toBe(dag(2));
     expect(uit.get('drie-dagen-water')).toBe(dag(4));
     expect(uit.get('honderd-liter')).toBe(dag(9));
-    expect(uit.get('week-gezichtjes')).toBe(dag(9));
-    expect(uit.get('gezichtje-en-blaadje')).toBe(dag(11));
     expect(uit.has('duizend-dagen')).toBe(false); // nog niet gehaald
     expect(uit.has('eigen-kleur')).toBe(false); // een instelling heeft geen dag in het dagboek
   });
@@ -39,7 +37,7 @@ describe('eersteDatums', () => {
     const feiten = [0, 6, 12, 18].map((n) => feit(n));
     expect(eersteDatums(feiten, ['altijd-welkom', 'weer-thuis']).get('altijd-welkom')).toBe(dag(18));
     expect(eersteDatums(feiten, ['altijd-welkom', 'weer-thuis']).get('weer-thuis')).toBe(dag(6));
-    const vol = [feit(0, { rond: true }), feit(1, { rond: true, stemming: 4, energie: 3, notitie: true })];
+    const vol = [feit(0, { rond: true }), feit(1, { rond: true, notitie: true })];
     expect(eersteDatums(vol, ['volledige-dag']).get('volledige-dag')).toBe(dag(1));
   });
 });

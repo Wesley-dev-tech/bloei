@@ -33,9 +33,8 @@ async function toonHetMe(page, onderwerp) {
 }
 
 // Een handleiding met een actie (voor) of een stap midden op het scherm wacht toch op de onderdelen van het scherm zelf: in WebKit tekende
-// Vandaag na de routewissel later en vielen "Kies een moment" en "Een gezichtje kiezen" weg (de handleiding begon bij het tekstvak of
 // toonde alleen "Waar je het terugziet"). In Chrome slaagt deze test ook zonder het herstel; de echte controle is de run in WebKit.
-for (const [onderwerp, eerste] of [['maaltijd', 'regel'], ['stemming', 'gezicht']]) {
+for (const [onderwerp, eerste] of [['maaltijd', 'regel']]) {
   test(`Toon het me: ${TEKSTEN.uitleg.onderwerp[onderwerp]} begint bij de eerste stap op Vandaag, met een onderdeel`, async ({ page }) => {
     await page.setViewportSize({ width: 390, height: 660 });
     await toonHetMe(page, onderwerp);

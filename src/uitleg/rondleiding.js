@@ -190,7 +190,7 @@ function nodigeSchuif(boven, onder, min, max) {
 // staat ten opzichte van het gat (onder, boven, rechts, links, vast, midden), pijl = de plaats van het pijltje langs de rand van het
 // kaartje (null = geen pijltje), snij = de onderkant waarop een te hoog gat wordt afgesneden (null = niet).
 //   inKop: het onderdeel staat in de vaste kop (telefoon): de kaart onderaan komt dan precies afstandTelefoon onder het vak (BESLISSING 634).
-export function schikking({ gat: heelGat, kaart, venster, zone = null, uiterst = null, gebied = null, voorkeur = null, telefoon = false, schuif = { min: -Infinity, max: Infinity }, vast = false, vrij = null, inKop = false, maat = MAAT }) {
+export function schikking({ gat: heelGat, kaart, venster, zone = null, uiterst = null, gebied = null, voorkeur = null, telefoon = false, schuif = { min: -Infinity, max: Infinity }, vast = false, vrij = null, inKop = false, heel = false, maat = MAAT }) {
   const { rand, afstand } = maat;
   const z = zone || { top: 0, bottom: venster.hoog };
   const g = gebied || { links: 0, rechts: venster.breed };
@@ -267,6 +267,10 @@ export function schikking({ gat: heelGat, kaart, venster, zone = null, uiterst =
     }
     // Te hoog (hoort niet voor te komen: verdeel() maakt er afgeronde delen van): bovenaan, en het gat stopt boven de kaart.
     const o = opties.find((x) => x.kant === 'vast-onder' && x.boven === (uiterst ? uiterst.bottom - rand - hoog : kaartOnder)) || opties.find((x) => x.kant === 'vast-onder');
+    // heel (eigenaar, 0.5.8): de aanduiding stopt nooit halverwege een blok. Het hele blok blijft aangeduid, bovenaan in beeld, en de kaart
+    // ligt over zijn onderste deel (over: true).
+    // (de kaart is hier even breed als het scherm: het vak eindigt onzichtbaar achter de kaart, zodat er onder de kaart niets van uitsteekt)
+    if (heel) return { ...uit(o, pas(gat.top - o.min), o.boven + hoog / 2), over: true };
     return uit(o, pas(gat.top - o.min), o.max);
   }
 
@@ -330,11 +334,12 @@ export function schikking({ gat: heelGat, kaart, venster, zone = null, uiterst =
       if (gat.top - d >= vrijBoven - 1 && gatOnder - d <= vrijOnder + 1 && kr[0] >= kaartMinU - 0.5 && kr[1] <= kaartMaxU + 0.5) return plaatsVoor(k, d);
     }
   }
-  // Niets past: het onderdeel bovenaan, het kaartje vast onderaan het inhoudsvlak, en het gat stopt boven het kaartje.
+  // Niets past: het onderdeel bovenaan en het kaartje vast onderaan het inhoudsvlak. De aanduiding stopt nooit halverwege een blok (eigenaar,
+  // 0.5.8): het hele blok blijft aangeduid en het kaartje ligt over zijn onderste deel (over: true), zonder pijltje.
   const d = pas(gat.top - vrijBoven);
   const boven = (uiterst && !vast ? uiterst.bottom - rand : kaartMax) - hoog;
   const links = klem(midX - breedte / 2, minL, maxL);
-  return { schuif: d, kant: 'vast', links: Math.round(links), boven: Math.round(boven), breedte, pijl: Math.round(pijlX(links)), snij: boven - afstand };
+  return { schuif: d, kant: 'vast', links: Math.round(links), boven: Math.round(boven), breedte, pijl: null, snij: null, over: true };
 }
 
 // ============================================================ onderdelen vinden
@@ -693,7 +698,7 @@ function inktVan(els, zonderKop = false) {
 // De kaart waartoe een element hoort: een .kaart, een open blad, of anders de eerste ouder met een eigen vulling die niet vast staat.
 function kaartVan(el) {
   // In een blad is de "kaart" de rij of het veld waarin het onderdeel staat: de eerste ouder die over de volle breedte van zijn houder loopt,
-  // in een houder met minstens drie zichtbare blokken onder elkaar (het uur, de tekst, de keuzes, het gevoel, de knoppen).
+  // in een houder met minstens drie zichtbare blokken onder elkaar (het uur, de tekst, de keuzes, de knoppen).
   const blad = el.closest('dialog[open]');
   if (blad && !el.closest('.kaart')) {
     for (let e = el; e && e !== blad; e = e.parentElement) {
@@ -967,7 +972,7 @@ function blokVan(stap, k) {
 }
 // Een toelichting vlak onder het doel hoort bij het blok (telefoon): een korte zin in kleine letter, zonder bediening of beeld, in dezelfde
 // houder, dichter dan de lucht plus de ruimte tot de uitlegkaart (12 + 12 px). Los van het vak steekt ze half uit tussen het vak en de
-// uitlegkaart (zoals de zin onder Stemming en energie, die stappen.js met `ook` meegeeft). Alleen als het doel alleen op zijn rij staat (een
+// uitlegkaart (die stappen.js met `ook` meegeeft). Alleen als het doel alleen op zijn rij staat (een
 // zin onder twee velden naast elkaar hoort bij geen van beide) en niet zelf een kop of een hele kaart is. Een zin die zelf het onderdeel van een
 // andere stap van de lopende reeks is (doelenVanReeks), blijft van die stap.
 let doelenVanReeks = [];
@@ -1049,7 +1054,7 @@ function delenVan(blok, max, marge, zonder = null, raster = null, kopTekst = nul
     rijen = rijen.filter((rij) => !rij.every((e) => e.matches(zonder) || e.querySelector(zonder)));
   }
   // BESLISSING 592: op een telefoon valt de rand van een deel nooit tussen twee rijen die minder dan 6 px uit elkaar staan (een vraag en haar
-  // gezichtjes): daar zou de rand van het vak de andere rij raken of doorsnijden. Zulke rijen blijven samen.
+  // tegels): daar zou de rand van het vak de andere rij raken of doorsnijden. Zulke rijen blijven samen.
   // (BESLISSING 656: behalve tussen twee rijen van een raster, markeerRaster: daar mag de snede in het midden van de tussenruimte vallen.)
   const lijm = (lijst) => {
     if (!telefoon()) return lijst;
@@ -1571,7 +1576,20 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
       vrij: rol,
       voorkeur,
       inKop: Boolean(el && mobiel && (stap.els?.length ? stap.els : [el]).every((e) => e.closest(KOPPEN))),
+      heel: Boolean(stap.heel),
     });
+    // Ligt de kaart over het blok (over) en is ze even breed als het scherm (een telefoon), dan schuift de pagina zo dat de bovenrand van de kaart
+    // precies onder een rij van het blok valt: de rijen erboven staan er heel, geen halve rij boven de kaart.
+    if (p.over && mobiel && el && !zonderSchuiven && !rol) {
+      let grens = null;
+      for (const rij of el.querySelectorAll('li, tr')) {
+        const r = rij.getBoundingClientRect();
+        const onder = r.bottom - p.schuif;
+        if (r.height > 0 && onder <= p.boven + 0.5 && (grens == null || onder > grens)) grens = onder;
+      }
+      const zak = grens == null ? 0 : p.boven - grens;
+      if (zak > 0.5 && p.schuif - zak >= -wortel.scrollTop) p.schuif -= zak;
+    }
     if (rol) p.houder = rol.houder;
     return zonderSchuiven ? p : schoneSchuif(stap, el, p, rol);
   }
@@ -1598,7 +1616,7 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
   // EN de uitlegkaart samen (het vak blijft precies afstandTelefoon van de kaart en randGatTelefoon van de kop of de balk), zo weinig mogelijk weg
   // van de vaste plaats (M7: de kaart verspringt alleen als het moet); eerst aan de kant waar de kaart staat, dan aan de andere kant.
   function schoneSchuif(stap, el, p, rol = null) {
-    if (!telefoon() || !el || (staatVast(el) && !rol) || !['vast-onder', 'vast-boven'].includes(p.kant) || p.snij != null || p.nood) return p;
+    if (!telefoon() || !el || (staatVast(el) && !rol) || !['vast-onder', 'vast-boven'].includes(p.kant) || p.snij != null || p.nood || p.over) return p;
     const g = meetGat(stap, el);
     const kh = kaart.offsetHeight;
     const { zone: paginaZone, uiterst } = vlakken(vanger);
@@ -1683,7 +1701,7 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
   // BESLISSING 548: staat het onderdeel met deze schikking VOLLEDIG in het vrije vlak (tussen de vaste kop en de balk onderaan; in een blad of
   // de kop: in het venster), zonder dat de kaart erover ligt en zonder af te snijden?
   function staatVrij(p, s, el) {
-    if (p.snij != null || p.nood) return false;
+    if (p.snij != null || p.nood || p.over) return false;
     const g = meetGat(s, el);
     const vast = staatVast(el) && !p.houder;
     const d = vast ? 0 : p.schuif;
@@ -1821,7 +1839,7 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
       if (inBlad && el.closest('dialog')) el.scrollIntoView({ block: window.innerHeight < 560 ? 'start' : 'nearest', inline: 'nearest', behavior: 'instant' });
       const p = schik(s, el);
       if (staatVrij(p, s, el)) break;
-      gesneden = p.snij != null;
+      gesneden = p.snij != null || Boolean(p.over); // (over: het hele blok past niet naast de kaart)
       // Een onderdeel in een blad dat zelf scrolt: het blad zo schuiven dat het onderdeel boven of onder de kaart vrij staat.
       if (inBlad && el.closest('dialog') && schuifInBlad(el, s) && staatVrij(schik(s, el), s, el)) break;
     }
@@ -1881,7 +1899,7 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
     return v.b - v.t + (rl?.t ?? marge) + (rl?.b ?? marge);
   };
   function verdeel(stap) {
-    if (!kleinScherm() || stap.midden || stap.voor || !stap.doel || stap.zelf) return [stap]; // zelf: het doel blijft zoals het is, dus ook niet in delen
+    if (!kleinScherm() || stap.midden || stap.voor || !stap.doel || stap.zelf || stap.heel) return [stap]; // zelf: het doel blijft zoals het is, dus ook niet in delen; heel: altijd het hele blok
     const marge = telefoon() ? MAAT.margeTelefoon : MAAT.marge;
     // Past een doel van de stap (het gewone of een kleiner, klein) in één keer naast de kaart met deze tekst?
     let eerste = null;
@@ -2073,6 +2091,7 @@ export function startRondleiding({ sleutel, vanaf = null, opKlaar = null, maxSta
 
   function zetKant(p) {
     kaart.dataset.kant = p.kant;
+    kaart.dataset.over = p.over ? '1' : ''; // de kaart ligt over het onderste deel van een blok dat er niet naast past (voor de schermtests)
     if (p.pijl != null) kaart.style.setProperty('--pijl', p.pijl + 'px');
     laag.classList.toggle('is-midden', p.kant === 'midden');
   }
@@ -2747,7 +2766,7 @@ function startOp(route, sleutel, { terugNaarVorig = false, zonder = null, ingang
 // Een stap midden op het scherm of een geregistreerde actie (voor) zegt niets over of het scherm al getekend is: het scherm registreert zijn
 // acties vóór het zijn gegevens gelezen heeft. Heeft de rondleiding stappen met een eigen onderdeel, dan wacht ze op zo'n onderdeel; anders
 // (alleen stappen midden op het scherm) start ze meteen. In WebKit (Safari) tekent Vandaag na een routewissel later dan in Chrome: zonder
-// dit wachten vielen de stappen op Vandaag weg ("Een maaltijd noteren" begon bij het tekstvak, "Stemming en energie kiezen" toonde één stap).
+// dit wachten vielen de stappen op Vandaag weg ("Een maaltijd noteren" begon bij het tekstvak, een andere handleiding toonde één stap).
 // Is er na het wachten geen eigen onderdeel, dan probeert ze het toch met wat er is (een actie of een stap midden op het scherm).
 // BESLISSING 735: een gevraagde start (Toon het me) toont de eerste kaart binnen 1500 ms na de tik, de routewissel inbegrepen.
 // Een gevraagde start wacht niet op een vaste grens maar op het teken dat het scherm getekend is (data-getekend, beheerScherm in

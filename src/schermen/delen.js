@@ -149,6 +149,7 @@ export function toon(houder, params = {}) {
       let klaarBestand = null;
       let bestandVan = null;
       let bestandTot = null;
+      let bestandOnderdelen = null; // de onderdelen van het verslag dat klaarligt, voor de medailles (data/badges.js)
       let klaarVoor = -1; // bij welke stand (nummer) het klaargemaakte bestand hoort
       let voorbereiding = null;
       let uitgeklaard = false;
@@ -186,6 +187,7 @@ export function toon(houder, params = {}) {
           paginaRegel.textContent = bestand.paginas > 1 ? ' · ' + t('delen.paginasKort', { n: bestand.paginas }) : '';
           bestandVan = verslag.van;
           bestandTot = verslag.tot;
+          bestandOnderdelen = verslag.onderdelen;
         } catch {
           klaarBestand = null;
           if (mijn === nummer) strook(t('delen.mislukt'));
@@ -265,7 +267,7 @@ export function toon(houder, params = {}) {
           .share({ files: [klaarBestand], title: t('delen.verslagTitel') })
           .then(() => {
             strook(t('delen.klaarOmTeDelen'));
-            meldVerslagGemaakt({ van: bestandVan, tot: bestandTot }, 'versturen'); // alleen als de share-belofte vervuld is
+            meldVerslagGemaakt({ van: bestandVan, tot: bestandTot, onderdelen: bestandOnderdelen }, 'versturen'); // alleen als de share-belofte vervuld is
           })
           .catch((fout) => {
             if (fout?.name !== 'AbortError') strook(t('delen.mislukt')); // zelf gesloten is geen fout
@@ -284,7 +286,7 @@ export function toon(houder, params = {}) {
       function bewaar() {
         if (!klaarBestand || klaarVoor !== nummer) return;
         download(klaarBestand);
-        meldVerslagGemaakt({ van: bestandVan, tot: bestandTot }, 'bewaren');
+        meldVerslagGemaakt({ van: bestandVan, tot: bestandTot, onderdelen: bestandOnderdelen }, 'bewaren');
         strook(t('delen.bewaard'));
       }
 
@@ -457,6 +459,14 @@ export function toon(houder, params = {}) {
       const CAP = { rij: 6, voet: 16, kern: 16, titel: 20, dagen: 16, weetje: 20, boven: 0, onder: 12 }; // boven de weetjesrij niets: het restant wordt gespreid (align-content), zodat die ruimte niet dubbel telt; weetje en onder ruimer, zodat een kort vel naast de weetjes minder oprekt (BESLISSING 517)
       const REST_NA = 100; // vanaf dit restverschil wordt geprobeerd of "Goed om te weten" naast het kleine vel past (de weetjes zelf hebben ± 160 px nodig)
       const MAX_WEETJE = 72;
+      const LINKS_MAX = 48; // zoveel mag de linkerkaart hoger worden om de lijn te halen (verdeeld over haar keuzerijen)
+      const SPELING_MAX = 64; // zoveel mogen de weetjes in hun kaart te verdelen krijgen
+      // Haalt weg wat de tussenlijn zette, vóór er opnieuw gemeten wordt.
+      const losLijn = () => {
+        samenstelKaart.style.removeProperty('min-height');
+        verslagKaart.style.removeProperty('min-height');
+        samenstelKaart.querySelectorAll('.delen__vinkjes > *').forEach((r) => r.style.removeProperty('min-height'));
+      };
       let rafId = 0;
       let wacht = 0;
       const zetVar = (naam, px) => rechts.style.setProperty(naam, `${px}px`);
@@ -489,6 +499,7 @@ export function toon(houder, params = {}) {
       };
       const deelIn = () => {
         VARS.forEach((naam) => rechts.style.removeProperty(naam));
+        losLijn();
         naarOnder();
         if (!breed.matches || !velGevuld) return;
         uitlijnWeetjes(weetjesKaart); // het aantal regels van elk weetje (BESLISSING 565), vóór de hoogtes gemeten worden
@@ -497,51 +508,60 @@ export function toon(houder, params = {}) {
         const chrome = verslagKaart.offsetHeight - velHouder.offsetHeight;
         const over = hoogte - chrome - vel.scrollHeight;
         if (over <= 0) return; // een lang verslag: het vel vult de kaart en scrolt, "Goed om te weten" staat onderaan
-        let beste = null;
+        // De tussenlijn (eigenaar, 0.5.8): staat "Goed om te weten" rechts onder het verslag, dan eindigen "Stel je verslag samen" en "Je verslag"
+        // op dezelfde hoogte, en zijn "Bewaren of versturen" en "Goed om te weten" dus even hoog. De hoogste van de twee bovenste kaarten bepaalt
+        // de lijn; de andere wordt opgevuld: het vel met zijn begrensde rek, de linkerkaart met iets hogere keuzerijen. Kan dat niet zonder een leeg
+        // vlak, of passen de weetjes niet in de hoogte van de kaart ernaast, dan staat "Goed om te weten" onderaan en vult het vel de rechterkolom.
+        let gekozen = null;
         if (over > REST_NA) {
           rechts.classList.add('is-kort');
           rechts.append(weetjesKaart);
-          const gat = parseFloat(getComputedStyle(rechts).rowGap) || 0;
-          // Eerst de gewone maat; past het net niet, dan een iets strakkere (minder ruimte voor de voet en tussen de weetjes, ± 20 px)
           for (const strak of [false, true]) {
             rechts.classList.toggle('is-strak', strak);
-            const verslagH = verslagKaart.offsetHeight;
+            zetVel(0);
+            const samenNat = samenstelKaart.offsetHeight;
+            const verslagNat = verslagKaart.offsetHeight;
+            const bewaarH = bewaarKaart.offsetHeight;
+            const doel = Math.max(samenNat, verslagNat);
+            const linksRek = doel - samenNat;
+            const velRek = doel - verslagNat;
+            if (linksRek > LINKS_MAX || velRek > velCap(rijen) + velExtra()) continue;
             for (const vorm of ['rij', 'raster']) {
               weetjesKaart.classList.remove('delen__weetjes--rij', 'delen__weetjes--raster');
               weetjesKaart.classList.add('delen__weetjes--' + vorm, 'is-meet');
               const weetjesH = weetjesKaart.offsetHeight;
               const hoogsteWeetje = Math.max(...[...weetjesKaart.querySelectorAll('.weetje')].map((e) => e.offsetHeight));
               weetjesKaart.classList.remove('is-meet');
-              const d = hoogte - verslagH - gat - weetjesH;
-              if (d < -0.5 || hoogsteWeetje > MAX_WEETJE) continue;
-              const weetjeRijen = vorm === 'rij' ? 1 : 2;
-              const cap = CAP.weetje * weetjeRijen + CAP.boven + CAP.onder + velCap(rijen);
-              const rest = Math.max(0, d - cap);
-              if (!beste || rest < beste.rest - 0.5) beste = { vorm, strak, d, cap, rest, weetjeRijen };
+              const speling = bewaarH - weetjesH; // wat de weetjes in hun kaart nog te verdelen krijgen (align-content: space-evenly)
+              if (speling < -0.5 || speling > SPELING_MAX || hoogsteWeetje > MAX_WEETJE) continue;
+              if (!gekozen || speling < gekozen.speling - 0.5) gekozen = { vorm, strak, doel, linksRek, velRek, speling };
             }
-            if (beste && beste.rest <= 32) break;
+            if (gekozen) break;
           }
-          rechts.classList.toggle('is-strak', Boolean(beste?.strak));
-          // Onderaan blijft er een leeg vlak van over - velCap(rijen); kies rechts alleen als dat minder leeg laat
-          if (beste && beste.rest > 32 && beste.rest >= over - velCap(rijen) - velExtra()) beste = null;
-          if (beste) {
+          if (gekozen) {
+            rechts.classList.toggle('is-strak', gekozen.strak);
             weetjesKaart.classList.remove('delen__weetjes--rij', 'delen__weetjes--raster');
-            weetjesKaart.classList.add('delen__weetjes--' + beste.vorm);
-            let f = Math.min(1, beste.d / beste.cap);
-            for (let ronde = 0; ronde < 3; ronde += 1) {
-              zetVel(f);
-              zetVar('--weetje-rek', CAP.weetje * f);
-              zetVar('--weetjes-boven', CAP.boven * f);
-              zetVar('--weetjes-onder', CAP.onder * f);
-              weetjesKaart.classList.add('is-meet');
-              const rest = hoogte - (verslagKaart.offsetHeight + gat + weetjesKaart.offsetHeight);
-              weetjesKaart.classList.remove('is-meet');
-              if (Math.abs(rest) < 0.3 || f >= 1 && rest > 0) break;
-              f = Math.max(0, Math.min(1, f + rest / beste.cap));
+            weetjesKaart.classList.add('delen__weetjes--' + gekozen.vorm);
+            // Links: de keuzerijen delen wat de kaart hoger wordt.
+            if (gekozen.linksRek > 0.3) {
+              const keuzes = [...samenstelKaart.querySelectorAll('.delen__vinkjes > *')];
+              const hoogtes = keuzes.map((r) => r.offsetHeight);
+              keuzes.forEach((r, i) => (r.style.minHeight = `${hoogtes[i] + gekozen.linksRek / keuzes.length}px`));
             }
+            samenstelKaart.style.minHeight = `${gekozen.doel}px`;
+            // Rechts: het vel rekt tot de kaart de lijn haalt.
+            const cap = velCap(rijen);
+            let rek = gekozen.velRek;
+            for (let ronde = 0; ronde < 4 && rek > 0.3; ronde += 1) {
+              zetVel(Math.min(1, rek / cap), Math.min(EXTRA_MAX, Math.max(0, rek - cap) / velBasis()));
+              const tekort = gekozen.doel - verslagKaart.offsetHeight;
+              if (Math.abs(tekort) < 0.3) break;
+              rek += tekort;
+            }
+            verslagKaart.style.minHeight = `${gekozen.doel}px`;
           }
         }
-        if (!beste) {
+        if (!gekozen) {
           naarOnder();
           rekVel(over, rijen);
         }

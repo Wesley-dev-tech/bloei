@@ -5,7 +5,6 @@
 .maand__kolommen { display: flex; flex-direction: column; gap: var(--s-4); }
 .maand__dag { display: flex; flex-direction: column; min-width: 0; }
 .maand__dag > .maand__paneel { flex: 1; }
-.maand__teken--notitie { color: var(--tile-neutral-fg); display: inline-flex; }
 /* Op een telefoon: kalender, paneel, geplande beurten en als laatste de cijfers in twee kolommen */
 .maand__cijferkaart { order: 3; }
 @media (min-width: 960px) {
@@ -77,8 +76,6 @@
 .maand__kclabel { align-self: stretch; margin: 0; height: 16px; font-size: var(--fs-label); line-height: 16px; font-weight: 500; letter-spacing: .12em; text-transform: uppercase; color: var(--c-text-muted); white-space: nowrap; overflow: hidden; }
 .maand__kcwaarde { align-self: stretch; margin: 0; display: flex; justify-content: center; align-items: baseline; gap: var(--s-1); height: 36px; font-family: var(--font-display); font-weight: 500; font-size: 1.75rem; line-height: 36px; font-variant-numeric: lining-nums tabular-nums; white-space: nowrap; }
 .maand__kcwaarde--teken { align-items: center; }
-.maand__kcwaarde .gevoelicoon { display: flex; align-items: center; justify-content: center; align-self: center; margin: 0; line-height: 0; }
-.maand__kcwaarde .gevoelicoon .icoon { width: 30px; height: 30px; display: block; }
 .maand__kceenheid { font-family: var(--font-ui); font-weight: 400; font-size: var(--fs-small); color: var(--c-text-muted); }
 .maand__kcsub { align-self: stretch; margin: 0; height: 18px; font-size: 0.8125rem; line-height: 18px; color: var(--c-text-muted); white-space: nowrap; }
 /* Het aantal kolommen volgt de breedte van de kaart zelf: twee op een telefoon, vier op een middelgroot scherm, acht als alle labels op één regel passen */
@@ -104,19 +101,19 @@
 /* Compact, op vaste regelhoogtes: elk onderdeel één regel van 28 px, Eten met de maaltijden in twee kolommen, Drinken met een baan, Notitie als één afgekapte regel */
 .kaart.maand__paneel { padding: var(--s-6) var(--s-5); }
 .maand__paneel .maand__blok { padding: var(--s-2) 0; }
+/* Het eerste blok sluit aan op de lijn onder de kaartkop: geen tweede lijn en geen lege strook ertussen (0.5.8). */
+.maand__paneel .maand__paneelinhoud > .maand__blok:first-child { padding-top: 0; border-top: 0; margin-top: -2px; } /* -2 px: de letters staan 3,5 px onder de bovenrand van hun regel van 28 px; zo staat de eerste regel optisch op de vaste afstand van de lijn */
 .maand__paneel .maand__blokkop { height: 28px; }
 .maand__paneel .maand__bloktitel, .maand__paneel .maand__blokwaarde { line-height: 28px; }
 .maand__paneel .maand__bloktitel { flex: 0 1 auto; min-width: 0; }
 .maand__paneel .maand__blokwaarde { margin-left: auto; padding-left: var(--s-2); white-space: nowrap; }
 .maand__paneel .maand__momenten { flex: 1; min-width: 0; margin: 0 0 0 var(--s-2); gap: var(--s-1); flex-wrap: nowrap; overflow: hidden; }
 .maand__paneel .maand__moment { padding: 0 var(--s-2); line-height: 22px; white-space: nowrap; }
-.maand__paneel .maand__notitie { display: block; flex: 1 1 0; margin: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; -webkit-line-clamp: unset; }
 .maand__paneel .maand__maaltijden { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 0 var(--s-4); margin: var(--s-1) 0 0; }
-.maand__paneel .maand__maaltijd { display: flex; align-items: center; gap: var(--s-2); height: 22px; min-width: 0; }
+.maand__paneel .maand__maaltijd { display: flex; flex-direction: column; justify-content: center; height: 22px; min-width: 0; }
+.maand__paneel .maand__maaltijdkop { display: flex; align-items: center; gap: var(--s-2); min-width: 0; }
 .maand__paneel .maand__maaltijdnaam { min-width: 0; overflow: hidden; text-overflow: ellipsis; white-space: nowrap; font-weight: 400; }
 .maand__paneel .maand__baan { margin-top: var(--s-1); height: 10px; }
-.maand__paneel .maand__waarde { margin-top: var(--s-1); }
-.maand__paneel .maand__waarden { padding-bottom: 0; }
 .maand__paneel > .knop { margin-top: var(--s-4); }
 .maand__paneelinhoud > .rij { padding: var(--s-2) 0; }
 /* Een smal paneel (rond 1280 px): de maaltijden zonder uur en bij Supplementen alleen het icoon (de naam blijft voor schermlezers), zodat niets wordt afgekapt.
@@ -125,14 +122,16 @@
    BESLISSING 681: vanaf 1440 px toont de dagkaart altijd haar volledige stand (op 1440 is haar inhoud 492 px breed, ruim boven de 470 px van "Avond"). */
 .kaart.maand__paneel { container-type: inline-size; container-name: paneel; }
 @container paneel (max-width: 400px) {
-  .maand__maaltijd > .cijfer { display: none; }
+  .maand__maaltijd .cijfer { display: none; }
+    .maand__paneel .maand__maaltijd .maand__maaltijdtekst { padding-left: 0; }
   .maand__paneel .maand__moment { padding: 0 6px; font-size: 0.8125rem; }
   .maand__paneel .maand__momenten { margin-left: var(--s-1); gap: 2px; }
   .maand__bloktitel--supp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
 }
 @media (min-width: 1100px) and (max-width: 1439.98px) {
   @container paneel (max-width: 500px) {
-    .maand__maaltijd > .cijfer { display: none; }
+    .maand__maaltijd .cijfer { display: none; }
+    .maand__paneel .maand__maaltijd .maand__maaltijdtekst { padding-left: 0; }
     .maand__paneel .maand__moment { padding: 0 6px; font-size: 0.8125rem; }
     .maand__paneel .maand__momenten { margin-left: var(--s-1); gap: 2px; }
     .maand__bloktitel--supp { position: absolute; width: 1px; height: 1px; overflow: hidden; clip-path: inset(50%); white-space: nowrap; }
@@ -144,9 +143,7 @@
    een spuit en een notitie) is dan 452 px hoog; de dagkaart heeft er 465 tot 487 px voor. Van 1440 tot 1599 px is er 401 tot 411 px: daar blijven de
    maaltijden in twee kolommen (386 px), anders moest de volle dag binnenin scrollen. */
 @media (min-width: 1440px) { .maand__paneel .maand__paneelinhoud { justify-content: flex-start; } }
-@media (min-width: 1600px) { .maand__paneel .maand__maaltijden { grid-template-columns: minmax(0, 1fr); } }.maand__paneelinhoud.kan-scrollen { -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent); mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent); }
-.maand__paneel .maand__waarden { margin-bottom: 0; }
-.maand__leegregel { margin: var(--s-2) 0 0; font-size: var(--fs-small); color: var(--c-text-muted); }
+.maand__paneelinhoud.kan-scrollen { -webkit-mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent); mask-image: linear-gradient(to bottom, black calc(100% - 32px), transparent); }
 
 /* ---------- Gepland deze maand: strakke rijen op hun gewone hoogte ---------- */
 .kaart.maand__gepkaart { padding: var(--s-5); }
@@ -161,7 +158,7 @@
 }
 @media (max-width: 719px) { .maand__beurtstand { display: block; } .maand__beurt { grid-template-columns: var(--tile-size) minmax(0, 1fr) auto auto; gap: var(--s-2); } }
 
-/* BESLISSING 294: geen stemming in de cel. Onder het nummer twee vaste plaatsen op één lijn (in alle cellen en rijen op dezelfde afstand onder het nummer):
+/* Onder het nummer twee vaste plaatsen op één lijn (in alle cellen en rijen op dezelfde afstand onder het nummer):
    links het salie bolletje (alle supplementen genomen, midden onder het nummer), rechts het spuitje of pilletje van een geplande beurt. Een lege plaats blijft staan.
    BESLISSING 295: het nummer staat iets meer naar binnen (links 10, boven 8 px), zodat het rondje van vandaag (26 px) rondom minstens 6 px van de celrand
    en dus minstens 4 px van de gekozen-rand vrij staat. */
@@ -255,4 +252,31 @@
    Een helemaal volle dag scrolt hier nog binnenin, zoals op 1180 en 1280 px. */
 @media (min-width: 1100px) and (max-width: 1179.98px) {
   .kaart.maand__kalkaart { min-height: 445px; }
+}
+
+/* ---------- Het paneel van de dag is tot onderaan gevuld (0.5.8) ----------
+   Naast de kalender (vanaf 1100 px) is het paneel even hoog als de kalender. Het blok Eten toont altijd de zes maaltijden en neemt alle
+   hoogte die overblijft; de lijst kiest zelf haar indeling bij die hoogte (een container op hoogte):
+     tot 143 px      twee kolommen, per maaltijd één regel (het uur en de naam);
+     vanaf 143 px    twee kolommen, met eronder wat er gegeten is;
+     vanaf 197 px    één kolom, per maaltijd één regel;
+     vanaf 281 px    één kolom, met eronder wat er gegeten is.
+   De rijen verdelen de hoogte gelijk, met een dunne lijn ertussen: de lijst loopt op elke dag en op elke breedte precies tot boven het
+   volgende blok. Er blijft nergens een leeg vlak over. Een dag die toch meer heeft dan er past (een beurt erbij op een smal scherm),
+   scrolt binnenin zoals voorheen. */
+.maand__paneel .maand__maaltijd.is-open .maand__maaltijdnaam { color: var(--c-text-muted); }
+.maand__paneel .maand__maaltijdkop > .cijfer { flex: none; width: 2.9em; } /* het uur of het streepje op een vaste breedte: de zes namen staan onder elkaar op één lijn */
+.maand__paneel .maand__maaltijdtekst { display: none; padding-left: calc(2.9em + var(--s-2)); font-size: var(--fs-small); line-height: 20px; min-height: 20px; color: var(--c-text-muted); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+@media (min-width: 1100px) {
+  .maand__paneel .maand__paneelinhoud { justify-content: flex-start; }
+  .maand__paneel .maand__paneelinhoud > .maand__blok--rek { flex: 1 0 auto; display: flex; flex-direction: column; padding-bottom: 0; }
+  .maand__paneel .maand__etenlijst { flex: 1 1 auto; min-height: 66px; margin-top: var(--s-1); container: etenlijst / size; }
+  .maand__paneel .maand__etenlijst > .maand__maaltijden { height: 100%; margin: 0; grid-auto-rows: minmax(0, 1fr); }
+  .maand__paneel .maand__blok--rek .maand__maaltijd { height: auto; min-height: 0; line-height: 22px; border-top: 1px solid var(--c-line); }
+  @container etenlijst (min-height: 143px) { .maand__paneel .maand__maaltijdtekst { display: block; } }
+  @container etenlijst (min-height: 197px) {
+    .maand__paneel .maand__etenlijst > .maand__maaltijden { grid-template-columns: minmax(0, 1fr); }
+    .maand__paneel .maand__maaltijdtekst { display: none; }
+  }
+  @container etenlijst (min-height: 281px) { .maand__paneel .maand__maaltijdtekst { display: block; } }
 }

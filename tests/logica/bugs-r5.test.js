@@ -57,9 +57,9 @@ function vang(naam) {
 }
 
 describe('R5-01 twee tabbladen overschrijven elkaar niet', () => {
-  test('twee gelijktijdige wijzigingen van dezelfde maaltijd (tekst en gevoel) blijven allebei staan', async () => {
-    await Promise.all([bewaarMaaltijd(V, 'ontbijt', { tekst: 'Havermout' }), bewaarMaaltijd(V, 'ontbijt', { gevoel: 4 })]);
-    expect((await leesMaaltijden(V)).ontbijt).toMatchObject({ tekst: 'Havermout', gevoel: 4 });
+  test('twee gelijktijdige wijzigingen van dezelfde maaltijd (tekst en uur) blijven allebei staan', async () => {
+    await Promise.all([bewaarMaaltijd(V, 'ontbijt', { tekst: 'Havermout' }), bewaarMaaltijd(V, 'ontbijt', { tijd: '09:15' })]);
+    expect((await leesMaaltijden(V)).ontbijt).toMatchObject({ tekst: 'Havermout', tijd: '09:15' });
   });
 
   test('een wijziging in dit tabblad gaat naar de andere tabbladen; een wijziging van elders komt binnen als elders:gewijzigd', async () => {

@@ -43,7 +43,7 @@ const zetRij = (page, tabel, rij) =>
       }),
     [tabel, rij, DB],
   );
-const maaltijd = (datum, soort, tekst, extra = {}) => ({ datum, soort, tijd: '12:30', tekst, fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1, ...extra });
+const maaltijd = (datum, soort, tekst, extra = {}) => ({ datum, soort, tijd: '12:30', tekst, fotoId: null, voorbeeld: false, gewijzigdOp: 1, ...extra });
 // BESLISSING 419: een maaltijd vul je in in een blad boven het scherm (een open <dialog>).
 const blad = (page) => page.locator('dialog.dialoog[open]');
 const ontbijtVan = async (page) => (await rijen(page, 'maaltijden')).find((m) => m.soort === 'ontbijt' && m.datum === D);
@@ -77,17 +77,14 @@ test.describe('de echte versie', () => {
       await expect(ontbijtB.locator('> .rij')).toContainText('Havermout');
       await expect(b.locator('.dag__notitie textarea')).toHaveValue('Lang verhaal uit tabblad A');
 
-      // B opent het ontbijt en begint te typen; ondertussen kiest A een gevoel. B bewaart zijn tekst: het gevoel van A blijft.
       await ontbijtB.locator('> .rij').click();
       await blad(b).locator('textarea').click();
       await a.bringToFront();
       await ontbijtA.locator('> .rij').click();
-      await blad(a).locator('.gevoel__optie[data-stap="4"]').click();
-      await expect.poll(async () => (await ontbijtVan(a))?.gevoel).toBe(4);
       await b.bringToFront();
       await blad(b).locator('textarea').fill('Havermout met banaan');
       await blad(b).locator('.maaltijd__bewaar').click();
-      await expect.poll(async () => ontbijtVan(b)).toMatchObject({ tekst: 'Havermout met banaan', gevoel: 4 });
+      await expect.poll(async () => ontbijtVan(b)).toMatchObject({ tekst: 'Havermout met banaan' });
     });
   });
 
@@ -131,21 +128,19 @@ test.describe('de echte versie', () => {
     test.beforeEach(async ({ page }) => {
       await page.clock.setFixedTime(DONDERDAG);
       await page.goto('./#/vandaag');
-      await zetRij(page, 'maaltijden', maaltijd(D, 'middagmaal', 'Origineel', { tijd: '12:30', gevoel: 3 }));
+      await zetRij(page, 'maaltijden', maaltijd(D, 'middagmaal', 'Origineel', { tijd: '12:30' }));
     });
     const middagmaal = async (page) => (await rijen(page, 'maaltijden')).find((m) => m.soort === 'middagmaal' && m.datum === D) ?? null;
 
     for (const route of ['dagboek/dag', 'vandaag']) {
-      test(`${route}: Annuleren zet tekst, uur en gevoel terug zoals bij het openen, in de database en op het scherm`, async ({ page }) => {
+      test(`${route}: Annuleren zet tekst en uur terug zoals bij het openen, in de database en op het scherm`, async ({ page }) => {
         await page.goto('./#/' + route);
         const regel = page.locator('.maaltijd[data-soort="middagmaal"]');
         await regel.locator('> .rij').click();
-        await blad(page).locator('.gevoel__optie[data-stap="5"]').click();
         await blad(page).locator('textarea').fill('Nieuwe tekst');
         await expect.poll(async () => (await middagmaal(page))?.tekst).toBe('Nieuwe tekst');
-        await expect.poll(async () => (await middagmaal(page))?.gevoel).toBe(5);
         await blad(page).getByRole('button', { name: 'Annuleren', exact: true }).click();
-        await expect.poll(() => middagmaal(page)).toMatchObject({ tekst: 'Origineel', tijd: '12:30', gevoel: 3, gewijzigdOp: 1 });
+        await expect.poll(() => middagmaal(page)).toMatchObject({ tekst: 'Origineel', tijd: '12:30', gewijzigdOp: 1 });
         await expect(blad(page)).toHaveCount(0);
         await expect(regel.locator('> .rij')).toContainText('Origineel');
         await expect(regel.locator('> .rij')).toBeFocused();

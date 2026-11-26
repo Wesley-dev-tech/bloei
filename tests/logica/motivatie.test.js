@@ -1,13 +1,14 @@
 // De warme zin van de dag en van de week (PLAN.md §15.2, uitgebreid in 0.4.3): pure functies, vaste keuze per dag.
 import { describe, expect, test } from 'vitest';
-import { GROEPEN, MIJLPALEN, WEEKGROEPEN, isDagRond, kiesMotivatie, kiesWeekMotivatie, kiesWeekZin, kiesZin, reactieUit } from '../../src/logica/motivatie.js';
+import { GROEPEN, MIJLPALEN, WEEKGROEPEN, WEER_MET_RAAD, isDagRond, kiesMotivatie, kiesWeekMotivatie, kiesWeekZin, kiesZin, reactieUit } from '../../src/logica/motivatie.js';
 import { besteEerdereReeks, verledenUit, weekVerledenUit } from '../../src/logica/verleden.js';
 import { ALLE_BADGES } from '../../src/logica/badgeregels.js';
 import { TEKSTEN, motivatieZin } from '../../src/teksten.js';
+import { WEERGROEPEN, WEER_EXTREEM } from '../../src/logica/weer.js';
 
 // Vrijdag 13 november 2026, zonder dagdeel: dan wisselt de stand alleen tussen de groepen zonder dagdeel.
 const leeg = {
-  dagdeel: null, maaltijden: 0, ml: 0, doelMl: 2000, supplementen: { genomen: 0, totaal: 0 }, stemming: null,
+  dagdeel: null, maaltijden: 0, ml: 0, doelMl: 2000, supplementen: { genomen: 0, totaal: 0 },
   lopendeReeks: 0, dagenBijgehouden: 0, dagenSindsVorige: null, datum: '2026-11-13',
 };
 const groepVan = (sleutel) => sleutel.split('.')[1];
@@ -28,7 +29,7 @@ describe('de groepen', () => {
 // 0.4.7: ze zag de hele dag dezelfde zin bij het openen. Elke opening krijgt nu een andere zin, en een moment (een mijlpaal, een medaille)
 // komt bij het openen maar één keer per dag.
 describe('kiesMotivatie: elke opening van de dag een andere zin', () => {
-  const bezig = { maaltijden: 2, ml: 150, supplementen: { genomen: 1, totaal: 2 }, stemming: 4, lopendeReeks: 3, dagenBijgehouden: 3, dagdeel: 'middag', datum: '2026-11-25' };
+  const bezig = { maaltijden: 2, ml: 150, supplementen: { genomen: 1, totaal: 2 }, lopendeReeks: 3, dagenBijgehouden: 3, dagdeel: 'middag', datum: '2026-11-25' };
   const open = (opening, gehad = [], extra = {}) => kiesMotivatie({ ...leeg, ...bezig, ...extra, opening, gehad });
 
   test('een mijlpaal komt bij het openen één keer en gaat daarna naar de stand van de dag', () => {
@@ -95,18 +96,17 @@ describe('kiesMotivatie: de stand van de dag (bij het openen van de app)', () =>
     const cases = [
       [{}, 'begin'],
       [{ maaltijden: 1 }, 'onderweg'],
-      [{ stemming: 3 }, 'onderweg'],
       [{ ml: 1500 }, 'drinkenBijna'],
       [{ ml: 2000 }, 'drinkenKlaar'],
       [{ ml: 2400 }, 'drinkenKlaar'],
       [{ supplementen: { genomen: 2, totaal: 2 } }, 'supplementenKlaar'],
       [{ supplementen: { genomen: 1, totaal: 2 } }, 'onderweg'],
-      [{ maaltijden: 2, ml: 600, supplementen: { genomen: 1, totaal: 2 }, stemming: 4 }, 'onderweg'],
+      [{ maaltijden: 2, ml: 600, supplementen: { genomen: 1, totaal: 2 } }, 'onderweg'],
       [{ maaltijden: 3, etenKlaar: true, ml: 2000, supplementen: { genomen: 2, totaal: 2 } }, 'dagRond'],
       [{ maaltijden: 3, etenKlaar: true, ml: 2000, supplementen: { genomen: 0, totaal: 0 } }, 'dagRond'],
-      [{ maaltijden: 6, etenKlaar: true, ml: 2000, supplementen: { genomen: 2, totaal: 2 }, stemming: 1 }, 'dagRond'],
-      [{ maaltijden: 6, etenKlaar: true, ml: 1750, supplementen: { genomen: 2, totaal: 2 }, stemming: 4 }, 'drinkenBijna'],
-      [{ maaltijden: 6, etenKlaar: true, ml: 1999, supplementen: { genomen: 0, totaal: 0 }, stemming: 4 }, 'drinkenBijna'],
+      [{ maaltijden: 6, etenKlaar: true, ml: 2000, supplementen: { genomen: 2, totaal: 2 } }, 'dagRond'],
+      [{ maaltijden: 6, etenKlaar: true, ml: 1750, supplementen: { genomen: 2, totaal: 2 } }, 'drinkenBijna'],
+      [{ maaltijden: 6, etenKlaar: true, ml: 1999, supplementen: { genomen: 0, totaal: 0 } }, 'drinkenBijna'],
       // Nog één onderdeel en de dag is rond (alleen met supplementen: de zinnen noemen ze)
       [{ maaltijden: 6, etenKlaar: true, ml: 500, supplementen: { genomen: 2, totaal: 2 } }, 'bijnaRondDrinken'],
       [{ maaltijden: 6, etenKlaar: false, ml: 2000, supplementen: { genomen: 2, totaal: 2 } }, 'bijnaRondEten'],
@@ -252,7 +252,6 @@ describe('kiesMotivatie: wat ze net deed', () => {
       [{ maaltijden: 2 }, reactie('maaltijd'), 'maaltijd'],
       [{ maaltijden: 3, etenKlaar: true }, reactie('maaltijd', { eten: true }), 'etenKlaar'],
       [{ maaltijden: 4, etenKlaar: true }, reactie('maaltijd'), 'maaltijd'],
-      [{ maaltijden: 2 }, reactie('gevoel'), 'maaltijdGevoel'],
       [{ ml: 250, drankenAantal: 1 }, reactie('drank'), 'eersteDrank'],
       [{ ml: 500, drankenAantal: 2 }, reactie('drank'), 'drank'],
       [{ ml: 1100, drankenAantal: 3 }, reactie('drank'), 'drinkenHalf'],
@@ -263,11 +262,6 @@ describe('kiesMotivatie: wat ze net deed', () => {
       [{ supplementen: { genomen: 2, totaal: 3 } }, reactie('inname', { moment: true }), 'supplementMoment'],
       [{ supplementen: { genomen: 3, totaal: 3 } }, reactie('inname', { supp: true }), 'supplementenKlaar'],
       [{ supplementen: { genomen: 1, totaal: 3 } }, reactie('periodiek'), 'periodiek'],
-      [{ stemming: 1 }, reactie('stemming'), 'stemmingLaag'],
-      [{ stemming: 3 }, reactie('stemming'), 'stemmingMidden'],
-      [{ stemming: 5 }, reactie('stemming'), 'stemmingHoog'],
-      [{ stemming: 3, energie: 2 }, reactie('energie'), 'energieLaag'],
-      [{ stemming: 3, energie: 4 }, reactie('energie'), 'energie'],
     ];
     for (const [wijziging, r, verwacht] of cases) expect(groep({ ...wijziging, reactie: r }), verwacht).toBe(verwacht);
     for (const soort of ['notitie', 'weging', 'favoriet', 'verslag', 'vorigeDag', 'aangepast', 'eigen', 'herinnering', 'slot', 'dagdoel', 'supplementLijst', 'rondleiding']) {
@@ -286,9 +280,6 @@ describe('kiesMotivatie: wat ze net deed', () => {
     expect(met({ ml: 300, drankenAantal: 2 }, reactie('drank', { mlVoor: 100 }), { gisterenMl: 600 }).groep).toBe('drank'); // minder dan gisteren: geen woord daarover
     expect(met({ supplementen: { genomen: 2, totaal: 2 } }, reactie('inname', { supp: true }), { suppReeks: 5 }).groep).toBe('supplementenReeks');
     expect(met({ supplementen: { genomen: 2, totaal: 2 } }, reactie('inname', { supp: true }), { totaal: { volledigeDagen: 30 } }).groep).toBe('supplementTotaal');
-    expect(met({ stemming: 4 }, reactie('stemming'), { stemmingReeks: 3 }).groep).toBe('stemmingReeks');
-    expect(met({ stemming: 2 }, reactie('stemming'), { stemmingReeks: 3 }).groep).toBe('stemmingMidden');
-    expect(met({ stemming: 4 }, reactie('stemming', { eersteStemming: true }), { totaal: { stemmingDagen: 30 } }).groep).toBe('stemmingTotaal');
     expect(met({ iets: true }, reactie('weging', { eersteWeging: true }), { totaal: { wegingen: 8 } }).groep).toBe('wegingTotaal');
     expect(met({ iets: true }, reactie('weging'), { wegingReeks: 4 }).waarden).toEqual({ aantal: 4 });
     expect(met({ iets: true }, reactie('notitie', { eersteNotitie: true }), { totaal: { notitieDagen: 20 } }).groep).toBe('notitieTotaal');
@@ -307,19 +298,16 @@ describe('kiesMotivatie: wat ze net deed', () => {
 });
 
 describe('reactieUit: wat er veranderde tussen twee standen', () => {
-  const stand = { maaltijden: 1, gevoel: 0, tekst: 'a', ml: 250, genomen: 0, periodiek: 0, momentenKlaar: 0, stemming: null, energie: null, notitie: '', weging: '', favorieten: 0, iets: true, rond: false, etenOk: false, suppOk: false, doelOk: false, badges: [], volgende: { id: 'week-vol', aantal: 3 } };
+  const stand = { maaltijden: 1, tekst: 'a', ml: 250, genomen: 0, periodiek: 0, momentenKlaar: 0, notitie: '', weging: '', favorieten: 0, iets: true, rond: false, etenOk: false, suppOk: false, doelOk: false, badges: [], volgende: { id: 'week-vol', aantal: 3 } };
   const soort = (nu, gebeurd) => reactieUit(stand, { ...stand, ...nu }, gebeurd)?.soort ?? null;
   test('de soort handeling volgt uit het verschil', () => {
     expect(soort({ maaltijden: 2 }, { stores: ['maaltijden'] })).toBe('maaltijd');
-    expect(soort({ gevoel: 1 }, { stores: ['maaltijden'] })).toBe('gevoel');
     expect(soort({ tekst: 'b' }, { stores: ['maaltijden'] })).toBe('aangepast');
     expect(soort({ maaltijden: 0 }, { stores: ['maaltijden'] })).toBe('aangepast');
     expect(soort({ ml: 500 }, { stores: ['dranken'] })).toBe('drank');
     expect(soort({ ml: 0 }, { stores: ['dranken'] })).toBe('aangepast');
     expect(soort({ genomen: 1 }, { stores: ['innames'] })).toBe('inname');
     expect(soort({ genomen: 1, periodiek: 1 }, { stores: ['innames'] })).toBe('periodiek');
-    expect(soort({ stemming: 4 }, { stores: ['dagen'] })).toBe('stemming');
-    expect(soort({ energie: 2 }, { stores: ['dagen'] })).toBe('energie');
     expect(soort({ notitie: 'hallo' }, { stores: ['dagen'] })).toBe('notitie');
     expect(soort({ weging: '2026-11-13|70' }, { stores: ['wegingen'] })).toBe('weging');
     expect(soort({ favorieten: 1 }, { stores: ['favorieten'] })).toBe('favoriet');
@@ -359,7 +347,6 @@ describe('het verleden uit het dagboek (logica/verleden.js)', () => {
       doelDatums: ['2026-11-13'],
       volleDatums: ['2026-11-11', '2026-11-12', '2026-11-13', '2026-11-14'],
       wegingWeken: ['2026-10-26', '2026-11-02', '2026-11-09'],
-      stemmingen: new Map([['2026-11-13', 4], ['2026-11-14', 5], ['2026-11-12', 2]]),
       mlGisteren: 1200,
       badges: [{ id: 'eerste-bladzijde', behaaldOp: op(2, 9) }, { id: 'drie-op-rij', behaaldOp: op(13, 9) }, { id: 'week-vol', behaaldOp: op(14, 9) }],
       badgeStats: { dagenBijgehouden: 9, lopendeReeks: 5, maaltijden: 12 },
@@ -373,7 +360,6 @@ describe('het verleden uit het dagboek (logica/verleden.js)', () => {
     expect(v.doelReeks).toBe(0);
     expect(v.suppReeks).toBe(4);
     expect(v.wegingReeks).toBe(3);
-    expect(v.stemmingReeks).toBe(2);
     expect(v.gisterenMl).toBe(1200);
     expect(v.badges.vandaag).toEqual(['week-vol']);
     expect(v.badges.gisteren).toEqual(['drie-op-rij']);
@@ -446,14 +432,13 @@ describe('kiesMotivatie: de kalender (logica/kalender.js)', () => {
     expect([...avond].sort()).toEqual(['maaltijd', 'maaltijdAvond']);
     const middag = new Set([1, 2, 3, 4].map((teller) => kiesMotivatie({ ...leeg, dagdeel: 'middag', supplementen: { genomen: 2, totaal: 4 }, reactie: { soort: 'inname', nieuw: {}, teller } }).groep));
     expect([...middag]).toEqual(['supplementEerste']); // er is geen groep voor een vinkje in de middag
-    expect(kiesMotivatie({ ...leeg, dagdeel: 'avond', stemming: 1, reactie: reactie('stemming') }).groep).toBe('stemmingLaag'); // moe: altijd de zachte zin
   });
 });
 
 describe('isDagRond (gedeeld met de badges dag-rond en zeven-dagen-rond)', () => {
   test('geeft precies dagRond voor de zin als de dag rond is', () => {
     const basis = { ...leeg, maaltijden: 3, etenKlaar: true, ml: 2000, supplementen: { genomen: 1, totaal: 1 } };
-    for (const wijziging of [{}, { ml: 1900 }, { etenKlaar: false }, { supplementen: { genomen: 0, totaal: 1 } }, { supplementen: { genomen: 0, totaal: 0 } }, { stemming: 2 }]) {
+    for (const wijziging of [{}, { ml: 1900 }, { etenKlaar: false }, { supplementen: { genomen: 0, totaal: 1 } }, { supplementen: { genomen: 0, totaal: 0 } }]) {
       const status = { ...basis, ...wijziging };
       expect(isDagRond(status), JSON.stringify(wijziging)).toBe(groepVan(kiesZin(status)) === 'dagRond');
     }
@@ -472,27 +457,28 @@ describe('elke keuze geeft een volledige zin', () => {
       return ((t ^ (t >>> 14)) >>> 0) % n;
     };
     const kies = (lijst) => lijst[r(lijst.length)];
-    const soorten = ['maaltijd', 'gevoel', 'drank', 'periodiek', 'inname', 'stemming', 'energie', 'notitie', 'weging', 'favoriet', 'verslag', 'vorigeDag', 'aangepast', 'eigen', 'herinnering', 'slot', 'dagdoel', 'supplementLijst', 'rondleiding'];
+    const soorten = ['maaltijd', 'drank', 'periodiek', 'inname', 'notitie', 'weging', 'favoriet', 'verslag', 'vorigeDag', 'aangepast', 'eigen', 'herinnering', 'slot', 'dagdoel', 'supplementLijst', 'rondleiding'];
     const ids = ALLE_BADGES.map((b) => b.id);
     const gezien = new Set();
     for (let i = 0; i < 30000; i++) {
       const totaalSupp = r(4);
       const status = {
         dagdeel: kies(['ochtend', 'middag', 'avond', null]), maaltijden: r(7), etenKlaar: r(2) === 1, ml: r(10) * 250, doelMl: kies([0, 1500, 2000]),
-        supplementen: { genomen: r(totaalSupp + 1), totaal: totaalSupp }, stemming: kies([null, 1, 2, 3, 4, 5]), energie: kies([null, 1, 3, 5]),
+        supplementen: { genomen: r(totaalSupp + 1), totaal: totaalSupp },
         lopendeReeks: kies([0, 1, 2, 3, 7, 9, 14, 150]), dagenBijgehouden: kies([0, 1, 10, 50, 77]), dagenSindsVorige: kies([null, 1, 2, 5, 20]),
         datum: `2026-${String(1 + r(12)).padStart(2, '0')}-${String(1 + r(28)).padStart(2, '0')}`, drankenAantal: r(5),
         iets: kies([undefined, true, false]),
         kalender: r(3) === 0 ? undefined : { jarig: r(12) === 0, leeftijd: kies([null, 36]), feestdag: r(6) === 0 ? kies(['nieuwjaar', 'valentijn', 'pasen', 'paasmaandag', 'arbeid', 'hemelvaart', 'pinksteren', 'pinkstermaandag', 'feestdag', 'olv', 'halloween', 'allerheiligen', 'wapenstilstand', 'sinterklaas', 'kerstavond', 'kerst', 'tweedeKerstdag', 'oudjaar']) : null, seizoen: { naam: kies(['lente', 'zomer', 'herfst', 'winter']), start: r(10) === 0 }, uur: r(24) },
-        reactie: r(3) === 0 ? null : { soort: kies(soorten), teller: 1 + r(9), nieuw: { iets: r(4) === 0, rond: r(4) === 0, eten: r(3) === 0, supp: r(3) === 0, doel: r(3) === 0, moment: r(3) === 0, stap: r(2) === 0, badges: r(5) === 0 ? [kies(ids)] : [], eersteStemming: r(2) === 0, eersteNotitie: r(2) === 0, eersteWeging: r(2) === 0, mlVoor: r(4) * 250 } },
+        reactie: r(3) === 0 ? null : { soort: kies(soorten), teller: 1 + r(9), nieuw: { iets: r(4) === 0, rond: r(4) === 0, eten: r(3) === 0, supp: r(3) === 0, doel: r(3) === 0, moment: r(3) === 0, stap: r(2) === 0, badges: r(5) === 0 ? [kies(ids)] : [], eersteNotitie: r(2) === 0, eersteWeging: r(2) === 0, mlVoor: r(4) * 250 } },
         verleden: r(4) === 0 ? undefined : {
           eersteDatum: kies(['2026-01-15', '2025-06-01', null]), besteEerdereReeks: kies([0, 2, 8]), rondReeks: r(4), gisterenRond: r(3) === 0, gisterenDoel: r(3) === 0, gisterenMl: r(8) * 250,
-          doelReeks: r(6), suppReeks: r(6), wegingReeks: r(6), stemmingReeks: r(6), weekDagen: r(8), vorigeMaandDagen: r(25),
-          totaal: { maaltijden: kies([3, 10, 100]), doelDagen: kies([1, 5, 25]), volledigeDagen: kies([2, 7, 30]), rondeDagen: kies([1, 5, 10]), notitieDagen: kies([1, 5, 20]), stemmingDagen: kies([2, 7, 30]), wegingen: kies([1, 4, 8]), favorieten: kies([1, 5, 10]) },
+          doelReeks: r(6), suppReeks: r(6), wegingReeks: r(6), weekDagen: r(8), vorigeMaandDagen: r(25),
+          totaal: { maaltijden: kies([3, 10, 100]), doelDagen: kies([1, 5, 25]), volledigeDagen: kies([2, 7, 30]), rondeDagen: kies([1, 5, 10]), notitieDagen: kies([1, 5, 20]), wegingen: kies([1, 4, 8]), favorieten: kies([1, 5, 10]) },
           badges: { vandaag: r(4) === 0 ? [kies(ids), kies(ids)].slice(0, 1 + r(2)) : [], gisteren: r(5) === 0 ? [kies(ids)] : [], aantal: kies([1, 5, 12, 33]), totaal: 33, volgende: r(3) === 0 ? null : kies([{ id: 'week-vol', aantal: 6, doel: 7, dagTeller: true }, { id: 'maand-vol', aantal: 15, doel: 30, dagTeller: true }, { id: 'tien-kannen', aantal: 4, doel: 10, dagTeller: false }]), volgendeDag: r(2) === 0 ? null : { id: 'week-op-rij', aantal: 1 + r(5), doel: 7, dagTeller: true } },
         },
       };
-      // De hoeveelste opening van de dag (0.4.7).
+      // Het weer van nu (0.5.8) en de hoeveelste opening van de dag (0.4.7).
+      status.weer = i % 3 === 0 ? WEERGROEPEN[i % WEERGROEPEN.length] : null;
       // (zonder de generator: de reeks toestanden hierboven blijft dezelfde als voorheen)
       status.opening = i % 5;
       const keuze = kiesMotivatie(status);
@@ -551,5 +537,136 @@ describe('elke zin past op twee regels', () => {
       }
     }
     expect(lang).toEqual([]);
+  });
+});
+
+// 0.5.8: het weer van nu (logica/weer.js, weerSoort) kleurt de zin, telkens verbonden met haar en met haar dag.
+describe('kiesMotivatie: het weer van nu', () => {
+  const bezig = { maaltijden: 2, ml: 150, supplementen: { genomen: 1, totaal: 2 }, lopendeReeks: 2, dagenBijgehouden: 12, dagdeel: 'middag', datum: '2026-11-25' };
+  const open = (extra = {}) => kiesMotivatie({ ...leeg, ...bezig, ...extra });
+
+  test('elke weersoort heeft haar eigen groep van acht zinnen', () => {
+    for (const g of WEERGROEPEN) {
+      expect(GROEPEN[g], g).toBe(8);
+      expect(Object.keys(TEKSTEN.motivatie[g]).length, g).toBe(GROEPEN[g]);
+    }
+    expect(Object.keys(GROEPEN).filter((g) => g.startsWith('weer')).sort()).toEqual([...WEERGROEPEN].sort());
+  });
+
+  test('bij het openen komt het weer één keer per dag per weersoort, ook zonder iets genoteerd', () => {
+    for (const g of WEERGROEPEN) {
+      const moment = WEER_MET_RAAD.includes(g) ? `weer:${g}:middag` : 'weer:' + g; // een zin met raad komt in elk dagdeel opnieuw
+      const eerste = open({ weer: g });
+      expect(eerste.groep, g).toBe(g);
+      expect(eerste.moment, g).toBe(moment);
+      expect(open({ weer: g, opening: 1, gehad: [moment] }).moment, g).toBeUndefined();
+      expect(kiesMotivatie({ ...leeg, weer: g }).groep, g).toBe(g);
+    }
+    // Het weer sloeg om: de nieuwe weersoort mag ook nog.
+    expect(open({ weer: 'weerRegen', opening: 2, gehad: ['weer:weerGrijs'] }).groep).toBe('weerRegen');
+  });
+
+  test('daarna wisselt het weer mee met de zinnen over de dag', () => {
+    const groepen = new Set();
+    for (let opening = 1; opening <= 8; opening++) groepen.add(open({ weer: 'weerRegen', opening, gehad: ['weer:weerRegen'] }).groep);
+    expect(groepen.has('weerRegen')).toBe(true);
+    expect(groepen.size).toBeGreaterThanOrEqual(3);
+  });
+
+  // Zin 1 drinken, 2 noteren, 3 wat ze al noteerde, 4 supplementen, 5 dagdoel gehaald, 6 haar reeks, 7 en 8 altijd.
+  test('een weerzin past bij haar dag: niets over wat al klaar is, wat nog niet gebeurde of wat ze niet heeft', () => {
+    const nummers = (extra) => {
+      const uit = new Set();
+      for (const g of WEERGROEPEN) for (let opening = 0; opening < 16; opening++) uit.add(Number(kiesMotivatie({ ...leeg, datum: '2026-11-25', weer: g, opening, gehad: [], ...extra }).sleutel.split('.')[2]));
+      return [...uit].sort();
+    };
+    // Niets genoteerd, een dagdoel, supplementen te nemen, geen reeks: drinken, noteren, supplementen en de twee die altijd passen.
+    expect(nummers({ supplementen: { genomen: 0, totaal: 2 } })).toEqual([1, 2, 4, 7, 8]);
+    // Zonder supplementen: geen zin over supplementen.
+    expect(nummers({})).toEqual([1, 2, 7, 8]);
+    // Iets genoteerd: ook de zin over wat ze al noteerde.
+    expect(nummers({ maaltijden: 1 })).toEqual([1, 2, 3, 7, 8]);
+    // Het dagdoel is gehaald: geen zin over drinken, wel die over het gehaalde dagdoel.
+    expect(nummers({ ml: 2000 })).toEqual([2, 3, 5, 7, 8]);
+    // Zonder dagdoel: geen van beide.
+    expect(nummers({ doelMl: 0, maaltijden: 1 })).toEqual([2, 3, 7, 8]);
+    // Een reeks vanaf twee dagen: de zin met haar reeks, met het juiste aantal.
+    expect(nummers({ lopendeReeks: 2 })).toEqual([1, 2, 6, 7, 8]);
+    expect(nummers({ lopendeReeks: 1 })).toEqual([1, 2, 7, 8]);
+    // Alles klaar: wat ze noteerde, het dagdoel, haar reeks en de twee die altijd passen.
+    expect(nummers({ maaltijden: 3, etenKlaar: true, ml: 2000, supplementen: { genomen: 2, totaal: 2 }, lopendeReeks: 4 })).toEqual([3, 5, 6, 7, 8]);
+  });
+
+  test('de zin over haar reeks noemt het aantal dagen van haar reeks', () => {
+    for (const g of WEERGROEPEN) {
+      expect(TEKSTEN.motivatie[g][6], g).toMatch(/\{aantal\} dagen op rij/);
+      for (const nr of [1, 2, 3, 4, 5, 7, 8]) expect(TEKSTEN.motivatie[g][nr], `${g}.${nr}`).not.toMatch(/\{aantal\}/);
+    }
+    const keuze = { groep: 'weerRegen', sleutel: 'motivatie.weerRegen.6', waarden: { aantal: 5 } };
+    expect(motivatieZin(keuze, 'Sofie')).toBe('Regen of niet, Sofie: je noteert al 5 dagen op rij.');
+    expect(motivatieZin(keuze, '')).toBe('Regen of niet: je noteert al 5 dagen op rij.');
+    for (let opening = 0; opening < 16; opening++) {
+      const k = kiesMotivatie({ ...leeg, datum: '2026-11-25', weer: 'weerZon', lopendeReeks: 2, opening, gehad: [] });
+      expect(k.waarden.aantal).toBe(2);
+    }
+  });
+
+  test('elke weerzin verbindt het weer met haar: Bloei, haar dag, haar dagboek of wat ze erin bijhoudt', () => {
+    const band = /Bloei|dagboek|dagdoel|je dag\b|jouw dag\b|supplementen|noteer|glas|dagen op rij/i;
+    for (const g of WEERGROEPEN) for (const [nr, zin] of Object.entries(TEKSTEN.motivatie[g])) expect(band.test(zin), `${g}.${nr}: ${zin}`).toBe(true);
+    for (const g of WEERGROEPEN) {
+      const z = TEKSTEN.motivatie[g];
+      expect(z[1], g).toMatch(/dagdoel/);
+      expect(z[2], g).toMatch(/noteer|noteren|dagboek/i);
+      expect(z[3], g).toMatch(/al iets|al noteerde|al warm begonnen/);
+      expect(z[4], g).toMatch(/supplementen/);
+      expect(z[5], g).toMatch(/dagdoel (is )?gehaald/i);
+    }
+  });
+
+  test('een hete dag en extreem weer: de zin geeft raad, en komt in elk dagdeel opnieuw', () => {
+    expect([...WEER_MET_RAAD].sort()).toEqual(['weerHeet', ...WEER_EXTREEM].sort());
+    // 's Middags gezien: 's avonds komt de raad opnieuw als moment, 's middags niet meer.
+    const gezien = ['weer:weerHittegolf:middag'];
+    expect(open({ weer: 'weerHittegolf', opening: 3, gehad: gezien, dagdeel: 'avond' }).moment).toBe('weer:weerHittegolf:avond');
+    expect(open({ weer: 'weerHittegolf', opening: 3, gehad: gezien, dagdeel: 'middag' }).moment).toBeUndefined();
+    // Bij hitte staat in elke zin raad, en samen noemen ze alle vier: drinken, schaduw, koel blijven, zorgen voor jezelf.
+    for (const g of ['weerHeet', 'weerHittegolf']) {
+      const zinnen = Object.values(TEKSTEN.motivatie[g]);
+      for (const zin of zinnen) expect(zin, zin).toMatch(/water|drink|schaduw|koel|zorg/i);
+      for (const raad of [/water/, /schaduw/, /koel/, /Zorg goed voor jezelf/]) expect(zinnen.some((z) => raad.test(z)), `${g} ${raad}`).toBe(true);
+    }
+    // Bij elk extreem weer: zorgen voor jezelf, en minstens drie zinnen met raad over veilig, binnen, droog of warm blijven.
+    for (const g of WEER_EXTREEM) {
+      const zinnen = Object.values(TEKSTEN.motivatie[g]);
+      expect(zinnen.some((z) => /Zorg goed voor jezelf/.test(z)), g).toBe(true);
+      expect(zinnen.filter((z) => /veilig|binnen|Kijk uit|schaduw|koel|drink|water|warm|droog|voorzichtig/i.test(z)).length, g).toBeGreaterThanOrEqual(3);
+    }
+    // Het gewone zomerweer, onweer en sneeuw houden hun eigen zinnen, zonder raad over gevaar.
+    for (const g of ['weerWarm', 'weerOnweer', 'weerSneeuw', 'weerZon']) for (const zin of Object.values(TEKSTEN.motivatie[g])) expect(zin, zin).not.toMatch(/Kijk uit|Blijf veilig|Zorg goed voor jezelf/);
+  });
+
+  test('een mijlpaal, haar verjaardag en een feestdag gaan voor; na een handeling zwijgt het weer', () => {
+    expect(open({ weer: 'weerZon', lopendeReeks: 3 }).groep).toBe('reeks');
+    expect(open({ weer: 'weerZon', kalender: { jarig: true, leeftijd: 39 } }).groep).toBe('verjaardag');
+    expect(open({ weer: 'weerZon', kalender: { feestdag: 'kerst' } }).groep).toBe('kerst');
+    expect(open({ weer: 'weerZon', reactie: { soort: 'notitie', nieuw: {}, teller: 1 } }).groep).not.toBe('weerZon');
+  });
+
+  test('zonder weer, of met iets wat geen weergroep is, verandert er niets', () => {
+    const zonder = open().sleutel;
+    expect(open({ weer: null }).sleutel).toBe(zonder);
+    expect(open({ weer: 'reeks' }).sleutel).toBe(zonder);
+    expect(open({ weer: 'weerOnbekend' }).sleutel).toBe(zonder);
+    expect(open({ weer: 42 }).sleutel).toBe(zonder);
+  });
+
+  test('geen enkele weerzin noemt een cijfer, wat ze at of haar gewicht, en elke zin past op twee regels', () => {
+    for (const g of WEERGROEPEN) {
+      for (const zin of Object.values(TEKSTEN.motivatie[g])) {
+        expect(zin, zin).not.toMatch(/\d|gegeten|\bat\b|kilo|gewicht|lichter|zwaarder/i);
+        expect(zin.length, zin).toBeLessThan(90);
+      }
+    }
   });
 });

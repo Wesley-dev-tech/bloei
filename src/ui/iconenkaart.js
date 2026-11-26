@@ -6,8 +6,8 @@
 //
 // ICONEN
 //  - Eén begrip = één icoon, overal. Eén icoon = één begrip, behalve de benoemde uitzonderingen onderaan (UITZONDERINGEN).
-//  - Gevoel en favoriet zijn `regular`, al het andere `solid`. Een inhoudsicoon staat in een tegel van 40 x 40, radius 14, icoon 18 px
-//    (--tile-size, --tile-radius). Stemming is de enige ronde tegel (HUISSTIJL §5.2), nooit een maaltijdtegel.
+//  - Favoriet is `regular`, al het andere `solid`. Een inhoudsicoon staat in een tegel van 40 x 40, radius 14, icoon 18 px
+//    (--tile-size, --tile-radius).
 //  - De maaltijden (MAALTIJDICOON) en de dranken (DRANKICOON) blijven in src/ui/beeld.js de bron voor hun zes en zes iconen; hier staan alleen
 //    hun familie en de verwijzing.
 //
@@ -22,7 +22,6 @@
 //   Algemeen: instellingen, profiel, thema, vergrendeling, uitleg, back-up   neutraal   neutraal   --tile-neutral-*
 //   Delen, verslag, periode                            aubergine   delen       (nieuw: --tile-share-*, zodra spoor A de familie toevoegt)
 //   Eten, de zes maaltijden, favorieten                poederroze  maaltijd    --tile-meal-*
-//   Stemming                                           lavendel naar goud, rond  de vijf stappen --mood-1 tot --mood-5 en --mood-n-soft; energie de blaadjes --energy-*
 //   De medailles houden hun eigen kleur per soort (schermen.css); de knoppen en links houden de gewone interactiekleuren.
 //
 // KLEUREN per soort bediening (één kleur voor één betekenis, overal; geen eigen waarden):
@@ -49,8 +48,6 @@ export const ICOON = {
   drinken: { naam: 'glass-water', familie: 'drank', stijl: 'solid' }, // ook het dagdoel en de dranktegel "Glas water" (de kan heeft haar eigen tekening, BESLISSING 702)
   supplementen: { naam: 'capsules', familie: 'gezondheid', stijl: 'solid' },
   spuit: { naam: 'syringe', familie: 'gezondheid', stijl: 'solid' }, // de geplande beurt van een periodiek supplement (BESLISSING 251)
-  stemming: { naam: 'face-smile', familie: 'neutraal', stijl: 'regular', rond: true }, // de kop van Stemming en energie; de stap zelf: STEMMING_STAP
-  energie: { naam: 'leaf', familie: 'gezondheid', stijl: 'solid' }, // de schaal zelf zijn de eigen blaadjes
   notitie: { naam: 'pen', familie: 'neutraal', stijl: 'solid' },
   gewicht: { naam: 'weight-scale', familie: 'gewicht', stijl: 'solid' }, // ook weging en het tabblad
   // reeks, badges, favoriet
@@ -71,6 +68,7 @@ export const ICOON = {
   verslag: { naam: 'file-lines', familie: 'delen', stijl: 'solid' },
   periode: { naam: 'calendar-days', familie: 'delen', stijl: 'solid' },
   uitleg: { naam: 'circle-info', familie: 'neutraal', stijl: 'solid' }, // "Goed om te weten" en Over
+  weer: { naam: 'cloud-sun', familie: 'neutraal', stijl: 'solid' }, // de regel over het weerbericht bij Privacy
   herinneringen: { naam: 'bell', familie: 'neutraal', stijl: 'solid' }, // het scherm Herinneringen, zijn rijen en weetjes; gevuld en neutraal, zoals vergrendeling en uitleg
   bewaren: { naam: 'floppy-disk', familie: 'neutraal', stijl: 'solid' }, // actie zonder tegel: de knop "Pdf bewaren" op het scherm Delen
   foto: { naam: 'camera', familie: 'neutraal', stijl: 'solid' },
@@ -85,8 +83,6 @@ export const ICOON = {
   verwijderen: { naam: 'trash-can', familie: 'neutraal', stijl: 'solid' }, // profiel verwijderen
 };
 
-// De vijf stappen van de stemming: het gezichtje (regular) in de stapkleur --mood-n op een ronde tegel in --mood-n-soft (HUISSTIJL §5.2).
-export const STEMMING_STAP = ['face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'];
 
 // Welke begrippen een icoon delen, bewust: de huisstijl zelf (koffie en ontbijt delen mug-saucer; de dranken staan
 // in beeld.js), vergrendeling en pincode zijn één begrip, en het potlood is zowel de notitie als de actie bewerken.

@@ -84,7 +84,6 @@ Geen emoji in de interface. Iconen 20px in lijsten, 24px in de tabbalk, kleur `c
 | Avondmaal | `solid/utensils` |
 | Late snack | `solid/moon` |
 | Drank kan water / glas water / thee / koffie / sap / frisdrank | `eigen/kan-water` / `glass-water` / `mug-hot` / `mug-saucer` / `lemon` / `bottle-water` |
-| Energie | eigen blaadjes, zie §5.3 (geen FA-icoon) |
 | Streak | `solid/seedling` |
 | Badge | `solid/award` |
 | Medailles | elke medaille een eigen icoon uit Font Awesome Free (solid), geen twee dezelfde; de lijst staat in `src/logica/badgeiconen.js` |
@@ -110,49 +109,7 @@ Font Awesome levert de vorm, Bloei geeft de stijl. Een kaal, zwart FA-icoon komt
 - **Navigatie- en actie-iconen** (tabbalk, chevrons, ongedaan maken) staan zónder tegel, in
   `currentColor`: inactief `--c-text-muted`, actief `--c-accent`.
 - Iconen nooit met schaduw, rand, verloop of kleur buiten de tokens. Lijndikte niet mengen:
-  inhoud = `solid`, gevoel en favoriet/bel = `regular`.
-
-### 5.2 Gevoelschaal (gezichtjes)
-Vijf stappen, van links naar rechts, alleen Font Awesome `regular`:
-
-| Stap | Label | Icoon | Kleur | Tegel |
-|---|---|---|---|---|
-| 1 | moe | `face-tired` | `--mood-1` lavendelgrijs (#8983A6; Nacht #9D98B5) | `--mood-1-soft` |
-| 2 | gewoon | `face-meh` | `--mood-2` lila (#987EB5; Nacht #B7A5CB) | `--mood-2-soft` |
-| 3 | goed | `face-smile` | `--mood-3` zandgoud (#A3844C; Nacht #B89B66) | `--mood-3-soft` |
-| 4 | blij | `face-grin-beam` | `--mood-4` honing (#AD812F; Nacht #CFA24E) | `--mood-4-soft` |
-| 5 | stralend | `face-grin-hearts` | `--mood-5` goud (#A77A27; Nacht #BC8A2C) | `--mood-5-soft` |
-
-- BESLISSING 414: de stapkleuren zijn in Poeder en Salie donkerder gemaakt (zelfde tint) zodat het gezichtje minstens 3 : 1 haalt op zijn `-soft`-tegel en op wit; Nacht houdt de oude waarden. Ook `--schakel-uit` (de uit-stand van schakelaar en vinkvak) in Poeder: 75 % `--c-text-muted` op de kaart, #988C96 (3,2 : 1).
-- Niet gekozen: icoon 26px in `--c-text-muted` op transparant, label eronder (Jost 12px).
-- Gekozen: ronde tegel 48px in de `-soft`-kleur, icoon in de stapkleur, schaal 1 → 1,08,
-  label in `--c-text`. Maar één tegelvorm is hier rond: zo valt de keuze op.
-- Dezelfde kleuren vullen de bolletjes in de maandkalender (E2) en de stemming op "Vandaag".
-- Geen rood, geen oranje, geen tranen: "moe" is de laagste stap, nooit "slecht".
-
-### 5.3 Energieschaal (blaadjes)
-Energie krijgt geen kaarsjes, batterijen, bliksems of emoji meer, maar een eigen merkelement:
-**vijf blaadjes uit het Bloei-logo** (`energie/blad.svg`), naast elkaar, van klein naar groot.
-
-| Stap | Woord | Gevulde blaadjes |
-|---|---|---|
-| 1 | laag | 1 |
-| 2 | rustig | 2 |
-| 3 | gewoon | 3 |
-| 4 | goed | 4 |
-| 5 | vol | 5 |
-
-- Gevuld = `--energy-on` (oudroze), leeg = `--energy-off` (poederroze). Nacht-thema volgt vanzelf.
-- Hoogte van de blaadjes 70 / 77,5 / 85 / 92,5 / 100% van `--energy-leaf-h`, onderaan uitgelijnd,
-  tussenruimte `--energy-gap`. Kant-en-klare versies: `energie/energie-1.svg` t.e.m. `-5.svg`.
-- **Energiekaart:** gewone kaart; links het label ENERGIE (label-stijl) met daaronder het woord in
-  Cormorant Italic 32px, rechts de blaadjes. Voorbeeld: `energie/voorbeeld-energiekaart.png`
-  (de echte kaart gebruikt Cormorant en Jost).
-- **Kiezen:** elk blaadje is een tikvlak van minstens 44x48; tikken op blaadje 4 vult 1 t.e.m. 4,
-  met een korte groei-animatie (schaal 0,8 → 1, 260ms) en `navigator.vibrate(8)`.
-- **Maandkalender (E2):** de stemming blijft het gekleurde bolletje; energie verschijnt als één
-  klein blaadje (8px) rechtsboven de dag, dekking 0,3 / 0,45 / 0,6 / 0,8 / 1 per stap.
-- Lage energie is nooit negatief: geen grijs, geen leeg-batterij-gevoel, geen waarschuwing.
+  inhoud = `solid`, favoriet/bel = `regular`.
 
 ## 6. Beeld
 - Geen illustraties, geen stockfoto's, geen 3D, geen mascottes, geen emoji.

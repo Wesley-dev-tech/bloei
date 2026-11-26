@@ -51,7 +51,9 @@ export const STAPPEN = {
     { id: 'dag', doel: '.voortgang' },
     { id: 'badges', doel: '[data-uitleg="badges"]' },
     { id: 'week', doel: '[data-uitleg="week"]' },
-    { id: 'gevoel', doel: '.stemmingkaart, .gevoel, .energiekaart', stukken: 'vandaag.gevoel' },
+    // De kaart met het weerbericht: naast de motivator, op een telefoon helemaal onderaan (ui/weerkaart.js).
+    // Past de kaart op een telefoon niet naast de uitleg, dan krijgt elk deel zijn eigen tekst (STUKKEN: nu, de cijfers, de komende dagen).
+    { id: 'weer', doel: '.weerkaart', stukken: 'vandaag.weer' },
     // BESLISSINGEN 548 en 570: de hele kaart Drinken; past ze niet, dan verdeelt de rondleiding ze in afgeronde delen (zie STUKKEN).
     { id: 'glas', doel: '.drinkkaart', stukken: 'vandaag.glas' },
     { id: 'afvinken', doel: '[data-uitleg="momenten"], .afvinklijst, .momentkop', stukken: 'vandaag.afvinken', zonderDeel: '.momentrij[data-moment="beurt"]' }, // zonderDeel: de spuit heeft een eigen stap
@@ -73,10 +75,10 @@ export const STAPPEN = {
     { id: 'notitie', doel: '.dag__notitie' },
     { id: 'drinken', doel: '.dag__drinken', stukken: 'dagboek.drinken' }, // in delen: de tegels, daarna de lijst met de kruisjes
     { id: 'supplementen', doel: '.dag__supplementen', stukken: 'dagboek.supplementen' },
-    { id: 'stemming', doel: '.dag__stemming', stukken: 'dagboek.stemming' },
     // weekweergave
     { id: 'weekcijfers', doel: '.wk__samenvatting', stukken: 'dagboek.weekcijfers' }, // in delen: elk deel noemt de cijfers die erin staan
-    { id: 'weekschema', doel: '.wk__schemakaart', klein: [{ doel: '.wk__compactlijst' }, { doel: '.wk__compactlijst > .wk__compactitem:first-child', ook: '.wk__compactlijst > .wk__compactitem:nth-child(3)' }, { doel: '.wk__compactlijst > .wk__compactitem:first-child' }] }, // klein: een paar rijen (BESLISSING 548)
+    // heel (eigenaar, 0.5.8): altijd het hele weekschema, nooit een paar rijen ervan; past het niet naast de kaart, dan ligt de kaart over het onderste deel.
+    { id: 'weekschema', doel: '.wk__schemakaart', heel: true },
     // maandweergave
     { id: 'cijfers', doel: '.maand__cijferkaart', stukken: 'dagboek.cijfers' }, // in delen: elk deel noemt de cijfers die erin staan
     // De kalender in een stap: de hele kaart, of op een telefoon het rooster zelf (klein), zonder de legenda: die heeft een eigen stap (tekens).
@@ -251,7 +253,7 @@ export const STAPPEN = {
     // BESLISSING 592: past de kaart Eten niet in één keer, dan in afgeronde delen, elk met een tekst over wat erin staat (STUKKEN). De favorieten
     // onder de momenten hebben hun eigen stap (gebruik) en tellen hier niet mee (zonderDeel).
     { id: 'regel', doel: '.etenkaart', zonderDeel: '.eten__favorieten', stukken: 'h:maaltijd.regel' },
-    // Het blad van boven naar onder: het uur, het tekstvak, het hartje, de snelle keuzes, het gevoel, de knoppen. Daarna, met het blad dicht,
+    // Het blad van boven naar onder: het uur, het tekstvak, het hartje, de snelle keuzes, de knoppen. Daarna, met het blad dicht,
     // later aanpassen en de favorieten op Vandaag. Vroeger sprong de volgorde: blad dicht, open en weer dicht.
     { id: 'uur', doel: '[data-uitleg="maaltijd-uur"]', voor: 'openMaaltijd' },
     { id: 'open', doel: '.maaltijd__tekst textarea, .maaltijdblad textarea', voor: 'openMaaltijd' }, // BESLISSING 419: het tekstvak staat in het blad
@@ -259,7 +261,6 @@ export const STAPPEN = {
     { id: 'favoriet', doel: '[data-uitleg="maaltijd-favoriet"]', voor: 'openMaaltijd', smal: { ook: '.maaltijd__tekst textarea, .maaltijdblad textarea' } },
     // vooraf: de snelle keuzes staan er alleen als er iets te kiezen valt; de teller weet dat van bij de eerste stap (rondleiding.js, meetVooraf).
     { id: 'snel', doel: '.maaltijd__chips', voor: 'openMaaltijd', vooraf: true },
-    { id: 'gevoel', doel: '[data-uitleg="maaltijd-gevoel"]', voor: 'openMaaltijd' },
     // Klaar, Annuleren en Verwijderen: elk een eigen stap met een eigen vak (zelf: de knop blijft zichzelf, ook al staan de buren 8 px ernaast).
     // Vroeger lichtte de stap Klaar op een telefoon ook Annuleren uit (BESLISSING 592, M5 en M6).
     { id: 'bewaard', doel: '[data-uitleg="maaltijd-bewaren"]', voor: 'openMaaltijd', zelf: true },
@@ -321,12 +322,6 @@ export const STAPPEN = {
     { id: 'punt', doel: '[data-uitleg="grafiek-vlak"], .gewichtgrafiek__vlak', als: '.gewichtgrafiek__vlak .grafiek__punt' },
     { id: 'streef', doel: '[data-uitleg="streefgewicht"], .streef' },
   ],
-  'h:stemming': [
-    { id: 'gezicht', doel: '.gevoel' },
-    { id: 'energie', doel: '.energiekaart, .energie', ook: '.stemmingkaart .dag__wis' }, // met de zin eronder, die anders half onder het vak uitstak
-    { id: 'wissen', doel: '.gevoel .is-gekozen' }, // BESLISSING 563: het gekozen gezichtje (zonder keuze valt de stap weg)
-    { id: 'terug', doel: '.tabbalk__item--dagboek, .zijbalk__item--dagboek' }, // het tabblad Dagboek: vroeger een kaart zonder aanduiding
-  ],
   'h:dagboek': [
     { id: 'weergave', doel: '.segment' },
     { id: 'bladeren', doel: '.bladerkop' },
@@ -347,6 +342,14 @@ export const STAPPEN = {
   // BESLISSING 579: "Mijn instellingen" is vier korte handleidingen. Drie ervan zijn de rondleiding van hun instelscherm (645, zie hierboven);
   // "Een thema kiezen" is de stap Thema van Algemeen (THEMA_KAART).
   'h:thema': [{ id: 'kaart', ...THEMA_KAART }],
+  // "Het weer lezen" (0.5.8): de kaart Het weer op Vandaag, deel per deel, waar het weer vandaan komt en de zin die het weer volgt.
+  'h:weer': [
+    { id: 'nu', doel: '.weerkaart .weerkaart__nu' },
+    { id: 'cijfers', doel: '.weerkaart .weerkaart__cijfers' },
+    { id: 'week', doel: '.weerkaart .weerkaart__week' },
+    { id: 'plek', midden: true },
+    { id: 'zin', doel: '.voortgang > .voortgang__zin' },
+  ],
   'h:beginscherm': [
     { id: 'safari', midden: true },
     { id: 'deel', midden: true },
@@ -401,11 +404,11 @@ const KLEIN = {
 // dit stuk telt alleen als er geen ander stuk in hetzelfde deel staat (de kop van een kaart die apart getoond wordt). 'vervolg':
 // de titel en tekst van een deel zonder eigen stuk (de rest van een lange lijst of rooster).
 export const STUKKEN = {
-  'vandaag.gevoel': {
+  'vandaag.weer': {
     stukken: [
-      { bij: '.stemmingkaart > .kaartkop', eigen: true, titel: 'Stemming en energie', tekst: 'In deze kaart hou je bij hoe je dag was: je stemming en je energie.' },
-      { bij: '.stemmingkaart .stemming__vraag', titel: 'Je stemming', tekst: 'Kies het gezichtje dat bij je dag past.' },
-      { bij: '.stemmingkaart .vandaag__energie', titel: 'Je energie', tekst: 'Tik op de blaadjes voor je energie. Je kan het altijd nog aanpassen.' },
+      { bij: '.weerkaart .weerkaart__nu', titel: 'Het weer van nu', tekst: 'Bovenaan staat het weer bij jou: de temperatuur van nu, het weerbeeld en hoe het aanvoelt.' },
+      { bij: '.weerkaart .weerkaart__cijfers', titel: 'Vandaag in cijfers', tekst: 'Hier staan tien cijfers van vandaag, van regen en wind tot zon op en zon onder.' },
+      { bij: '.weerkaart .weerkaart__week', titel: 'De komende dagen', tekst: 'Onderaan zie je de komende dagen: het weerbeeld, de hoogste en de laagste temperatuur en de kans op regen.' },
     ],
   },
   'vandaag.glas': {
@@ -426,7 +429,7 @@ export const STUKKEN = {
   },
   'vandaag.maaltijd': {
     stukken: [
-      { bij: '.etenkaart > .kaartkop', titel: 'Een maaltijd noteren', tekst: 'Eten staat in één kolom. Tik op een moment van de dag, schrijf kort op wat je at en tik op Klaar.' },
+      { bij: '.etenkaart > .kaartkop', titel: 'Een maaltijd noteren', tekst: 'Hier noteer je wat je at. Tik op een moment van de dag, schrijf kort op wat je at en tik op Klaar.' },
       // na: deze zin komt achter de zin over de momenten in hetzelfde deel (de favorieten staan onder Late snack).
       { bij: '.etenkaart .eten__favorieten', na: true, titel: 'Je favorieten', tekst: 'Onder je maaltijden staan je favorieten: tik er een aan en hij wordt meteen ingevuld bij het moment dat aan de beurt is.' },
     ],
@@ -494,7 +497,7 @@ export const STUKKEN = {
     stukken: [
       { bij: '.kalkaart > .kaartkop', titel: 'De kalender', tekst: 'Je maand in één blik. Met de pijlen ga je naar een andere maand.' },
       { bij: '.kalkaart .kalender__week:has(.is-vandaag)', titel: 'De dagen', tekst: 'Vandaag is het {kleur.vandaag:bij} rondje. Tik op een dag om hem te openen.' },
-      { bij: '.kalkaart .kalkaart__legenda', titel: 'De tekens', tekst: 'Een {kleur.klaar} bolletje betekent dat je die dag al je supplementen nam en een spuitje is een geplande spuit.' },
+      { bij: '.kalkaart .kalkaart__legenda', titel: 'De tekens', tekst: 'Een {kleur.klaar} bolletje betekent dat je die dag al je supplementen nam, een spuitje dat er een spuit gepland is.' },
       { bij: '.kalkaart .kalkaart__onder', titel: 'Naar het Dagboek', tekst: 'Met Naar het Dagboek open je deze maand in je Dagboek.' },
     ],
     vervolg: {
@@ -514,7 +517,7 @@ export const STUKKEN = {
     uitZinnen: true,
     stukken: [
       // het label Wat komt erin met Eten en Drinken; de zin noemt de vier onderdelen
-      { bij: '.delen__onderdelen > .delen__groeplabel', titel: 'Wat erin komt', tekst: 'Je kiest uit vier onderdelen: eten, drinken, gewicht en notities, elk met hoeveel er in de periode staat.' },
+      { bij: '.delen__onderdelen > .delen__groeplabel', titel: 'Wat erin komt', tekst: 'Je kiest wat er in je verslag komt: eten, drinken, gewicht en notities. Bij elk onderdeel staat hoeveel er in de periode staat.' },
       // de rijen Gewicht en Notities (delen.gewicht)
       { bij: '.delen__vinkjes > .delen__optie:nth-child(3)', titel: 'Gewicht', tekst: 'Gewicht en notities staan uit tot jij ze aanzet.' },
     ],
@@ -527,7 +530,7 @@ export const STUKKEN = {
       // de kop met de momenten van de dag; de stand rechts in de kop is ook de knop naar alle supplementen van die dag
       { bij: '.dag__supplementen > .kaartkop', titel: 'Supplementen', tekst: 'Hier vink je per moment af wat je nam. Met de stand rechtsboven, bijvoorbeeld 1 van 3, open je alle supplementen van die dag.' },
       // de rij van een geplande spuit (agenda.kop), alleen op een dag met een geplande beurt
-      { bij: '.dag__supplementen .dag__spuit', titel: 'Geplande beurt', tekst: 'Is er die dag een spuit gepland, dan staat ze erbij: je kan ze afvinken en op elke dag ook weer terugzetten.' },
+      { bij: '.dag__supplementen .dag__spuit', titel: 'Geplande beurt', tekst: 'Is er die dag een spuit gepland, dan staat ze erbij en vink je ze hier af.' },
     ],
     // (een kleine telefoon: een deel met alleen momenten krijgt een eigen zin in plaats van de vultekst "Hier staat ook avond")
     vervolg: { naam: '.momentrij__naam, .rij__titel', maak: (n) => ({ titel: hoofdletter(opsomming(n.map(klein))), tekst: `Ook ${opsomming(n.map(klein))} vink je hier met één tik af.` }) },
@@ -543,15 +546,8 @@ export const STUKKEN = {
       { bij: '.dag__drinken .dagdranklijst', titel: 'Wat je dronk', tekst: 'Per soort zie je wat je dronk, en met het kruisje erbij haal je er één weg.' },
     ],
   },
-  'dagboek.stemming': {
-    stukken: [
-      { bij: '.dag__stemming .stemming__vraag', titel: 'Stemming en energie', tekst: 'Kies het gezichtje dat bij deze dag past.' },
-      { bij: '.dag__stemming .vandaag__energie', titel: 'Je energie', tekst: 'Tik op een blaadje voor je energie: één is weinig, vijf is veel.' },
-      { bij: '.dag__stemming .dag__wis', titel: 'Je keuze wissen', tekst: 'Tik nog eens op je keuze om ze te wissen.' },
-    ],
-  },
   'dagboek.weekcijfers': {
-    stukken: [{ bij: '.wk__skaart--eten', titel: 'De week in cijfers', tekst: 'Bovenaan staan de kerncijfers van de week.' }],
+    stukken: [{ bij: '.wk__skaart--eten', titel: 'De week in cijfers', tekst: 'Bovenaan staan de cijfers van de week.' }],
     vervolg: { naam: '.wk__skop .label, .wk__skop', ookBijStuk: true, maak: (n) => ({ titel: hoofdletter(opsomming(n.map(klein))), tekst: `Hier ${n.length > 1 ? 'staan de tegels' : 'staat de tegel'} ${opsomming(n.map(hoofdletter))}.` }) },
   },
   'dagboek.cijfers': {
@@ -560,14 +556,14 @@ export const STUKKEN = {
   },
   'drinken.cijfers': {
     stukken: [
-      { bij: '.drinken__kern', titel: 'Je week in cijfers', tekst: 'Hier staan je gemiddelde, hoe vaak je je dagdoel haalde, je beste dag en je reeks. Je leest ze alleen.' },
+      { bij: '.drinken__kern', titel: 'Je week in cijfers', tekst: 'Hier zie je hoeveel je gemiddeld dronk, hoe vaak je je dagdoel haalde, je beste dag en je reeks.' },
       { bij: '.drinken__meest', titel: 'Wat je het meest drinkt', tekst: 'Onderaan zie je wat je die week het meest dronk.' },
     ],
   },
   'supplementen.lijst': {
     stukken: [
       { bij: '.overzichtkaart .schema--dag', titel: 'Je schema', tekst: 'Onder Mijn supplementen staat je schema: wat je neemt, hoeveel en hoe, per moment van de dag.' },
-      { bij: '.overzichtkaart .schema--periodiek', titel: 'Niet elke dag', tekst: 'Apart staat wat je niet elke dag neemt. Een spuit herken je aan spuit of injectie in de naam.' },
+      { bij: '.overzichtkaart .schema--periodiek', titel: 'Niet elke dag', tekst: 'Wat je niet elke dag neemt, staat apart. Staat er spuit of injectie in de naam, dan zie je een spuitje.' },
     ],
   },
   // ---- Een kleine telefoon (375 x 667): kaarten die daar in delen vallen, kregen voor hun vervolg de vultekst "Ook dit hoort erbij". Elk
@@ -577,7 +573,7 @@ export const STUKKEN = {
     vervolg: { naam: '.drankknop__naam', maak: (n) => ({ titel: hoofdletter(opsomming(n.map(klein))), tekst: `Ook ${opsomming(n.map(klein))} voeg je met één tik toe.` }) },
   },
   'drinken.lijst': {
-    stukken: [{ bij: '.drinken__lijst .kaartkop', titel: 'Vandaag gedronken', tekst: 'Hier staat je hele dag per soort. Met de knop bij een soort haal je er één weg.' }],
+    stukken: [{ bij: '.drinken__lijst .kaartkop', titel: 'Vandaag gedronken', tekst: 'Hier staat wat je vandaag dronk, per soort. Met de knop bij een soort haal je er één weg.' }],
     vervolg: { naam: '.soortblok__naam', maak: (n) => ({ titel: hoofdletter(opsomming(n.map(klein))), tekst: `Ook bij ${opsomming(n.map(klein))} haal je er met het kruisje één weg.` }) },
   },
   'h:drinken.regel': {
@@ -677,8 +673,8 @@ export const HANDELING_SCHERM = {
   supplementen: 'vandaag',
   lijst: 'supplementen',
   gewicht: 'gewicht',
-  stemming: 'vandaag',
   dagboek: 'dagboek',
+  weer: 'vandaag',
   verslag: 'delen',
   slot: 'meer/vergrendeling',
   meldingen: 'meer/meldingen',
@@ -697,8 +693,8 @@ export const ONDERWERPEN = [
   { id: 'supplementen', sleutel: 'h:supplementen', begrip: 'supplementen' },
   { id: 'lijst', sleutel: 'h:lijst', begrip: 'bewerken' },
   { id: 'gewicht', sleutel: 'h:gewicht', begrip: 'gewicht' },
-  { id: 'stemming', sleutel: 'h:stemming', begrip: 'stemming' },
   { id: 'dagboek', sleutel: 'h:dagboek', begrip: 'dagboek' },
+  { id: 'weer', sleutel: 'h:weer', begrip: 'weer' },
   // BESLISSING 563: deze drie handelingen vielen volledig samen met de rondleiding van hun scherm; de rij start die rondleiding.
   { id: 'verslag', sleutel: 'delen', begrip: 'delen' },
   { id: 'meldingen', sleutel: 'meer/meldingen', begrip: 'herinneringen' },
@@ -794,15 +790,15 @@ export const TOESTEL_TEKST = {
   },
   // kort: een kortere tekst met dezelfde inhoud, alleen als het blok met de gewone tekst niet naast de kaart past (BESLISSING 591).
   'stap.vandaag.dag': {
-    kort: { tekst: 'Vier tegels tonen hoe je dag ervoor staat. Ze zijn om naar te kijken: de cijfers lopen vanzelf mee.' },
+    kort: { tekst: 'De tegels tonen hoe je dag ervoor staat. Je hoeft er niets mee te doen: de cijfers tellen vanzelf mee.' },
   },
   'stap.vandaag.badges': {
     aanraak: { tekst: 'Hier staan je laatste medaille en de medailles die eraan komen. Tik erop om te lezen wat ze betekenen.' },
     muis: { tekst: 'Hier staan je laatste medaille en de medailles die eraan komen. Ga erover met de muis om te lezen wat ze betekenen.' },
   },
   'stap.dagboek.weekschema': {
-    aanraak: { tekst: 'Eén rij per dag, met tekens voor eten, drinken, supplementen, stemming, energie en notitie. Je leest het alleen: tik op een teken om te zien wat het betekent.' },
-    muis: { tekst: 'Eén rij per dag, met tekens voor eten, drinken, supplementen, stemming, energie en notitie. Je leest het alleen: ga met de muis over een teken om te zien wat het betekent.' },
+    aanraak: { tekst: 'Eén rij per dag, met tekens voor eten, drinken, supplementen en notitie. Dit is alleen om te lezen. Tik op een teken om te zien wat het betekent.' },
+    muis: { tekst: 'Eén rij per dag, met tekens voor eten, drinken, supplementen en notitie. Dit is alleen om te lezen. Ga met de muis over een teken om te zien wat het betekent.' },
   },
   // De knoppen bovenaan een scherm onder Algemeen: Delen staat in de kop tot 960 px, daarboven in de zijbalk (componenten.css).
   'stap.kopSub': {

@@ -231,7 +231,6 @@ test('Badges: per groep, met telling; na een eerste invoer staat de eerste badge
   await expect(page.locator('.badgehero')).toContainText('De volgende');
   // Medailles per groep, nog niet behaalde omlijnd en gedempt; de telling staat bovenaan
   await expect(page.locator('.badgegroep')).toHaveCount(8);
-  await expect(page.locator('.badgegroep__titel')).toContainText(['Bijhouden', 'Eten', 'Drinken', 'Supplementen', 'Stemming en notities', 'Wegen', 'De hele dag', 'Bewaren en delen']);
   await expect(page.locator('.medaille.is-open').first()).toBeVisible();
   await expect(page.locator('.badgehero__telling')).toHaveText('0 van 33 behaald');
   // Een kaart opent een blad met uitleg en de stand

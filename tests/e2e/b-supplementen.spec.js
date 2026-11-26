@@ -33,26 +33,6 @@ async function wachtOpInnames(page, aantal) {
   );
 }
 
-async function wachtOpDag(page, veld, waarde) {
-  await wachtTotWaar(page,
-    ([v, w]) =>
-      new Promise((klaar) => {
-        const open = indexedDB.open('bloei-dagboek');
-        open.onerror = () => klaar(false);
-        open.onsuccess = () => {
-          const db = open.result;
-          const vraag = db.transaction('dagen').objectStore('dagen').getAll();
-          vraag.onsuccess = () => {
-            db.close();
-            klaar(vraag.result.some((d) => d[v] === w));
-          };
-          vraag.onerror = () => klaar(false);
-        };
-      }),
-    [veld, waarde],
-  );
-}
-
 // Op Vandaag staat de kaart Supplementen standaard dicht.
 const openSupp = async () => {}; // de kaart op Vandaag is altijd open
 
@@ -67,7 +47,6 @@ async function voegToe(page, naam, hoeveelheid = '', extraMomenten = []) {
   await blad.getByRole('button', { name: 'Bewaren' }).click();
   await expect(blad).toBeHidden();
 }
-
 
 const kaartDlg = (page) => page.getByRole('dialog');
 const dag = (page, n) => lokaleDatum(page, n);
@@ -276,6 +255,7 @@ test('E12: de voortgang vult zich per onderdeel, de zin past zich aan en blijft 
 
   await page.locator('.drankknop[data-soort="water"]').click();
   await expect(page.locator('.voortgang__deel[data-deel="glass-water"]')).toHaveClass(/is-vol/);
+  await expect(page.locator('.voortgang__deel[data-deel="droplet"]')).toHaveClass(/is-vol/); // het dagdoel in procent telt mee zodra er gedronken is
   const zin1 = await page.locator('.voortgang__zin').textContent();
   expect(zin1).not.toBe(zin0);
 
@@ -289,19 +269,16 @@ test('E12: de voortgang vult zich per onderdeel, de zin past zich aan en blijft 
   await expect(maaltijdblad(page)).toHaveCount(0);
   await expect(page.locator('.voortgang__deel[data-deel="utensils"]')).toHaveClass(/is-vol/);
 
-  await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-  await expect(page.locator('.voortgang__deel[data-deel="face-smile"]')).toHaveClass(/is-vol/);
-  await wachtOpDag(page, 'stemming', 4);
   await expect(page.locator('.voortgang__deel.is-vol')).toHaveCount(4);
 
-  // Een volle dag: nergens een score of een verwijt
-  await expect(page.locator('.voortgang')).not.toContainText(/%|vergeten|gemist|!/);
+  // Een volle dag: nergens een verwijt (het dagdoel staat er wel in procent)
+  await expect(page.locator('.voortgang')).not.toContainText(/vergeten|gemist|!/);
   // 0.4.7: elke opening van de dag krijgt een andere zin (data/motivatiestand.js). Ze zag anders de hele dag dezelfde.
   await page.reload();
   await expect(page.locator('.voortgang__deel.is-vol')).toHaveCount(4);
   await expect(page.locator('.voortgang__zin')).not.toBeEmpty();
   const zin3 = await page.locator('.voortgang__zin').textContent();
-  await expect(page.locator('.voortgang')).not.toContainText(/%|vergeten|gemist|!/);
+  await expect(page.locator('.voortgang')).not.toContainText(/vergeten|gemist|!/);
   await page.reload();
   await expect(page.locator('.voortgang__deel.is-vol')).toHaveCount(4);
   await expect(page.locator('.voortgang__zin')).not.toBeEmpty();
@@ -313,7 +290,7 @@ test('E12: zonder supplementen in de lijst telt dat onderdeel niet mee, en het w
   await expect(page.locator('.voortgang__deel')).toHaveCount(3);
   await expect(page.locator('.vandaag').getByRole('checkbox')).toHaveCount(0);
   await page.locator('.drankknop[data-soort="water"]').click();
-  await expect(page.locator('.voortgang__deel.is-vol')).toHaveCount(1);
+  await expect(page.locator('.voortgang__deel.is-vol')).toHaveCount(2); // Drinken en het dagdoel
 
   await page.goto('./#/dagboek');
   await page.getByRole('radio', { name: 'Week' }).click();

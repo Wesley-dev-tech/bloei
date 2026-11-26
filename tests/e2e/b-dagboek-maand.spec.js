@@ -35,8 +35,8 @@ async function vulMaand(page, maand, aantalDagen = 28) {
           tx.objectStore('momentinnames').put({ datum: d(10), supplementId: 2, moment: 'dag', tijdstip: 1, voorbeeld: false });
           for (let n = 1; n <= aantal; n++) {
             if (n % 9 === 0) continue; // lege dagen
-            tx.objectStore('dagen').put({ datum: d(n), notitie: n === 4 ? 'Een rustige dag.' : '', stemming: (n % 5) + 1, energie: ((n + 1) % 5) + 1, doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
-            for (let i = 0; i < n % 7; i++) tx.objectStore('maaltijden').put({ datum: d(n), soort: soorten[i], tijd: '12:00', tekst: 'Soep', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1 });
+            tx.objectStore('dagen').put({ datum: d(n), notitie: n === 4 ? 'Een rustige dag.' : '', doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
+            for (let i = 0; i < n % 7; i++) tx.objectStore('maaltijden').put({ datum: d(n), soort: soorten[i], tijd: '12:00', tekst: 'Soep', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
             const ml = n % 3 === 0 ? 2600 : n % 3 === 1 ? 900 : 0; // 2600 haalt elk gangbaar dagdoel
             if (ml) tx.objectStore('dranken').add({ datum: d(n), tijdstip: 1000 + n, soort: 'water', ml, voorbeeld: false });
             const momenten = n % 4 === 0 ? ['ochtend', 'middag', 'avond'] : n % 4 === 1 ? ['ochtend'] : [];
@@ -67,22 +67,20 @@ async function openMetMaand(page, maand, aantalDagen) {
 
 const liter = (ml) => `${String(Math.round(ml / 10) / 100).replace('.', ',')} l`;
 
-test('Maand: de cel bevat alleen het nummer, het bolletje van alle supplementen en het spuitje (geen stemming)', async ({ page }) => {
+test('Maand: de cel bevat alleen het nummer, het bolletje van alle supplementen en het spuitje', async ({ page }) => {
   await page.setViewportSize({ width: 1690, height: 1230 });
   await openMetMaand(page, MAAND);
   await expect(page.locator('.mk__dag')).toHaveCount(DAGEN);
   for (let n = 1; n <= DAGEN; n++) {
     const dag = page.locator(`.mk__dag[data-datum="${MAAND}-${String(n).padStart(2, '0')}"]`);
-    // geen eten, drinken, supplementen of energie in de cel
-    await expect(dag.locator('.mk__eten, .mk__drinken, .mk__supplementen, .mk__energie, .mk__blad, .energie, progress')).toHaveCount(0);
+    // geen eten, drinken of supplementen in de cel
+    await expect(dag.locator('.mk__eten, .mk__drinken, .mk__supplementen, progress')).toHaveCount(0);
     const kinderen = await dag.evaluate((el) => [...el.children].map((c) => c.className));
     expect(kinderen.length).toBe(2); // het nummer en één regel tekens
     expect(kinderen[0]).toContain('mk__nr');
     const tekens = await dag.locator('.mk__tekens > *').evaluateAll((els) => els.map((e) => e.className));
     expect(tekens.length).toBeLessThanOrEqual(2); // hoogstens het bolletje en het spuitje
     for (const k of tekens) expect(k).toMatch(/mk__plek/);
-    // BESLISSING 294: geen gezichtje of stemmingsbolletje in de cel, ook niet op dagen met een ingevulde stemming
-    await expect(dag.locator('.mk__stemming, .gevoelicoon, .kalender__bol')).toHaveCount(0);
     // het bolletje van alle supplementen (in het Dagboek bruin, in Nacht roze: src/uitleg/kleurnamen.js) precies op de dagen met alle drie de momenten afgevinkt (4, 8, 12, ... 28)
     await expect(dag.locator('.mk__klaar')).toHaveCount(n <= 28 && n % 4 === 0 ? 1 : 0);
   }
@@ -93,7 +91,7 @@ test('Maand: de cel bevat alleen het nummer, het bolletje van alle supplementen 
   await expect(page.locator('.mk__dag .mk__klaar')).toHaveCount(7);
   // toegankelijk label in woorden, zonder tellingen van supplementen per dag
   const label = await page.locator(`.mk__dag[data-datum="${MAAND}-04"]`).getAttribute('aria-label');
-  expect(label).toMatch(/^[a-z]+ 4 [a-z]+( \d{4})?, stemming [a-z]+, energie [a-z]+, 4 van 6 maaltijden, /);
+  expect(label).toMatch(/^[a-z]+ 4 [a-z]+( \d{4})?, 4 van 6 maaltijden, /);
   expect(label).toMatch(/alle supplementen genomen/);
   // bij hover verandert de cel niet van plaats, kleur of schaduw (alleen een icoon mag oplichten)
   const cel = page.locator(`.mk__dag[data-datum="${MAAND}-05"]`);
@@ -113,24 +111,28 @@ test('Maand: het overzicht rekent over de hele maand (30 dagen, 180 maaltijden),
   let metDrank = 0;
   let doel = 0;
   let alle = 0;
-  const telling = [0, 0, 0, 0, 0, 0];
+  let langste = 0;
+  let loop = 0;
   for (let n = 1; n <= 28; n++) {
-    if (n % 9 === 0) continue;
+    const ml = n % 9 === 0 ? 0 : n % 3 === 0 ? 2600 : n % 3 === 1 ? 900 : 0;
+    // Een dag telt als bijgehouden zodra er iets staat: een maaltijd, een drank, een afgevinkt moment of een notitie (de 14e heeft niets).
+    const iets = n % 9 !== 0 && (n % 7 > 0 || ml > 0 || n % 4 <= 1 || n === 4);
+    loop = iets ? loop + 1 : 0;
+    langste = Math.max(langste, loop);
+    if (!iets) continue;
     bijgehouden += 1;
     maaltijden += n % 7;
-    const ml = n % 3 === 0 ? 2600 : n % 3 === 1 ? 900 : 0;
     totaalMl += ml;
     if (ml) metDrank += 1;
     if (ml === 2600) doel += 1;
     if (n % 4 === 0) alle += 1;
-    telling[(n % 5) + 1] += 1;
   }
-  const meest = [1, 2, 3, 4, 5].reduce((m, n) => (telling[n] >= telling[m] ? n : m), 1);
-  const stemmingNaam = ['moe', 'gewoon', 'goed', 'blij', 'stralend'][meest - 1];
+  expect(bijgehouden).toBe(24);
+  expect(langste).toBe(8);
 
   const items = page.locator('.maand__overzicht .maand__kc');
   await expect(items).toHaveCount(8);
-  const labels = ['Bijgehouden', 'Maaltijden', 'Gedronken', 'Dagdoel', 'Supplementen', 'Stemming', 'Gewicht', 'Spuiten'];
+  const labels = ['Bijgehouden', 'Maaltijden', 'Gedronken', 'Dagdoel', 'Supplementen', 'Langste reeks', 'Gewicht', 'Spuiten'];
   for (const [i, l] of labels.entries()) await expect(items.nth(i).locator('.maand__kclabel')).toHaveText(l);
   // de waarde is één groot cijfer of woord; de rest staat in de onderregel
   const norm = (s) => s.replace(/\s+/g, ' ').trim();
@@ -151,32 +153,13 @@ test('Maand: het overzicht rekent over de hele maand (30 dagen, 180 maaltijden),
   expect(await sub(3)).toBe(`van ${DAGEN} dagen gehaald`);
   expect(await waarde(4)).toBe(String(alle));
   expect(await sub(4)).toBe(`van ${DAGEN} dagen volledig`);
-  // BESLISSING 314: alleen het gezichtje, geen woord; het woord staat in de toegankelijke naam; gecentreerd in de kolom en op de lijn van de cijfers
-  expect(await waarde(5)).toBe('');
-  await expect(items.nth(5).locator('.maand__kcwaarde')).toHaveAttribute('aria-label', `Stemming: ${stemmingNaam}, ${telling[meest]} dagen`);
-  await expect(items.nth(5).locator('.maand__kcwaarde .gevoelicoon')).toHaveCount(1);
-  const stemMeting = await page.evaluate(() => {
-    const lijst = [...document.querySelectorAll('.maand__overzicht .maand__kc')];
-    const kc = lijst[5];
-    const ic = kc.querySelector('.gevoelicoon .icoon').getBoundingClientRect();
-    const kol = kc.getBoundingClientRect();
-    const ref = lijst[4].querySelector('.maand__kcwaarde').getBoundingClientRect();
-    const eigen = kc.querySelector('.maand__kcwaarde').getBoundingClientRect();
-    return { dx: Math.abs(ic.left + ic.width / 2 - (kol.left + kol.width / 2)), dy: Math.abs(ic.top + ic.height / 2 - (ref.top + ref.height / 2)), hoogte: ic.height, eigenDy: Math.abs(eigen.top - ref.top) };
-  });
-  expect(stemMeting.dx).toBeLessThanOrEqual(0.5);
-  expect(stemMeting.dy).toBeLessThanOrEqual(1);
-  expect(stemMeting.hoogte).toBeGreaterThanOrEqual(28);
-  expect(stemMeting.hoogte).toBeLessThanOrEqual(32);
-  expect(stemMeting.eigenDy).toBeLessThanOrEqual(0.5);
-  expect(await sub(5)).toBe(`${telling[meest]} dagen`);
+  expect(await waarde(5)).toBe(String(langste));
+  expect(await sub(5)).toBe('dagen op rij');
   expect(await waarde(6)).toBe('69,5 kg');
   await expect(items.nth(6).locator('.maand__kceenheid')).toHaveText('kg');
   expect(await sub(6)).toBe('2 wegingen');
   expect(await waarde(7)).toBe('4');
   expect(await sub(7)).toBe('gepland · 1 gezet');
-  // geen kaart met de verdeling van stemmingen
-  await expect(page.locator('.maand__stemkaart')).toHaveCount(0);
 
   await wachtOpRust(page); // de kaarten schuiven bij het openen één keer op hun plaats
   await controleerRaster(page);
@@ -210,7 +193,6 @@ async function controleerRaster(page) {
       // de basislijn van de waarde: de onderkant van het eerste tekstteken in de waarde
       const w = li.querySelector('.maand__kcwaarde');
       const tekst = [...w.childNodes].find((n) => n.nodeType === 3 && n.textContent.trim() !== '');
-      // het blok Stemming toont alleen een icoon (BESLISSING 314): geen tekstbasislijn, dat staat apart gemeten
       let basis = null;
       if (tekst) {
         const rg = document.createRange();
@@ -262,7 +244,7 @@ test('Maand: zonder gegevens toont elk cijfer een streepje en staat er geen kaar
   await page.goto(`./#/dagboek/maand/${MAAND}`);
   await expect(page.locator('.maand__overzicht .maand__kc')).toHaveCount(8);
   for (const i of [0, 1, 2, 3, 4, 5, 6, 7]) await expect(page.locator('.maand__overzicht .maand__kc').nth(i).locator('.maand__kcwaarde')).toHaveText('-');
-  await expect(page.locator('.maand__stemkaart, .maand__gepkaart')).toHaveCount(0);
+  await expect(page.locator('.maand__gepkaart')).toHaveCount(0);
   await expect(page.locator('.maand__overzicht')).not.toContainText(/\b0\b/);
 });
 
@@ -276,7 +258,6 @@ test('Maand: de legenda heeft precies twee paren, alle supplementen genomen en g
     await expect(li.locator('.maand__legwoord')).toHaveCount(1);
   }
   await expect(paren.nth(0).locator('.mk__klaar')).toHaveCount(1);
-  await expect(page.locator('.maand__legenda .gevoelicoon')).toHaveCount(0);
   await expect(paren.nth(0).locator('.maand__legwoord')).toHaveText('alle supplementen genomen');
   await expect(paren.nth(1).locator('.kalender__spuit')).toHaveCount(1);
   await expect(paren.nth(1).locator('.maand__legwoord')).toHaveText('geplande spuit');
@@ -296,15 +277,18 @@ test('Maand: het paneel toont de gekozen dag, vandaag is bij het openen gekozen 
   await expect(page.locator(`.mk__dag[data-datum="${MAAND}-04"]`)).toHaveAttribute('aria-pressed', 'true');
   const paneel = page.locator('.maand__paneel');
   await expect(paneel).toContainText('4 september');
-  await expect(paneel).toContainText('stralend');
   await expect(paneel.locator('.maand__blok').nth(0)).toContainText('4 van 6');
-  await expect(paneel.locator('.maand__maaltijd')).toHaveCount(4);
+  // sinds 0.5.8 staan de zes maaltijden er altijd: vier ingevuld, twee nog open
+  await expect(paneel.locator('.maand__maaltijd')).toHaveCount(6);
+  await expect(paneel.locator('.maand__maaltijd:not(.is-open)')).toHaveCount(4);
+  await expect(paneel.locator('.maand__maaltijd.is-open')).toHaveCount(2);
   await expect(paneel.locator('.maand__baan')).toHaveAttribute('value', '900');
   await expect(paneel.locator('.maand__moment.is-vol')).toHaveCount(3);
   await expect(paneel).toContainText('Ochtend');
   await expect(paneel).toContainText('Middag');
   await expect(paneel).toContainText('Avond');
-  await expect(paneel).toContainText('Een rustige dag.');
+  await expect(paneel).not.toContainText('Een rustige dag.'); // de notitie lees je sinds 0.5.8 in de dag, niet meer in de maand
+  await expect(paneel).toContainText('niet ingevuld'); // de twee maaltijden die nog open staan
   await expect(paneel.getByRole('button', { name: 'Dag openen' })).toBeVisible();
   // een andere dag aantikken
   await wachtOpRust(page); // de kaarten schuiven bij het openen één keer op hun plaats
@@ -342,7 +326,7 @@ for (const breedte of [1690, 1280]) {
           open.onsuccess = () => {
             const idb = open.result;
             const tx = idb.transaction(['dagen', 'dranken'], 'readwrite');
-            tx.objectStore('dagen').put({ datum: `${m}-20`, notitie: 'Een lange notitie over een rustige dag met veel wandelen, koken en een vriendelijk gesprek met de buren over de tuin, de boodschappen, het weer, de plannen voor het weekend en wat er nog in de kast ligt aan lekkere dingen voor de volgende dagen.', stemming: 4, energie: 3, doelGehaald: true, voorbeeld: false, gewijzigdOp: 1 });
+            tx.objectStore('dagen').put({ datum: `${m}-20`, notitie: 'Een lange notitie over een rustige dag met veel wandelen, koken en een vriendelijk gesprek met de buren over de tuin, de boodschappen, het weer, de plannen voor het weekend en wat er nog in de kast ligt aan lekkere dingen voor de volgende dagen.', doelGehaald: true, voorbeeld: false, gewijzigdOp: 1 });
             tx.objectStore('dranken').clear();
             tx.objectStore('dranken').add({ datum: `${m}-20`, tijdstip: 5, soort: 'water', ml: 2180, voorbeeld: false });
             tx.oncomplete = () => {
@@ -364,13 +348,13 @@ for (const breedte of [1690, 1280]) {
       const inh = document.querySelector('.maand__paneelinhoud');
       const knop = document.querySelector('.maand__paneel > .knop').getBoundingClientRect();
       const kaart = document.querySelector('.maand__paneel').getBoundingClientRect();
-      const notitie = document.querySelector('.maand__notitie');
-      return { scroll: inh.scrollHeight, zicht: inh.clientHeight, vervaagd: inh.classList.contains('kan-scrollen'), knopBinnen: knop.top >= kaart.top && knop.bottom <= kaart.bottom, notitieAfgekapt: notitie.scrollWidth > notitie.clientWidth, rijen: new Set([...document.querySelectorAll('.maand__maaltijd')].map((e) => Math.round(e.getBoundingClientRect().top))).size };
+      return { scroll: inh.scrollHeight, zicht: inh.clientHeight, vervaagd: inh.classList.contains('kan-scrollen'), knopBinnen: knop.top >= kaart.top && knop.bottom <= kaart.bottom, rijen: new Set([...document.querySelectorAll('.maand__maaltijd')].map((e) => Math.round(e.getBoundingClientRect().top))).size };
     });
     expect(m.scroll, 'niets afgesneden: de scrollhoogte is niet groter dan de zichtbare hoogte').toBeLessThanOrEqual(m.zicht);
     expect(m.vervaagd).toBe(false);
     expect(m.knopBinnen, '"Dag openen" is volledig zichtbaar').toBe(true);
-    expect(m.notitieAfgekapt, 'de notitie is één afgekapte regel').toBe(true);
+    // De notitie staat sinds 0.5.8 niet meer in de maand: die lees je in de dag
+    await expect(paneel.locator('.maand__notitie')).toHaveCount(0);
     // BESLISSING 681 en 688: vanaf 1600 px staan de maaltijden onder elkaar met hun uur (de volledige stand), smaller in twee kolommen
     expect(m.rijen, breedte >= 1600 ? 'zes maaltijden onder elkaar' : 'zes maaltijden in drie rijen').toBe(breedte >= 1600 ? 6 : 3);
     await expect(paneel.getByRole('button', { name: 'Dag openen' })).toBeVisible();

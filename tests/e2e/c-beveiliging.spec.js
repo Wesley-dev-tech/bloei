@@ -14,13 +14,15 @@ const CODE = '482915';
 const HTML = `<img src=x onerror="window.__xss='img'"> "><svg onload="window.__xss='svg'"> <script>window.__xss='script'</script>`;
 const RAAR = String.raw`(haakje) \backslash 🍲🥖 ‮omgekeerd‬ ZWJ‍teken ﷽`;
 const MERK = 'Merkteken-dagboek-7Q';
+const WEERDIENST = 'api.open-meteo.com';
 
 // Verzamelt verzoeken naar een andere oorsprong, CSP-overtredingen en paginafouten.
 function bewaak(page) {
   const uit = { vreemd: [], csp: [], fouten: [] };
   page.on('request', (v) => {
     const url = new URL(v.url());
-    if ((url.protocol === 'http:' || url.protocol === 'https:') && url.origin !== OORSPRONG) uit.vreemd.push(v.url());
+    // De weerdienst (Open-Meteo) is sinds 0.5.8 de enige externe dienst: het weerbericht op Vandaag vraagt daar het weer op, zonder iets uit het dagboek.
+    if ((url.protocol === 'http:' || url.protocol === 'https:') && url.origin !== OORSPRONG && url.hostname !== WEERDIENST) uit.vreemd.push(v.url());
   });
   page.on('console', (b) => /content security policy|refused to/i.test(b.text()) && uit.csp.push(b.text()));
   page.on('pageerror', (e) => uit.fouten.push(String(e)));
@@ -42,9 +44,9 @@ async function vul(page, { naam = HTML.slice(0, 60), tekst = HTML } = {}) {
       const tx = db.transaction(['maaltijden', 'dagen', 'supplementen', 'favorieten', 'instellingen'], 'readwrite');
       const zet = (store, rij) => tx.objectStore(store).put(rij);
       const t = Date.now();
-      zet('maaltijden', { datum: vandaag, soort: 'ontbijt', tijd: '08:00', tekst: tekst + ' ' + merk, fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: t });
-      zet('maaltijden', { datum: vandaag, soort: 'middagmaal', tijd: '12:00', tekst: raar + ' ' + 'x'.repeat(2500), fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: t });
-      zet('dagen', { datum: vandaag, notitie: tekst + '\n' + raar, stemming: 3, energie: 3, doelGehaald: false, voorbeeld: false, gewijzigdOp: t });
+      zet('maaltijden', { datum: vandaag, soort: 'ontbijt', tijd: '08:00', tekst: tekst + ' ' + merk, fotoId: null, voorbeeld: false, gewijzigdOp: t });
+      zet('maaltijden', { datum: vandaag, soort: 'middagmaal', tijd: '12:00', tekst: raar + ' ' + 'x'.repeat(2500), fotoId: null, voorbeeld: false, gewijzigdOp: t });
+      zet('dagen', { datum: vandaag, notitie: tekst + '\n' + raar, doelGehaald: false, voorbeeld: false, gewijzigdOp: t });
       zet('supplementen', { naam: tekst.slice(0, 80), dosis: tekst, hoeveelheid: raar.slice(0, 60), aanwijzing: tekst.slice(0, 60), momenten: ['ochtend'], ritme: { soort: 'dagelijks' }, volgorde: 1, actief: true, voorbeeld: false, aangemaaktOp: t });
       zet('favorieten', { tekst, sleutel: tekst.toLowerCase(), laatstGebruikt: t });
       zet('instellingen', { sleutel: 'profiel.naam', waarde: naam });

@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 import fs from 'node:fs';
 import path from 'node:path';
 import { ICOONNAMEN } from '../../src/ui/iconen.js';
-import { ICOON, STEMMING_STAP, UITZONDERINGEN } from '../../src/ui/iconenkaart.js';
+import { ICOON, UITZONDERINGEN } from '../../src/ui/iconenkaart.js';
 import { MAALTIJDICOON, DRANKICOON } from '../../src/ui/beeld.js';
 
 const FAMILIES = ['maaltijd', 'drank', 'gezondheid', 'dag', 'dagboek', 'gewicht', 'delen', 'neutraal'];
@@ -17,7 +17,6 @@ describe('iconenkaart', () => {
       expect(bestaat(b.naam, b.stijl), `${begrip}: ${b.stijl}/${b.naam}`).toBe(true);
       expect(FAMILIES, begrip).toContain(b.familie);
     }
-    for (const naam of STEMMING_STAP) expect(bestaat(naam, 'regular'), naam).toBe(true);
     for (const naam of [...Object.values(MAALTIJDICOON), ...Object.values(DRANKICOON)]) expect(bestaat(naam), naam).toBe(true);
   });
 
@@ -25,8 +24,8 @@ describe('iconenkaart', () => {
     const css = fs.readFileSync(path.resolve(__dirname, '../../src/stijl/componenten.css'), 'utf8');
     const bestaat = (familie) => css.includes('.tegel--' + familie + ' ') || css.includes('.tegel--' + familie + '{');
     const VERWACHT = {
-      vandaag: 'dag', dagboek: 'dagboek', drinken: 'drank', supplementen: 'gezondheid', reeks: 'gezondheid', badge: 'gezondheid', energie: 'gezondheid',
-      eten: 'maaltijd', favoriet: 'maaltijd', stemming: 'neutraal', algemeen: 'neutraal', instellingen: 'neutraal', profiel: 'neutraal', thema: 'neutraal',
+      vandaag: 'dag', dagboek: 'dagboek', drinken: 'drank', supplementen: 'gezondheid', reeks: 'gezondheid', badge: 'gezondheid',
+      eten: 'maaltijd', favoriet: 'maaltijd', algemeen: 'neutraal', instellingen: 'neutraal', profiel: 'neutraal', thema: 'neutraal',
       vergrendeling: 'neutraal', pincode: 'neutraal', uitleg: 'neutraal',
       // nieuwe families: pas verwacht zodra ze in componenten.css staan
       gewicht: bestaat('gewicht') ? 'gewicht' : 'neutraal', weegdag: bestaat('gewicht') ? 'gewicht' : 'neutraal', streefgewicht: bestaat('gewicht') ? 'gewicht' : 'neutraal',
@@ -36,9 +35,9 @@ describe('iconenkaart', () => {
     for (const b of Object.values(ICOON)) expect(FAMILIES).toContain(b.familie);
   });
 
-  it('gevoel en favoriet zijn regular, al het andere solid', () => {
+  it('favoriet is regular, al het andere solid', () => {
     for (const [begrip, b] of Object.entries(ICOON)) {
-      const regular = ['stemming', 'favoriet'].includes(begrip);
+      const regular = ['favoriet'].includes(begrip);
       // BESLISSING 606: Face ID is een eigen bestand (buiten Android; daar is het de gevulde vingerafdruk)
       const eigen = begrip === 'gezichtsherkenning' && b.naam === 'face-id';
       expect(b.stijl, begrip).toBe(eigen ? 'eigen' : regular ? 'regular' : 'solid');

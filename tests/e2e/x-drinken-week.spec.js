@@ -380,7 +380,7 @@ for (const [breed, hoog] of [[390, 844], [1280, 800]]) {
     await page.setViewportSize({ width: breed, height: hoog });
     await open(page, '2026-11-16', {}); // niets gedronken, ook niet in de weken ervoor
     const leeg = page.locator('.drinken__meestleeg');
-    await expect(leeg).toHaveText('Zodra je deze week iets drinkt, zie je hier waaruit je dagen bestonden.');
+    await expect(leeg).toHaveText('Zodra je deze week iets drinkt, zie je hier wat je het meest dronk.');
     const maat = () => page.evaluate(() => {
       const z = document.querySelector('.drinken__meestleeg');
       const k = document.querySelector('.drinken__cijferkaart');

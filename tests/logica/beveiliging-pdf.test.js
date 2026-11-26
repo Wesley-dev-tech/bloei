@@ -54,9 +54,9 @@ function geldigePdf(bytes) {
 describe('injectie in het verslag', () => {
   test('html, pdf-tekens, emoji en lange tekst komen letterlijk in de pdf; de pdf blijft geldig', async () => {
     const lang = 'a'.repeat(3000);
-    await bewaarMaaltijd(dag(-1), 'ontbijt', { tekst: HTML, tijd: '08:00', gevoel: 3 });
-    await bewaarMaaltijd(dag(-1), 'middagmaal', { tekst: PDF_TEKENS, tijd: '12:00', gevoel: 3 });
-    await bewaarMaaltijd(dag(-1), 'avondmaal', { tekst: EMOJI + ' ' + lang, tijd: '18:00', gevoel: 3 });
+    await bewaarMaaltijd(dag(-1), 'ontbijt', { tekst: HTML, tijd: '08:00' });
+    await bewaarMaaltijd(dag(-1), 'middagmaal', { tekst: PDF_TEKENS, tijd: '12:00' });
+    await bewaarMaaltijd(dag(-1), 'avondmaal', { tekst: EMOJI + ' ' + lang, tijd: '18:00' });
     await zetNotitie(dag(-1), HTML + '\n' + PDF_TEKENS);
     await voegSupplementToe({ naam: HTML.slice(0, 60), hoeveelheid: PDF_TEKENS.slice(0, 40), aanwijzing: EMOJI, momenten: ['ochtend'] });
     const verslag = await leesVerslag({ van: dag(-1), tot: dag(-1), onderdelen: { eten: true, drinken: true, gewicht: false, notities: true } });

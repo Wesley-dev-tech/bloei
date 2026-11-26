@@ -59,7 +59,7 @@ export async function zetDrankTerug(drank) {
 }
 
 // Bewaren, de dag lezen, beslissen en schrijven in één transactie (R1-03, R1-04): twee snelle tikken of een notitie die tegelijk
-// bewaart, wachten op elkaar. Zo komt doel:gehaald maar één keer en overschrijft de tik geen notitie of stemming.
+// bewaart, wachten op elkaar. Zo komt doel:gehaald maar één keer en overschrijft de tik geen notitie.
 async function bewaarMetDoel(drank) {
   const { datum } = drank;
   let pasGehaald = false;
@@ -70,7 +70,7 @@ async function bewaarMetDoel(drank) {
     // (!dag.doelGehaald vooraf: zo wordt het totaal alleen gelezen als het nog kan tellen.)
     if (!dag.doelGehaald && isPasGehaald({ doelGehaald: dag.doelGehaald, totaal: await totaalMl(datum), doelMl: await leesInstelling('drinken.dagdoelMl') })) {
       // Het gehaalde doel is nu van de gebruiker, ook op een voorbeelddag. Een voorbeelddag begint dan als lege bladzijde: de verzonnen
-      // stemming, energie en notitie worden niet de hare (R1-05).
+      // notitie wordt niet de hare (R1-05).
       await db.dagen.put({ ...(isEigen(dag) ? dag : legeDag(datum)), doelGehaald: true, voorbeeld: false, gewijzigdOp: Date.now() });
       pasGehaald = true;
     }

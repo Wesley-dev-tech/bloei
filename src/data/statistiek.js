@@ -13,13 +13,13 @@ import { isBijgehouden } from '../logica/bijgehouden.js';
 // dagStatus staat sinds R1-26 in data/dagstatus.js (de service worker haalt alleen dat). Later op te ruimen: vandaag.js rechtstreeks laten importeren.
 export { dagStatus } from './dagstatus.js';
 
-// Alle datums waarop de gebruiker zelf iets noteerde (BESLISSING 168, logica/bijgehouden.js): een maaltijd, een drank, een inname, een stemming,
-// energie, een notitie of een weging. Oude voorbeelddata telt nooit mee. Ook gebruikt voor de badge "Weer thuis" (data/badges.js).
+// Alle datums waarop de gebruiker zelf iets noteerde (BESLISSING 168, logica/bijgehouden.js): een maaltijd, een drank, een inname,
+// een notitie of een weging. Oude voorbeelddata telt nooit mee. Ook gebruikt voor de badge "Weer thuis" (data/badges.js).
 export async function eigenBijgehoudenDatums(rijen) {
   const r = rijen ?? (await leesMomentopname());
   const perDatum = new Map();
   const dag = (datum) => {
-    if (!perDatum.has(datum)) perDatum.set(datum, { maaltijden: 0, ml: 0, innames: 0, stemming: null, energie: null, notitie: '', weging: false });
+    if (!perDatum.has(datum)) perDatum.set(datum, { maaltijden: 0, ml: 0, innames: 0, notitie: '', weging: false });
     return perDatum.get(datum);
   };
   for (const m of r.maaltijden) if (isEigen(m) && isIngevuld(m)) dag(m.datum).maaltijden += 1;
@@ -28,8 +28,6 @@ export async function eigenBijgehoudenDatums(rijen) {
   for (const d of r.dagen) {
     if (!isEigen(d)) continue;
     const g = dag(d.datum);
-    g.stemming = d.stemming ?? null;
-    g.energie = d.energie ?? null;
     g.notitie = d.notitie ?? '';
   }
   for (const w of r.wegingen) if (isEigen(w)) dag(w.datum).weging = true;
@@ -69,12 +67,10 @@ export async function leesStats(rijen) {
   const { dagenBijgehouden: totaal, lopendeReeks: reeks } = await leesReeks(r);
   let doelDagen = 0;
   let notitieDagen = 0;
-  let stemmingDagen = 0;
   for (const dag of r.dagen) {
     if (!isEigen(dag)) continue;
     if (dag.doelGehaald) doelDagen += 1;
     if ((dag.notitie ?? '').trim() !== '') notitieDagen += 1;
-    if (dag.stemming != null) stemmingDagen += 1;
   }
   // Supplementen (alleen eigen gegevens): dagen met minstens één eigen inname, en (BESLISSING 150) dagen waarop elk moment van de dag
   // afgevinkt is, zonder het periodieke supplement dat aan de beurt was.
@@ -90,13 +86,12 @@ export async function leesStats(rijen) {
     lopendeReeks: reeks,
     doelDagen,
     notitieDagen,
-    stemmingDagen,
     innameDagen: innameDatums.length,
     volledigeMomentDagen,
   };
 }
 
-// Per dag in het bereik: { datum, maaltijden, ml, stemming, energie, notitie, weging, supplementen: { genomen, totaal }, supplementMomenten }.
+// Per dag in het bereik: { datum, maaltijden, ml, notitie, weging, supplementen: { genomen, totaal }, supplementMomenten }.
 // Alleen dagen waar iets staat. Oude voorbeelddata telt hier wel mee: dit is wat de gebruiker op het scherm ziet. tel en telM geven voor elke
 // dag van het bereik de stand van de supplementen (volgens het schema van die dag), ook voor dagen waar verder niets staat.
 // Met een momentopname (leesMomentopname) wordt in het geheugen gefilterd, in dezelfde volgorde als de bereikvragen: op datum, en bij gelijke
@@ -139,14 +134,12 @@ async function dagenInBereik(van, tot, rijen) {
   const perDag = new Map();
   const dagVan = (datum) => {
     if (!perDag.has(datum)) {
-      perDag.set(datum, { datum, maaltijden: 0, ml: 0, stemming: null, energie: null, notitie: false, weging: false, supplementen: tel.get(datum) ?? { genomen: 0, totaal: 0 }, supplementMomenten: telM.get(datum) ?? { klaar: 0, totaal: 0 } });
+      perDag.set(datum, { datum, maaltijden: 0, ml: 0, notitie: false, weging: false, supplementen: tel.get(datum) ?? { genomen: 0, totaal: 0 }, supplementMomenten: telM.get(datum) ?? { klaar: 0, totaal: 0 } });
     }
     return perDag.get(datum);
   };
   for (const dag of dagRecords) {
     const r = dagVan(dag.datum);
-    r.stemming = dag.stemming ?? null;
-    r.energie = dag.energie ?? null;
     r.notitie = (dag.notitie ?? '').trim() !== '';
   }
   for (const w of wegingenBereik) dagVan(w.datum).weging = true;
@@ -166,8 +159,6 @@ export async function leesWeekoverzicht(weekSleutel, rijen) {
         datum,
         maaltijden: r?.maaltijden ?? 0,
         ml: r?.ml ?? 0,
-        stemming: r?.stemming ?? null,
-        energie: r?.energie ?? null,
         notitie: r?.notitie ?? false,
         weging: r?.weging ?? false,
         supplementen: r?.supplementen ?? tel.get(datum),
@@ -183,8 +174,8 @@ export async function leesMaand(jaarMaand, rijen) {
   const { perDag } = await dagenInBereik(datums[0], datums.at(-1), rijen);
   const uitvoer = {};
   for (const [datum, r] of [...perDag].sort()) {
-    if (!isBijgehouden({ maaltijden: r.maaltijden, ml: r.ml, innames: r.supplementen.genomen, stemming: r.stemming, energie: r.energie, notitie: r.notitie, weging: r.weging })) continue;
-    uitvoer[datum] = { stemming: r.stemming, energie: r.energie, maaltijden: r.maaltijden, ml: r.ml, supplementen: r.supplementen, supplementMomenten: r.supplementMomenten };
+    if (!isBijgehouden({ maaltijden: r.maaltijden, ml: r.ml, innames: r.supplementen.genomen, notitie: r.notitie, weging: r.weging })) continue;
+    uitvoer[datum] = { maaltijden: r.maaltijden, ml: r.ml, notitie: Boolean(r.notitie), supplementen: r.supplementen, supplementMomenten: r.supplementMomenten };
   }
   return uitvoer;
 }

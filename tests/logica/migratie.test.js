@@ -20,24 +20,35 @@ describe('database schema 1 naar 3', () => {
     await oud.open();
     await oud.table('dagen').put({ datum: '2026-11-10', notitie: 'oud', stemming: 4, energie: 3, doelGehaald: true, voorbeeld: false, gewijzigdOp: 1 });
     await oud.table('maaltijden').put({ datum: '2026-11-10', soort: 'ontbijt', tijd: '08:00', tekst: 'havermout', fotoId: null, gevoel: 4, voorbeeld: false, gewijzigdOp: 1 });
+    await oud.table('maaltijden').put({ datum: '2026-11-10', soort: 'middagmaal', tijd: '12:00', tekst: '', fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: 1 });
     await oud.table('dranken').add({ datum: '2026-11-10', tijdstip: 5, soort: 'water', ml: 250, voorbeeld: false });
     await oud.table('wegingen').put({ week: '2026-11-09', datum: '2026-11-10', kg: 68.4, voorbeeld: false, gewijzigdOp: 1 });
     await oud.table('favorieten').add({ tekst: 'havermout', sleutel: 'havermout', laatstGebruikt: 1 });
     await oud.table('badges').put({ id: 'eerste-bladzijde', behaaldOp: 1, gezien: true });
+    await oud.table('badges').put({ id: 'gemoed', behaaldOp: 2, gezien: true });
     await oud.table('instellingen').put({ sleutel: 'profiel.naam', waarde: 'Testnaam' });
     expect(oud.verno).toBe(1);
     oud.close();
 
     const { db, openDb, SCHEMA_VERSIE } = await import('../../src/data/db.js');
     await openDb();
-    expect(SCHEMA_VERSIE).toBe(4);
-    expect(db.verno).toBe(4);
+    expect(SCHEMA_VERSIE).toBe(5);
+    expect(db.verno).toBe(5);
     expect(db.tables.map((t) => t.name).sort()).toEqual(
       ['badges', 'dagen', 'dranken', 'favorieten', 'fotos', 'instellingen', 'maaltijden', 'momentinnames', 'supplementen', 'wegingen'],
     );
 
-    expect(await db.dagen.get('2026-11-10')).toMatchObject({ notitie: 'oud', stemming: 4, doelGehaald: true });
-    expect(await db.maaltijden.get(['2026-11-10', 'ontbijt'])).toMatchObject({ tekst: 'havermout', gevoel: 4 });
+    // Schema 5 (0.5.8) wist wat er van stemming, energie en het gevoel bij een maaltijd bewaard was; de rest van elk record blijft.
+    const dagNa = await db.dagen.get('2026-11-10');
+    expect(dagNa).toMatchObject({ notitie: 'oud', doelGehaald: true });
+    expect(dagNa).not.toHaveProperty('stemming');
+    expect(dagNa).not.toHaveProperty('energie');
+    const maaltijdNa = await db.maaltijden.get(['2026-11-10', 'ontbijt']);
+    expect(maaltijdNa).toMatchObject({ tekst: 'havermout' });
+    expect(maaltijdNa).not.toHaveProperty('gevoel');
+    expect(await db.maaltijden.get(['2026-11-10', 'middagmaal'])).toBeUndefined(); // had alleen een gevoel: niets meer over
+    expect(await db.badges.get('gemoed')).toBeUndefined(); // de medailles erover zijn weg
+    expect(await db.badges.get('eerste-bladzijde')).toBeTruthy();
     expect(await db.dranken.count()).toBe(1);
     expect(await db.wegingen.get('2026-11-09')).toMatchObject({ kg: 68.4 });
     expect(await db.favorieten.count()).toBe(1);

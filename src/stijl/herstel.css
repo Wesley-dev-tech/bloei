@@ -228,19 +228,8 @@
 [data-scherm] .schermkop { margin-bottom: 0; }
 
 .vc--eten { order: 2; }
-.vc--stemming { order: 4; }
 
-.uitklap__inhoud .gevoel { margin-top: var(--s-1); }
 
-.vandaag__energie {
-  justify-content: space-between;
-  align-items: center;
-  gap: var(--s-4);
-  margin-top: var(--s-5);
-  padding-top: var(--s-4);
-  border-top: var(--lijn);
-  display: flex;
-}
 
 .drinkkaart__link {
   min-height: var(--tap-min);
@@ -271,10 +260,6 @@
   display: grid;
 }
 
-.uitklap__inhoud .dag__wis {
-  margin-top: var(--s-3);
-  text-align: left;
-}
 
 .dagboek__kop .segment--vol { max-width: 100%; }
 

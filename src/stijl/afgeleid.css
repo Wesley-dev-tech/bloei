@@ -47,16 +47,6 @@
   --stip: var(--s-1);                             /* 4 px: stip onder de actieve tab */
   --tab-label: calc(var(--fs-label) * 11 / 12);   /* 11 px */
 
-  /* Gevoelschaal (HUISSTIJL §5.2) */
-  --gevoel-tegel: var(--tap-min);                 /* ronde tegel 48 px */
-  --gevoel-schaal: 1.08;
-
-  /* Energieschaal (HUISSTIJL §5.3). De kiezer en de energiekaart gebruiken blaadjes
-     van 4/3 van --energy-leaf-h (zoals voorbeeld-energiekaart.png); in lijsten blijft het token zelf. */
-  --energy-leaf-h-groot: calc(var(--energy-leaf-h) * 4 / 3);
-  --energy-tik-b: calc(var(--tap-min) - var(--s-1)); /* 44 px */
-  --energy-tik-h: var(--tap-min);                 /* 48 px */
-
   /* Lijnen, focus en scherm achter een dialoog */
   --lijn: 1px solid var(--c-line);
   --focus: 2px solid var(--c-focus);

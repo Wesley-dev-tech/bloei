@@ -1,7 +1,7 @@
 // De maandkalender van het Dagboek (BESLISSING 255, herzien; 294): rustige cellen met het dagnummer, een salie bolletje als alle supplementmomenten zijn afgevinkt en een
-// eventueel spuitje van een geplande beurt. Geen stemming in de cel. Eten, drinken, supplementen, stemming en energie staan in het paneel van de gekozen dag. De kalender op Vandaag gebruikt een andere, compacte component
+// eventueel spuitje van een geplande beurt. Eten, drinken en supplementen staan in het paneel van de gekozen dag. De kalender op Vandaag gebruikt een andere, compacte component
 // (kalender.js) en blijft ongemoeid.
-// maandkalender({ jaarMaand, gegevens: { [datum]: { stemming, energie, maaltijden, ml, supplementMomenten: { klaar, totaal }, spuit: [{ naam, status }] } },
+// maandkalender({ jaarMaand, gegevens: { [datum]: { maaltijden, ml, supplementMomenten: { klaar, totaal }, spuit: [{ naam, status }] } },
 //                 doelMl, gekozen, opKies(datum) }) → een raster met .kies(datum)
 import { h } from './dom.js';
 import { t } from '../teksten.js';
@@ -16,8 +16,6 @@ export function standVanDag(g = {}, doelMl = 2500) {
   const m = g.supplementMomenten ?? { klaar: 0, totaal: 0 };
   const spuit = g.spuit ?? [];
   return {
-    stemming: g.stemming ?? null,
-    energie: g.energie ?? null,
     maaltijden: g.maaltijden ?? 0,
     drinken: (g.ml ?? 0) >= doelMl && (g.ml ?? 0) > 0 ? 'vol' : (g.ml ?? 0) > 0 ? 'deel' : 'leeg',
     supplementen: m.totaal > 0 && m.klaar >= m.totaal ? 'vol' : m.klaar > 0 ? 'deel' : 'leeg',
@@ -31,14 +29,12 @@ function beschrijfDag(datum, g, doelMl, nu = vandaag()) {
   const s = standVanDag(g, doelMl);
   const delen = [opmaakDatum(datum, 'lang'), datum === nu ? t('maand.ariaVandaag') : null];
   if (datum <= nu) {
-    if (s.stemming) delen.push(t('maand.ariaStemming', { stemming: t('stemming.' + s.stemming) }));
-    if (s.energie) delen.push(t('maand.ariaEnergie', { energie: t('energie.' + s.energie) }));
     if (s.maaltijden) delen.push(t('maand.ariaMaaltijden', { aantal: s.maaltijden, totaal: MAALTIJDEN_PER_DAG }));
     if (s.drinken === 'vol') delen.push(t('maand.ariaDrinkdoel'));
     else if (s.drinken === 'deel') delen.push(t('maand.ariaDrinkDeel'));
     if (s.supplementen === 'vol') delen.push(t('maand.ariaSupplementenAlle'));
     else if (s.supplementen === 'deel') delen.push(t('maand.ariaSupplementenDeel', { klaar: s.momenten.klaar, totaal: s.momenten.totaal }));
-    if (!s.stemming && !s.energie && !s.maaltijden && s.drinken === 'leeg' && s.supplementen === 'leeg') delen.push(t('maand.ariaNiets'));
+    if (!s.maaltijden && s.drinken === 'leeg' && s.supplementen === 'leeg') delen.push(t('maand.ariaNiets'));
   }
   if (s.spuit) delen.push(s.soort === 'spuit' ? { gepland: t('maand.ariaSpuitGepland'), afgevinkt: t('maand.ariaSpuitAfgevinkt'), voorbij: t('maand.ariaSpuitVoorbij') }[s.spuit] : { gepland: t('maand.ariaBeurtGepland'), afgevinkt: t('maand.ariaBeurtAfgevinkt'), voorbij: t('maand.ariaBeurtVoorbij') }[s.spuit]);
   return delen.filter(Boolean).join(', ');
@@ -46,7 +42,7 @@ function beschrijfDag(datum, g, doelMl, nu = vandaag()) {
 
 // Een rustige cel (BESLISSING 255, herzien; 294): het dagnummer, het salie bolletje van een dag met alle momenten afgevinkt en, als het er is, het spuitje van een geplande
 // beurt.
-// Eten, drinken, supplementen en energie staan in het paneel van de gekozen dag, niet in de cel.
+// Eten, drinken en supplementen staan in het paneel van de gekozen dag, niet in de cel.
 function dagCel(datum, g, doelMl, nu) {
   const s = standVanDag(g, doelMl);
   const gevuld = datum <= nu && 'maaltijden' in g; // leesMaand geeft elke bijgehouden dag met dit veld; een dag met alleen een geplande beurt heeft het niet
@@ -56,7 +52,7 @@ function dagCel(datum, g, doelMl, nu) {
       'span',
       { class: 'mk__tekens', 'aria-hidden': 'true' },
       // Op één lijn onder het nummer, op dezelfde linkerlijn als het nummer (op een telefoon samen gecentreerd): het salie bolletje (alle supplementmomenten afgevinkt),
-      // dan het spuitje of pilletje van een geplande beurt (BESLISSING 294: geen stemming in de kalender).
+      // dan het spuitje of pilletje van een geplande beurt.
       gevuld && s.supplementen === 'vol' ? h('span', { class: 'mk__plek mk__plek--bol' }, h('span', { class: 'mk__klaar' })) : null,
       s.spuit ? h('span', { class: 'mk__plek mk__plek--spuit mk__spuitplek' }, h('span', { class: ['kalender__spuit', 'mk__spuit', 'is-' + (s.spuit === 'voorbij' ? 'gemist' : s.spuit)] }, begripIcoon(s.soort === 'beurt' ? 'supplementen' : 'spuit', { grootte: 16 }), (g.spuit?.length ?? 0) > 1 ? h('span', { class: 'kalender__aantal' }, String(g.spuit.length)) : null)) : null,
     ),

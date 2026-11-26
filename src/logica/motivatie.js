@@ -8,8 +8,9 @@
 //                        ze net deed de dag begon (reactie.nieuw.iets).
 //   2. Medailles         badgeAlle, badgeTelling, badgeMeer of de eigen zin van de medaille (m-<id>): bij het openen de medailles van
 //                        vandaag, na een handeling alleen de medailles die net behaald zijn.
+//   2b. Het weer         weerZon, weerRegen, ...: bij het openen één keer per dag per weersoort; daarna wisselt het mee in groep 5.
 //   3. De hele dag       rondTotaal, dagRondReeks, dagRond: bij het openen, of als wat ze net deed de dag rond maakte.
-//   4. Wat ze net deed   de reactie (data/motivatiestand.js): een maaltijd, een drank, een vinkje, haar stemming, een weging, ...
+//   4. Wat ze net deed   de reactie (data/motivatiestand.js): een maaltijd, een drank, een vinkje, een notitie, een weging, ...
 //   5. De stand          niets vandaag: badgeGisteren, beginNaRond, nieuweMaand, beginWeek, beginNaDoel, daarna afwisselend begin, het
 //                        dagdeel, beginReeks en beginBadge. Al iets: bijnaRond*, drinkenKlaar, supplementenKlaar, drinkenBijna, daarna
 //                        afwisselend onderweg, het dagdeel, badgeStap en weekEinde.
@@ -42,11 +43,6 @@ export const GROEPEN = {
   supplementenReeks: 4,
   supplementenKlaar: 8,
   periodiek: 4,
-  stemmingLaag: 6,
-  stemmingMidden: 6,
-  stemmingHoog: 7,
-  energieLaag: 4,
-  energie: 5,
   notitie: 7,
   weging: 6,
   wegingReeks: 3,
@@ -79,16 +75,13 @@ export const GROEPEN = {
   supplementTotaal: 3,
   rondTotaal: 3,
   notitieTotaal: 3,
-  stemmingTotaal: 3,
   wegingTotaal: 3,
   favorietTotaal: 2,
   drinkenMeer: 3,
-  stemmingReeks: 3,
   bijnaRondDrinken: 4,
   bijnaRondSupplementen: 4,
   bijnaRondEten: 4,
   drank: 6,
-  maaltijdGevoel: 3,
   supplementMoment: 4,
   supplementLijst: 3,
   dagdoel: 3,
@@ -122,9 +115,6 @@ export const GROEPEN = {
   'm-dertig-vol': 2,
   'm-kanttekening': 2,
   'm-twintig-notities': 2,
-  'm-gemoed': 2,
-  'm-dertig-stemmingen': 2,
-  'm-zeven-energie': 2,
   'm-eerste-weging': 2,
   'm-vier-wegingen': 2,
   'm-dag-rond': 2,
@@ -148,7 +138,6 @@ export const GROEPEN = {
   'm-vijfhonderd-maaltijden': 2,
   'm-vijf-favorieten': 2,
   'm-drie-op-een-dag': 2,
-  'm-tien-gevoel': 2,
   'm-tien-maaltijden': 2,
   'm-tien-favorieten': 2,
   'm-zeven-drie-maaltijden': 2,
@@ -168,12 +157,14 @@ export const GROEPEN = {
   'm-honderd-vinkjes': 2,
   'm-zeven-op-rij-afgevinkt': 2,
   'm-vijftig-notities': 2,
-  'm-honderd-stemmingen': 2,
-  'm-dertig-energie': 2,
-  'm-week-gezichtjes': 2,
   'm-honderd-notities': 2,
-  'm-maand-gezichtjes': 2,
-  'm-gezichtje-en-blaadje': 2,
+  'm-eerste-notitie': 2,
+  'm-tien-notities': 2,
+  'm-tweehonderd-notities': 2,
+  'm-drie-notities-op-rij': 2,
+  'm-week-notities-op-rij': 2,
+  'm-maand-notities-op-rij': 2,
+  'm-lange-notitie': 2,
   'm-twaalf-wegingen': 2,
   'm-halfjaar-wegen': 2,
   'm-jaar-wegen': 2,
@@ -186,6 +177,13 @@ export const GROEPEN = {
   'm-volledige-dag': 2,
   'm-vijf-verslagen': 2,
   'm-tien-verslagen': 2,
+  'm-twintig-verslagen': 2,
+  'm-verslag-verstuurd': 2,
+  'm-verslag-bewaard': 2,
+  'm-volledig-verslag': 2,
+  'm-weekverslag': 2,
+  'm-maandverslag': 2,
+  'm-maand-na-maand': 2,
   'm-eerste-rondleiding': 2,
   'm-eigen-kleur': 2,
   'm-seintje-aan': 2,
@@ -243,6 +241,25 @@ export const GROEPEN = {
   zomer: 6,
   herfst: 6,
   winter: 6,
+  // Het weer van nu (logica/weer.js, weerSoort): één groep per weersoort. Elke zin verbindt het weer met haar en met haar dag (zie kiesMotivatie, 2b).
+  weerZon: 8,
+  weerRegen: 8,
+  weerGrijs: 8,
+  weerKoud: 8,
+  weerVorst: 8,
+  weerSneeuw: 8,
+  weerWarm: 8,
+  weerHeet: 8,
+  // Extreem weer: de zin geeft ook raad (logica/weer.js, WEER_EXTREEM).
+  weerHittegolf: 8,
+  weerStorm: 8,
+  weerZwaarOnweer: 8,
+  weerSneeuwval: 8,
+  weerIjzel: 8,
+  weerStortregen: 8,
+  weerMist: 8,
+  weerWind: 8,
+  weerOnweer: 8,
   maaltijdOchtend: 3,
   maaltijdMiddag: 3,
   maaltijdAvond: 3,
@@ -251,7 +268,6 @@ export const GROEPEN = {
   drankAvond: 3,
   innameOchtend: 3,
   innameAvond: 3,
-  stemmingAvond: 3,
   notitieAvond: 3,
   nacht: 3,
 };
@@ -276,7 +292,6 @@ export const MIJLPALEN = {
   supplement: [7, 14, 30, 50, 100],
   rond: [5, 10, 25, 50, 100],
   notitie: [5, 10, 20, 50, 100],
-  stemming: [7, 30, 50, 100, 200],
   weging: [4, 8, 12, 26, 52],
   favoriet: [5, 10, 20],
   badges: [5, 10, 15, 20, 25, 30, 35, 40, 45, 50, 55, 60, 65, 70, 75, 80, 85, 90, 95],
@@ -329,7 +344,7 @@ export const ETEN_KLAAR = ['ontbijt', 'middagmaal', 'avondmaal'];
 
 // De ene regel voor "de dag is rond" (BESLISSING 278), gedeeld door de motivatiezin en de badges dag-rond en zeven-dagen-rond:
 // eten in orde (etenKlaar: ETEN_KLAAR ingevuld; zonder dat veld minstens drie maaltijden), supplementen in orde
-// (alles afgevinkt, of geen supplementen) en gedronken >= dagdoel. De stemming speelt geen rol.
+// (alles afgevinkt, of geen supplementen) en gedronken >= dagdoel.
 function dagOnderdelen({ etenKlaar, maaltijden = 0, supplementen, ml = 0, doelMl = 0 } = {}) {
   return {
     etenOk: etenKlaar ?? maaltijden >= 3,
@@ -344,7 +359,7 @@ export function isDagRond(status) {
 
 // ---------------------------------------------------------------- wat ze net deed
 // Vergelijkt de stand van vandaag vóór en na een wijziging en zegt wat er gebeurde. Pure functie; data/motivatiestand.js houdt de stand bij.
-//   vorige, nu: { maaltijden, gevoel, ml, genomen, periodiek, momentenKlaar, stemming, energie, notitie, weging, favorieten, iets, rond,
+//   vorige, nu: { maaltijden, ml, genomen, periodiek, momentenKlaar, notitie, weging, favorieten, iets, rond,
 //                 etenOk, suppOk, doelOk, badges: [id], volgende: { id, aantal } | null }
 //   gebeurd:    { stores: ['maaltijden', ...] (de laatste achteraan), eerder: boolean (een wijziging op een vorige dag), soort: string | null
 //                 (iets buiten het dagboek: verslag, eigen, herinnering, slot, dagdoel, rondleiding) }
@@ -362,17 +377,16 @@ export function reactieUit(vorige, nu, gebeurd) {
     moment: (n.momentenKlaar ?? 0) > (v.momentenKlaar ?? 0),
     badges: (n.badges ?? []).filter((id) => !(v.badges ?? []).includes(id)),
     stap: Boolean(n.volgende && v.volgende && n.volgende.id === v.volgende.id && n.volgende.aantal > v.volgende.aantal),
-    eersteStemming: v.stemming == null,
     eersteNotitie: !v.notitie,
     eersteWeging: !v.weging,
     mlVoor: v.ml ?? 0,
   };
   const meer = (veld) => (n[veld] ?? 0) > (v[veld] ?? 0);
   const perStore = {
-    maaltijden: () => (meer('maaltijden') ? 'maaltijd' : meer('gevoel') ? 'gevoel' : null),
+    maaltijden: () => (meer('maaltijden') ? 'maaltijd' : null),
     dranken: () => (meer('ml') ? 'drank' : null),
     innames: () => (meer('periodiek') ? 'periodiek' : meer('genomen') ? 'inname' : null),
-    dagen: () => (n.stemming != null && n.stemming !== v.stemming ? 'stemming' : n.energie != null && n.energie !== v.energie ? 'energie' : n.notitie && n.notitie !== v.notitie ? 'notitie' : null),
+    dagen: () => (n.notitie && n.notitie !== v.notitie ? 'notitie' : null),
     wegingen: () => (n.weging && n.weging !== v.weging ? 'weging' : null),
     favorieten: () => (meer('favorieten') ? 'favoriet' : null),
   };
@@ -385,25 +399,29 @@ export function reactieUit(vorige, nu, gebeurd) {
   if (gebeurd.eerder) return { soort: 'vorigeDag', nieuw };
   if (stores.includes('supplementen')) return { soort: 'supplementLijst', nieuw };
   // Iets van vandaag veranderde zonder dat er iets bij kwam: aangepast of weggehaald.
-  const kern = (s) => JSON.stringify([s.maaltijden, s.gevoel, s.ml, s.genomen, s.periodiek, s.stemming, s.energie, s.notitie, s.weging, s.favorieten, s.tekst]);
+  const kern = (s) => JSON.stringify([s.maaltijden, s.ml, s.genomen, s.periodiek, s.notitie, s.weging, s.favorieten, s.tekst]);
   if (stores.some((s) => perStore[s]) && kern(v) !== kern(n)) return { soort: 'aangepast', nieuw };
   return null;
 }
 
 // ---------------------------------------------------------------- de zin van de dag
-// status: { dagdeel, maaltijden, etenKlaar, ml, doelMl, supplementen: { genomen, totaal }, stemming, energie, lopendeReeks, dagenBijgehouden,
+// status: { dagdeel, maaltijden, etenKlaar, ml, doelMl, supplementen: { genomen, totaal }, lopendeReeks, dagenBijgehouden,
 //           dagenSindsVorige: number | null, datum, iets?: boolean, drankenAantal?,
 //           reactie?: { soort, nieuw, teller } | null   wat ze net deed (data/motivatiestand.js),
 //           opening?: number   de hoeveelste keer ze de app vandaag opent, vanaf 0 (data/motivatiestand.js): elke keer een andere zin,
 //           gehad?: string[]   de momenten die ze vandaag al zag (zie moment hieronder),
+//           weer?: string | null   de groep van het weer van nu, bv. 'weerRegen' (logica/weer.js, weerSoort),
 //           verleden?: zie data/verleden.js (alles is optioneel: zonder verleden vallen die groepen gewoon weg),
 //           kalender?: { jarig: boolean, leeftijd: number | null, feestdag: groep | null, seizoen: { naam, start } | null, uur: 0..23 } (logica/kalender.js) }
 // iets (optioneel): of er vandaag iets genoteerd staat, zoals dagStatus(datum).bijgehouden dat bepaalt (BESLISSING 168); zonder iets rekent kiesMotivatie het zelf uit.
 // Geeft { groep, sleutel, waarden, moment? }. moment: de zin hoort bij iets wat vandaag één keer gezegd wordt (een mijlpaal, een medaille, een
 // terugkeer). Bij het openen komt zo'n moment één keer; staat het in gehad, dan gaat de zin verder naar de stand van de dag. Zo blijft een
 // mijlpaal niet de hele dag staan. Haar verjaardag en een feestdag blijven wel de hele dag, met elke keer een andere zin.
+// De weergroepen waarvan de zin raad geeft: een hete dag en het extreme weer.
+export const WEER_MET_RAAD = ['weerHeet', 'weerHittegolf', 'weerStorm', 'weerZwaarOnweer', 'weerSneeuwval', 'weerIjzel', 'weerStortregen'];
+
 export function kiesMotivatie(status) {
-  const { maaltijden = 0, ml = 0, doelMl = 0, supplementen = { genomen: 0, totaal: 0 }, stemming = null, energie = null, lopendeReeks = 0, dagenBijgehouden = 0, dagenSindsVorige = null, datum = '', iets: ietsOpgegeven, etenKlaar, dagdeel = null, drankenAantal = 0, reactie = null, opening = 0, gehad = [] } = status ?? {};
+  const { maaltijden = 0, ml = 0, doelMl = 0, supplementen = { genomen: 0, totaal: 0 }, lopendeReeks = 0, dagenBijgehouden = 0, dagenSindsVorige = null, datum = '', iets: ietsOpgegeven, etenKlaar, dagdeel = null, drankenAantal = 0, reactie = null, opening = 0, gehad = [], weer = null } = status ?? {};
   const v = status?.verleden ?? {};
   const tot = v.totaal ?? {};
   const b = v.badges ?? {};
@@ -411,9 +429,8 @@ export function kiesMotivatie(status) {
   const eten = maaltijden > 0;
   const drank = ml > 0;
   const pillen = (supplementen?.genomen ?? 0) > 0;
-  const gevoel = stemming != null;
-  const iets = ietsOpgegeven ?? (eten || drank || pillen || gevoel);
-  // BESLISSING 278: de dag is rond als eten, supplementen en drinkdoel in orde zijn; de stemming telt niet mee.
+  const iets = ietsOpgegeven ?? (eten || drank || pillen);
+  // BESLISSING 278: de dag is rond als eten, supplementen en drinkdoel in orde zijn.
   const { etenOk, supplementenOk, drinkenOk } = dagOnderdelen({ etenKlaar, maaltijden, supplementen, ml, doelMl });
   const rond = etenOk && supplementenOk && drinkenOk;
   const heeftSupp = (supplementen?.totaal ?? 0) > 0;
@@ -462,6 +479,26 @@ export function kiesMotivatie(status) {
     if (medailles.length === 1 && GROEPEN['m-' + medailles[0]] && nog('m-' + medailles[0])) return M('m-' + medailles[0]);
   }
 
+  // 2b. Het weer van nu, alleen bij het openen: elke weersoort één keer per dag als moment (regent het straks, dan mag de regen ook nog).
+  // Daarna wisselt het weer mee met de zinnen over de stand van de dag (zie 5).
+  const weerGroep = !reactie && typeof weer === 'string' && weer.startsWith('weer') && GROEPEN[weer] ? weer : null;
+  // Een weerzin verbindt het weer met haar en met haar dag, en zegt nooit iets wat niet klopt. In elke weergroep:
+  //   1 drinken, zolang het dagdoel niet gehaald is        2 haar dag noteren, zolang niet alles genoteerd is
+  //   3 wat ze vandaag al noteerde, zodra er iets staat    4 haar supplementen, als ze er heeft en ze nog niet allemaal afvinkte
+  //   5 het dagdoel is gehaald                             6 haar reeks, vanaf twee dagen op rij ({aantal})
+  //   7 en 8 passen altijd.
+  const weerZonder = [];
+  if (!(doelMl > 0) || drinkenOk) weerZonder.push(1);
+  if (etenOk) weerZonder.push(2);
+  if (!iets) weerZonder.push(3);
+  if (!heeftSupp || supplementenOk) weerZonder.push(4);
+  if (!(doelMl > 0) || !drinkenOk) weerZonder.push(5);
+  if (lopendeReeks < 2) weerZonder.push(6);
+  const weerWaarden = { aantal: lopendeReeks };
+  // Een zin met raad (een hete dag, extreem weer) komt bij het openen in elk dagdeel opnieuw: 's ochtends, 's middags en 's avonds.
+  const weerMoment = weerGroep ? 'weer:' + weerGroep + (WEER_MET_RAAD.includes(weerGroep) ? ':' + (dagdeel ?? '') : '') : null;
+  if (weerGroep && nog(weerMoment)) return M(weerGroep, weerWaarden, weerZonder, weerMoment);
+
   // 3. De hele dag: bij het openen, of als wat ze net deed de dag rond maakte.
   if (rond && (!reactie || n.rond)) {
     if (op('rond', tot.rondeDagen) && nog('rondTotaal')) return M('rondTotaal', { aantal: tot.rondeDagen });
@@ -486,8 +523,6 @@ export function kiesMotivatie(status) {
         if (op('maaltijden', tot.maaltijden)) return K('maaltijdenTotaal', { aantal: tot.maaltijden });
         if (n.eten) return K('etenKlaar');
         return maaltijden <= 1 ? K('eersteMaaltijd') : metDagdeel('maaltijd', () => K('maaltijd'));
-      case 'gevoel':
-        return K('maaltijdGevoel');
       case 'drank':
         if (drinkenOk) {
           if (n.doel && op('doel', tot.doelDagen)) return K('doelTotaal', { aantal: tot.doelDagen });
@@ -510,13 +545,6 @@ export function kiesMotivatie(status) {
         // De eerste zin zegt "je eerste supplement van vandaag": alleen bij het eerste vinkje.
         if ((supplementen?.genomen ?? 0) <= 1) return K('supplementEerste');
         return metDagdeel('inname', () => K('supplementEerste', {}, [1]));
-      case 'stemming':
-        if (n.eersteStemming && op('stemming', tot.stemmingDagen)) return K('stemmingTotaal', { aantal: tot.stemmingDagen });
-        if (stemming >= 4 && (v.stemmingReeks ?? 0) >= 3) return K('stemmingReeks', { aantal: v.stemmingReeks });
-        if (stemming <= 1) return K('stemmingLaag');
-        return metDagdeel('stemming', () => K(stemming <= 3 ? 'stemmingMidden' : 'stemmingHoog'));
-      case 'energie':
-        return K(energie != null && energie <= 2 ? 'energieLaag' : 'energie');
       case 'notitie':
         if (n.eersteNotitie && op('notitie', tot.notitieDagen)) return K('notitieTotaal', { aantal: tot.notitieDagen });
         return metDagdeel('notitie', () => K('notitie'));
@@ -559,8 +587,10 @@ export function kiesMotivatie(status) {
     if (lopendeReeks >= 2) groepen.push('beginReeks');
     if (dagBadge) groepen.push('beginBadge');
     if (seizoen) groepen.push(seizoen.naam);
+    if (weerGroep) groepen.push(weerGroep);
     const groep = wissel(groepen, datum, keer);
     if (groep === seizoen?.naam) return K(groep, {}, [1, 2]); // de eerste twee zinnen horen bij de dag waarop het seizoen begint
+    if (groep === weerGroep) return K(groep, weerWaarden, weerZonder);
     return K(groep, groep === 'beginReeks' ? { aantal: lopendeReeks } : groep === 'beginBadge' ? { badge: dagBadge.id } : {});
   }
   // Nog één onderdeel en de dag is rond (alleen voor wie supplementen heeft: de zinnen noemen ze).
@@ -577,8 +607,10 @@ export function kiesMotivatie(status) {
   if (dagBadge && dagBadge.aantal > 0) groepen.push('badgeStap');
   if (weekdag(datum) === 7 && (v.weekDagen ?? 0) >= 1) groepen.push('weekEinde');
   if (seizoen) groepen.push(seizoen.naam);
+  if (weerGroep) groepen.push(weerGroep);
   const groep = wissel(groepen, datum, keer);
   if (groep === seizoen?.naam) return K(groep, {}, [1, 2]);
+  if (groep === weerGroep) return K(groep, weerWaarden, weerZonder);
   return K(groep, groep === 'badgeStap' ? { badge: dagBadge.id } : groep === 'weekEinde' ? { aantal: v.weekDagen } : {});
 }
 

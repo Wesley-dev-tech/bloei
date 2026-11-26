@@ -56,7 +56,7 @@ describe('database schema 2 naar 3', () => {
     const { db, openDb } = await import('../../src/data/db.js');
     const { vandaag } = await import('../../src/kern/datum.js');
     await openDb();
-    expect(db.verno).toBe(4);
+    expect(db.verno).toBe(5);
 
     // Alles wat er stond, staat er nog, ook de tekst van dosis.
     const lijst = (await db.supplementen.toArray()).sort((a, b) => a.volgorde - b.volgorde);
@@ -89,7 +89,8 @@ describe('database schema 2 naar 3', () => {
     expect(db.tables.map((t) => t.name)).not.toContain('innames');
 
     // De rest van de database is onaangeroerd.
-    expect(await db.dagen.get('2026-11-10')).toMatchObject({ notitie: 'oud', stemming: 4 });
+    expect(await db.dagen.get('2026-11-10')).toMatchObject({ notitie: 'oud' });
+    expect(await db.dagen.get('2026-11-10')).not.toHaveProperty('stemming'); // schema 5 wist dit veld
     expect(await db.maaltijden.get(['2026-11-10', 'ontbijt'])).toMatchObject({ tekst: 'havermout' });
     expect(await db.dranken.count()).toBe(1);
     expect(await db.instellingen.get('profiel.naam')).toMatchObject({ waarde: 'Testnaam' });

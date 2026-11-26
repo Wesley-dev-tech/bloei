@@ -21,7 +21,7 @@ const KOP = /schermkop|dagboek__kop|vandaag__begroeting/;
 // Bewuste uitzonderingen (zie het rapport): de tikvlakken van een kalenderdag, een dagnaam in de maand, een rij van een lijst (een rij is 48 tot 64 px hoog en de lijn
 // ligt tussen twee rijen), een keuzevak en de naam in het dagschema liggen 1 tot 6 px uit elkaar, maar het zichtbare vlak (rondje, lijn of vlak) ligt er ruim 8 px vandaan.
 const DICHT_OK = /kalender__dag|mk__dag|button.maand__beurt|button.dagdrank|button\.icoonknop \/ button\.icoonknop|button\.rij \/ button\.rij|button\.chip \/ button\.chip|a\.week__link \/ a\.week__link|schema__knop/; // week-stippen: twee volle tikvlakken van 44 px naast elkaar (z-toegankelijkheid eist 44 px); het zichtbare bolletje ligt er ruim vandaan
-const LEEG_OK = /favorieten__lijst|wk__schemakaart|supplementen__uitleg|overzichtkaart|gewichtgrafiek|stemmingkaart|instellingen__gewicht|drinken__cijferkaart|weekkaart|drinkkaart|kalkaart|vc--kalender|badgehero|kaart--knop/;
+const LEEG_OK = /favorieten__lijst|wk__schemakaart|supplementen__uitleg|overzichtkaart|gewichtgrafiek|instellingen__gewicht|drinken__cijferkaart|weekkaart|drinkkaart|kalkaart|vc--kalender|badgehero|kaart--knop/;
 
 async function open(page, route) {
   await page.goto(`./#/${route}`);

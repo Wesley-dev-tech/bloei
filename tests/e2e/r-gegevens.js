@@ -31,7 +31,7 @@ export async function vulGegevens(page, soort) {
           const uren = ['08:00', '10:30', '12:30', '16:00', '18:30', '21:30'];
           const aantalM = s === 'vol' ? 6 : s === 'gewoon' ? 2 : 0;
           for (let i = 0; i < aantalM; i++) {
-            tx.objectStore('maaltijden').put({ datum: vandaag, soort: soortenMaaltijd[i], tijd: uren[i], tekst: s === 'vol' ? lang : 'Soep en brood', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: Date.now() });
+            tx.objectStore('maaltijden').put({ datum: vandaag, soort: soortenMaaltijd[i], tijd: uren[i], tekst: s === 'vol' ? lang : 'Soep en brood', fotoId: null, voorbeeld: false, gewijzigdOp: Date.now() });
           }
           const dranken = ['water', 'thee', 'koffie', 'sap', 'frisdrank', 'anders'];
           const aantalD = s === 'vol' ? 14 : s === 'gewoon' ? 4 : 0;
@@ -58,15 +58,15 @@ export async function vulGegevens(page, soort) {
             for (let dagnr = 1; dagnr < nu.getDate(); dagnr++) {
               const d = new Date(nu.getFullYear(), nu.getMonth(), dagnr);
               const ds = tekst(d);
-              tx.objectStore('dagen').put({ datum: ds, stemming: 1 + (dagnr % 5), energie: 1 + ((dagnr * 2) % 5), notitie: dagnr % 3 === 0 ? 'Een rustige dag met een lange wandeling en veel te weinig slaap vannacht, dus morgen vroeg naar bed.' : '', gewijzigdOp: Date.now() });
-              if (dagnr % 2 === 0) tx.objectStore('maaltijden').put({ datum: ds, soort: 'ontbijt', tijd: '08:00', tekst: 'Havermout met fruit', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: Date.now() });
+              tx.objectStore('dagen').put({ datum: ds, notitie: dagnr % 3 === 0 ? 'Een rustige dag met een lange wandeling en veel te weinig slaap vannacht, dus morgen vroeg naar bed.' : '', gewijzigdOp: Date.now() });
+              if (dagnr % 2 === 0) tx.objectStore('maaltijden').put({ datum: ds, soort: 'ontbijt', tijd: '08:00', tekst: 'Havermout met fruit', fotoId: null, voorbeeld: false, gewijzigdOp: Date.now() });
               if (dagnr % 2 === 1) tx.objectStore('dranken').add({ datum: ds, tijdstip: d.getTime() + 36000000, soort: 'water', ml: 250, voorbeeld: false });
             }
           }
           if (s === 'vol') {
-            tx.objectStore('dagen').put({ datum: vandaag, stemming: 4, energie: 3, notitie: 'Vandaag was een zware dag met veel moeheid in de ochtend, maar na de middag voelde ik me beter. '.repeat(6), gewijzigdOp: Date.now() });
+            tx.objectStore('dagen').put({ datum: vandaag, notitie: 'Vandaag was een zware dag met veel moeheid in de ochtend, maar na de middag voelde ik me beter. '.repeat(6), gewijzigdOp: Date.now() });
           } else if (s === 'gewoon') {
-            tx.objectStore('dagen').put({ datum: vandaag, stemming: 4, energie: 3, notitie: 'Rustige dag.', gewijzigdOp: Date.now() });
+            tx.objectStore('dagen').put({ datum: vandaag, notitie: 'Rustige dag.', gewijzigdOp: Date.now() });
           }
           tx.oncomplete = () => {
             idb.close();

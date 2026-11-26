@@ -16,7 +16,7 @@ import appIcoon from '../bloei-huisstijl/logo/bloei-app-icon.svg';
 import { h } from './ui/dom.js';
 import { icoon } from './ui/iconen.js';
 import {
-  kaartkop, kerncijfer, uitklapkaart, schermkop, beeldmerk, bevestig, bevestigBlad, bladerkop, chip, chips, energiekaart, energiekiezer, energieschaal, gevoelschaal,
+  kaartkop, kerncijfer, uitklapkaart, schermkop, beeldmerk, bevestig, bevestigBlad, bladerkop, chip, chips,
   icoonknop, icoontegel, blad, bladInhoud, kaart, knop, legeToestand, logo, rij, schakelaar, segment, stapper, strook, strookElement,
   tabbalk, tekstveld, tekstvak, tijdveld, vinkvak, zijbalk,
 } from './ui/componenten.js';
@@ -139,8 +139,6 @@ function maakTelefoon(thema) {
       rij({ tegel: { naam: 'apple-whole', familie: 'maaltijd' }, titel: t('maaltijd.tussendoortje'), tekst: 'Een appel en een paar noten', eind: '10:15' }),
       rij({ tegel: { naam: 'bowl-food', familie: 'maaltijd' }, titel: t('maaltijd.middagmaal'), tekst: 'Volkoren boterham met hummus en komkommer', eind: '12:30' }),
     ),
-    energiekaart({ waarde: 3, opKies: () => {} }),
-    kaart({ label: t('stemming.vraag') }, h('div', { style: { marginTop: 'var(--s-3)' } }, gevoelschaal({ soort: 'stemming', waarde: 4, opKies: () => {} }))),
     knop(t('drinken.knop'), { soort: 'primair', icoon: 'glass-water', breed: true, opKlik: () => {} }),
   );
   const { el: balk } = tabbalk({ actief: 'vandaag', voorbeeld: true });
@@ -156,7 +154,7 @@ function maakVoorproefje() {
       { class: 'sp-sectie__kop' },
       h('p', { class: 'label' }, '02'),
       h('h2', { class: 't-h1' }, 'Een scherm in de huisstijl'),
-      h('p', { class: 'sp-sectie__uitleg' }, 'Zo ziet Vandaag er ongeveer uit in telefoonbreedte. Alles hieronder is bruikbaar: tik op de blaadjes en de gezichtjes.'),
+      h('p', { class: 'sp-sectie__uitleg' }, 'Zo ziet Vandaag er ongeveer uit in telefoonbreedte. Alles hieronder is bruikbaar.'),
     ),
     h(
       'div',
@@ -206,7 +204,6 @@ const KLEUR_LIJST = [
   ['Delen en verslag', 'menu-item Delen, kaarten op Delen, instelscherm Delen, de rij Delen op Algemeen, Versturen', 'aubergine, gevulde tegel (--c-share)'],
   ['Algemeen', 'tabblad, profiel, thema, vergrendeling, back-up, uitleg', 'neutraal (--tile-neutral-*)'],
   ['Eten en favorieten', 'maaltijdtegels, kaart Eten, favorieten', 'poederroze (--tile-meal-*)'],
-  ['Stemming en energie', 'gezichtjes en blaadjes in Vandaag, Dagboek en het verslag', 'lavendel naar goud (--mood-1 tot --mood-5), blaadjes --energy-*'],
   ['Medailles', 'badges op Algemeen en het overzicht van badges', 'elke soort zijn eigen kleur'],
 ];
 
@@ -260,7 +257,6 @@ function maakKleuren() {
     ['--c-primary', 'primaire knop'],
     ['--c-on-primary', 'tekst op de primaire knop'],
   ];
-  const moods = [1, 2, 3, 4, 5].flatMap((n) => [[`--mood-${n}`, t('gevoel.' + n)], [`--mood-${n}-soft`, 'tegel']]);
   return sectie(
     3,
     'Kleuren',
@@ -270,8 +266,6 @@ function maakKleuren() {
     h('div', { class: 'sp-grid' }, ...merk.map(([n, r]) => kleurVlak(n, r))),
     sub('Rollen'),
     h('div', { class: 'sp-grid' }, ...rollen.map(([n, r]) => kleurVlak(n, r))),
-    sub('Gevoelschaal en kalenderbolletjes'),
-    h('div', { class: 'sp-grid' }, ...moods.map(([n, r]) => kleurVlak(n, r))),
     sub('Tegelkleuren'),
     h(
       'div',
@@ -289,8 +283,6 @@ function maakKleuren() {
     h('div', { class: 'sp-grid sp-grid--breed' }, ...KLEUR_PER_ONDERWERP.map(([naam, kleur, familie, icoonNaam, mix]) => kleurOnderwerp(naam, kleur, familie, icoonNaam, mix))),
     sub('Onderwerp, waar het voorkomt, kleur'),
     h('div', { class: 'sp-kolom' }, ...KLEUR_LIJST.map(([onderwerp, waar, kleur]) => h('p', { class: 'sp-kleur__waarde' }, h('strong', null, onderwerp), ': ', waar, ', ', kleur))),
-    sub('Energie'),
-    h('div', { class: 'sp-grid' }, kleurVlak('--energy-on', 'gevuld blaadje'), kleurVlak('--energy-off', 'leeg blaadje')),
     ),
   );
 }
@@ -319,7 +311,7 @@ function maakTypografie() {
     jost(500),
     jost(600),
     typeRij('Jost 400 · --fs-small · 14 px', h('p', { class: 't-klein' }, 'Kleine tekst voor een uitleg onder een kaart of een veld.')),
-    typeRij('Label: Jost 500 · 12 px · hoofdletters · 0,12em · --c-text-muted', h('p', { class: 'label' }, 'Energie · donderdag 12 november')),
+    typeRij('Label: Jost 500 · 12 px · hoofdletters · 0,12em · --c-text-muted', h('p', { class: 'label' }, 'Drinken · donderdag 12 november')),
     typeRij(
       'Cijfers: tabular-nums (Jost), onder elkaar op dezelfde breedte',
       h(
@@ -402,7 +394,6 @@ function maakIconen() {
       tegelItem('circle-info', 'neutraal', 'Uitleg'),
       tegelItem('fingerprint', 'neutraal', 'Toestelcontrole'),
       tegelItem('bullseye', 'neutraal', 'Streefgewicht'),
-      tegelItem('leaf', 'neutraal', 'Energie'),
       tegelItem('floppy-disk', 'neutraal', 'Back-up'),
       tegelItem('plus', 'neutraal', 'Toevoegen'),
       tegelItem('xmark', 'neutraal', 'Weghalen'),
@@ -552,30 +543,7 @@ function maakComponenten() {
   );
 }
 
-// ---------------------------------------------------------------- 7. gevoelschaal en energieschaal
-
-function maakSchalen() {
-  const stappen = [1, 2, 3, 4, 5];
-  return sectie(
-    7,
-    'Gevoel en energie',
-    'Vijf gezichtjes in de moodkleuren, vijf blaadjes uit het logo. Nog eens tikken op de gekozen stap wist de keuze. Nooit rood, nooit oranje.',
-    sub('Gevoelschaal: kiezer'),
-    kaart({}, gevoelschaal({ waarde: null, opKies: () => {} })),
-    sub('Gevoelschaal: elke stap gekozen'),
-    h('div', { class: 'sp-kolom' }, ...stappen.map((n) => kaart({}, gevoelschaal({ waarde: n, opKies: () => {} })))),
-    sub('Energieschaal: kiezer'),
-    kaart({}, energiekiezer({ waarde: null, opKies: () => {} })),
-    sub('Energiekaart: alle vijf standen (tikbaar)'),
-    h('div', { class: 'sp-grid sp-grid--energie' }, ...stappen.map((n) => energiekaart({ waarde: n, opKies: () => {} }))),
-    sub('Energiekaart: alleen tonen, en nog niet gekozen'),
-    h('div', { class: 'sp-grid sp-grid--energie' }, energiekaart({ waarde: 2 }), energiekaart({ waarde: null, opKies: () => {} })),
-    sub('Energieschaal in een lijst'),
-    kaart({}, h('div', { class: 'sp-rij sp-rij--midden' }, ...stappen.map((n) => energieschaal({ waarde: n })))),
-  );
-}
-
-// ---------------------------------------------------------------- 8. tabbalk en zijbalk
+// ---------------------------------------------------------------- 7. tabbalk en zijbalk
 
 function maakNavigatie() {
   const { el: balk } = tabbalk({ actief: 'dagboek', voorbeeld: true });
@@ -594,7 +562,7 @@ function maakNavigatie() {
         'div',
         { class: 'sp-desktop__kolommen' },
         kaart({ label: 'Eten' }, rij({ tegel: { naam: 'mug-saucer', familie: 'maaltijd' }, titel: t('maaltijd.ontbijt'), tekst: 'Havermout met banaan', eind: '08:10' }), rij({ tegel: { naam: 'bowl-food', familie: 'maaltijd' }, titel: t('maaltijd.middagmaal'), tekst: 'Boterham met hummus', eind: '12:30' })),
-        h('div', { class: 'sp-kolom' }, energiekaart({ waarde: 4, opKies: () => {} }), kaart({ label: t('stemming.vraag') }, h('div', { style: { marginTop: 'var(--s-3)' } }, gevoelschaal({ soort: 'stemming', waarde: 3, opKies: () => {} })))),
+        h('div', { class: 'sp-kolom' }, kaart({ label: 'Drinken' }, h('p', { class: 't-body' }, '0,75 liter van 2 l'))),
       ),
     ),
   );
@@ -602,7 +570,7 @@ function maakNavigatie() {
   const kader = h('div', { class: 'sp-desktop' }, binnen);
 
   return sectie(
-    8,
+    7,
     'Tabbalk en zijbalk',
     'Op een telefoon een tabbalk onderaan (64 px plus safe-area), vanaf 960 px een zijbalk van 248 px met het logo bovenaan.',
     h(
@@ -617,7 +585,7 @@ function maakNavigatie() {
   );
 }
 
-// ---------------------------------------------------------------- 9. ritme
+// ---------------------------------------------------------------- 8. ritme
 
 function maakRitme() {
   const ruimtes = [1, 2, 3, 4, 5, 6, 8, 10, 12];
@@ -636,7 +604,7 @@ function maakRitme() {
     return p;
   };
   return sectie(
-    9,
+    8,
     'Ritme',
     'Raster van 4 px. Schermmarge 20, ruimte tussen kaarten 16, tussen secties 32. Overgangen 260 ms met --ease; tikken geeft schaal 0,97.',
     sub('Ruimte'),
@@ -685,7 +653,7 @@ function maakWater() {
   toon(50);
   const vast = (p, g = false) => toestand(p + '%' + (g ? ', gehaald' : ''), watervulling({ vulling: p / 100, gehaald: g, grootte: 140 }));
   return sectie(
-    10,
+    9,
     'Watervulling',
     'Eén glasvorm. Bij 100% is het glas vol tot bovenaan en daarboven verandert er niets meer: nooit hoger dan vol, nooit buiten de vorm. Doel gehaald maakt de vulling salie en het beeldmerk bloeit.',
     h('div', { class: 'sp-twee' },
@@ -714,7 +682,7 @@ function maakGrafieken() {
   const g = grafiek({ wegingen: tien, periode: 'kwartaal', streefKg: 66.5, gekozen: tien[tien.length - 3].week, opKiesPunt: () => {} });
   const periodeKiezer = segment({ label: 'Periode', keuzes: [{ id: 'maand', label: '1M' }, { id: 'kwartaal', label: '3M' }, { id: 'jaar', label: '1J' }], actief: 'kwartaal', opKies: (p) => g.zet({ periode: p }) });
   return sectie(
-    11,
+    10,
     'Gewichtsgrafiek',
     'Dunne lijn in oudroze, punten van 6 px, het streefgewicht als stippellijn in salie en één baseline. Een stijging ziet er hetzelfde uit als een daling. De laagste en hoogste waarde en de maanden staan erbij als kleine labels.',
     h('div', { class: 'sp-twee' },
@@ -747,7 +715,7 @@ function demoFoto() {
 function maakBeeld() {
   const soorten = Object.keys(MAALTIJDICOON);
   return sectie(
-    12,
+    11,
     'Maaltijdtegel',
     'Bij een maaltijd staat de maaltijdtegel van 56 px: poederroze met een oudroze icoon van het moment. Er zijn geen maaltijdfoto\'s in de app.',
     h('div', { class: 'sp-kolom' },
@@ -762,7 +730,7 @@ function maakBeeld() {
 function maakProfielBadge() {
   const url = demoFoto();
   return sectie(
-    13,
+    12,
     'Profielfoto en badges',
     'De profielfoto is rond met een ring van 2 px in de achtergrondkleur en 1 px lijn. Zonder foto staat de initiaal op poederroze. Badges zijn saliegroene tegels; nog niet behaald is een neutrale tegel met het icoon op 40% dekking.',
     h('div', { class: 'sp-twee' },
@@ -780,7 +748,6 @@ function maakProfielBadge() {
 
 function maakUitklap() {
   const lijst = (aantal) => Array.from({ length: aantal }, (_, i) => vinkvak({ label: ['Multivitamine', 'Kurkuma', 'Vitamine C', 'Voorbeeldspuit', 'Kruidenthee-extract', 'Vezelpoeder'][i % 6], aan: i < 2 }));
-  const gezicht = h('span', { style: { color: 'var(--mood-3)', display: 'inline-flex' } }, icoon('face-smile', { grootte: 24, stijl: 'regular' }));
   const kaartSupp = uitklapkaart({ label: 'Supplementen', samenvatting: '2 van 6', open: true }, h('div', { class: 'sp-kolom', style: { gap: 0 } }, ...lijst(6)));
   const kaartDrinken = uitklapkaart({ label: 'Drinken', samenvatting: '0,75 liter van 2 l' }, h('p', { class: 't-body' }, 'Hier staat de inhoud van de kaart.'));
   const kaartEten = uitklapkaart(
@@ -788,13 +755,12 @@ function maakUitklap() {
     rij({ tegel: { naam: 'mug-saucer', familie: 'maaltijd' }, titel: t('maaltijd.ontbijt'), tekst: 'Havermout met banaan', eind: '08:10' }),
     rij({ tegel: { naam: 'bowl-food', familie: 'maaltijd' }, titel: t('maaltijd.middagmaal'), tekst: 'Boterham met hummus', eind: '12:30' }),
   );
-  const kaartStemming = uitklapkaart({ label: t('stemming.vraag'), samenvatting: gezicht }, gevoelschaal({ soort: 'stemming', waarde: 3, opKies: () => {} }));
   return sectie(
-    14,
+    13,
     'Uitklapkaart',
     'Een inklapbare kaart met een samenvatting in de kop, zodat een scherm kort blijft. De kop is één knop (minstens 56 px hoog); de chevron draait een kwartslag; de inhoud schuift open in 260 ms.',
     h('div', { class: 'sp-twee' },
-      h('div', { class: 'sp-kolom' }, kaartDrinken, kaartEten, kaartStemming),
+      h('div', { class: 'sp-kolom' }, kaartDrinken, kaartEten),
       h('div', { class: 'sp-kolom' }, kaartSupp),
     ),
   );
@@ -814,7 +780,7 @@ function maakBewegingRaster() {
     telOp(cijfer.getal, 68.4, { van: 0, opmaak: (n) => n.toFixed(1).replace('.', ',') });
   } });
   return sectie(
-    15,
+    14,
     'Beweging en raster',
     'Eén bewegingstaal, zichtbaar maar rustig. Kaarten komen 20 px omhoog op in 520 ms, 90 ms na elkaar (hoogstens vijf stappen, alles binnen ongeveer een seconde); een getal telt op in 700 ms; iets nieuws bloeit één keer op (600 ms). Bij een muis beweegt een kaart niet en krijgt ze geen andere schaduw (BESLISSING 195); alles met een icoon (rij, vak, chip, menu-item, themategel) licht alleen op via zijn icoon: de tegel groeit tot 1,07 met een zachte schaduw eronder en de pijl schuift 4 px op, zonder kader rond het element (BESLISSING 190; de gedeelde regel staat onderaan componenten.css); een knop tilt 1 px op met een lichte schaduw en een tekstknop krijgt een onderstreping; nooit een andere achtergrondkleur bij hover of indrukken (BESLISSING 188); drukken is schaal 0,98. Alleen opacity, transform, schaduw, tekstkleur en onderstreping; niets bij een hertekening, en bij verminderde beweging staat het eindbeeld er meteen.',
     h('div', { class: 'sp-kolom' },
@@ -842,7 +808,7 @@ function bouw() {
 
   houder.append(
     h('header', { class: 'sp-kop' }, h('div', { class: 'sp-kop__binnen' }, logo({ grootte: 28 }), kiezer)),
-    h('main', { class: 'sp' }, maakLogoSectie(), maakVoorproefje(), maakKleuren(), maakTypografie(), maakIconen(), maakComponenten(), maakSchalen(), maakNavigatie(), maakRitme(), maakWater(), maakGrafieken(), maakBeeld(), maakProfielBadge(), maakUitklap(), maakBewegingRaster()),
+    h('main', { class: 'sp' }, maakLogoSectie(), maakVoorproefje(), maakKleuren(), maakTypografie(), maakIconen(), maakComponenten(), maakNavigatie(), maakRitme(), maakWater(), maakGrafieken(), maakBeeld(), maakProfielBadge(), maakUitklap(), maakBewegingRaster()),
   );
   zetThema(start);
 }

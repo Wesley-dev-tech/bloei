@@ -39,9 +39,9 @@ export function besteEerdereReeks(datums, vandaag) {
 }
 
 // invoer: { datum, datums (bijgehouden dagen), rondeDatums, doelDatums, volleDatums (dagen met alles afgevinkt), wegingWeken (maandagen),
-//           stemmingen: Map datum → 1..5, mlGisteren, totaal: { maaltijden, doelDagen, volledigeDagen, rondeDagen, notitieDagen,
-//           stemmingDagen, wegingen, favorieten }, badges: [{ id, behaaldOp }], badgeStats, weekDagen }
-export function verledenUit({ datum, datums = [], rondeDatums = [], doelDatums = [], volleDatums = [], wegingWeken = [], stemmingen = new Map(), mlGisteren = 0, totaal = {}, badges = [], badgeStats = null, weekDagen = 0 } = {}) {
+//           mlGisteren, totaal: { maaltijden, doelDagen, volledigeDagen, rondeDagen, notitieDagen,
+//           wegingen, favorieten }, badges: [{ id, behaaldOp }], badgeStats, weekDagen }
+export function verledenUit({ datum, datums = [], rondeDatums = [], doelDatums = [], volleDatums = [], wegingWeken = [], mlGisteren = 0, totaal = {}, badges = [], badgeStats = null, weekDagen = 0 } = {}) {
   const gisteren = plusDagen(datum, -1);
   const gesorteerd = [...new Set(datums)].sort();
   const eerder = gesorteerd.filter((d) => d < datum);
@@ -51,7 +51,6 @@ export function verledenUit({ datum, datums = [], rondeDatums = [], doelDatums =
   const doel = new Set(doelDatums);
   const vol = new Set(volleDatums);
   const weken = new Set(wegingWeken);
-  const blij = new Set([...stemmingen].filter(([, s]) => s >= 4).map(([d]) => d));
   const vorigeMaand = (() => {
     const [j, m] = datum.split('-').map(Number);
     const d = new Date(j, m - 2, 1);
@@ -76,7 +75,6 @@ export function verledenUit({ datum, datums = [], rondeDatums = [], doelDatums =
     doelReeks: opRij(doel, datum),
     suppReeks: opRij(vol, datum),
     wegingReeks: opRij(weken, weekStart(datum), 7),
-    stemmingReeks: opRij(blij, datum),
     totaal,
     badges: { vandaag: opDag(datum), gisteren: opDag(gisteren), aantal: behaald.size, totaal: ALLE_BADGES.length, volgende: open[0] ?? null, volgendeDag: open.find((x) => x.dagTeller) ?? null },
     weekDagen,

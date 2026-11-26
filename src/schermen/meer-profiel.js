@@ -75,8 +75,8 @@ export function toon(houder) {
     const vakken = [
       [ICOON.eten.naam, ICOON.eten.familie, t('vandaag.eten'), t('vandaag.etenSamen', { aantal: 0, totaal: 6 })],
       [ICOON.drinken.naam, ICOON.drinken.familie, t('tab.drinken'), '0 l'],
+      ['droplet', ICOON.drinken.familie, t('vandaag.dagdoel'), t('vandaag.dagdoelStand', { procent: 0 })],
       [ICOON.supplementen.naam, ICOON.supplementen.familie, t('supplementen.kaartLabel'),t('supplementen.momentStand', { genomen: 0, totaal: 3 })],
-      [ICOON.stemming.naam, ICOON.stemming.familie, t('dag.stemmingTitel'), '-'],
     ];
     const voorbeeld = h(
       'aside',
@@ -103,7 +103,7 @@ export function toon(houder) {
             'div',
             { class: 'profielvoorbeeld__vakken', 'aria-hidden': 'true' },
             ...vakken.map(([icoon, familie, label, stand]) =>
-              h('span', { class: 'profielvoorbeeld__vak' }, icoontegel(icoon, familie, { groot: true, stijl: icoon === ICOON.stemming.naam ? 'regular' : 'solid' }), h('span', { class: 'label' }, ...[].concat(label)), h('span', { class: 'cijfer t-klein t-gedempt' }, stand)),
+              h('span', { class: 'profielvoorbeeld__vak' }, icoontegel(icoon, familie, { groot: true }), h('span', { class: 'label' }, ...[].concat(label)), h('span', { class: 'cijfer t-klein t-gedempt' }, stand)),
             ),
           ),
           h('p', { class: 't-klein t-gedempt profielvoorbeeld__uitleg' }, t('profiel.voorbeeldUitleg')),

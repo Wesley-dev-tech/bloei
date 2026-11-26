@@ -47,6 +47,8 @@ export const STANDAARD = {
   'teller.hoogste': 0,
   // Delen (stap 19): welke onderdelen in het verslag komen. Gewicht en notities staan standaard uit.
   'delen.onderdelen': { eten: true, drinken: true, gewicht: false, notities: false },
+  // Hoe de verslagen gemaakt werden, voor de medailles (logica/badgeregels.js, telVerslag): alleen aantallen en maanden, nooit de inhoud.
+  'delen.verslagTelling': null, // { verstuurd, bewaard, volledig, week, maand, maanden: ['JJJJ-MM', ...] }
   'installatie.strookWeg': false,
   'versie.nummering': null, // 2 zodra deze app 'versie.gezien' zelf bewaarde (vanaf 0.5.1): dan is een onthouden '0.5.0' de echte (wijzigingen.js, gezienVersie)
   'versie.gezien': null, // de laatste versie waarvan het blad "Nieuw in Bloei" getoond werd (src/ui/watisnieuw.js)
@@ -96,8 +98,8 @@ export async function migreerKan() {
   await migreerDagdoel();
 }
 
-// Het weerbericht (0.4.8 tot 0.5.6) is weer weg: het weer dat een toestel daarvoor bewaarde, gaat mee weg. Mislukt het, dan blijft er
-// alleen een rij staan die niemand nog leest.
+// Het weerbericht van 0.4.8 tot 0.5.6 bewaarde het weer van daarnet in de database. Het weerbericht van nu (data/weer.js) bewaart
+// niets in de database (alleen de laatste plek en het laatste weer in de opslag van de browser): wat een toestel toen bewaarde, gaat weg. Mislukt het, dan blijft er alleen een rij staan die niemand nog leest.
 export async function ruimWeerOp() {
   try {
     await db.instellingen.delete('weer.laatste');

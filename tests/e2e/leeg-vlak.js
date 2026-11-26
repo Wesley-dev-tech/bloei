@@ -31,7 +31,7 @@ export async function vul(page, { dranken = 0, wegingen = 0, maaltijden = 0 } = 
           }
           const soortenMaaltijd = ['ontbijt', 'tussendoortje', 'middagmaal', 'vieruurtje', 'avondmaal', 'latesnack'];
           for (let i = 0; i < aantalMaaltijden; i++) {
-            tx.objectStore('maaltijden').put({ datum: vandaag, soort: soortenMaaltijd[i], tijd: '12:00', tekst: 'Soep en brood', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: Date.now() });
+            tx.objectStore('maaltijden').put({ datum: vandaag, soort: soortenMaaltijd[i], tijd: '12:00', tekst: 'Soep en brood', fotoId: null, voorbeeld: false, gewijzigdOp: Date.now() });
           }
           tx.oncomplete = () => {
             db.close();
@@ -73,7 +73,7 @@ export function meetKaarten(page, wortel) {
         tot = Math.max(tot, naar);
       }
       gat = Math.max(gat, binnenBodem - tot);
-      const naam = [...k.classList].find((c) => /^(dag__|energiekaart|gewichthoofd|gewicht__weegdag|gewichtstreef|gewichtgrafiek|gewicht__lijst|gewicht__weetjes|maand__|week__)/.test(c)) ?? k.className;
+      const naam = [...k.classList].find((c) => /^(dag__|gewichthoofd|gewicht__weegdag|gewichtstreef|gewichtgrafiek|gewicht__lijst|gewicht__weetjes|maand__|week__)/.test(c)) ?? k.className;
       return { naam, top: r.top, bodem: r.bottom, links: r.left, hoogte: r.height, gat };
     });
   }, wortel);

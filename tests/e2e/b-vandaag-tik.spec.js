@@ -1,5 +1,4 @@
 // BESLISSING 191: elk vak van de motivator op Vandaag doet iets bij een tik.
-// Eten opent de maaltijd die aan de beurt is (met de cursor in het tekstvak), Stemming zet de focus op de gevoelschaal,
 // Drinken en Supplementen gaan naar hun tabblad. Op 390 en 1280 px.
 import { test, expect } from '@playwright/test';
 import { maaltijdblad } from './r-wacht.js';

@@ -64,11 +64,11 @@ async function vulDagen(page, dagen) {
           const tx = idb.transaction(['maaltijden', 'dranken', 'dagen', 'wegingen'], 'readwrite');
           for (let i = 0; i < aantal; i += 1) {
             const datum = sleutel(new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - i));
-            tx.objectStore('maaltijden').put({ datum, soort: 'ontbijt', tijd: '08:15', tekst: 'havermout met fruit', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1 });
-            tx.objectStore('maaltijden').put({ datum, soort: 'avondmaal', tijd: '18:30', tekst: 'groentesoep met brood', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1 });
+            tx.objectStore('maaltijden').put({ datum, soort: 'ontbijt', tijd: '08:15', tekst: 'havermout met fruit', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
+            tx.objectStore('maaltijden').put({ datum, soort: 'avondmaal', tijd: '18:30', tekst: 'groentesoep met brood', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
             tx.objectStore('dranken').add({ datum, tijdstip: nu.getTime() - i * 1000, soort: 'water', ml: 500, voorbeeld: false });
             tx.objectStore('dranken').add({ datum, tijdstip: nu.getTime() - i * 1000 - 500, soort: 'thee', ml: 250, voorbeeld: false });
-            tx.objectStore('dagen').put({ datum, stemming: 3, energie: 4, notitie: 'Een rustige verzonnen dag', doelGehaald: false, voorbeeld: false });
+            tx.objectStore('dagen').put({ datum, notitie: 'Een rustige verzonnen dag', doelGehaald: false, voorbeeld: false });
             if (i % 7 === 0) tx.objectStore('wegingen').put({ week: datum, datum, kg: 70 + i / 10, voorbeeld: false, gewijzigdOp: 1 });
           }
           tx.oncomplete = () => {
@@ -115,9 +115,9 @@ async function vulGeval(page, { maaltijden = 0, dranken = 0, notitie = false, we
           for (const s of ['maaltijden', 'dranken', 'dagen', 'wegingen']) tx.objectStore(s).clear();
           for (let i = 0; i < aantal; i += 1) {
             const datum = sleutel(new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - i));
-            for (let j = 0; j < m; j += 1) tx.objectStore('maaltijden').put({ datum, soort: soorten[j], tijd: `${String(8 + j * 2).padStart(2, '0')}:15`, tekst: 'havermout met fruit en een glas melk', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1 });
+            for (let j = 0; j < m; j += 1) tx.objectStore('maaltijden').put({ datum, soort: soorten[j], tijd: `${String(8 + j * 2).padStart(2, '0')}:15`, tekst: 'havermout met fruit en een glas melk', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
             for (let j = 0; j < d; j += 1) tx.objectStore('dranken').add({ datum, tijdstip: nu.getTime() - i * 1000 - j * 100, soort: ['water', 'thee', 'koffie'][j % 3], ml: 2980 / d, voorbeeld: false });
-            if (n) tx.objectStore('dagen').put({ datum, stemming: 3, energie: 4, notitie: 'Een rustige dag, wat moe na de middag.', doelGehaald: false, voorbeeld: false });
+            if (n) tx.objectStore('dagen').put({ datum, notitie: 'Een rustige dag, wat moe na de middag.', doelGehaald: false, voorbeeld: false });
             if (w && i % 7 === 0) tx.objectStore('wegingen').put({ week: datum, datum, kg: 70 + i / 10, voorbeeld: false, gewijzigdOp: 1 });
           }
           tx.oncomplete = () => {

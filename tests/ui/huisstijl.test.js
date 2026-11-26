@@ -42,7 +42,7 @@ describe('huisstijl', () => {
         // Toegevoegd op vraag van de eigenaar (BESLISSING 167): de knop Uitleg.
         'circle-question',
         // Toegevoegd op vraag van de eigenaar (BESLISSING 172): kaart van begrippen voor de instellingen en de schermen eromheen.
-        'calendar-day', 'calendar-days', 'user', 'palette', 'file-lines', 'circle-info', 'fingerprint', 'bullseye', 'leaf', 'floppy-disk', 'plus', 'xmark',
+        'calendar-day', 'calendar-days', 'user', 'palette', 'file-lines', 'circle-info', 'fingerprint', 'bullseye', 'floppy-disk', 'plus', 'xmark',
         // Toegevoegd op vraag van de eigenaar (BESLISSING 243): de knop Profiel verwijderen.
         'trash-can',
         // Toegevoegd op vraag van de eigenaar (BESLISSING 251): het spuitje van een geplande beurt van een periodiek supplement.
@@ -52,17 +52,22 @@ describe('huisstijl', () => {
         // Toegevoegd op vraag van de eigenaar: het tandwiel van Algemeen, op Vandaag en in de zijbalk, nu Algemeen geen tabblad meer is op de telefoon.
         'gear',
         // Toegevoegd op vraag van de eigenaar (0.4.5): elke medaille haar eigen icoon, en de iconen van de feestdagen en de verjaardag.
-        'bolt', 'book', 'book-bookmark', 'bottle-droplet', 'bowl-rice', 'bread-slice', 'briefcase', 'bucket', 'burst', 'cake-candles',
+        'book', 'book-bookmark', 'bottle-droplet', 'bowl-rice', 'bread-slice', 'briefcase', 'bucket', 'burst', 'cake-candles',
         'calendar', 'calendar-check', 'calendar-plus', 'calendar-week', 'carrot', 'certificate', 'champagne-glasses', 'check-double', 'church', 'circle-check',
         'clipboard-check', 'clipboard-list', 'cloud', 'cloud-sun', 'cross', 'crown', 'door-open', 'dove', 'droplet', 'egg',
-        'face-grin-hearts', 'face-grin-stars', 'face-grin-tongue', 'face-grin-wide', 'face-kiss-wink-heart', 'face-smile', 'face-smile-beam', 'faucet-drip', 'feather-pointed', 'fire',
+        'face-kiss-wink-heart', 'faucet-drip', 'feather-pointed', 'fire',
         'flag', 'gauge', 'gem', 'ghost', 'gift', 'glass-water-droplet', 'graduation-cap', 'hand-holding-droplet', 'hand-holding-heart', 'hand-holding-medical',
-        'hands-clapping', 'heart-circle-plus', 'heart-pulse', 'holly-berry', 'horse', 'hourglass-half', 'infinity', 'kitchen-set', 'list-check', 'medal',
+        'hands-clapping', 'heart-circle-plus', 'holly-berry', 'horse', 'hourglass-half', 'infinity', 'kitchen-set', 'list-check', 'medal',
         'mobile-screen-button', 'mountain', 'mountain-sun', 'note-sticky', 'paper-plane', 'peace', 'pen-to-square', 'person-hiking', 'person-running', 'person-walking',
         'pills', 'plate-wheat', 'prescription-bottle', 'prescription-bottle-medical', 'rainbow', 'ranking-star', 'rocket', 'ruler', 'scale-balanced', 'shoe-prints',
         'snowman', 'spa', 'square-check', 'stairs', 'star', 'tablets', 'tree', 'trophy', 'vial', 'water',
-        'weight-hanging', 'wind'],
-      regular: ['heart', 'bell', 'face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'],
+        'weight-hanging', 'wind',
+        // Toegevoegd op vraag van de eigenaar (0.4.8): het weerbericht op Vandaag (zon, maan, wolk, wind en druppel stonden er al).
+        'cloud-bolt', 'cloud-moon', 'cloud-rain', 'cloud-showers-heavy', 'smog', 'snowflake',
+        // Toegevoegd op vraag van de eigenaar (0.5.8): de nieuwe medailles voor notities en verslagen.
+        'align-left', 'box-archive', 'clipboard', 'envelope', 'file-circle-check', 'folder-open', 'handshake-simple', 'message', 'pen-clip', 'pen-fancy', 'pen-nib',
+        'quote-left', 'scroll'],
+      regular: ['heart', 'bell'],
     };
     // BESLISSING 606: een eigen bestand, op vraag van de eigenaar: het teken voor Face ID; de gratis iconenset heeft er geen.
     // BESLISSING 702: en een kan water, om dezelfde reden: de set heeft geen kan, en "Kan water" en "Glas water" mogen niet hetzelfde icoon dragen.

@@ -11,7 +11,6 @@ import { bewaakTerug } from '../pwa/terug.js';
 import markLicht from '../../bloei-huisstijl/logo/bloei-mark.svg?raw';
 import markNacht from '../../bloei-huisstijl/logo/bloei-mark-nacht.svg?raw';
 import markMono from '../../bloei-huisstijl/logo/bloei-mark-mono.svg?raw';
-import bladRaw from '../../bloei-huisstijl/energie/blad.svg?raw';
 
 // ------------------------------------------------------------------ hulpjes
 
@@ -36,12 +35,6 @@ function schoonMerk(bron, klasse) {
       .replace(/\srole="img"\saria-label="[^"]*"/, ' aria-hidden="true" focusable="false"'),
   );
   el.setAttribute('class', klasse);
-  return el;
-}
-
-function bladje() {
-  const el = svg(bladRaw);
-  el.setAttribute('focusable', 'false');
   return el;
 }
 
@@ -839,161 +832,6 @@ export function legeToestand(opties) {
     schoonMerk(markNacht, 'leeg__merk logo__merk--nacht'),
     h('p', { class: 'leeg__tekst t-cursief' }, tekst),
     actie ? knop(actie.label, { soort: 'tekst', opKlik: actie.opKlik }) : null,
-  );
-}
-
-// ------------------------------------------------------------------ gevoelschaal (§5.2)
-
-const GEVOEL_ICONEN = ['face-tired', 'face-meh', 'face-smile', 'face-grin-beam', 'face-grin-hearts'];
-
-// Vijf gezichtjes (Font Awesome regular). Niet gekozen: icoon in --c-text-muted. Gekozen: ronde tegel in
-// de -soft-kleur, icoon in de stapkleur, schaal 1 → 1,08. Nog eens tikken op de gekozen stap wist de keuze.
-// gevoelschaal({ waarde: 1..5|null, opKies: (waarde|null) => void, alleenLezen?, soort?: 'gevoel'|'stemming', label? })
-export function gevoelschaal(opties = {}) {
-  const { waarde = null, opKies, alleenLezen = false, soort = 'gevoel', label = t(soort + '.vraag') } = opties;
-  let huidig = waarde;
-  const groep = h('div', {
-    class: ['gevoel', alleenLezen && 'gevoel--alleenlezen'],
-    role: 'radiogroup',
-    'aria-label': label,
-    'aria-readonly': alleenLezen ? 'true' : null,
-  });
-  const knoppen = GEVOEL_ICONEN.map((naam, i) =>
-    h(
-      'button',
-      { type: 'button', class: 'gevoel__optie', role: 'radio', dataset: { stap: i + 1 }, disabled: alleenLezen, onclick: () => kies(i + 1) },
-      h('span', { class: 'gevoel__tegel' }, icoon(naam, { grootte: 26, stijl: 'regular' })),
-      h('span', { class: 'gevoel__label' }, t(soort + '.' + (i + 1))),
-    ),
-  );
-  function teken() {
-    knoppen.forEach((b, i) => {
-      const aan = huidig === i + 1;
-      b.classList.toggle('is-gekozen', aan);
-      b.setAttribute('aria-checked', String(aan));
-      b.tabIndex = aan || (huidig == null && i === 0) ? 0 : -1;
-    });
-  }
-  function kies(n) {
-    huidig = huidig === n ? null : n; // nog eens tikken wist de keuze
-    tril();
-    teken();
-    opKies?.(huidig);
-  }
-  radioToetsen(groep, knoppen, kies);
-  groep.append(...knoppen);
-  teken();
-  groep.zetWaarde = (n) => {
-    huidig = n;
-    teken();
-  };
-  return groep;
-}
-
-// ------------------------------------------------------------------ energieschaal (§5.3)
-
-const energieHoogtes = ['.7', '.775', '.85', '.925', '1'];
-
-// Vijf blaadjes uit het logo, van klein naar groot (70 / 77,5 / 85 / 92,5 / 100 % van --energy-leaf-h),
-// onderaan uitgelijnd. Gevuld = --energy-on, leeg = --energy-off. Alleen tonen.
-// energieschaal({ waarde: 1..5|null, label? })
-export function energieschaal(opties = {}) {
-  const { waarde = null, label } = opties;
-  const el = h('span', {
-    class: 'energie',
-    role: waarde ? 'img' : null,
-    'aria-label': waarde ? (label ?? `${t('energie.titel')}: ${t('energie.' + waarde)}`) : null,
-    'aria-hidden': waarde ? null : 'true',
-  });
-  energieHoogtes.forEach((hoogte, i) => {
-    el.append(h('span', { class: ['energie__blad', i < waarde && 'is-gevuld'], style: { '--h': hoogte } }, bladje()));
-  });
-  el.zetWaarde = (n) => {
-    [...el.children].forEach((blad, i) => blad.classList.toggle('is-gevuld', i < n));
-  };
-  return el;
-}
-
-// Kiezer: elk blaadje is een tikvlak van 44 x 48. Tikken op blaadje 4 vult 1 t.e.m. 4, met een korte
-// groei-animatie (schaal 0,8 → 1 in 260 ms) en een trilling. Nog eens tikken op de gekozen stap wist de keuze.
-// energiekiezer({ waarde, opKies: (waarde|null) => void, alleenLezen?, label? })
-export function energiekiezer(opties = {}) {
-  const { waarde = null, opKies, alleenLezen = false, label = t('energie.vraag'), woorden = false } = opties;
-  let huidig = waarde;
-  const groep = h('div', {
-    class: ['energie', 'energie--kiezer', alleenLezen && 'energie--alleenlezen', woorden && 'energie--woorden'],
-    role: 'radiogroup',
-    'aria-label': label,
-    'aria-readonly': alleenLezen ? 'true' : null,
-  });
-  const knoppen = energieHoogtes.map((hoogte, i) =>
-    h(
-      'button',
-      {
-        type: 'button',
-        class: 'energie__tik',
-        role: 'radio',
-        'aria-label': t('energie.' + (i + 1)),
-        disabled: alleenLezen,
-        onclick: () => kies(i + 1),
-      },
-      h('span', { class: 'energie__blad', style: { '--h': hoogte } }, bladje()),
-      woorden ? h('span', { class: 'energie__woord' }, t('energie.' + (i + 1))) : null,
-    ),
-  );
-  function teken(groei) {
-    knoppen.forEach((b, i) => {
-      const vol = i < huidig;
-      const blad = b.firstElementChild;
-      blad.classList.toggle('is-gevuld', vol);
-      b.setAttribute('aria-checked', String(huidig === i + 1));
-      b.tabIndex = huidig === i + 1 || (huidig == null && i === 0) ? 0 : -1;
-      if (groei && vol) {
-        blad.classList.remove('is-groei');
-        void blad.offsetWidth; // opnieuw starten
-        blad.classList.add('is-groei');
-      }
-    });
-  }
-  function kies(n) {
-    const wissen = huidig === n;
-    huidig = wissen ? null : n;
-    tril();
-    teken(!wissen);
-    opKies?.(huidig);
-  }
-  radioToetsen(groep, knoppen, kies);
-  knoppen.forEach((b) => b.firstElementChild.addEventListener('animationend', (e) => e.currentTarget.classList.remove('is-groei')));
-  groep.append(...knoppen);
-  teken(false);
-  groep.zetWaarde = (n) => {
-    huidig = n;
-    teken(false);
-  };
-  return groep;
-}
-
-// Energiekaart (voorbeeld-energiekaart.png): links het label ENERGIE met eronder het woord in Cormorant
-// Italic 32 px, rechts de blaadjes. Met opKies is de kaart een kiezer, anders toont ze alleen.
-// energiekaart({ waarde, opKies?, alleenLezen? })
-export function energiekaart(opties = {}) {
-  const { waarde = null, opKies, alleenLezen = false } = opties;
-  const woord = h('p', { class: ['energiekaart__woord', 't-cursief', waarde == null && 'is-leeg'] }, waarde ? t('energie.' + waarde) : t('energie.geen'));
-  const interactief = opKies && !alleenLezen;
-  const schaalEl = interactief
-    ? energiekiezer({
-        waarde,
-        opKies: (n) => {
-          woord.textContent = n ? t('energie.' + n) : t('energie.geen');
-          woord.classList.toggle('is-leeg', n == null);
-          opKies(n);
-        },
-      })
-    : energieschaal({ waarde });
-  return kaart(
-    { klasse: 'energiekaart kaart--licht-op' },
-    h('div', { class: 'energiekaart__links' }, h('p', { class: 'label' }, t('energie.titel')), woord),
-    h('div', { class: ['energiekaart__rechts', !interactief && 'energiekaart__rechts--tonen'] }, schaalEl),
   );
 }
 

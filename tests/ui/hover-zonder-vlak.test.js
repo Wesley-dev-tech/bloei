@@ -15,7 +15,7 @@ const BEWEGING = /(^|;|\s)(transform\s*:(?!\s*none)|box-shadow\s*:|filter\s*:)/;
 // Het laatste deel van een hoverselector mag zelf optillen als het een kaart of een knop is...
 const KADER = /\.(knop(--[a-z]+)?|stapper__knop|cijferblok__toets|chip|segment__deel)\b/;
 // ...of als het een icoon (of onderdeel van een icoon, een pijl of een getal) is.
-const ICOON = /\.(tegel|icoon|navicoon|themavoorbeeld|licht-icoon|rij__pijl|uitklap__pijl|meer__actie|motiv__tegel|medaille|medaille__vorm|kalender__nr|weekdag__bol|weekstaaf__balk|gevoel__tegel|energie__blad)\b/;
+const ICOON = /\.(tegel|icoon|navicoon|themavoorbeeld|licht-icoon|rij__pijl|uitklap__pijl|meer__actie|motiv__tegel|medaille|medaille__vorm|kalender__nr|weekdag__bol|weekstaaf__balk)\b/;
 
 // Een kaart (of paneel of vak als kaart) beweegt bij hover niet en krijgt geen andere schaduw (BESLISSING 195); alleen iconen binnenin mogen.
 const KAART = /\.(kaart(--[a-z-]+)?|vc|vc--[a-z-]+|paneel[a-z_-]*|maand__paneel|week__kaart)\b/;

@@ -3,27 +3,6 @@ import { test, expect } from '@playwright/test';
 import { wachtTotWaar, wachtOpRust, wachtTotStil, BEWAAR_MAALTIJD, BEWAAR_MAALTIJD_TEKST, BEWAAR_MAALTIJD_SEL, maaltijdblad } from './r-wacht.js'; // wachtTotWaar: page.waitForFunction wacht niet op een Promise
 import { vasteKlok } from './vaste-klok.js';
 
-// Wacht tot een waarde van de dag echt in de database staat: de schermen tonen een keuze meteen, de
-// opslag volgt een paar milliseconden later. Zonder te wachten kan een herlading de schrijfactie afbreken.
-async function wachtOpDag(page, veld, waarde) {
-  await wachtTotWaar(page,
-    ([v, w]) =>
-      new Promise((klaar) => {
-        const open = indexedDB.open('bloei-dagboek');
-        open.onerror = () => klaar(false);
-        open.onsuccess = () => {
-          const db = open.result;
-          const vraag = db.transaction('dagen').objectStore('dagen').getAll();
-          vraag.onsuccess = () => {
-            db.close();
-            klaar(vraag.result.some((d) => d[v] === w));
-          };
-          vraag.onerror = () => klaar(false);
-        };
-      }),
-    [veld, waarde],
-  );
-}
 
 const maaltijd = (page, soort) => page.locator(`.maaltijd[data-soort="${soort}"]`);
 
@@ -70,7 +49,7 @@ test('Zonder naam: een begroeting zonder aanspreking, een neutraal icoon in de c
   await expect(page.locator('.profielvoorbeeld__groet')).toHaveText(/^Goeie(morgen|middag|navond)$/);
 });
 
-test('E1: kan erbij, een maaltijd invullen, stemming en energie, en alles blijft na herladen', async ({ page }) => {
+test('E1: kan erbij, een maaltijd invullen, en alles blijft na herladen', async ({ page }) => {
   const fouten = [];
   page.on('console', (b) => b.type() === 'error' && fouten.push(b.text()));
   await page.goto('./#/vandaag');
@@ -104,32 +83,14 @@ test('E1: kan erbij, een maaltijd invullen, stemming en energie, en alles blijft
   await expect(maaltijd(page, eerste).locator('> .rij')).toContainText('yoghurt met noten');
   await expect(page.locator('.maaltijd.is-uitgelicht')).not.toHaveAttribute('data-soort', eerste);
 
-  // Stemming 4 en energie 2; nog eens tikken wist ze
-  await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-  await page.locator('.vandaag .energie__tik').nth(1).click();
-  await expect(page.locator('.vandaag .energie__tik[aria-checked="true"]')).toHaveAttribute('aria-label', 'rustig'); // BESLISSING 468: de keuze via aria-checked
-  await wachtOpDag(page, 'stemming', 4);
-  await wachtOpDag(page, 'energie', 2);
-
   await page.reload();
   await expect(page.locator('.drinkkaart .cijfer-groot')).toContainText('3,2');
   await expect(maaltijd(page, eerste).locator('> .rij')).toContainText('yoghurt met noten');
-  await expect(page.locator('.vc--stemming .gevoel__optie[data-stap="4"]')).toHaveAttribute('aria-checked', 'true');
-  await expect(page.locator('.vandaag .energie__tik[aria-checked="true"]')).toHaveAttribute('aria-label', 'rustig'); // BESLISSING 468: de keuze via aria-checked
 
   // Ook zichtbaar op de dag in het dagboek
   await page.goto('./#/dagboek');
-  await expect(page.locator('.dagboek .gevoel__optie[data-stap="4"]')).toHaveAttribute('aria-checked', 'true');
-  await expect(page.locator('.dagboek .energie__tik[aria-checked="true"]')).toHaveAttribute('aria-label', 'rustig'); // BESLISSING 468: de keuze via aria-checked
   await expect(page.getByRole('region', { name: 'Drinken' })).toContainText('3,2 l van 2,5 l');
 
-  await page.goto('./#/vandaag');
-  await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-  await page.locator('.vandaag .energie__tik').nth(1).click();
-  await wachtOpDag(page, 'stemming', null);
-  await wachtOpDag(page, 'energie', null);
-  await page.reload();
-  await expect(page.locator('.vc--stemming .gevoel__optie[aria-checked="true"]')).toHaveCount(0);
   expect(fouten).toEqual([]);
 });
 
@@ -152,11 +113,10 @@ async function voegSupplementToe(page, naam) {
 
 const momentRij = (page, moment) => page.locator('.vandaag .momentrij[data-moment="' + moment + '"]');
 
-test('Telefoon: alle kaarten zijn gewone, open kaarten, ook Stemming en energie', async ({ page }) => {
+test('Telefoon: alle kaarten zijn gewone, open kaarten', async ({ page }) => {
   await voegSupplementToe(page, 'Vitamine D');
   await page.goto('./#/vandaag');
   await expect(page.locator('.vandaag .uitklap__kop')).toHaveCount(0);
-  await expect(page.locator('.vc--stemming .gevoel__optie').first()).toBeVisible();
   await expect(page.locator('.vandaag .maaltijd')).toHaveCount(6);
   // Supplementen: alleen een rij per moment, zonder namen van supplementen
   await expect(page.locator('.vc--supp .momentrij')).toHaveCount(1);
@@ -182,17 +142,6 @@ test('Telefoon: een tik op het moment vinkt het af, blijft na herladen, en de st
   await page.goto('./#/supplementen');
   await expect(page.getByRole('checkbox')).toHaveCount(0); // op het tabblad vink je niets af
   await expect(page.locator('.momentkaart[data-moment="ochtend"] .momentkop__stand')).toContainText(/Genomen om \d{1,2}\.\d{2} uur/);
-
-  // Stemming en energie: altijd open; kiezen blijft zichtbaar na herladen, zonder dat de kaart dichtklapt
-  await page.goto('./#/vandaag');
-  await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-  await page.locator('.vc--stemming .energie__tik').nth(1).click();
-  await expect(page.locator('.vc--stemming .gevoel__optie[data-stap="4"]')).toHaveAttribute('aria-checked', 'true');
-  await expect(page.locator('.vandaag .energie__tik[aria-checked="true"]')).toHaveAttribute('aria-label', 'rustig'); // BESLISSING 468: de keuze via aria-checked
-  await wachtTotWaar(page, () => new Promise((klaar) => { const o = indexedDB.open('bloei-dagboek'); o.onsuccess = () => { const q = o.result.transaction('dagen').objectStore('dagen').getAll(); q.onsuccess = () => { o.result.close(); klaar(q.result.some((d) => d.stemming === 4 && d.energie != null)); }; }; o.onerror = () => klaar(false); }));
-  await page.reload();
-  await expect(page.locator('.vc--stemming .gevoel__optie[data-stap="4"]')).toBeVisible();
-  await expect(page.locator('.vc--stemming .gevoel__optie[data-stap="4"]')).toHaveAttribute('aria-checked', 'true');
 });
 
 test('Telefoon: een tik op Vandaag vinkt het moment af; het tabblad Supplementen toont "Genomen om" in de kop van dat moment en niets afvinkbaars', async ({ page }) => {
@@ -209,17 +158,6 @@ test('Telefoon: een tik op Vandaag vinkt het moment af; het tabblad Supplementen
   await expect(page.locator('.momentkaart[data-moment="ochtend"] .momentkop__stand')).toContainText('Genomen om');
 });
 
-test('Telefoon: Stemming en energie blijft open als beide gekozen zijn, en er staat niets meer in localStorage voor open en dicht', async ({ page }) => {
-  await page.goto('./#/vandaag');
-  await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-  await page.locator('.vc--stemming .energie__tik').nth(1).click();
-  await wachtOpDag(page, 'stemming', 4);
-  await wachtOpDag(page, 'energie', 2);
-  await page.reload();
-  await expect(page.locator('.vc--stemming .gevoel__optie[data-stap="4"]')).toBeVisible();
-  expect(await page.evaluate(() => localStorage.getItem('bloei-vandaag-open'))).toBeNull();
-});
-
 for (const [naam, breedte, hoogte] of [['laptop', 1280, 800], ['groot scherm', 1720, 950]]) {
   test.describe(`Desktop ${naam} (${breedte}x${hoogte})`, () => {
     test.use({ viewport: { width: breedte, height: hoogte }, isMobile: false, hasTouch: false });
@@ -233,16 +171,11 @@ for (const [naam, breedte, hoogte] of [['laptop', 1280, 800], ['groot scherm', 1
       await expect(page.locator('.vandaag .maaltijd')).toHaveCount(6);
       await expect(page.locator('.vandaag .maaltijd').first()).toBeVisible();
       await expect(momentRij(page, 'ochtend')).toBeVisible();
-      await expect(page.locator('.vc--stemming .gevoel__optie').first()).toBeVisible();
-      await expect(page.locator('.vc--stemming .energie__tik').first()).toBeVisible();
       // Het belangrijkste staat zonder scrollen in beeld (de weergave is 800 of 950 hoog)
-      const onderkant = await page.locator('.vc--stemming').evaluate((e) => e.getBoundingClientRect().bottom + window.scrollY);
+      const onderkant = await page.locator('.voortgang').evaluate((e) => e.getBoundingClientRect().bottom + window.scrollY);
       expect(onderkant).toBeLessThan(hoogte);
-      // Tikken werkt: een supplement afvinken en de stemming kiezen
       await momentRij(page, 'ochtend').click();
       await expect(momentRij(page, 'ochtend')).toHaveAttribute('aria-checked', 'true');
-      await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-      await expect(page.locator('.vc--stemming .gevoel__optie[data-stap="4"]')).toHaveAttribute('aria-checked', 'true');
     });
   });
 }
@@ -809,83 +742,6 @@ for (const breedte of [390, 360]) {
   });
 }
 
-// BESLISSING 237: de kaart Stemming en energie gebruikt haar hoogte en breedte
-for (const [breedte, hoogte] of [[1720, 950], [1690, 1230], [1440, 900], [1280, 800], [1024, 768]]) {
-  test.describe(`Stemming en energie ${breedte}`, () => {
-    test.use({ viewport: { width: breedte, height: hoogte }, isMobile: false, hasTouch: false });
-    test(`Stemming en energie: even hoog als de motivator, gezichtjes en blaadjes in dezelfde vijf kolommen, geen groot leeg vlak (${breedte} px)`, async ({ page }) => {
-      await page.goto('./#/vandaag');
-      await expect(page.locator('.vc--stemming .gevoel__optie')).toHaveCount(5);
-      const meet = () =>
-        page.evaluate(() => {
-          const kaart = document.querySelector('.vc--stemming');
-          const motivator = document.querySelector('.vandaag__rij1 > .voortgang');
-          const midden = (e) => { const r = e.getBoundingClientRect(); return r.left + r.width / 2; };
-          const gezichten = [...kaart.querySelectorAll('.stemming__vraag .gevoel__tegel')].map(midden);
-          const blaadjes = [...kaart.querySelectorAll('.vandaag__energie .energie__blad')].map(midden);
-          const delen = [kaart.firstElementChild, ...kaart.querySelectorAll('.stemming__kop, .gevoel, .energie--kiezer, .stemming__lijn, .dag__wis')].map((e) => e.getBoundingClientRect()).sort((a, b) => a.top - b.top);
-          const kr = kaart.getBoundingClientRect();
-          let grootste = delen[0].top - kr.top;
-          for (let i = 1; i < delen.length; i++) grootste = Math.max(grootste, delen[i].top - delen[i - 1].bottom);
-          grootste = Math.max(grootste, kr.bottom - Math.max(...delen.map((d) => d.bottom)));
-          return { kaart: kr.height, motivator: motivator.getBoundingClientRect().height, gezichten, blaadjes, grootste, scroll: document.documentElement.scrollWidth - innerWidth };
-        });
-      // niets gekozen en beide gekozen: dezelfde hoogte, dezelfde kolommen
-      for (const gekozen of [false, true]) {
-        if (gekozen) {
-          await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-          await page.locator('.vc--stemming .energie__tik').nth(2).click();
-          await expect(page.locator('.vandaag .energie__tik[aria-checked="true"]')).toHaveAttribute('aria-label', 'gewoon'); // BESLISSING 468: de keuze via aria-checked
-        }
-        const m = await meet();
-        expect(Math.abs(m.kaart - m.motivator)).toBeLessThanOrEqual(0.5);
-        expect(m.gezichten).toHaveLength(5);
-        expect(m.blaadjes).toHaveLength(5);
-        m.gezichten.forEach((x, i) => expect(Math.abs(x - m.blaadjes[i])).toBeLessThanOrEqual(1));
-        expect(m.grootste).toBeLessThanOrEqual(60);
-        expect(m.scroll).toBeLessThanOrEqual(0);
-      }
-      await wachtOpDag(page, 'stemming', 4);
-      await wachtOpDag(page, 'energie', 3);
-      // wissen werkt nog en de gekozen waarde in woorden verdwijnt
-      await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-      await page.locator('.vc--stemming .energie__tik').nth(2).click();
-      await expect(page.locator('.vc--stemming [aria-checked="true"]')).toHaveCount(0); // BESLISSING 468: niets meer gekozen
-      await wachtOpDag(page, 'stemming', null);
-    });
-  });
-}
-
-for (const [breedte, hoogte] of [[390, 844], [360, 760]]) {
-  test.describe(`Stemming en energie telefoon ${breedte}`, () => {
-    test.use({ viewport: { width: breedte, height: hoogte } });
-    test(`Stemming en energie op een telefoon: kolommen recht onder elkaar, tikdoel van 48 px, woorden eronder, geen horizontale scroll (${breedte} px)`, async ({ page }) => {
-      await page.goto('./#/vandaag');
-      await expect(page.locator('.vc--stemming .gevoel__optie')).toHaveCount(5);
-      await page.locator('.vc--stemming .gevoel__optie[data-stap="3"]').click();
-      await page.locator('.vc--stemming .energie__tik').nth(1).click();
-      await expect(page.locator('.vc--stemming .gevoel__optie[aria-checked="true"] .gevoel__label')).toHaveText('goed'); // BESLISSING 468
-      await expect(page.locator('.vandaag .energie__tik[aria-checked="true"]')).toHaveAttribute('aria-label', 'rustig'); // BESLISSING 468: de keuze via aria-checked
-      const m = await page.evaluate(() => {
-        const kaart = document.querySelector('.vc--stemming');
-        const midden = (e) => { const r = e.getBoundingClientRect(); return r.left + r.width / 2; };
-        return {
-          gezichten: [...kaart.querySelectorAll('.stemming__vraag .gevoel__tegel')].map(midden),
-          blaadjes: [...kaart.querySelectorAll('.vandaag__energie .energie__blad')].map(midden),
-          doelen: [...kaart.querySelectorAll('.gevoel__optie, .energie__tik')].map((e) => { const r = e.getBoundingClientRect(); return [r.width, r.height]; }),
-          woorden: [...kaart.querySelectorAll('.energie__woord')].map((e) => e.textContent),
-          scroll: document.documentElement.scrollWidth - innerWidth,
-        };
-      });
-      m.gezichten.forEach((x, i) => expect(Math.abs(x - m.blaadjes[i])).toBeLessThanOrEqual(1));
-      m.doelen.forEach(([b, hh]) => { expect(b).toBeGreaterThanOrEqual(44); expect(hh).toBeGreaterThanOrEqual(48); });
-      expect(m.woorden).toEqual(['laag', 'rustig', 'gewoon', 'goed', 'vol']);
-      expect(m.scroll).toBeLessThanOrEqual(0);
-    });
-  });
-}
-
-// BESLISSING 245: de kaart Kalender rechts naast Eten (2/3 + 1/3, zoals Drinken + Supplementen), bladeren per maand, geplande beurten en stemming.
 // Alles verzonnen: een periodiek supplement dat om de 14 dagen valt, vanaf 14 november 2026.
 const KAL_NU = new Date(2026, 10, 14, 12, 0, 0);
 
@@ -1026,17 +882,12 @@ test.describe('Kalender gedrag op een desktop', () => {
     const gepland = page.locator('.vc--kalender .kalender__dag[data-datum="2026-11-28"]');
     await expect(gepland.locator('.kalender__spuit.is-gepland')).toHaveCount(1);
     await expect(gepland).toHaveAttribute('aria-label', 'zaterdag 28 november, gepland: Testspuit');
-    // BESLISSING 251: het teken van een geplande beurt is een spuitje (syringe), de legenda legt de tekens uit, en een stemming staat in woorden in het label
     await expect(gepland.locator('.kalender__spuit svg')).toHaveCount(1);
     expect(await gepland.locator('.kalender__spuit svg').evaluate((e) => (e.outerHTML.match(/<path/g) || []).length)).toBe(1);
-    // BESLISSING 294: geen stemming in de kalender, ook niet met een ingevulde stemming; de legenda noemt het salie bolletje en de geplande spuit
-    await expect(page.locator('.vc--kalender .kalkaart__legenda')).not.toContainText('stemming');
     await expect(page.locator('.vc--kalender .kalkaart__legenda')).toContainText('geplande spuit');
     await expect(page.locator('.vc--kalender .kalkaart__legenda .kalender__bol')).toHaveCount(0);
-    await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-    await expect(vandaagDag).toHaveAttribute('aria-label', /^zaterdag 14 november, vandaag, gepland: Testspuit$/); // zonder stemming in het label
+    await expect(vandaagDag).toHaveAttribute('aria-label', /^zaterdag 14 november, vandaag, gepland: Testspuit$/);
     await expect(page.locator('.vc--kalender .kalender__bol')).toHaveCount(0);
-    await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click(); // weer wissen
     // een dag in het verleden: naar die dag in het Dagboek
     await page.locator('.vc--kalender .kalender__dag[data-datum="2026-11-10"]').click();
     await expect(page).toHaveURL(/#\/dagboek\/dag\/2026-11-10$/);
@@ -1090,7 +941,6 @@ test.describe('Kalender gedrag op een desktop', () => {
     await page.goto('./#/vandaag');
     await expect(titel).toHaveText('november 2026');
   });
-
 
   test('met een verzette klok naar de volgende maand toont de kaart de nieuwe maand en markeert de nieuwe dag', async ({ page }) => {
     await openVandaag(page);
@@ -1263,7 +1113,6 @@ for (const [breedte, hoogte] of [[1690, 1230], [1440, 900], [1280, 800], [390, 8
   });
 }
 
-// Koplijnen: Drinken en Supplementen, Eten en Kalender, Stemming staan met tegel en lijn op dezelfde y; de paren zijn even hoog.
 for (const [breedte, hoogte] of [[1690, 1230], [1280, 900]]) {
   test(`Koplijnen op Vandaag ${breedte}: tegel en lijn op dezelfde y, paren even hoog`, async ({ page }) => {
     await page.setViewportSize({ width: breedte, height: hoogte });
@@ -1297,10 +1146,10 @@ for (const [breedte, hoogte] of [[1690, 1230], [1280, 900]]) {
         const lijn = voor.content !== 'none' && voor.position === 'absolute' ? kop.top + parseFloat(voor.top) + 1 : kop.bottom;
         return { tegel: k.querySelector('.kaartkop .tegel').getBoundingClientRect().top - kr.top, lijn: lijn - kr.top, h: kr.height, onder: kr.bottom };
       };
-      return { drinken: maat('.vc--drinken'), supp: maat('.suppkaart'), eten: maat('.vc--eten'), kal: maat('.kalkaart'), stem: maat('.vc--stemming') };
+      return { drinken: maat('.vc--drinken'), supp: maat('.suppkaart'), eten: maat('.vc--eten'), kal: maat('.kalkaart') };
     });
     const tekst = JSON.stringify(m);
-    for (const k of ['supp', 'eten', 'kal', 'stem']) {
+    for (const k of ['supp', 'eten', 'kal']) {
       expect(Math.abs(m[k].tegel - m.drinken.tegel), tekst).toBeLessThanOrEqual(1);
       expect(Math.abs(m[k].lijn - m.drinken.lijn), tekst).toBeLessThanOrEqual(1);
     }
@@ -1372,7 +1221,6 @@ test('Kalender: vandaag is een gevulde stip zonder kader, het cijfer verspringt 
 });
 });
 
-// BESLISSING 294: de kalender toont geen stemming meer, wel een salie bolletje op de dagen waarop alle momenten zijn afgevinkt, naast het spuitje van een geplande beurt.
 // Verzonnen: een dagelijks supplement "Testdruppels" (ochtend, middag, avond) en de periodieke "Testspuit" (14 en 28 november).
 async function zaaiMomenten(page, perDag) {
   await page.evaluate(
@@ -1394,9 +1242,9 @@ async function zaaiMomenten(page, perDag) {
 }
 
 for (const [breedte, hoogte] of [[1690, 1230], [1280, 900], [390, 844]]) {
-  test.describe(`Kalender zonder stemming ${breedte}`, () => {
+  test.describe(`Kalender op Vandaag ${breedte}`, () => {
     test.use({ viewport: { width: breedte, height: hoogte }, isMobile: breedte < 720, hasTouch: breedte < 720 });
-    test(`Kalender op Vandaag ${breedte}: geen stemming, een salie bolletje bij alle momenten, bolletje en spuitje op één lijn, Eten en Kalender even hoog`, async ({ page }) => {
+    test(`Kalender op Vandaag ${breedte}: een salie bolletje bij alle momenten, bolletje en spuitje op één lijn, Eten en Kalender even hoog`, async ({ page }) => {
       await page.clock.setFixedTime(KAL_NU);
       await page.goto('./#/vandaag');
       await zaaiPeriodiek(page);
@@ -1407,9 +1255,6 @@ for (const [breedte, hoogte] of [[1690, 1230], [1280, 900], [390, 844]]) {
       await page.reload();
       await expect(page.locator('.vc--kalender .kalender__dag').first()).toBeVisible();
       await wachtOpRust(page);
-      // een ingevulde stemming verschijnt nergens in de kalender
-      await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click();
-      await expect(page.locator('.vc--kalender .kalender__bol, .vc--kalender .gevoelicoon')).toHaveCount(0);
       // het salie bolletje precies op de volledige dagen (niet op de dag met één moment, niet op een dag zonder iets)
       const dagenMetBol = await page.locator('.vc--kalender .kalender__dag:has(.kalender__klaar)').evaluateAll((els) => els.map((e) => e.dataset.datum));
       expect(dagenMetBol).toEqual(['2026-11-01', '2026-11-03', '2026-11-10', '2026-11-14']);
@@ -1456,7 +1301,6 @@ for (const [breedte, hoogte] of [[1690, 1230], [1280, 900], [390, 844]]) {
       expect(m.r[3].gap, `geen overlap: ${tekst}`).toBeGreaterThanOrEqual(1);
       if (breedte >= 1024) expect(Math.abs(m.hKal - m.hEten), tekst).toBeLessThanOrEqual(1);
       expect(m.scroll, tekst).toBeLessThanOrEqual(0);
-      await page.locator('.vc--stemming .gevoel__optie[data-stap="4"]').click(); // weer wissen
     });
   });
 }

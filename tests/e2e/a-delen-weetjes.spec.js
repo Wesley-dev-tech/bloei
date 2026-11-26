@@ -1,7 +1,7 @@
 // Delen: de kaart "Goed om te weten" (BESLISSING 297), in dezelfde vorm als op Drinken en Gewicht.
 import { test, expect } from '@playwright/test';
 import { verwachtGelijkeWeetjes } from './weetjes-rij.js';
-import { naTekenen } from './wacht.js';
+import { naTekenen, animatiesKlaar } from './wacht.js';
 
 test.use({ hasTouch: false, isMobile: false });
 
@@ -61,6 +61,7 @@ test('hover verandert alleen het icoon van de link', async ({ page }) => {
   // Met de zevende periodeknop (BESLISSING 474/485) is de linkerkolom hoger en staat "Goed om te weten" op 1690x1230 deels onder het venster: een hover scrolt
   // het blok in beeld en dat verschuift de y met 80 px. Daarom eerst in beeld scrollen; de meting daarna vergelijkt weer elk getal van de vorm voor en na het aanwijzen.
   await page.locator('.delen__weetjes').scrollIntoViewIfNeeded();
+  await animatiesKlaar(page); // het scherm komt zacht op (20 px omhoog): pas meten als het stilstaat
   await naTekenen(page);
   const voor = [await vorm(0), await vorm(3)];
   await blokken.nth(0).hover();

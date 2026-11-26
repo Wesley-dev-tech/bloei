@@ -65,13 +65,13 @@
 .vandaag .kalkaart .kalender__dag.is-gekozen .kalender__nr::before { box-shadow: inset 0 0 0 1px var(--knop-bg); }
 /* Het cijfer van vandaag iets kleiner, met dezelfde regelhoogte als de andere cijfers (1,2 x tot 720 px, daarna 1 x): het middelpunt verspringt niet. */
 .vandaag .kalkaart .kalender__dag.is-vandaag .kalender__nr { color: var(--knop-fg); font-weight: 600; font-size: 0.8125rem; line-height: calc(1.2 * var(--fs-body)); }
-/* De tekens (stemmingsbolletje, spuitje) in alle cellen 2 px lager, zodat de stip ruimte houdt; ze blijven onderling op één lijn. */
+/* De tekens (het spuitje) in alle cellen 2 px lager, zodat de stip ruimte houdt; ze blijven onderling op één lijn. */
 .vandaag .kalkaart .kalender__tekens { top: calc(50% + 5px); }
 @media (min-width: 720px) {
   .vandaag .kalkaart .kalender__dag.is-vandaag .kalender__nr { line-height: var(--fs-body); }
 }
 .vandaag .kalkaart .kalender__dag.is-vandaag .kalender__nr::before { background: var(--knop-bg); box-shadow: none; }
-/* BESLISSING 294: geen stemming in de kalender. Onder het cijfer staan plekken van 16 x 16 px op één lijn (alle cellen op dezelfde y), exact gecentreerd onder het cijfer:
+/* Onder het cijfer staan plekken van 16 x 16 px op één lijn (alle cellen op dezelfde y), exact gecentreerd onder het cijfer:
    één teken (het salie bolletje bij alle supplementen genomen, of het spuitje/pilletje van een geplande beurt) midden eronder, twee tekens als paar samen gecentreerd. */
 .vandaag .kalkaart .kalender__tekens { gap: 4px; height: 16px; justify-content: center; }
 @media (min-width: 720px) { .vandaag .kalkaart .kalender__tekens { top: calc(50% + 4px); } } /* 1 px lager: het bolletje (10 px) houdt minstens 2 px vrij van de stip van vandaag */
@@ -129,14 +129,14 @@
 @container motiv (max-width: 440px) {
   .voortgang .motiv__naam { font-size: var(--fs-label); letter-spacing: 0; }
 }
-/* iPad liggend met zijbalk, nog onder 1100 px (1024 en 1080): de twee kaarten van de eerste rij zijn dan 340 px breed en "Supplementen" botst tegen "Stemming".
+/* iPad liggend met zijbalk, nog onder 1100 px (1024 en 1080): de twee kaarten van de eerste rij zijn dan 340 px breed en de tegels staan dicht op elkaar.
    De motivator krijgt meer breedte (en iets minder binnenruimte) en de begroeting de kleinere titel, zodat hij niet onder de knoppen loopt. De twee kaarten blijven naast elkaar en even hoog. */
 @media (min-width: 960px) and (max-width: 1099.98px) {
   .vandaag__rij1 > .voortgang { padding-inline: var(--s-3); } /* een kaart van 340 px: de vier namen krijgen 8 px meer ruimte */
   .vandaag__rij2 .drinkkaart { --glas-h: 124px; } /* zoals vanaf 1100 px: het glas van 170 px rekte de twee rijen dranktegels 100 px uit elkaar */
   .vandaag__begroeting .t-hero, .vandaag__begroeting .begroeting__titel { font-size: calc(var(--fs-hero) * 1.1); }
 }
-/* Tussen 960 en 1023 px (een iPad in gesplitste weergave) is Stemming en energie te smal voor vijf tikvlakken van 44 px: de twee kaarten staan onder elkaar. */
+/* Tussen 960 en 1023 px (een iPad in gesplitste weergave) zijn twee kolommen te smal: het weerbericht en de motivator staan onder elkaar. */
 @media (min-width: 960px) and (max-width: 1023.98px) {
   .vandaag__rij1 { grid-template-columns: minmax(0, 1fr); }
 }
@@ -248,15 +248,6 @@
   .vandaag .vandaag__begroeting { --begroet-max: calc(var(--fs-hero) * .72); }
 }
 
-/* ---------- Stemming en energie naast de motivator (1024 tot 1439 px) ---------- */
-/* De kaart is even hoog als de motivator en had tussen de twee blokken en onder het laatste ± 41 tot 49 px lucht (schermen.css verdeelt de rest met space-between):
-   de keuzes krijgen een iets grotere maat (gezichtjes 58 px, blaadjes tot 58 px hoog), de tussenruimtes blijven daarna onder 32 px. */
-@media (min-width: 1024px) and (max-width: 1599.98px) {
-  .vandaag .vc--stemming .stemming__inhoud { --gevoel-tegel: 64px; }
-  .vandaag .vc--stemming .stemming__inhoud .energie--kiezer { --lh: 64px; }
-  .vandaag .vc--stemming .stemming__inhoud .gevoel__optie, .vandaag .vc--stemming .stemming__inhoud .energie__tik { min-height: 100px; }
-}
-
 /* BESLISSING 355 en 356: de kaart Drinken op Vandaag volgt het tabblad Drinken: "Laatste weghalen" in de tekstkleur van Drinken, en bij een gehaald dagdoel glas en balk in de drinkkleur (--drank-gehaald). */
 .vandaag .drinkkaart .drinkkaart__acties .knop--tekst { color: var(--c-water-text); }
 .vandaag .drinkkaart .watervulling.is-gehaald .watervulling__vlak, .vandaag .drinkkaart .watervulling.is-gehaald .watervulling__golf path { fill: var(--drank-gehaald); }
@@ -331,4 +322,85 @@
   .vandaag .vandaag__begroeting .vandaag__logo .logo { position: relative; padding-left: calc(var(--logo-t) * 1.5); }
   .vandaag .vandaag__begroeting .vandaag__logo .logo__merk { position: absolute; left: 0; top: 50%; translate: 0 -50%; }
   .vandaag .vandaag__begroeting .begroeting__uitleg, .vandaag .vandaag__begroeting .knop.begroeting__delen { align-self: baseline; translate: none; }
+}
+
+/* ---------- Het weerbericht (ui/weerkaart.js): de kaart naast de motivator ----------
+   Breed (vanaf 1024 px): de motivator links, het weerbericht rechts, twee gelijke kolommen en even hoog (rij 1 rekt beide kaarten);
+   de kaart verdeelt haar hoogte over haar drie delen, zodat er onderaan geen leeg vlak blijft. Op een tablet staat ze onder de motivator.
+   Op een telefoon staat ze helemaal onderaan de pagina (order 4); bovenaan toont de tegel Weer in
+   de motivator daar het weer van nu.
+   De kaart houdt in elke stand dezelfde opbouw en hoogte (met of zonder weer): Vandaag verspringt niet als het weer binnenkomt. */
+.vandaag .weerkaart { order: 4; display: flex; flex-direction: column; min-width: 0; container: weer / inline-size; --weer-graden: calc(var(--fs-h2) * 1.25); }
+.weerkaart p { margin: 0; }
+.weerkaart__binnen { flex: 1 1 auto; display: flex; flex-direction: column; gap: var(--s-3); min-width: 0; }
+/* Naast de motivator (twee kolommen, vanaf 1024 px) heeft de kaart geen kop, zoals de motivator zelf: zo is ze van nature niet hoger dan de
+   motivator en hoeft geen van beide gerekt te worden. Gemeten op 1024 tot 1920 px: de motivator is er 402 tot 469 px hoog, het weerbericht
+   van nature 5 tot 30 px lager; dat kleine verschil verdeelt de kaart over haar twee tussenruimtes. */
+@media (min-width: 1024px) { .vandaag__rij1 > .weerkaart > .kaartkop { display: none; } }
+/* Nu: het weerbeeld in een grote tegel, de temperatuur in het sierlettertype (zoals de liters op Drinken), ernaast de naam van het weer
+   en hoe het aanvoelt. */
+/* De kop van de kaart: links de tegel, daarnaast de temperatuur met het weerbeeld ernaast, en "Voelt als" op de regel eronder, vanaf de
+   linkerrand van de temperatuur. De bovenkant van de cijfers staat gelijk met de bovenkant van de hoofdletter van het weerbeeld: beide vakken
+   worden afgesneden tot op de hoogte van hun hoofdletters (text-box) en krijgen dezelfde afstand tot de bovenrand. Een browser zonder
+   text-box krijgt een gemeten benadering (het weerbeeld zakt 2 px). */
+.weerkaart__nu { display: grid; grid-template-columns: auto auto minmax(0, 1fr); column-gap: var(--s-3); row-gap: .125rem; align-items: start; min-width: 0; min-height: var(--tile-size); }
+.weerkaart__nu > .tegel { grid-column: 1; grid-row: 1 / span 2; }
+/* De temperatuur is het grootste cijfer van de kaart, maar in verhouding: ruim anderhalve keer het weerbeeld ernaast en niet hoger dan de
+   tegel. Dezelfde maat op telefoon en desktop. */
+/* --weer-inkt (ui/weerkaart.js): de witruimte links in het eerste cijfer. Zoveel schuift de temperatuur naar links, zodat haar inkt op dezelfde
+   lijn begint als de V van "Voelt als" eronder. */
+.weerkaart .weerkaart__graden { grid-column: 2; grid-row: 1; margin-left: calc(-1 * var(--weer-inkt, 0em)); font-size: var(--weer-graden); line-height: 1; white-space: nowrap; color: var(--c-text); }
+.weerkaart__waar { display: contents; }
+/* Het weerbeeld is even groot als de regel eronder en als de waarden in de lijst (alleen wat vetter en donkerder). */
+.weerkaart .weerkaart__beeld { grid-column: 3; grid-row: 1; min-width: 0; margin-top: .125rem; font-family: var(--font-ui); font-size: var(--fs-small); font-weight: 500; line-height: 1.3; color: var(--c-text); }
+.weerkaart__voelt { grid-column: 2 / -1; grid-row: 2; min-width: 0; font-family: var(--font-ui); font-size: var(--fs-small); line-height: 1.3; color: var(--c-text-muted); min-height: 1.3em; overflow: hidden; }
+@supports (text-box: trim-start cap alphabetic) {
+  .weerkaart .weerkaart__graden { text-box: trim-both cap alphabetic; margin-top: calc(.3125rem - .009em); } /* de cijfers zijn een fractie lager dan een hoofdletter van hun lettertype */
+  .weerkaart .weerkaart__beeld { text-box: trim-start cap alphabetic; margin-top: .3125rem; }
+}
+/* "Voelt als 11° · voorbeeld": elk deel draagt links een puntje in zijn eigen marge. Het deel waarmee een regel begint, schuift die marge
+   links buiten de rij (en buiten beeld): zo staat er nooit een puntje vooraan, ook niet als de toevoeging naar de volgende regel gaat. */
+.weerkaart__voeltrij { display: flex; flex-wrap: wrap; margin-left: -1em; }
+.weerkaart__voeltrij > span { position: relative; padding-left: 1em; white-space: nowrap; }
+.weerkaart__voeltrij > span::before { content: "\00B7"; position: absolute; left: 0; width: 1em; text-align: center; }
+.weerkaart[data-fase="laden"] .weerkaart__nu > .tegel svg { animation: weer-wacht 1.6s var(--ease) infinite alternate; }
+@keyframes weer-wacht { from { opacity: .35; } to { opacity: 1; } }
+@media (prefers-reduced-motion: reduce) { .weerkaart[data-fase="laden"] .weerkaart__nu > .tegel svg { animation: none; } }
+/* Vandaag: zes vakken in twee rijen van drie. Het woord (label), het getal eronder, en wat erbij hoort klein en gedempt. De regel onder
+   het getal staat er altijd (leeg bij min. en max.), zodat alle vakken even hoog zijn. */
+/* Tien vakken, elk een woord met één waarde. Smal: een lijst in twee kolommen van vijf rijen, het woord links en de waarde rechts
+   (min. en max., regen en neerslag, wind en snelheid, zon op en zon onder, uv-index en vochtigheid staan naast elkaar). Breed (vanaf
+   560 px in de kaart): vijf kolommen op twee rijen, het woord boven de waarde. Zo is het raster in elke breedte helemaal gevuld. */
+.weerkaart__cijfers { flex: 1 1 auto; align-content: space-between; display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); column-gap: var(--s-5); row-gap: var(--s-1); padding-top: var(--s-2); border-top: var(--lijn); } /* naast de motivator is de kaart even hoog als hij: de hoogte die overblijft, verdelen de rijen van deze lijst gelijk onder elkaar */
+.weerkaart__vak { min-width: 0; display: flex; align-items: baseline; justify-content: space-between; gap: var(--s-2); }
+.weerkaart__woord { flex: none; font-family: var(--font-ui); font-size: var(--fs-small); line-height: 22px; color: var(--c-text-muted); white-space: nowrap; }
+/* De waarde is even groot als haar woord (alleen wat vetter en donkerder): geen groot cijfer naast een klein woord. */
+.weerkaart__waarde { font-family: var(--font-ui); font-size: var(--fs-small); font-weight: 500; line-height: 22px; color: var(--c-text); white-space: nowrap; text-align: right; }
+.weerkaart__bij { margin-left: var(--s-1); font-weight: 400; color: var(--c-text-muted); }
+.weerkaart:not([data-fase="klaar"]) :is(.weerkaart__waarde, .weerweek__max) { color: var(--c-text-muted); }
+/* De komende dagen: zeven gelijke kolommen. De dag, het weerbeeld in een kleine tegel, de hoogste temperatuur, de laagste (gedempt) en
+   de kans op regen (klein, in de kleur van water). Vandaag staat vooraan, iets zwaarder. */
+.weerkaart__week { padding-top: var(--s-2); border-top: var(--lijn); }
+.weerkaart .weerkaart__weekkop { margin: 0 0 var(--s-2); }
+/* De zeven dagen staan gelijk verdeeld van rand tot rand: de eerste tegel begint op de linkerlijn van de kaart, de laatste eindigt op de rechterlijn. */
+.weerweek { list-style: none; margin: 0; padding: 0; display: flex; justify-content: space-between; }
+.weerweek__dag { flex: none; width: var(--s-8); display: flex; flex-direction: column; align-items: center; gap: var(--s-1); font-family: var(--font-ui); line-height: 1.2; white-space: nowrap; }
+.weerweek__dag > .tegel { width: var(--s-8); height: var(--s-8); border-radius: var(--r-sm); }
+.weerweek__dag > .tegel svg { width: 15px; height: 15px; }
+.weerweek__dag.is-vandaag .weerweek__naam { color: var(--c-text); font-weight: 600; }
+/* De temperaturen van de week zijn even groot als de waarden in de lijst erboven (zelfde maat en gewicht); de laagste is alleen gedempt. */
+.weerweek__max { font-size: var(--fs-small); font-weight: 500; color: var(--c-text); }
+.weerweek__min { font-size: var(--fs-small); color: var(--c-text-muted); }
+.weerweek__kans { font-size: var(--fs-label); color: var(--c-water-text); margin-top: 2px; }
+.weerkaart:not([data-fase="klaar"]) .weerweek__kans { color: var(--c-text-muted); }
+/* Een brede kaart (alleen op een rij, bv. op een tablet): de zes vakken naast elkaar. */
+/* Een heel smalle kaart (een telefoon van 320 px): de tien vakken onder elkaar, zodat ook de langste waarde past. */
+@container weer (max-width: 259px) { .weerkaart__cijfers { grid-template-columns: minmax(0, 1fr); } }
+@container weer (min-width: 560px) {
+  .weerkaart__cijfers { grid-template-columns: repeat(5, minmax(0, 1fr)); column-gap: var(--s-3); row-gap: var(--s-1); }
+  .weerkaart__vak { flex-direction: column; align-items: flex-start; justify-content: flex-start; gap: 0; }
+  .weerkaart__waarde { text-align: left; }
+  /* De volgorde op twee rijen: min, max, regen, neerslag, uv-index / wind, snelheid, zon op, zon onder, vochtigheid */
+  .weerkaart__vak--wind, .weerkaart__vak--snelheid, .weerkaart__vak--zonop, .weerkaart__vak--zononder { order: 1; }
+  .weerkaart__vak--vocht { order: 2; }
 }

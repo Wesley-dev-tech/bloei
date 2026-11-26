@@ -84,7 +84,6 @@ test('Kalender: een supplement met "spuit" of "injectie" in de naam krijgt het s
   expect(capsules).toBe(spuitPad);
   expect(await pad(cel(28))).toBe(syringe);
   expect(await pad(cel(24))).toBe(capsules);
-  // de legenda toont alleen de tekens die in de maand voorkomen (BESLISSING 294: geen stemming; geen dag met alles genomen in deze maand): geplande spuit en gepland
   const legenda = page.locator('.kalkaart__legenda .kalkaart__legendaitem');
   await expect(legenda).toHaveText(['geplande spuit', 'gepland']);
 });

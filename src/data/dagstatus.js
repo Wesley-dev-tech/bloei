@@ -21,7 +21,6 @@ export async function dagStatus(datum) {
   const eigenDag = isEigen(dag) ? dag : null;
   return {
     maaltijdenIngevuld: maaltijden.filter(isIngevuld).map((m) => m.soort),
-    stemming: dag?.stemming ?? null,
     notitie: (dag?.notitie ?? '').trim() !== '',
     ml: dranken.reduce((som, d) => som + d.ml, 0),
     gewogenDezeWeek: Boolean(weging),
@@ -31,8 +30,6 @@ export async function dagStatus(datum) {
       maaltijden: maaltijden.filter((m) => isEigen(m) && isIngevuld(m)).length,
       ml: dranken.filter(isEigen).reduce((som, d) => som + d.ml, 0),
       innames: innames.filter(isEigen).length,
-      stemming: eigenDag?.stemming ?? null,
-      energie: eigenDag?.energie ?? null,
       notitie: eigenDag?.notitie ?? '',
       weging: isEigen(weging) && weging.datum === datum,
     }),

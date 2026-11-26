@@ -21,7 +21,6 @@ const TELEFOON = [
   [320, 480],
   [435, 470],
 ];
-// Vanaf 720 px: de maten zoals goedgekeurd (gemeten voor 610): hoogte van de kaart Stemming en energie (voortgang) en van Drinken, en beide afstanden.
 const BREED = [
   { b: 820, h: 1180, voortgang: 345.78, drink: 605.14, a: -73.6, bb: 16 },
   { b: 1280, h: 800, voortgang: 457.27, drink: 467.31, a: 20, bb: -358.3 },
@@ -203,7 +202,7 @@ test.describe('BESLISSING 610: ruimte op het hoofdscherm', () => {
           alle.push([v, m]);
         }
         for (const [v, m] of alle) {
-          expect(m.voortgang, `kaart Stemming en energie ${v.b}x${v.h}`).toBeCloseTo(v.voortgang, 0);
+          expect(m.voortgang, `kaart met de warme zin ${v.b}x${v.h}`).toBeCloseTo(v.voortgang, 0);
           expect(m.drink, `kaart Drinken ${v.b}x${v.h}`).toBeCloseTo(v.drink, 0);
           expect(m.ga, `medailles tot Deze week (kader) ${v.b}x${v.h}`).toBeCloseTo(v.a, 0);
           expect(m.gb, `kolom Vandaag tot Dranken (kader) ${v.b}x${v.h}`).toBeCloseTo(v.bb, 0);

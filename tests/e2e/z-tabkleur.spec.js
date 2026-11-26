@@ -7,9 +7,6 @@
 //  3. De kop (BESLISSINGEN 359 en 366): het vraagteken (volle schijf, >= 3 : 1 op de achtergrond), het huisje en de deelknop in de icoontint van de
 //     familie, een knop met woord in de tekstvariant (>= 4,5 : 1); op Algemeen en de instellingen ook de terugknop in het roze van een tegelicoon.
 //  4. De medailles op Algemeen en Badges (BESLISSING 367) in de familie: behaald de volle schijf met lint, nog te behalen zacht en zonder lint.
-//  5. Vandaag (BESLISSINGEN 358 en 370): elke kaart in de familie van haar tabblad (Eten, Stemming en energie, Kalender: Dagboek; Supplementen;
-//     Drinken; de bovenste kaart: Vandaag, met haar vier tegels elk in hun onderwerp), en nergens nog het roze accent behalve in de blaadjes
-//     van de energie; het bolletje "alles genomen", het spuitje en de stip van vandaag blijven.
 //  6. Bediening (BESLISSING 371): niet-gekozen chips, keuzerijen, stappers, invoervakken en kalendercellen en de hoofdknop (volle familiekleur).
 //     Een secundaire knop (BESLISSING 537): zacht vlak gelijk aan --knop-zacht-bg van de familie van het scherm (de berekende waarde van het token,
 //     gelezen via een proefelement), rand transparant, tekst --c-text die minstens 4,5 : 1 haalt op dat vlak.
@@ -45,8 +42,6 @@ const SCHERMEN = [
 // Toegelaten kleuren van een andere familie, met de reden.
 const UITZONDERING = [
   ['.medaille__boog', 'de voortgangsring van een nog te behalen medaille blijft zoals hij was (BESLISSING 367): het paars van --c-day'],
-  ['.energie, .energie *, .kalender__blad, .kalender__blad *', 'de blaadjes van de energie: hun eigen reeks'],
-  ['.gevoel, .gevoel *, .gevoelicoon, .gevoelicoon *', 'de gezichtjes van de stemming: hun eigen reeks'],
   ['.verslagvel, .verslagvel *', 'het lichte vel van het verslag: altijd Poeder (eigen kleuren)'],
   ['.themavoorbeeld, .themavoorbeeld *', 'de themavoorbeelden tonen de kleuren van hun eigen thema'],
   ['.mk__dag.is-vandaag .mk__nr', 'de paarse stip van vandaag (BESLISSINGEN 291 en 292)'],
@@ -58,7 +53,6 @@ const FAMILIES = ['dagboek', 'drank', 'gezond', 'gewicht', 'algemeen', 'delen', 
 // Vandaag: [kaart, familie, extra uitzonderingen binnen die kaart met hun reden]
 const VANDAAG = [
   ['.vandaag .etenkaart', 'dagboek', []],
-  ['.vandaag .stemmingkaart', 'dagboek', []],
   // het bolletje "alles genomen" en het spuitje met hun legende houden de kleur van Supplementen; de stip en de ring van vandaag blijven pruim
   ['.vandaag .kalkaart', 'dagboek', ['.kalender__klaar', '.kalender__spuit', '.kalender__spuit *', '.kalender__dag.is-vandaag .kalender__nr', '.kalender__dag.is-gekozen .kalender__nr']],
   ['.vandaag .suppkaart', 'gezond', []],
@@ -220,7 +214,7 @@ function meet({ familie, families, rollen, familietokens, uitzondering, wortel =
     for (const t of w.querySelectorAll('.tegel')) {
       if (!zichtbaar(t) || t.closest(uitz) || t.classList.contains('tegel--rond') || gedimd(t)) continue;
       const s = getComputedStyle(t);
-      if (t.matches('[style*="--t-bg"]')) continue; // een tegel met een eigen inline kleur (de stemming op Vandaag)
+      if (t.matches('[style*="--t-bg"]')) continue; // een tegel met een eigen inline kleur
       // een tegel zonder vlak (de koptegel van de kaart Kalender op Vandaag is een kaal icoon): alleen het icoon telt
       const vlakOk = kanaal(s.backgroundColor).a < 0.5 || familieKleur(s.backgroundColor);
       if (!familieKleur(s.color) || !vlakOk) fouten.push(`tegel buiten de familie: ${naam(t.parentElement)} ${s.color} op ${s.backgroundColor}`);
@@ -401,7 +395,6 @@ for (const [thema, b, hgt] of RONDES) {
         const m = await page.evaluate(meet, { familie, families: FAMILIES, rollen: ROLLEN, familietokens: FAMILIETOKENS, uitzondering: UITZONDERING, wortel: kaart, extra });
         if (m.fouten.length || m.contrast.length) verslag.push(`${kaart} (${familie}):\n  ${[...m.fouten, ...m.contrast].join('\n  ')}`);
       }
-      // de vier tegels van de bovenste kaart: elk in de familie van hun onderwerp (de stemming houdt haar eigen kleur)
       const tegels = await page.evaluate(() => {
         const sonde = document.createElement('i');
         document.body.append(sonde);
@@ -419,14 +412,13 @@ for (const [thema, b, hgt] of RONDES) {
       });
       expect([...verslag, ...tegels], [...verslag, ...tegels].join('\n')).toEqual([]);
 
-      // nergens op Vandaag nog het roze accent (de kleur van Algemeen), behalve in de blaadjes van de energie en het logo
       const roze = await page.evaluate(() => {
         const sonde = document.createElement('i');
         document.body.append(sonde);
         const los = (w) => { sonde.style.color = w; return getComputedStyle(sonde).color; };
         const accent = new Set(['--c-accent', '--c-accent-soft', '--c-accent-text', '--c-accent-text-op-soft', '--tile-meal-bg', '--tile-meal-fg'].map((n) => los(`var(${n})`)));
         sonde.remove();
-        const uitz = '.energie, .energie *, .kalender__blad, .kalender__blad *, .logo, .logo *, .beeldmerk, .beeldmerk *, .begroeting__merk, .begroeting__merk *';
+        const uitz = '.logo, .logo *, .beeldmerk, .beeldmerk *, .begroeting__merk, .begroeting__merk *';
         const uit = [];
         for (const e of document.querySelectorAll('#scherm *')) {
           if (e.closest(uitz) || e.getBoundingClientRect().width < 1) continue;

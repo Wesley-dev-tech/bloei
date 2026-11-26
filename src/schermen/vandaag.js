@@ -1,10 +1,9 @@
-// Tab Vandaag (E1, E11, E12; BESLISSING 137): een koprij met de begroeting en de voortgang van de dag, en daaronder
-// Drinken, Eten, Supplementen en Stemming en energie. Op een telefoon zijn Supplementen en Stemming en energie
-// gewone kaarten, op elk scherm open (er zijn nergens uitklapmenu's).
+// Tab Vandaag (E1, E11, E12; BESLISSING 137): een koprij met de begroeting, daaronder de voortgang van de dag met het weerbericht ernaast,
+// en dan Drinken, Supplementen, Eten en de kalender. Alle kaarten zijn op elk scherm open (er zijn nergens uitklapmenu's).
 // Opgebouwd zoals sectie 02 van de stijlpagina en HUISSTIJL §2, §7 en §9.
 import { h } from '../ui/dom.js';
 import { icoon, ICOONNAMEN } from '../ui/iconen.js';
-import { logo, beeldmerk, chip, kaart, rij, knop, gevoelschaal, energiekiezer, icoontegel, tril, strook, kaartkop, icoonknop } from '../ui/componenten.js';
+import { logo, beeldmerk, chip, kaart, rij, knop, icoontegel, tril, strook, kaartkop, icoonknop } from '../ui/componenten.js';
 import { kalender } from '../ui/kalender.js';
 import { standVanDag } from '../ui/maandkalender.js';
 import { leesAgenda, leesBeurtTijdstippen } from '../data/agenda.js';
@@ -21,7 +20,7 @@ import { schemaVanDag, zetMoment, zetInname, momentVanNu, innameTijdstippen } fr
 import { isSpuit } from '../logica/supplementen.js';
 import { standVan } from './momenten.js';
 import { isBijgehouden } from '../logica/bijgehouden.js';
-import { ICOON, STEMMING_STAP, begripTegel, begripOpties, begripIcoon } from '../ui/iconenkaart.js';
+import { ICOON, begripTegel, begripOpties, begripIcoon } from '../ui/iconenkaart.js';
 import { magBewegen, eersteToon, komOp, telOp, bloeiOp, vervaag } from '../ui/beweging.js';
 import { medaille, badgeVoortgang } from '../ui/medaille.js';
 import { ALLE_BADGES, VERBORGEN } from '../logica/badgeregels.js';
@@ -33,17 +32,18 @@ import { motivatieZin, t } from '../teksten.js';
 import { DAGDEEL_UREN, dagdeel, naarSleutel, nuAlsTijd, opmaakDatum, vandaag, weekStart } from '../kern/datum.js';
 import { opmaakLiter, opmaakMl } from '../kern/getal.js';
 import { leesInstelling } from '../data/instellingen.js';
-import { leesDag, zetStemming, zetEnergie } from '../data/dagen.js';
+import { leesDag } from '../data/dagen.js';
 import { bewaarMaaltijd, leesMaaltijden, zetMaaltijdTerug, MAALTIJDSOORTEN } from '../data/maaltijden.js';
 import { leesFavorieten, markeerGebruikt, zetFavorietTerug } from '../data/favorieten.js';
 import { totaalMl, leesDranken } from '../data/dranken.js';
 import { leesReeks, dagStatus, leesWeekoverzicht, leesMaand, leesMomentopname, dagenSindsVorigeUit } from '../data/statistiek.js';
 import { leesVerleden } from '../data/verleden.js';
 import { noteerMoment, openingVoor, reactieVoor } from '../data/motivatiestand.js';
+import { startWeer, weerStand } from '../data/weer.js';
+import { weerSoort } from '../logica/weer.js';
+import { weerkaart } from '../ui/weerkaart.js';
 import { telMomenten } from '../logica/supplementen.js';
 import { feestdagOp, isJarig, leeftijdOp, seizoenOp } from '../logica/kalender.js';
-
-const GEZICHTEN = STEMMING_STAP;
 
 const ga = (pad) => {
   window.location.hash = pad;
@@ -83,11 +83,16 @@ let momentSchrijfrij = Promise.resolve();
 
 export function toon(houder) {
   // De begroeting beweegt alleen bij het openen van het scherm, niet bij elke hertekening na een tik.
-  const staat = { stemmingStandaard: undefined, animeer: true, klaar: null, zin: null, getoondDatum: null, getoondDeel: null };
+  const staat = { animeer: true, klaar: null, zin: null, getoondDatum: null, getoondDeel: null, weerOpening: null, weerGroep: null };
   const stopViering = luister('doel:gehaald', () => (viering = true));
 
-  const opruim = beheerScherm(houder, async () => {
+  const opruim = beheerScherm(houder, async (beheer) => {
     const datum = vandaag();
+    // Het weerbericht (data/weer.js): Vandaag wacht er nooit op. De kaart staat er meteen in de stand van nu (meestal al opgehaald: het
+    // ophalen begint in main.js, voor het eerste scherm) en past zich ter plaatse aan bij 'weer:gewijzigd'.
+    startWeer();
+    const weer = weerkaart(weerStand());
+    beheer.opruim(luister('weer:gewijzigd', (stand) => weer.teken(stand)));
     const schrijfDag = dagBinder(datum);
     // Het dagdeel van deze tekening (R2-01, BESLISSING 411): is er invoer bezig, dan blijft dat van de vorige tekening staan, op dezelfde dag; een nieuwe dag gaat meteen door.
     const deel = staat.getoondDeel !== null && staat.getoondDatum === datum && invoerBezig(houder) ? staat.getoondDeel : dagdeel();
@@ -457,34 +462,8 @@ export function toon(houder) {
         )
       : null;
 
-    // ---- Stemming en energie: een gewone, altijd open kaart (ook op een telefoon, ook als beide gekozen zijn)
-    // BESLISSING 468: de gekozen waarde staat niet nog eens als sierwoord naast het opschrift; de keuze is te zien in de rij eronder (aria-checked op de gekozen knop)
-    const stemming = kaart(
-      { klasse: 'vc--stemming stemmingkaart' },
-      kaartkop({ tegel: begripOpties('stemming'), label: t('vandaag.stemmingEnergie') }),
-      h(
-        'div',
-        { class: 'stemming__inhoud' },
-        // Twee gelijke delen: kopregel (de vraag) en een rij van vijf gelijke kolommen met het woord eronder
-        h(
-          'div',
-          { class: 'stemming__deel stemming__vraag' },
-          h('div', { class: 'stemming__kop' }, h('p', { class: 'label' }, t('stemming.vraag'))),
-          h('div', { class: 'kaart__inhoud', dataset: { fk: 'stemming' } }, gevoelschaal({ soort: 'stemming', waarde: dag.stemming, opKies: (n) => { zetStemming(schrijfDag(), n); } })),
-        ),
-        h('div', { class: 'stemming__lijn', 'aria-hidden': 'true' }),
-        h(
-          'div',
-          { class: 'stemming__deel vandaag__energie' },
-          h('div', { class: 'stemming__kop' }, h('p', { class: 'label' }, t('energie.titel'))),
-          energiekiezer({ waarde: dag.energie, woorden: true, opKies: (n) => { zetEnergie(schrijfDag(), n); } }),
-        ),
-        // De regel "nog eens tikken wist" houdt haar plek ook als er niets gekozen is, zodat de kaart niet van hoogte verandert
-        h('p', { class: ['t-klein t-gedempt dag__wis', dag.stemming == null && dag.energie == null && 'is-leeg'] }, t('dag.wisUitleg')),
-      ),
-    );
-
-    // ---- De motivator: vier gelijke vakken met de stand van vandaag, de warme zin en de week. Geen score, geen percentage.
+    // ---- De motivator: gelijke vakken met de stand van vandaag (eten, drinken, dagdoel en supplementen), de warme zin en de week. Geen score.
+    // Het dagdoel staat in procent direct naast Drinken: de liters en het deel van het doel horen bij elkaar. Zonder supplementen blijven er drie vakken, nooit minder.
     const etenKlaar = ['ontbijt', 'middagmaal', 'avondmaal'].every((soort) => status.maaltijdenIngevuld.includes(soort));
     const naarKaart = (selector) => () => {
       const el = document.querySelector(selector);
@@ -498,23 +477,15 @@ export function toon(houder) {
       regel.openMetFocus();
       requestAnimationFrame(() => regel.scrollIntoView({ behavior: magBewegen() ? 'smooth' : 'auto', block: 'center' }));
     };
-    // Stemming: de kaart in beeld, de focus op de gevoelschaal (gekozen gezichtje, anders het middelste), de rij gezichtjes licht één keer op.
-    const stemmingActie = () => {
-      const kaartEl = document.querySelector('.vc--stemming');
-      kaartEl?.scrollIntoView({ behavior: magBewegen() ? 'smooth' : 'auto', block: 'center' });
-      const opties = [...(kaartEl?.querySelectorAll('.stemming__vraag .gevoel__optie') ?? [])];
-      const doel = opties.find((o) => o.getAttribute('aria-checked') === 'true') ?? opties[Math.floor(opties.length / 2)];
-      doel?.focus({ preventScroll: true });
-      const schaal = doel?.parentElement;
-      if (schaal) bloeiOp(schaal);
-    };
+    // Het dagdoel in procent: 100 zodra het gehaald is (meer drinken mag, het doel blijft dan gewoon gehaald), daaronder naar beneden afgerond zodat 100 nooit te vroeg verschijnt.
+    const doelProcent = gehaald ? 100 : doel > 0 ? Math.min(99, Math.floor((ml * 100) / doel)) : 0;
     const delen = [
       { sleutel: 'eten', naam: ICOON.eten.naam, familie: ICOON.eten.familie, label: t('vandaag.eten'), stand: t('vandaag.etenSamen', { aantal: ingevuld, totaal: 6 }), tel: { naar: ingevuld, opmaak: (n) => t('vandaag.etenSamen', { aantal: Math.round(n), totaal: 6 }) }, vol: ingevuld > 0, klaar: etenKlaar, actie: etenActie, tik: etenDoel && status.maaltijdenIngevuld.length === 6 ? 'tikEtenKlaar' : 'tikEten' },
       { sleutel: 'drinken', naam: ICOON.drinken.naam, familie: ICOON.drinken.familie, label: t('tab.drinken'), stand: opmaakLiter(ml), tel: { naar: ml / 1000, opmaak: (l) => opmaakLiter(l * 1000) }, vol: ml > 0, klaar: gehaald, actie: () => ga('#/drinken'), tik: 'tikDrinken' },
+      { sleutel: 'dagdoel', naam: 'droplet', familie: ICOON.drinken.familie, label: t('vandaag.dagdoel'), stand: t('vandaag.dagdoelStand', { procent: doelProcent }), tel: { naar: doelProcent, opmaak: (n) => t('vandaag.dagdoelStand', { procent: Math.round(n) }) }, vol: ml > 0, klaar: gehaald },
       heeftSupp
         ? { sleutel: 'supp', naam: ICOON.supplementen.naam, familie: ICOON.supplementen.familie, label: t('tab.supplementen'), stand: t('supplementen.momentStand', { genomen: genomenAantal, totaal: totaalSupp }), tel: { naar: genomenAantal, opmaak: (n) => t('supplementen.momentStand', { genomen: Math.round(n), totaal: totaalSupp }) }, vol: genomenAantal > 0, klaar: genomenAantal === totaalSupp, actie: () => ga('#/supplementen') , tik: 'tikSupp' }
         : null,
-      { sleutel: 'stemming', naam: ICOON.stemming.naam, familie: ICOON.stemming.familie, stijl: ICOON.stemming.stijl, label: t('dag.stemmingTitel'), stand: dag.stemming != null ? t('stemming.' + dag.stemming) : '-', vol: dag.stemming != null, klaar: dag.stemming != null, stap: dag.stemming, actie: stemmingActie, tik: 'tikStemming' },
     ].filter(Boolean);
     // Alleen een onderdeel dat klaar raakt terwijl ze kijkt, bloeit kort op; bij het openen van het scherm of een gewone hertekening niet.
     const netKlaar = new Set();
@@ -524,20 +495,17 @@ export function toon(houder) {
 
     // De motivator (logica/motivatie.js): de zin kijkt naar de stand van de dag, naar het verleden in het dagboek (data/verleden.js) en naar
     // wat ze net deed (data/motivatiestand.js vergelijkt de stand van vandaag met die van de vorige tekening).
-    const weekBijgehouden = week.dagen.filter((d) => isBijgehouden({ maaltijden: d.maaltijden, ml: d.ml, innames: d.supplementen?.genomen ?? 0, stemming: d.stemming, energie: d.energie, notitie: d.notitie, weging: d.weging })).length;
+    const weekBijgehouden = week.dagen.filter((d) => isBijgehouden({ maaltijden: d.maaltijden, ml: d.ml, innames: d.supplementen?.genomen ?? 0, notitie: d.notitie, weging: d.weging })).length;
     const verleden = await leesVerleden({ datum, rijen, badgeStats, badges: bewaardeBadges, doelMl: doel, weekDagen: weekBijgehouden });
     const dagStand = { maaltijden: status.maaltijdenIngevuld.length, etenKlaar, ml, doelMl: doel, supplementen: status.supplementen };
     const wegingNu = rijen.wegingen.find((w) => w.week === weekStart(datum) && !w.voorbeeld);
     const tel = {
       maaltijden: status.maaltijdenIngevuld.length,
-      gevoel: Object.values(maaltijden).filter((m) => m && m.gevoel != null).length,
       tekst: Object.values(maaltijden).map((m) => m?.tekst ?? '').join('|'),
       ml,
       genomen: status.supplementen.genomen,
       periodiek: schema.periodiek.filter((p) => p.genomen).length,
       momentenKlaar: telMomenten(schema).klaar,
-      stemming: dag.stemming ?? null,
-      energie: dag.energie ?? null,
       notitie: (dag.notitie ?? '').trim(),
       weging: wegingNu ? `${wegingNu.datum}|${wegingNu.kg}` : '',
       favorieten: favorieten.length,
@@ -552,11 +520,16 @@ export function toon(houder) {
     const geboortedatum = await leesInstelling('profiel.verjaardag');
     // De hoeveelste keer ze de app vandaag opent en wat ze al zag: zo krijgt elke opening een andere zin (data/motivatiestand.js).
     const opening = await openingVoor(datum);
+    // Het weer van nu kleurt de zin (logica/weer.js, weerSoort). Binnen één opening blijft de weersoort vast zodra ze er is: zo verspringt
+    // de zin niet bij elke hertekening. Komt het weer pas na de eerste tekening binnen, dan blijft de zin staan tot de volgende hertekening.
+    const standWeer = weerStand();
+    if (staat.weerOpening !== opening.nummer || !staat.weerGroep) {
+      staat.weerOpening = opening.nummer;
+      staat.weerGroep = standWeer.fase === 'klaar' ? weerSoort(standWeer.weer) : null;
+    }
     const keuze = kiesMotivatie({
       dagdeel: deel,
       ...dagStand,
-      stemming: dag.stemming,
-      energie: dag.energie ?? null,
       drankenAantal: dranken.length,
       lopendeReeks: reeks.lopendeReeks,
       dagenBijgehouden: reeks.dagenBijgehouden,
@@ -566,6 +539,7 @@ export function toon(houder) {
       reactie: reactieVoor(datum, tel),
       opening: opening.nummer,
       gehad: opening.gehad,
+      weer: staat.weerGroep,
       verleden,
       kalender: { jarig: isJarig(geboortedatum, datum), leeftijd: leeftijdOp(geboortedatum, datum), feestdag: feestdagOp(datum), seizoen: seizoenOp(datum), uur: new Date().getHours() },
     });
@@ -579,8 +553,8 @@ export function toon(houder) {
       'ul',
       { class: 'motiv__week', 'aria-label': t('vandaag.dezeWeek') },
       ...week.dagen.map((d, i) => {
-        // Dezelfde definitie als de reeks en de maand (BESLISSING 168, R2-06): ook energie, een notitie of een weging telt.
-        const bijgehouden = isBijgehouden({ maaltijden: d.maaltijden, ml: d.ml, innames: d.supplementen?.genomen ?? 0, stemming: d.stemming, energie: d.energie, notitie: d.notitie, weging: d.weging });
+        // Dezelfde definitie als de reeks en de maand (BESLISSING 168, R2-06): ook een notitie of een weging telt.
+        const bijgehouden = isBijgehouden({ maaltijden: d.maaltijden, ml: d.ml, innames: d.supplementen?.genomen ?? 0, notitie: d.notitie, weging: d.weging });
         const inhoudDag = [h('span', { class: 'week__bol', 'aria-hidden': 'true' }), h('span', { class: 'week__letter', 'aria-hidden': 'true' }, KORT[i][0].toUpperCase())];
         return h(
           'li',
@@ -634,22 +608,13 @@ export function toon(houder) {
       staat.laatsteBadge = laatsteBadge?.id ?? null;
     }
 
-    const dagen = reeks.dagenBijgehouden;
     const voortgang = kaart(
       { klasse: 'voortgang' },
       h(
         'div',
         { class: 'motiv__vakken' },
         ...delen.map((d) => {
-          // De ingevulde stemming krijgt de kleur van de gekozen stap, zodat ze even duidelijk gevuld is als de rest.
-          // Stemming is geen maaltijdtegel (HUISSTIJL §5.2): een ronde tegel in de zachte kleur van de gekozen stap, of nog niet gekozen een neutrale ronde tegel.
-          const isStemming = d.sleutel === 'stemming';
-          const tegel = icoontegel(d.stap ? GEZICHTEN[d.stap - 1] : d.naam, d.familie, { groot: true, gedimd: !d.klaar && !isStemming, stijl: d.stijl });
-          if (isStemming) tegel.classList.add('tegel--rond');
-          if (d.stap) {
-            tegel.style.setProperty('--t-bg', `var(--mood-${d.stap}-soft)`);
-            tegel.style.setProperty('--t-fg', `var(--mood-${d.stap})`);
-          }
+          const tegel = icoontegel(d.naam, d.familie, { groot: true, gedimd: !d.klaar, stijl: d.stijl });
           const vak = h(
             'div',
             {
@@ -683,7 +648,9 @@ export function toon(houder) {
       { class: 'vandaag' },
       installatie,
       begroeting,
-      h('div', { class: 'vandaag__rij1' }, voortgang, stemming),
+      // Het weerbericht staat in de eerste rij, naast de motivator. Op een telefoon zet de css de kaart helemaal onderaan
+      // (scherm-vandaag.css).
+      h('div', { class: 'vandaag__rij1' }, voortgang, weer.el),
       h('div', { class: 'vandaag__rij2' + (supplementen ? '' : ' vandaag__rij2--alleen') }, drinken, supplementen),
       h('div', { class: 'vandaag__rij3' }, eten, kalenderkaart),
     );
@@ -691,7 +658,7 @@ export function toon(houder) {
       // Bij het openen: de begroeting eerst (het beeldmerk bloeit open), dan de kaarten kort na elkaar, de tellers lopen mee.
       komOp([begroeting], { stap: 0 });
       na.push(() => bloeiOp(begroeting.querySelector('.begroeting__merk')));
-      komOp([voortgang, stemming, drinken, supplementen, eten, kalenderkaart], { stap: 80, start: 160 });
+      komOp([voortgang, weer.el, drinken, supplementen, eten, kalenderkaart], { stap: 80, start: 160 });
     }
     requestAnimationFrame(() => na.forEach((f) => f()));
     return scherm;
@@ -701,8 +668,6 @@ export function toon(houder) {
       ['.drinkkaart .drankrij', 'glas'],
       ['.maaltijd', 'maaltijd'],
       ['.eten__favorieten', 'favorieten'],
-      ['.stemming__vraag .kaart__inhoud', 'stemming'],
-      ['.vandaag__energie', 'energie'],
       ['.voortgang', 'voortgang'],
       ['.motiv__weekvak', 'week'],
       ['a.begroeting__delen[href="#/delen"]', 'delen'],
@@ -718,7 +683,6 @@ export function toon(houder) {
       const hooks = [
         ['.maaltijd__tekst', 'maaltijd-tekst'],
         ['.maaltijd__veld', 'maaltijd-uur'],
-        ['.maaltijd__veld[data-fk^="gevoel-"]', 'maaltijd-gevoel'],
         ['.maaltijd__verwijder', 'maaltijd-wis'],
         ['.maaltijd__hart', 'maaltijd-favoriet'],
       ];

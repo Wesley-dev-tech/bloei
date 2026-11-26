@@ -1,6 +1,6 @@
 // Het icoon van elke medaille. Elke medaille heeft haar eigen icoon: geen twee medailles delen er een, zodat je ze ook behaald (alle in
 // dezelfde kleur) uit elkaar houdt. En elk icoon toont waar de medaille voor staat: een glas of een fles bij drinken, bestek of een kom bij
-// eten, een pil of een vinkje bij supplementen, een gezichtje bij stemming, een boek of een kalender bij dagen bijhouden, een weg die je
+// eten, een pil of een vinkje bij supplementen, een pen of een blad bij notities, een boek of een kalender bij dagen bijhouden, een weg die je
 // aflegt bij dagen op rij. Per medaille: [soort, icoon]. De soort bepaalt de kleur van een medaille die nog niet behaald is
 // (ui/medaille.js); het icoon is de naam van een bestand in src/iconen/solid (Font Awesome Free). Zuivere gegevens, zonder imports, zodat de
 // test (tests/logica/badgeiconen.test.js) ze kan nalezen.
@@ -13,9 +13,8 @@ export const BADGE_ICOON = {
   // drinken
   'eerste-kan': ['drinken', 'glass-water'],
   'tien-kannen': ['drinken', 'mug-hot'],
-  // stemming
+  // notities
   kanttekening: ['notities', 'pen'],
-  gemoed: ['stemming', 'face-smile'],
   // bijhouden
   'twee-weken': ['reeks', 'person-running'],
   // supplementen
@@ -39,9 +38,7 @@ export const BADGE_ICOON = {
   'alles-afgevinkt': ['supplementen', 'clipboard-check'],
   'week-trouw': ['supplementen', 'pills'],
   'dertig-vol': ['supplementen', 'prescription-bottle'],
-  // stemming
-  'dertig-stemmingen': ['stemming', 'face-smile-beam'],
-  'zeven-energie': ['stemming', 'leaf'],
+  // notities
   'twintig-notities': ['notities', 'note-sticky'],
   // gewicht
   'eerste-weging': ['gewicht', 'weight-scale'],
@@ -71,7 +68,6 @@ export const BADGE_ICOON = {
   'vijfhonderd-maaltijden': ['eten', 'kitchen-set'],
   'vijf-favorieten': ['eten', 'hand-holding-heart'],
   'drie-op-een-dag': ['eten', 'bread-slice'],
-  'tien-gevoel': ['eten', 'face-grin-tongue'],
   'tien-maaltijden': ['eten', 'bowl-food'],
   'tien-favorieten': ['eten', 'heart-circle-plus'],
   'zeven-drie-maaltijden': ['eten', 'apple-whole'],
@@ -92,14 +88,16 @@ export const BADGE_ICOON = {
   'eigen-lijst': ['supplementen', 'clipboard-list'],
   'honderd-vinkjes': ['supplementen', 'check-double'],
   'zeven-op-rij-afgevinkt': ['supplementen', 'list-check'],
-  // stemming
+  // notities
   'vijftig-notities': ['notities', 'pen-to-square'],
-  'honderd-stemmingen': ['stemming', 'face-grin-stars'],
-  'dertig-energie': ['stemming', 'bolt'],
-  'week-gezichtjes': ['stemming', 'face-grin-wide'],
   'honderd-notities': ['notities', 'feather-pointed'],
-  'maand-gezichtjes': ['stemming', 'face-grin-hearts'],
-  'gezichtje-en-blaadje': ['stemming', 'heart-pulse'],
+  'eerste-notitie': ['notities', 'message'],
+  'tien-notities': ['notities', 'pen-clip'],
+  'tweehonderd-notities': ['notities', 'pen-fancy'],
+  'drie-notities-op-rij': ['notities', 'quote-left'],
+  'week-notities-op-rij': ['notities', 'pen-nib'],
+  'maand-notities-op-rij': ['notities', 'scroll'],
+  'lange-notitie': ['notities', 'align-left'],
   // gewicht
   'twaalf-wegingen': ['gewicht', 'scale-balanced'],
   'halfjaar-wegen': ['gewicht', 'ruler'],
@@ -115,6 +113,13 @@ export const BADGE_ICOON = {
   // delen
   'vijf-verslagen': ['delen', 'file-lines'],
   'tien-verslagen': ['delen', 'paper-plane'],
+  'twintig-verslagen': ['delen', 'folder-open'],
+  'verslag-verstuurd': ['delen', 'envelope'],
+  'verslag-bewaard': ['delen', 'floppy-disk'],
+  'volledig-verslag': ['delen', 'file-circle-check'],
+  'weekverslag': ['delen', 'clipboard'],
+  'maandverslag': ['delen', 'box-archive'],
+  'maand-na-maand': ['delen', 'handshake-simple'],
   // kennen
   'eerste-rondleiding': ['reeks', 'circle-question'],
   'eigen-kleur': ['reeks', 'palette'],

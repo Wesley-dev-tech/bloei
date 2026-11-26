@@ -50,6 +50,7 @@ import { installeerVrijstellingen } from './vergrendeling/vrijstelling.js';
 import { volgBediening } from './kern/bediening.js';
 import { toonWatIsNieuwBijStart } from './ui/watisnieuw.js';
 import { startFeest } from './ui/feest.js';
+import { startWeer } from './data/weer.js';
 
 async function start() {
   // BESLISSING 405: wacht er een nieuwe versie, dan neemt die nu over en herlaadt de pagina één keer, vóór er iets getekend wordt.
@@ -63,6 +64,9 @@ async function start() {
     const herlaadt = await activeerWachtendeBijStart({ sw: navigator.serviceWorker, opslag, herlaad: () => window.location.reload() });
     if (herlaadt) return;
   }
+  // Het weerbericht: de plek en het weer van nu ophalen begint hier al, naast al de rest, zodat ze klaarstaan als Vandaag getekend wordt.
+  // Alleen als het toestel de locatie voor Bloei al toeliet; anders begint het pas op Vandaag (data/weer.js). Niet blokkerend.
+  startWeer({ vroeg: true });
   volgBediening(); // data-bediening op html (aanraak, muis, toetsen): basis.css verbergt de ring bij aanraking, vóór het slot
   installeerVrijstellingen();
   await pasThemaToe();
@@ -71,7 +75,7 @@ async function start() {
   // demo: een nieuw bezoek zet Sofie en haar voorbeeldgegevens terug (BESLISSING 674, demo/bezoek.js), vóór de badges starten (die worden dan stil toegekend)
   if (IS_DEMO) await (await import('./demo/start.js')).startBezoek();
   await migreerKan(); // BESLISSING 270: water is een kan van 800 ml; een oude standaard van 250 gaat één keer mee
-  await ruimWeerOp(); // het weerbericht is weg (0.5.7): ook het weer dat nog bewaard stond
+  await ruimWeerOp(); // het weer dat 0.4.8 tot 0.5.6 in de database bewaarde, gaat weg: het weerbericht bewaart daar niets meer (data/weer.js)
   await herstelVangnet(); // R5-03: tekst die vlak voor herladen of afsluiten getypt was, en wist het vangnet meteen
   startKanaal(); // R5-01: wat een ander tabblad bewaart, verschijnt ook hier
   // Voor het blad "Nieuw in Bloei": kende dit toestel al een versie van na 24 november? De warme zin bewaart sinds 0.4.7 bij elke opening

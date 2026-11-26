@@ -1,6 +1,6 @@
 # Bloei
 
-Bloei is a personal diary app. The user keeps track of meals, drinks, supplements, weight and mood, and adds notes. The app turns a chosen period into a PDF report; the user decides what goes in it and whether and with whom it is shared. The supplement list can be exported to a file and imported again. Reminders (diary, meals, drinks and supplements, up to three times a day each) arrive as a notification at a chosen time. The app can be locked with a PIN code or with Face ID or a fingerprint.
+Bloei is a personal diary app. The user keeps track of meals, drinks, supplements and weight, and adds notes. The app turns a chosen period into a PDF report; the user decides what goes in it and whether and with whom it is shared. The supplement list can be exported to a file and imported again. Reminders (diary, meals, drinks and supplements, up to three times a day each) arrive as a notification at a chosen time. The app can be locked with a PIN code or with Face ID or a fingerprint.
 
 Bloei is an installable web app (PWA). It runs on iPhone, iPad, Android and desktop. On a phone the navigation is a tab bar; from a width of 960 px it becomes a sidebar. The interface language is Dutch.
 
@@ -84,7 +84,23 @@ For the screen tests `tests/globaal-opstart.js` first prepares a saved state in 
 
 All diary data lives on the device, in IndexedDB, and never leaves it. The same goes for the optional date of birth: it is only used on the device, to celebrate the user's birthday, and can be cleared at any time. Only when reminders are switched on does something go to the reminder service: the push address with the keys of that device, and the chosen times. Nothing from the diary goes to that service. There is no backup: if the app is removed, the browser data is cleared or the device is lost, the data is gone. A report or a supplement list is only shared when the user does so, as a file.
 
-The built pages carry a strict Content-Security-Policy, and the app makes no external requests except to the reminder service. Fonts and icons are bundled locally.
+The built pages carry a strict Content-Security-Policy, and the app makes no external requests except to the reminder service and the weather service. Fonts and icons are bundled locally.
+
+## Weather
+
+The Today screen has a weather card, and the Today screen is the only place where weather appears. It gives the current temperature and conditions with the feels-like temperature, the figures for today (minimum, maximum, chance and amount of rain or snow, wind force in Beaufort with direction, wind speed, UV index, sunrise, sunset and humidity) and a seven-day outlook. The ten figures always fill their grid: a list in two columns of five on a narrow card (label left, value right), five columns by two rows on a wide one, and one column on a 320 px phone. On phones the card is the last one on the screen; on wide screens it sits next to the day summary, at the same height. The code is in `src/logica/weer.js` (pure rules), `src/data/weer.js` (location, request and what is kept) and `src/ui/weerkaart.js` (the card).
+
+The encouraging sentence in the day summary follows the weather too: `weerSoort` in `src/logica/weer.js` turns the current weather into one of seventeen kinds, and `kiesMotivatie` in `src/logica/motivatie.js` picks a sentence of that kind that fits her day (drinking towards the goal, noting the day, what she already noted, supplements, goal reached, her streak). Eleven kinds are ordinary weather (thunder, snow, heat from 27 degrees, frost, rain, fog, wind, a warm day from 25 degrees, sun, cold, grey). Six are extreme weather and come first: storm (wind from 62 km/h), thunder with hail, heavy snow (or 5 cm in a day), freezing rain, heavy rain (or 20 mm in a day) and a heat wave (five days from today at 25 degrees or more, three of them at 30 or more, read from the forecast). For heat and extreme weather the sentence also gives advice (drink enough water, find shade, keep cool, stay safe indoors, look after yourself) and returns at opening in every part of the day; ordinary weather comes once per kind per day and then rotates with the other sentences. A sentence never states a weather figure. Next to the Drinking tile the summary shows the day goal as a percentage.
+
+Open-Meteo is the only external service for the weather. The app asks the device for its current position (high accuracy, no cached position) and sends the coordinates, exactly as the device reports them, in one request to `api.open-meteo.com`: current conditions, the hours of one week and fourteen days. No place name is shown and no second service is used: Open-Meteo picks the grid cell of its model for that point (for Belgium the 2 km KNMI HARMONIE model).
+
+The weather is always there, and the card never shows a failure message or a note:
+
+- No position (location switched off, a desktop without a location service, the permission prompt still open): the app uses a fallback place, the last position this device gave, and otherwise the capital of the device's time zone (Brussels by default). If nothing fresh is on screen after 1.5 seconds, the weather of the fallback place is shown while the app keeps listening for the real position.
+- No answer from the service, or no network: the app shows the forecast this device received last, for the current hour, for today and for the six days after (`weerVoorNu`). That forecast lasts one week. Meanwhile the app retries after 3, 6, 12 and 24 seconds and then every minute.
+- Only a device that has never received an answer from the service (or none for a week) has nothing to show: the card then looks as it does while loading (dashes, no text) until the first answer arrives.
+
+The location and the weather are fetched again at every opening of the app (starting before the first screen is drawn, if the device already allows location for Bloei), every time the user returns to the app, and every ten minutes while the app is in view; at opening, the stored forecast is on screen at once until the new one arrives. The device keeps the last position, rounded to two decimals (about one kilometre), and the last forecast in `localStorage` under one key (`bloei-weer`, about 20 kB): never in the database, so never in an export or a report, and erased by "erase everything". The demo shows sample weather, asks for no location and connects to nothing. Weather data by [Open-Meteo.com](https://open-meteo.com/) (CC BY 4.0, free for non-commercial use).
 
 ## Reminders
 

@@ -42,9 +42,6 @@ const WISSEL = ['tussendoortje', 'vieruurtje', 'latesnack'];
 const DRINK_DOEL = [2600, 2400, 2900, 2100, 2450, 2550, 1900, 2500, 3000, 2650, 2200, 2500, 2450, 2600, 2550, 2900, 2700, 2550, 2600, 2800, 2500, 2650, 2550, 2550, 2300, 2900, 2600];
 const ANDERE = ['thee', 'koffie', 'sap', 'koffie', 'thee', 'frisdrank', 'anders', 'thee', 'koffie', 'sap'];
 
-// Stemming en energie (1 tot 5); null = niet ingevuld.
-const STEMMING = [4, 3, 4, null, 5, 4, 2, 4, 5, 4, null, 3, 4, 4, 5, 4, 3, null, 4, 5, 4, 3, 4, null, 4, 5, 4, 4];
-const ENERGIE = [3, 3, 4, null, 4, 4, 2, 3, 4, 4, null, 3, 4, 3, 4, 4, 3, null, 3, 4, 4, 3, 3, null, 4, 5, 4, 3];
 const NOTITIES = {
   2: 'Lekker gewandeld na het middageten.',
   6: 'Wat moe vandaag, vroeg naar bed.',
@@ -114,7 +111,7 @@ export function bouwDemo(nu = new Date()) {
     const isVandaag = datum === vandaag;
 
     if (LEGE_DAGEN.includes(i)) {
-      dagen.push({ datum, notitie: '', stemming: null, energie: null, doelGehaald: false, voorbeeld: false, gewijzigdOp: tijdstipVan(datum, 21, 0, nu, vandaag, 0) });
+      dagen.push({ datum, notitie: '', doelGehaald: false, voorbeeld: false, gewijzigdOp: tijdstipVan(datum, 21, 0, nu, vandaag, 0) });
       continue;
     }
 
@@ -139,7 +136,6 @@ export function bouwDemo(nu = new Date()) {
         tijd: isVandaag ? `${twee(d.getHours())}:${twee(d.getMinutes())}` : naarTijd([u, m + verschuiving]),
         tekst: pool[(i * 3 + SOORTEN.indexOf(soort)) % pool.length],
         fotoId: null,
-        gevoel: ((i + nr) % 4) + 2,
         voorbeeld: false,
         gewijzigdOp: tijdstip,
       });
@@ -191,8 +187,6 @@ export function bouwDemo(nu = new Date()) {
     dagen.push({
       datum,
       notitie: NOTITIES[i] ?? '',
-      stemming: STEMMING[i],
-      energie: ENERGIE[i],
       doelGehaald: totaalMl >= DOEL_ML,
       voorbeeld: false,
       gewijzigdOp: tijdstipVan(datum, 21, 0, nu, vandaag, 0),

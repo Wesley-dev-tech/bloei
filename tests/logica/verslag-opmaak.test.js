@@ -5,7 +5,7 @@ import { readFileSync, writeFileSync } from 'node:fs';
 import { afterAll, beforeAll, beforeEach, describe, expect, test, vi } from 'vitest';
 import { db, openDb } from '../../src/data/db.js';
 import { plusDagen, vandaag } from '../../src/kern/datum.js';
-import { zetEnergie, zetNotitie, zetStemming } from '../../src/data/dagen.js';
+import { zetNotitie } from '../../src/data/dagen.js';
 import { bewaarMaaltijd } from '../../src/data/maaltijden.js';
 import { voegDrankToe } from '../../src/data/dranken.js';
 import { bewaarWeging } from '../../src/data/wegingen.js';
@@ -27,7 +27,7 @@ const fonts = () => ({
   sans: maakFont(lees('jost/files/jost-latin-400-normal.woff')),
   sansMedium: maakFont(lees('jost/files/jost-latin-500-normal.woff')),
 });
-const ALLES = { eten: true, drinken: true, supplementen: true, stemming: true, gewicht: true, notities: true };
+const ALLES = { eten: true, drinken: true, supplementen: true, gewicht: true, notities: true };
 const RAND = 51;
 const B = 595.28;
 const H = 841.89;
@@ -47,12 +47,10 @@ beforeEach(async () => {
 const MAALTIJDEN = ['ontbijt', 'tussendoortje', 'middagmaal', 'vieruurtje', 'avondmaal', 'latesnack'];
 const lang = (n, woord = 'lekker ') => woord.repeat(Math.ceil(n / woord.length)).slice(0, n).trim();
 
-// Een volle dag: zes maaltijden met tekst, dranken, drie momenten, stemming, energie, een notitie en een weging.
+// Een volle dag: zes maaltijden met tekst, dranken, drie momenten, een notitie en een weging.
 async function vulDag(datum, { maaltijdTekst = 'havermout met fruit en noten', notitie = 'Een rustige dag, goed geslapen.', n = 0 } = {}) {
-  for (const [i, soort] of MAALTIJDEN.entries()) await bewaarMaaltijd(datum, soort, { tekst: maaltijdTekst, tijd: `${String(7 + i * 3).padStart(2, '0')}:15`, gevoel: 1 + ((i + n) % 5) });
+  for (const [i, soort] of MAALTIJDEN.entries()) await bewaarMaaltijd(datum, soort, { tekst: maaltijdTekst, tijd: `${String(7 + i * 3).padStart(2, '0')}:15` });
   for (const soort of ['water', 'thee', 'koffie', 'sap']) await voegDrankToe(datum, soort, 250);
-  await zetStemming(datum, 1 + (n % 5));
-  await zetEnergie(datum, 1 + ((n + 2) % 5));
   await zetNotitie(datum, notitie);
 }
 
@@ -343,9 +341,9 @@ describe('de pdf als afdrukbaar A4-document (BESLISSING 302): pagina, kop, voet 
 });
 
 describe('de inhoud van de pdf (BESLISSING 284 en 285)', () => {
-  const GEEN = ['Gevoel', 'GEVOEL', 'upplement', 'temming', 'nergie', 'Vitamine D'];
+  const GEEN = ['upplement', 'Vitamine D'];
 
-  test('alleen de aangevinkte onderdelen staan erin; nooit gevoel, supplementen, stemming of energie', async () => {
+  test('alleen de aangevinkte onderdelen staan erin; nooit supplementen', async () => {
     for (let n = 0; n < 7; n += 1) await vulDag(dag(n - 6), { n, notitie: 'testnotitie voor de diëtiste' });
     await vulSupplementen(['Vitamine D']);
     await bewaarWeging(dag(-3), 68.4);

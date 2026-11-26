@@ -214,11 +214,10 @@ test('R2-06 de weekstrook telt een dag met alleen een notitie als bijgehouden', 
   await page.goto('./#/vandaag');
   await expect(page.locator('.motiv__week .week__dag')).toHaveCount(7);
   await zetRij(page, 'dagen', { datum: '2026-11-17', notitie: 'Rustige dag gehad.', voorbeeld: false });
-  await zetRij(page, 'dagen', { datum: '2026-11-18', energie: 3, voorbeeld: false });
   await page.reload();
   const dagen = page.locator('.motiv__week .week__dag');
   await expect(dagen.nth(1)).toHaveClass(/is-bijgehouden/); // dinsdag: alleen een notitie
-  await expect(dagen.nth(2)).toHaveClass(/is-bijgehouden/); // woensdag: alleen energie
+  await expect(dagen.nth(2)).not.toHaveClass(/is-bijgehouden/); // woensdag: niets
   await expect(dagen.nth(0)).not.toHaveClass(/is-bijgehouden/); // maandag: niets
 });
 

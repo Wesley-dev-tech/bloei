@@ -57,7 +57,8 @@ test(`elke kaart met een kop heeft precies één lijn onder de kop: 8 px erboven
       const lijnKleur = getComputedStyle(probe).borderBottomColor;
       probe.remove();
       return [...document.querySelectorAll('.kaart > .kaartkop')]
-        .filter((k) => !k.closest('.weekkaart--supp'))
+        // een kop die niet getoond wordt, heeft geen lijn om te meten: het weerbericht staat op een desktop zonder kop naast de begroeting (0.5.8)
+        .filter((k) => !k.closest('.weekkaart--supp') && k.offsetParent !== null)
         .map((k) => {
           const cs = getComputedStyle(k);
           const kb = k.getBoundingClientRect().bottom;

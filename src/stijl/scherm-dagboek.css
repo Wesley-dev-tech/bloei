@@ -6,15 +6,14 @@
 /* Toegankelijkheid (BESLISSING 330): de dagrij is de ene tabstop van haar dag; haar focusring ligt binnen de rij, zodat de houder hem nergens afsnijdt. */
 .wk__rij:focus-visible, .wk__compact:focus-visible { outline: var(--focus); outline-offset: -2px; }
 
-/* BESLISSING 308, Dagboek · Week op een iPad (720 tot 1399 px): vijf kaarten in drie kolommen lieten rechtsonder een gat. Een raster van zes kolommen vult elke rij:
-   drie kaarten van twee kolommen, daaronder twee van drie (bij vier kaarten loopt de laatste over de hele rij). Vanaf 1400 px blijven het vijf kaarten naast elkaar. */
+/* Dagboek · Week op een iPad (720 tot 1399 px): vier kaarten (eten, drinken, supplementen, gewicht) in twee
+   rijen van twee, zodat elke rij gevuld is. Vanaf 1400 px staan de vier naast elkaar. (BESLISSING 308 regelde hetzelfde voor vijf kaarten.) */
 @media (min-width: 720px) and (max-width: 1399.98px) {
-  .wk__samenvatting { grid-template-columns: repeat(6, minmax(0, 1fr)); }
-  .wk__samenvatting > .wk__skaart.wk__skaart { grid-column: span 2; }
-  .wk__samenvatting > .wk__skaart.wk__skaart:nth-child(4):nth-last-child(2), .wk__samenvatting > .wk__skaart.wk__skaart:nth-child(5):last-child { grid-column: span 3; }
-  .wk__samenvatting > .wk__skaart.wk__skaart:nth-child(4):last-child { grid-column: 1 / -1; }
+  .wk__samenvatting { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+  .wk__samenvatting > .wk__skaart.wk__skaart { grid-column: auto; }
+  .wk__samenvatting > .wk__skaart.wk__skaart:last-child:nth-child(odd) { grid-column: 1 / -1; }
 }
-/* BESLISSINGEN 499 en 501, Dagboek · Week op een telefoon: de laatste tegel (Gewicht) loopt over de volle breedte (vijf tegels in twee kolommen). Ze heeft daar twee
+/* BESLISSINGEN 499 en 501, Dagboek · Week op een telefoon: bij een oneven aantal tegels loopt de laatste (Gewicht) over de volle breedte. Ze heeft daar twee
    gelijke helften onder de kop: links de weging van deze week, rechts het verschil met de vorige weging. Elders (tegel op gewone breedte) is het tweede blok verborgen. */
 .wk__sextra { display: none; }
 @media (max-width: 719.98px) {

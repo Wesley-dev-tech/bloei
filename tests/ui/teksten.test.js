@@ -32,7 +32,7 @@ const ZWART = [
 describe('teksten', () => {
   it('bevat alle naamruimtes uit het contract', () => {
     const verplicht = [
-      'tab', 'begroeting', 'maaltijd', 'gevoel', 'stemming', 'energie', 'dag', 'week', 'maand',
+      'tab', 'begroeting', 'maaltijd', 'dag', 'week', 'maand',
       'drinken', 'drank', 'gewicht', 'meer', 'instellingen', 'profiel', 'favorieten', 'reeks',
       'badge', 'wissen', 'welkom', 'installatie', 'meldingen', 'melding', 'slot',
       'algemeen', 'leeg', 'thema',
@@ -72,9 +72,6 @@ describe('teksten', () => {
       'begroeting.avond': 'Goeienavond, {naam}',
       'maaltijd.vraag': 'Wat heb je gegeten?',
       'maaltijd.zelfde': 'Zelfde als gisteren',
-      'gevoel.vraag': 'Hoe voelde je je erna?',
-      'stemming.vraag': 'Hoe was je dag?',
-      'energie.vraag': 'Hoeveel fut had je?',
       'dag.notitie': 'Nog iets over vandaag?',
       'dag.toekomst': 'Deze dag is nog niet aan de beurt.',
       'drinken.knop': 'Kan water erbij',
@@ -90,7 +87,7 @@ describe('teksten', () => {
       'reeks.samen': '{dagen} dagen bijgehouden · {reeks} op rij',
       'vandaag.leeg': 'Nog niets genoteerd vandaag.',
       'vandaag.weegdag': 'Het is je weegdag.',
-      'wissen.vraag1': 'Alles wat je in Bloei hebt bijgehouden verdwijnt van dit toestel: je maaltijden, drinken, supplementen, wegingen, stemming, notities, badges, je naam, je foto, je geboortedatum en je instellingen. Dit kan je niet ongedaan maken.',
+      'wissen.vraag1': 'Alles wat je in Bloei hebt bijgehouden, verdwijnt van dit toestel: je maaltijden, drinken, supplementen, wegingen, notities, badges, je naam, je foto, je geboortedatum en je instellingen. Dit kan je niet ongedaan maken.',
       'wissen.vraag2': 'Je profiel en alles erin worden nu echt verwijderd.',
       'melding.dagboekLeeg': 'Je dag van vandaag is nog leeg. Even bijschrijven?',
       'melding.dagboekOpen': 'Nog open voor vandaag: {open}.',
@@ -102,20 +99,11 @@ describe('teksten', () => {
       'leeg.komtNog': 'Dit deel van Bloei volgt binnenkort.',
     };
     for (const [sleutel, tekst] of Object.entries(vast)) expect(t(sleutel), sleutel).toBe(tekst);
-    for (const [i, naam] of ['moe', 'gewoon', 'goed', 'blij', 'stralend'].entries()) {
-      expect(t('gevoel.' + (i + 1))).toBe(naam);
-    }
-    for (const [i, naam] of ['moe', 'gewoon', 'goed', 'blij', 'stralend'].entries()) {
-      expect(t('stemming.' + (i + 1))).toBe(naam);
-    }
-    for (const [i, naam] of ['laag', 'rustig', 'gewoon', 'goed', 'vol'].entries()) {
-      expect(t('energie.' + (i + 1))).toBe(naam);
-    }
   });
 
   it('heeft voor elke badge een naam en een uitleg, en geen herstelvragen meer', () => {
-    expect(Object.keys(TEKSTEN.badge.namen)).toHaveLength(121);
-    expect(Object.keys(TEKSTEN.badge.voorwaarden)).toHaveLength(121);
+    expect(Object.keys(TEKSTEN.badge.namen)).toHaveLength(126);
+    expect(Object.keys(TEKSTEN.badge.voorwaarden)).toHaveLength(126);
     expect(Object.keys(TEKSTEN.badge.namen).sort()).toEqual(Object.keys(TEKSTEN.badge.voorwaarden).sort());
     expect(TEKSTEN.slot.herstelVragen).toBeUndefined();
   });
@@ -156,10 +144,9 @@ describe('sleutels in de code', () => {
     expect(ontbreekt).toEqual([]);
   });
 
-  it('heeft ook de samengestelde sleutels (maaltijd, drank, stemming, gevoel, energie)', () => {
+  it('heeft ook de samengestelde sleutels (maaltijd, drank, begroeting)', () => {
     for (const soort of ['ontbijt', 'tussendoortje', 'middagmaal', 'vieruurtje', 'avondmaal', 'latesnack']) expect(typeof TEKSTEN.maaltijd[soort]).toBe('string');
     for (const soort of ['water', 'thee', 'koffie', 'sap', 'frisdrank', 'anders']) expect(typeof TEKSTEN.drank[soort]).toBe('string');
-    for (const n of [1, 2, 3, 4, 5]) for (const ns of ['gevoel', 'stemming', 'energie']) expect(typeof TEKSTEN[ns][n]).toBe('string');
     for (const d of ['ochtend', 'middag', 'avond']) expect(typeof TEKSTEN.begroeting[d]).toBe('string');
   });
 });
@@ -211,14 +198,14 @@ describe('motivatie', () => {
   });
 
   it('geeft voor elke toestand een bestaande zin en dezelfde zin bij herhaling', () => {
-    const basis = { dagdeel: 'ochtend', maaltijden: 0, ml: 0, doelMl: 2000, supplementen: { genomen: 0, totaal: 0 }, stemming: null, lopendeReeks: 0, dagenBijgehouden: 0, dagenSindsVorige: null, datum: '2026-11-13' };
+    const basis = { dagdeel: 'ochtend', maaltijden: 0, ml: 0, doelMl: 2000, supplementen: { genomen: 0, totaal: 0 }, lopendeReeks: 0, dagenBijgehouden: 0, dagenSindsVorige: null, datum: '2026-11-13' };
     const gevallen = [
       basis,
       { ...basis, maaltijden: 1 },
       { ...basis, ml: 1600 },
       { ...basis, ml: 2000 },
       { ...basis, supplementen: { genomen: 2, totaal: 2 } },
-      { ...basis, maaltijden: 1, ml: 500, supplementen: { genomen: 1, totaal: 2 }, stemming: 3 },
+      { ...basis, maaltijden: 1, ml: 500, supplementen: { genomen: 1, totaal: 2 } },
       { ...basis, maaltijden: 1, dagenSindsVorige: 5 },
       { ...basis, maaltijden: 1, lopendeReeks: 7 },
     ];

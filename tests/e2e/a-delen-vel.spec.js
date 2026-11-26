@@ -45,13 +45,13 @@ async function vul(page) {
             if (i % 5 === 3) continue; // een dag zonder iets
             const lang = 'verzonnen ontbijt met havermout, fruit, noten en yoghurt en nog veel meer tekst zodat de regel zeker breekt in de kolom';
             if (i % 4 !== 1) {
-              tx.objectStore('maaltijden').put({ datum, soort: 'ontbijt', tijd: '08:15', tekst: i % 6 === 0 ? lang : 'havermout met fruit', fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: 1 });
-              tx.objectStore('maaltijden').put({ datum, soort: 'avondmaal', tijd: '18:45', tekst: 'soep en brood', fotoId: null, gevoel: 2, voorbeeld: false, gewijzigdOp: 1 });
-              if (i % 3 === 0) tx.objectStore('maaltijden').put({ datum, soort: 'tussendoortje', tijd: '10:30', tekst: 'appel', fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: 1 });
+              tx.objectStore('maaltijden').put({ datum, soort: 'ontbijt', tijd: '08:15', tekst: i % 6 === 0 ? lang : 'havermout met fruit', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
+              tx.objectStore('maaltijden').put({ datum, soort: 'avondmaal', tijd: '18:45', tekst: 'soep en brood', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
+              if (i % 3 === 0) tx.objectStore('maaltijden').put({ datum, soort: 'tussendoortje', tijd: '10:30', tekst: 'appel', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
             }
             tx.objectStore('dranken').add({ datum, tijdstip: Date.now() - 1000 - i, soort: 'water', ml: 500 + (i % 5) * 600, voorbeeld: false });
             if (i % 2 === 0) tx.objectStore('dranken').add({ datum, tijdstip: Date.now() - 900 - i, soort: 'thee', ml: 250, voorbeeld: false });
-            tx.objectStore('dagen').put({ datum, stemming: 3, energie: 4, notitie: i % 3 === 0 ? `Verzonnen notitie ${i}, met wat extra woorden erbij zodat ze ook breekt als de kolom smal is.` : '', doelGehaald: false, voorbeeld: false });
+            tx.objectStore('dagen').put({ datum, notitie: i % 3 === 0 ? `Verzonnen notitie ${i}, met wat extra woorden erbij zodat ze ook breekt als de kolom smal is.` : '', doelGehaald: false, voorbeeld: false });
             if (i === 0 || i === 8 || i === 20) tx.objectStore('wegingen').put({ week: datum, datum, kg: 71.3 - i * 0.05, voorbeeld: false, gewijzigdOp: 1 });
           }
           tx.oncomplete = () => {
@@ -339,7 +339,7 @@ for (const [periode] of PERIODES) {
       // één dag: de eigen kerncijfers van die dag (BESLISSING 331 en 333); het gewicht alleen als er die dag gewogen is, en dan geen tabel
       if (periode === 'Vandaag') expect(vel.cijfers.map((c) => c[0])).toEqual(alle ? ['Maaltijden', 'Gedronken', 'Dagdoel', 'Gewicht'] : ['Maaltijden', 'Gedronken', 'Dagdoel']);
       else expect(vel.cijfers.length).toBeGreaterThanOrEqual(2);
-      for (const woord of ['Gevoel', 'Supplementen', 'Stemming', 'Energie']) expect(vel.dagen.map((d) => d.tekst).join(' ')).not.toContain(woord);
+      for (const woord of ['Supplementen']) expect(vel.dagen.map((d) => d.tekst).join(' ')).not.toContain(woord);
       if (!alle) expect(vel.cijfers.map((c) => c[0])).not.toContain('Laatste weging');
       if (alle && periode === 'Een maand') expect(vel.cijfers.map((c) => c[0])).toContain('Laatste weging');
       if (alle && periode === 'Deze week') {
@@ -407,7 +407,7 @@ test('Delen: een lange tekst breekt binnen de kolom Wat en het vel toont geen wo
   await expect(page.locator('.verslagvel__titel')).toBeVisible();
   const vel = page.locator('.verslagvel');
   const tekst = (await vel.textContent()) ?? '';
-  for (const woord of ['Gevoel', 'Supplementen', 'Stemming', 'Energie', 'Vitamine']) expect(tekst).not.toContain(woord);
+  for (const woord of ['Supplementen', 'Vitamine']) expect(tekst).not.toContain(woord);
   expect(tekst).not.toMatch(/\bnull\b|undefined|NaN|\[object/);
   // het vel is licht papier, ook als de app donker is
   const papier = await vel.evaluate((e) => getComputedStyle(e).backgroundColor);

@@ -76,8 +76,8 @@ export const afbrekingen = (page, wortel = '#scherm') =>
 export const ongelijkeLabels = (page) =>
   page.evaluate(() => {
     const uit = [];
-    for (const groep of document.querySelectorAll('.dagdranken, .drankrij, .motiv__vakken, .gevoel, .energie--kiezer')) {
-      const regels = [...groep.querySelectorAll('.dagdrank__naam, .drankknop__naam, .motiv__label, .gevoel__label')].filter((e) => e.getBoundingClientRect().width > 0).map((e) => {
+    for (const groep of document.querySelectorAll('.dagdranken, .drankrij, .motiv__vakken')) {
+      const regels = [...groep.querySelectorAll('.dagdrank__naam, .drankknop__naam, .motiv__label')].filter((e) => e.getBoundingClientRect().width > 0).map((e) => {
         const lh = parseFloat(getComputedStyle(e).lineHeight) || parseFloat(getComputedStyle(e).fontSize) * 1.2;
         return Math.round(e.getBoundingClientRect().height / lh);
       });

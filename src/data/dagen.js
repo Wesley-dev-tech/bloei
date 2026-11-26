@@ -1,4 +1,4 @@
-// Notitie, stemming en energie per dag. Een dag zonder record is gewoon een lege bladzijde.
+// De notitie en het gehaalde dagdoel per dag. Een dag zonder record is gewoon een lege bladzijde.
 import { db, isEigen } from './db.js';
 import { zend } from '../kern/bus.js';
 import { isToekomst } from '../kern/datum.js';
@@ -8,21 +8,14 @@ export function legeDag(datum) {
   return {
     datum,
     notitie: '',
-    stemming: null,
-    energie: null,
     doelGehaald: false,
     voorbeeld: false,
     gewijzigdOp: 0,
     // Wanneer de notitie zelf het laatst geschreven is (ms); 0 = nog nooit. Alleen zetNotitie zet dit: het vangnet (data/vangnet.js)
-    // vergelijkt hiermee, niet met gewijzigdOp, dat ook door stemming, energie en het drinkdoel verandert.
+    // vergelijkt hiermee, niet met gewijzigdOp, dat ook door het drinkdoel verandert.
     // Een record van voor deze stempel heeft het veld niet. Niet geindexeerd: geen nieuwe versie van de database.
     tekstOp: 0,
   };
-}
-
-function controleerSchaal(waarde) {
-  if (waarde === null) return;
-  if (!Number.isInteger(waarde) || waarde < 1 || waarde > 5) throw new Error('schaal');
 }
 
 async function wijzig(datum, wijziging) {
@@ -32,7 +25,7 @@ async function wijzig(datum, wijziging) {
   await db.transaction('rw', db.dagen, async () => {
     const bestaand = await db.dagen.get(datum);
     // Wat de gebruiker zelf wijzigt, is van de gebruiker: het is dan geen voorbeeld meer. Een voorbeelddag begint dan als lege bladzijde,
-    // zodat de verzonnen stemming, energie en notitie niet de hare worden (R1-05).
+    // zodat de verzonnen notitie niet de hare wordt (R1-05).
     const basis = isEigen(bestaand) ? bestaand : legeDag(datum);
     await db.dagen.put({ ...basis, ...wijziging, voorbeeld: false, gewijzigdOp: Date.now() });
   });
@@ -47,12 +40,3 @@ export async function zetNotitie(datum, tekst) {
   await wijzig(datum, { notitie: begrens(tekst, MAX_LENGTE.notitie), tekstOp: Date.now() });
 }
 
-export async function zetStemming(datum, waarde) {
-  controleerSchaal(waarde);
-  await wijzig(datum, { stemming: waarde });
-}
-
-export async function zetEnergie(datum, waarde) {
-  controleerSchaal(waarde);
-  await wijzig(datum, { energie: waarde });
-}

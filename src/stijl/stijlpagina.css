@@ -145,7 +145,6 @@
   .sp-kolommen .sp-toestanden { grid-template-columns: repeat(2, minmax(0, 1fr)); }
   .sp-typekolommen .sp-type { grid-template-columns: minmax(0, 1fr); gap: var(--s-2); }
 }
-.sp-grid--energie { grid-template-columns: repeat(auto-fill, minmax(min(100%, 340px), 1fr)); }
 .sp-merk-vlak--nacht { box-shadow: inset 0 0 0 1px var(--c-line); }
 
 .sp-schuif { flex: 1; min-width: 0; accent-color: var(--c-accent); height: var(--tap-min); }

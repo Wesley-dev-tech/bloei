@@ -560,7 +560,7 @@
 }
 .drinkvoorbeeld .weekstaaf { pointer-events: none; }
 @media (max-width: 1439.98px) { .profiel__knoppen { gap: var(--s-2); } }
-/* "Zo ziet het eruit" op Naam en profielfoto: de vier vakken (Eten, Drinken, Supplementen, Stemming) staan in een smal voorbeeld 2 x 2, zodat de labels niet over elkaar lopen. */
+/* "Zo ziet het eruit" op Naam en profielfoto: de vier vakken (Eten, Drinken, Dagdoel, Supplementen) staan in een smal voorbeeld 2 x 2, zodat de labels niet over elkaar lopen. */
 .profielvoorbeeld { container: profielvoorbeeld / inline-size; }
 @media (max-width: 1439.98px) { @container profielvoorbeeld (max-width: 519px) { .instelscherm .profielvoorbeeld__vakken { grid-template-columns: repeat(2, minmax(0, 1fr)); row-gap: var(--s-4); } } }
 /* Vergrendeling, uitgeschakelde groep "Openen met": de uitleg (kop, naam en hint van Pincode en Face ID) blijft leesbaar in het gewone gedempte tekstkleur-token;

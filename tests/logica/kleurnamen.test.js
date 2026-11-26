@@ -28,6 +28,8 @@ describe('kleurnamen: geen vast kleurwoord in een tekst', () => {
         if (/thema/i.test(pad) && THEMANAMEN.includes(m[0])) continue;
         // De ultieme medaille (In volle bloei) is in elk thema goud (medaille--ultiem, --bloei-goud in tokens.css): die kleur klopt altijd.
         if (pad === 'motivatie.m-verzameling-compleet.2' && m[0] === 'goud') continue;
+        // De weerzinnen (0.5.8) beschrijven de lucht buiten, geen kleur op het scherm: grijs weer en mist zijn daar het weer zelf.
+        if (/^motivatie\.weer(Grijs|Mist)\./.test(pad) && /^(mist|grijs|grijze)$/i.test(m[0])) continue;
         fout.push(`${pad}: "${m[0]}" in "${tekst.slice(0, 90)}"`);
       }
     }

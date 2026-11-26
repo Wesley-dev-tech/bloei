@@ -1,7 +1,6 @@
 // BESLISSINGEN 412, 417 en 419: een maaltijd invullen gebeurt overal in een apart blad boven het scherm (hetzelfde blad als "Weging noteren"),
 // op Vandaag en in Dagboek·Dag, op elke breedte. De kaart Eten verandert nooit van hoogte; er is geen inline openklappen meer.
 // Knoppen: Klaar (links), Annuleren (midden), Verwijderen (rechts, alleen als er iets te verwijderen is); het kruisje en Escape doen wat Klaar doet.
-// Per formaat (iPhone staand en liggend, iPad staand en liggend, desktop): openen, typen, gevoel, "Zelfde als gisteren", Klaar, Annuleren,
 // Verwijderen, kruisje, Escape (desktop); geen zijwaartse scroll, het blad binnen het scherm, de pagina erachter schuift niet, de focus terug
 // op de rij, de kaart Eten even hoog. Schermafbeeldingen van het open blad: PW_BEELDEN=<map>.
 import { test, expect } from '@playwright/test';
@@ -45,7 +44,7 @@ const zetRij = (page, tabel, rij) =>
     [tabel, rij],
   );
 const maaltijd = (page, soort) => rijen(page, 'maaltijden').then((l) => l.find((m) => m.soort === soort && m.datum === D) ?? null);
-const record = (soort, tekst, extra = {}) => ({ datum: D, soort, tijd: '12:30', tekst, fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1, ...extra });
+const record = (soort, tekst, extra = {}) => ({ datum: D, soort, tijd: '12:30', tekst, fotoId: null, voorbeeld: false, gewijzigdOp: 1, ...extra });
 
 const FORMATEN = [
   { naam: 'iPhone 390x844', breed: 390, hoog: 844, touch: true },
@@ -70,7 +69,7 @@ for (const f of FORMATEN) {
         await page.clock.setFixedTime(DONDERDAG);
         await page.goto('./#/vandaag');
         await zetRij(page, 'maaltijden', { ...record('ontbijt', 'Muesli met noten'), datum: GISTEREN });
-        await zetRij(page, 'maaltijden', record('middagmaal', 'Soep met brood', { gevoel: 3 }));
+        await zetRij(page, 'maaltijden', record('middagmaal', 'Soep met brood'));
         await page.goto('./#/' + s.route);
         const rij = (soort) => page.locator(s.regel(soort) + ' > .rij');
         await expect(rij('middagmaal')).toContainText('Soep met brood');
@@ -102,7 +101,7 @@ for (const f of FORMATEN) {
         const hoogte = await kaartHoogte();
         const schuif = () => page.evaluate(() => scrollY);
 
-        // 1. Ontbijt: openen, typen, een gevoel, Klaar.
+        // 1. Ontbijt: openen en typen.
         await tik(rij('ontbijt'));
         await expect(blad).toBeVisible();
         await expect(blad).toHaveAccessibleName('Ontbijt');
@@ -111,8 +110,7 @@ for (const f of FORMATEN) {
         await binnenScherm();
         await geenZijscroll();
         await blad.locator('textarea').fill('Yoghurt met fruit');
-        await tik(blad.locator('.gevoel__optie[data-stap="4"]'));
-        await expect.poll(() => maaltijd(page, 'ontbijt')).toMatchObject({ tekst: 'Yoghurt met fruit', gevoel: 4 });
+        await expect.poll(() => maaltijd(page, 'ontbijt')).toMatchObject({ tekst: 'Yoghurt met fruit' });
         await knoprij();
         // Schuiven in het blad (wiel of veeg tot voorbij het einde) schuift de pagina erachter niet mee.
         const r = await blad.boundingBox();
@@ -134,7 +132,7 @@ for (const f of FORMATEN) {
         await blad.getByRole('button', { name: 'Annuleren', exact: true }).scrollIntoViewIfNeeded();
         await tik(blad.getByRole('button', { name: 'Annuleren', exact: true }));
         await expect(blad).toHaveCount(0);
-        await expect.poll(() => maaltijd(page, 'ontbijt')).toMatchObject({ tekst: 'Yoghurt met fruit', gevoel: 4 });
+        await expect.poll(() => maaltijd(page, 'ontbijt')).toMatchObject({ tekst: 'Yoghurt met fruit' });
         await expect(rij('ontbijt')).toContainText('Yoghurt met fruit');
         await expect(rij('ontbijt')).toBeFocused();
 

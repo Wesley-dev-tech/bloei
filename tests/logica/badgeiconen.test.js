@@ -24,7 +24,7 @@ describe('de iconen van de medailles', () => {
     expect(zonder).toEqual([]);
   });
   test('elke medaille heeft een soort die een kleur heeft', () => {
-    const soorten = new Set(['reeks', 'drinken', 'supplementen', 'stemming', 'notities', 'eten', 'gewicht', 'dag', 'delen', 'ultiem']);
+    const soorten = new Set(['reeks', 'drinken', 'supplementen', 'notities', 'eten', 'gewicht', 'dag', 'delen', 'ultiem']);
     expect(Object.entries(BADGE_ICOON).filter(([, [soort]]) => soort === 'ultiem').map(([id]) => id)).toEqual(['verzameling-compleet']);
     expect(Object.values(BADGE_ICOON).filter(([soort]) => !soorten.has(soort))).toEqual([]);
   });

@@ -7,7 +7,7 @@ import { ETEN_KLAAR, isDagRond } from './motivatie.js';
 import { rooster, telMomenten } from './supplementen.js';
 
 // De groepen op het badgescherm, in volgorde. De sleutel hoort bij badge.groepen.<sleutel> in teksten.js.
-export const GROEPEN = ['bijhouden', 'eten', 'drinken', 'supplementen', 'stemming', 'gewicht', 'dag', 'delen', 'kennen', 'verzameling', 'verjaardag', 'feestdagen'];
+export const GROEPEN = ['bijhouden', 'eten', 'drinken', 'supplementen', 'notities', 'gewicht', 'dag', 'delen', 'kennen', 'verzameling', 'verjaardag', 'feestdagen'];
 
 // Voor elke feestdag een medaille (ook de niet-wettelijke): iets noteren op die dag. De sleutel is de groep van de dag in logica/kalender.js
 // (feestdagOp), de waarde het id van de medaille. De teller in de stats heet 'feest:' + groep (data/badges.js en logica/badgehistorie.js).
@@ -56,10 +56,8 @@ export const NIEUWE_BADGES = [
   { id: 'alles-afgevinkt', groep: 'supplementen', voorwaarde: (s) => (s.volledigeMomentDagen ?? 0) >= 1 },
   { id: 'week-trouw', groep: 'supplementen', voorwaarde: (s) => (s.volledigeMomentDagen ?? 0) >= 7 },
   { id: 'dertig-vol', groep: 'supplementen', voorwaarde: (s) => (s.volledigeMomentDagen ?? 0) >= 30 },
-  // Stemming en notities
-  { id: 'dertig-stemmingen', groep: 'stemming', voorwaarde: (s) => s.stemmingDagen >= 30 },
-  { id: 'zeven-energie', groep: 'stemming', voorwaarde: (s) => (s.energieDagen ?? 0) >= 7 },
-  { id: 'twintig-notities', groep: 'stemming', voorwaarde: (s) => s.notitieDagen >= 20 },
+  // Notities
+  { id: 'twintig-notities', groep: 'notities', voorwaarde: (s) => s.notitieDagen >= 20 },
   // Gewicht: alleen het noteren telt, nooit een getal of een verschil
   { id: 'eerste-weging', groep: 'gewicht', voorwaarde: (s) => (s.wegingen ?? 0) >= 1 },
   { id: 'vier-wegingen', groep: 'gewicht', voorwaarde: (s) => (s.wegingen ?? 0) >= 4 },
@@ -71,7 +69,7 @@ export const NIEUWE_BADGES = [
 ];
 
 // De uitbreiding naar honderd medailles (0.4.4): elke regel is "een teller haalt een drempel". [id, groep, teller, drempel, eenheid]
-// De tellers komen uit leesBadgeStats (data/badges.js). Nog altijd alleen gedrag: geen medaille voor een stemming, voor wat ze at of voor
+// De tellers komen uit leesBadgeStats (data/badges.js). Nog altijd alleen gedrag: geen medaille voor wat ze at of voor
 // een getal van de weegschaal. De medailles van Je verzameling tellen de behaalde medailles zelf (teller medailles).
 export const DREMPELS = [
   ['tweehonderd', 'bijhouden', 'dagenBijgehouden', 200, 'dagen'],
@@ -92,7 +90,6 @@ export const DREMPELS = [
   ['vijfhonderd-maaltijden', 'eten', 'maaltijden', 500, 'maaltijden'],
   ['vijf-favorieten', 'eten', 'favorieten', 5, 'favorieten'],
   ['drie-op-een-dag', 'eten', 'etenKlaarDagen', 1, 'dagen'],
-  ['tien-gevoel', 'eten', 'gevoelMaaltijden', 10, 'maaltijden'],
   ['tien-maaltijden', 'eten', 'maaltijden', 10, 'maaltijden'],
   ['tien-favorieten', 'eten', 'favorieten', 10, 'favorieten'],
   ['zeven-drie-maaltijden', 'eten', 'etenKlaarDagen', 7, 'dagen'],
@@ -111,13 +108,16 @@ export const DREMPELS = [
   ['eigen-lijst', 'supplementen', 'supplementenAantal', 1, 'supplementen'],
   ['honderd-vinkjes', 'supplementen', 'innames', 100, 'vinkjes'],
   ['zeven-op-rij-afgevinkt', 'supplementen', 'langsteVolReeks', 7, 'dagen'],
-  ['vijftig-notities', 'stemming', 'notitieDagen', 50, 'dagen'],
-  ['honderd-stemmingen', 'stemming', 'stemmingDagen', 100, 'dagen'],
-  ['dertig-energie', 'stemming', 'energieDagen', 30, 'dagen'],
-  ['week-gezichtjes', 'stemming', 'langsteStemmingReeks', 7, 'dagen'],
-  ['honderd-notities', 'stemming', 'notitieDagen', 100, 'dagen'],
-  ['maand-gezichtjes', 'stemming', 'langsteStemmingReeks', 30, 'dagen'],
-  ['gezichtje-en-blaadje', 'stemming', 'beideDagen', 7, 'dagen'],
+  ['vijftig-notities', 'notities', 'notitieDagen', 50, 'dagen'],
+  ['honderd-notities', 'notities', 'notitieDagen', 100, 'dagen'],
+  // 0.5.8: meer medailles voor notities. Een reeks telt dagen na elkaar met een notitie; een lange notitie telt minstens LANGE_NOTITIE woorden.
+  ['eerste-notitie', 'notities', 'notitieDagen', 1, 'dagen'],
+  ['tien-notities', 'notities', 'notitieDagen', 10, 'dagen'],
+  ['tweehonderd-notities', 'notities', 'notitieDagen', 200, 'dagen'],
+  ['drie-notities-op-rij', 'notities', 'langsteNotitieReeks', 3, 'dagen'],
+  ['week-notities-op-rij', 'notities', 'langsteNotitieReeks', 7, 'dagen'],
+  ['maand-notities-op-rij', 'notities', 'langsteNotitieReeks', 30, 'dagen'],
+  ['lange-notitie', 'notities', 'langeNotities', 1, 'keer'],
   ['twaalf-wegingen', 'gewicht', 'wegingen', 12, 'wegingen'],
   ['halfjaar-wegen', 'gewicht', 'wegingen', 26, 'wegingen'],
   ['jaar-wegen', 'gewicht', 'wegingen', 52, 'wegingen'],
@@ -130,6 +130,15 @@ export const DREMPELS = [
   ['volledige-dag', 'dag', 'helemaalDagen', 1, 'dagen'],
   ['vijf-verslagen', 'delen', 'verslagen', 5, 'verslagen'],
   ['tien-verslagen', 'delen', 'verslagen', 10, 'verslagen'],
+  // 0.5.8: meer medailles voor verslagen. Bloei telt vanaf dan hoe een verslag gemaakt werd (telVerslag hieronder): verstuurd of bewaard,
+  // met alle vier de onderdelen, over minstens een week of een maand, en in hoeveel verschillende maanden.
+  ['twintig-verslagen', 'delen', 'verslagen', 20, 'verslagen'],
+  ['verslag-verstuurd', 'delen', 'verslagenVerstuurd', 1, 'verslag'],
+  ['verslag-bewaard', 'delen', 'verslagenBewaard', 1, 'verslag'],
+  ['volledig-verslag', 'delen', 'verslagenVolledig', 1, 'verslag'],
+  ['weekverslag', 'delen', 'verslagenWeek', 1, 'verslag'],
+  ['maandverslag', 'delen', 'verslagenMaand', 1, 'verslag'],
+  ['maand-na-maand', 'delen', 'verslagMaanden', 3, 'maanden'],
   ['eerste-rondleiding', 'kennen', 'rondleidingen', 1, 'rondleidingen'],
   ['eigen-kleur', 'kennen', 'themaGekozen', 1, 'keer'],
   ['seintje-aan', 'kennen', 'herinneringAan', 1, 'keer'],
@@ -140,7 +149,7 @@ export const DREMPELS = [
   ['tien-medailles', 'verzameling', 'medailles', 10, 'medailles'],
   ['vijfentwintig-medailles', 'verzameling', 'medailles', 25, 'medailles'],
   ['vijftig-medailles', 'verzameling', 'medailles', 50, 'medailles'],
-  ['verzameling-compleet', 'verzameling', 'medailles', 120, 'medailles'], // alle andere
+  ['verzameling-compleet', 'verzameling', 'medailles', 125, 'medailles'], // alle andere (126 medailles sinds 0.5.8)
   ['geboortedatum', 'verjaardag', 'geboortedatum', 1, 'keer'],
   ['jarig', 'verjaardag', 'jarigGeopend', 1, 'keer'],
   ['jarig-genoteerd', 'verjaardag', 'jarigGenoteerd', 1, 'keer'],
@@ -148,7 +157,7 @@ export const DREMPELS = [
 ];
 for (const [id, groep, teller, drempel] of DREMPELS) NIEUWE_BADGES.push({ id, groep, voorwaarde: (s) => (s[teller] ?? 0) >= drempel });
 
-// De groep van de elf oorspronkelijke badges.
+// De groep van de tien oorspronkelijke badges.
 const OUDE_GROEP = {
   'eerste-bladzijde': 'bijhouden',
   'week-vol': 'bijhouden',
@@ -157,14 +166,26 @@ const OUDE_GROEP = {
   'twee-weken': 'bijhouden',
   'eerste-kan': 'drinken',
   'tien-kannen': 'drinken',
-  kanttekening: 'stemming',
-  gemoed: 'stemming',
+  kanttekening: 'notities',
   'eerste-potje': 'supplementen',
   trouw: 'supplementen',
 };
 
 // Alle badges met hun groep, per groep in de volgorde van de beloning (klein naar groot).
 export const ALLE_BADGES = [...BADGES.map((b) => ({ ...b, groep: OUDE_GROEP[b.id] ?? 'bijhouden' })), ...NIEUWE_BADGES];
+
+// De volgorde op het badgescherm binnen een groep, van klein naar groot. Alleen voor de groepen die in 0.5.8 uitgebreid zijn: de andere
+// groepen houden de volgorde waarin hun medailles erbij kwamen. Een medaille die hier niet staat, komt achteraan.
+export const GROEP_VOLGORDE = {
+  notities: ['eerste-notitie', 'kanttekening', 'tien-notities', 'twintig-notities', 'vijftig-notities', 'honderd-notities', 'tweehonderd-notities', 'drie-notities-op-rij', 'week-notities-op-rij', 'maand-notities-op-rij', 'lange-notitie'],
+  delen: ['eerste-verslag', 'vijf-verslagen', 'tien-verslagen', 'twintig-verslagen', 'verslag-verstuurd', 'verslag-bewaard', 'volledig-verslag', 'weekverslag', 'maandverslag', 'maand-na-maand'],
+};
+export function inGroepVolgorde(groep, leden) {
+  const volgorde = GROEP_VOLGORDE[groep];
+  if (!volgorde) return leden;
+  const plaats = (b) => (volgorde.includes(b.id) ? volgorde.indexOf(b.id) : volgorde.length);
+  return [...leden].sort((a, b) => plaats(a) - plaats(b));
+}
 
 // Badges die pas zichtbaar zijn als ze behaald zijn. Nu geen enkele: "Veilig bewaard" is vervallen met de back-up (BESLISSING 280).
 // Een oude bewaarde rij van die badge staat niet in ALLE_BADGES en wordt dus nergens getoond of geteld.
@@ -192,7 +213,6 @@ export const DOEL = {
   'eerste-kan': ['doelDagen', 1, 'dagen'],
   'tien-kannen': ['doelDagen', 10, 'dagen'],
   kanttekening: ['notitieDagen', 5, 'dagen'],
-  gemoed: ['stemmingDagen', 7, 'dagen'],
   'twee-weken': ['lopendeReeks', 14, 'dagen'],
   'eerste-potje': ['innameDagen', 1, 'dagen'],
   trouw: ['volledigeMomentDagen', 14, 'dagen'],
@@ -210,8 +230,6 @@ export const DOEL = {
   'alles-afgevinkt': ['volledigeMomentDagen', 1, 'dagen'],
   'week-trouw': ['volledigeMomentDagen', 7, 'dagen'],
   'dertig-vol': ['volledigeMomentDagen', 30, 'dagen'],
-  'dertig-stemmingen': ['stemmingDagen', 30, 'dagen'],
-  'zeven-energie': ['energieDagen', 7, 'dagen'],
   'twintig-notities': ['notitieDagen', 20, 'dagen'],
   'eerste-weging': ['wegingen', 1, 'wegingen'],
   'vier-wegingen': ['wegingen', 4, 'wegingen'],
@@ -243,6 +261,56 @@ export function langsteReeks(datums) {
     vorige = d;
   }
   return beste;
+}
+
+// Een lange notitie: minstens zoveel woorden. Alleen de lengte telt, nooit wat er staat.
+export const LANGE_NOTITIE = 50;
+export const telWoorden = (tekst) => (String(tekst ?? '').trim().match(/\S+/g) ?? []).length;
+export const isLangeNotitie = (tekst) => telWoorden(tekst) >= LANGE_NOTITIE;
+
+// Een verslag telt als weekverslag vanaf zeven dagen en als maandverslag vanaf achtentwintig dagen (de kortste maand).
+export const VERSLAG_WEEK_DAGEN = 7;
+export const VERSLAG_MAAND_DAGEN = 28;
+const VERSLAG_MAANDEN_MAX = 24; // meer maanden hoeft Bloei niet te onthouden: de medaille vraagt er drie
+
+// Het aantal dagen van een periode, begin en einde inbegrepen (0 bij een ongeldige periode).
+export function dagenInPeriode(van, tot) {
+  const ms = (d) => (/^\d{4}-\d{2}-\d{2}$/.test(String(d)) ? Date.UTC(Number(d.slice(0, 4)), Number(d.slice(5, 7)) - 1, Number(d.slice(8, 10))) : NaN);
+  const dagen = Math.round((ms(tot) - ms(van)) / 86400000) + 1;
+  return Number.isFinite(dagen) && dagen > 0 ? dagen : 0;
+}
+
+// De telling van de verslagen na één nieuw verslag (pure functie; data/badges.js bewaart ze in de instelling delen.verslagTelling).
+// telling: { verstuurd, bewaard, volledig, week, maand, maanden: ['2026-11', ...] } of niets; verslag: { van, tot, manier, onderdelen };
+// maand: de maand waarin het verslag gemaakt is ('JJJJ-MM').
+export function telVerslag(telling, { van, tot, manier, onderdelen } = {}, maand) {
+  const n = (x) => Math.max(0, Math.floor(Number(x) || 0));
+  const oud = telling && typeof telling === 'object' ? telling : {};
+  const dagen = dagenInPeriode(van, tot);
+  const alle = ['eten', 'drinken', 'gewicht', 'notities'].every((naam) => onderdelen?.[naam] === true);
+  const maanden = [...new Set([...(Array.isArray(oud.maanden) ? oud.maanden : []), maand].filter((m) => /^\d{4}-\d{2}$/.test(String(m))))].sort().slice(-VERSLAG_MAANDEN_MAX);
+  return {
+    verstuurd: n(oud.verstuurd) + (manier === 'versturen' ? 1 : 0),
+    bewaard: n(oud.bewaard) + (manier === 'bewaren' ? 1 : 0),
+    volledig: n(oud.volledig) + (alle ? 1 : 0),
+    week: n(oud.week) + (dagen >= VERSLAG_WEEK_DAGEN ? 1 : 0),
+    maand: n(oud.maand) + (dagen >= VERSLAG_MAAND_DAGEN ? 1 : 0),
+    maanden,
+  };
+}
+
+// De tellers voor de medailles uit de bewaarde telling (zonder telling: alles nul).
+export function verslagTellers(telling) {
+  const n = (x) => Math.max(0, Math.floor(Number(x) || 0));
+  const t = telling && typeof telling === 'object' ? telling : {};
+  return {
+    verslagenVerstuurd: n(t.verstuurd),
+    verslagenBewaard: n(t.bewaard),
+    verslagenVolledig: n(t.volledig),
+    verslagenWeek: n(t.week),
+    verslagenMaand: n(t.maand),
+    verslagMaanden: Array.isArray(t.maanden) ? new Set(t.maanden).size : 0,
+  };
 }
 
 // De langste reeks opeenvolgende weken in een lijst maandagen (voor de wegingen).
@@ -287,7 +355,7 @@ export function terugDagen(bijgehoudenDatums, minVerschil = 5) {
   return aantal;
 }
 
-// Aantal dagen die rond zijn: precies dezelfde regel als de motivatiezin (isDagRond in motivatie.js, BESLISSING 278), stemming telt niet mee.
+// Aantal dagen die rond zijn: precies dezelfde regel als de motivatiezin (isDagRond in motivatie.js, BESLISSING 278).
 // dagen: lijst van { etenKlaar, supplementen: { genomen, totaal }, ml, doelMl } (zie rondeDagenUit).
 export function dagRondDagen(dagen = []) {
   return dagen.filter((dag) => isDagRond(dag)).length;

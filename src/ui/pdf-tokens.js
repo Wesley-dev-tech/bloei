@@ -55,6 +55,6 @@ export function papierKleuren() {
 // Zet de Poeder-tokens op een element, zodat het daaronder (voorbeeld op het scherm) altijd het lichte thema toont.
 export function zetPoeder(el) {
   for (const [naam, waarde] of Object.entries(poederTokens())) {
-    if (/^--(c|mood|energy|tile|tegel|r|s|fs|lh|dur|ease)-/.test(naam) || naam.startsWith('--bloei-')) el.style.setProperty(naam, waarde);
+    if (/^--(c|tile|tegel|r|s|fs|lh|dur|ease)-/.test(naam) || naam.startsWith('--bloei-')) el.style.setProperty(naam, waarde);
   }
 }

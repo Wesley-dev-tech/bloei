@@ -41,7 +41,6 @@ describe('de controle van bloei-svg: alleen de eigen vaste svg', () => {
         <defs><clipPath id="wvabc"><path d="M14 8 H106 Z"/></clipPath></defs>
         <g clip-path="url(#wvabc)"><rect x="0" y="0" width="120" height="220"/></g></svg>`,
       '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 240 96" preserveAspectRatio="none" class="gewvoorbeeld__grafiek" focusable="false" aria-hidden="true"><line class="gewvoorbeeld__as" x1="8" x2="232" y1="84" y2="84"/></svg>',
-      lees('bloei-huisstijl', 'energie', 'blad.svg').trim(),
     ]) {
       expect(isEigenSvg(markup), markup.slice(0, 60)).toBe(true);
     }

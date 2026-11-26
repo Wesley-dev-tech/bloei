@@ -10,8 +10,8 @@ import { WEEKDAGEN, gemiddeldPerDag } from '../logica/drinken-week.js';
 import { leesInstelling } from './instellingen.js';
 
 // Een verslag is echt bewaard of verstuurd (niet bij annuleren): spoor B kent er de badge Eerste verslag aan toe. Verder niets.
-export function meldVerslagGemaakt({ van, tot }, manier) {
-  zend('verslag:gemaakt', { van, tot, manier });
+export function meldVerslagGemaakt({ van, tot, onderdelen }, manier) {
+  zend('verslag:gemaakt', { van, tot, manier, onderdelen: onderdelen ? { ...onderdelen } : null });
 }
 
 // Het verslag kent precies vier onderdelen, in deze volgorde (BESLISSING 284).
@@ -29,7 +29,7 @@ export function begrensPeriode({ van, tot }, nu) {
   return { van: begin, tot: eind, ingekort: begin !== van || eind !== tot };
 }
 
-// Een bewaarde keuze terug naar precies de vier onderdelen: een verdwenen onderdeel (supplementen, stemming) wordt genegeerd,
+// Een bewaarde keuze terug naar precies de vier onderdelen: een verdwenen onderdeel wordt genegeerd,
 // een ontbrekend onderdeel krijgt de standaard (Eten en Drinken aan, Gewicht en Notities uit).
 export function schoonOnderdelen(bewaard) {
   const standaard = { eten: true, drinken: true, gewicht: false, notities: false };

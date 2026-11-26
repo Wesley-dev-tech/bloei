@@ -33,9 +33,9 @@ async function zaai(page) {
     for (let i = 0; i < 31; i++) {
       const d = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - i);
       const dat = sl(d);
-      for (const [soort, tijd] of soorten) put('maaltijden', { datum: dat, soort, tijd, tekst: `Voorbeeldmaaltijd ${soort} dag ${i}`, fotoId: null, gevoel: (i % 5) + 1, voorbeeld: false, gewijzigdOp: Date.now() });
+      for (const [soort, tijd] of soorten) put('maaltijden', { datum: dat, soort, tijd, tekst: `Voorbeeldmaaltijd ${soort} dag ${i}`, fotoId: null, voorbeeld: false, gewijzigdOp: Date.now() });
       for (let k = 0; k < 6; k++) put('dranken', { datum: dat, tijdstip: d.getTime() + k * 3600000 + 28800000, soort: k % 3 === 0 ? 'thee' : 'water', ml: 250, voorbeeld: false });
-      put('dagen', { datum: dat, notitie: `Voorbeeldnotitie ${i}`, stemming: (i % 5) + 1, energie: ((i + 2) % 5) + 1, doelGehaald: i % 2 === 0, voorbeeld: false, gewijzigdOp: Date.now() });
+      put('dagen', { datum: dat, notitie: `Voorbeeldnotitie ${i}`, doelGehaald: i % 2 === 0, voorbeeld: false, gewijzigdOp: Date.now() });
       for (const id of [1, 2, 3]) if (i > 0 || id < 3) put('momentinnames', { datum: dat, supplementId: id, moment: 'ochtend', tijdstip: Date.now(), voorbeeld: false });
     }
     for (let w = 0; w < 6; w++) {

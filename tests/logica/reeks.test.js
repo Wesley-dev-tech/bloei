@@ -67,13 +67,13 @@ describe('lopendeReeks', () => {
 
 describe('badges', () => {
   const stats = (extra = {}) => ({
-    dagenBijgehouden: 0, lopendeReeks: 0, doelDagen: 0, notitieDagen: 0, stemmingDagen: 0, backups: 0, ...extra,
+    dagenBijgehouden: 0, lopendeReeks: 0, doelDagen: 0, notitieDagen: 0, backups: 0, ...extra,
   });
 
-  test('exact elf, alleen gedrag', () => {
+  test('exact tien, alleen gedrag', () => {
     expect(BADGES.map((b) => b.id)).toEqual([
       'eerste-bladzijde', 'week-vol', 'maand-vol', 'honderd', 'eerste-kan',
-      'tien-kannen', 'kanttekening', 'gemoed', 'twee-weken', 'eerste-potje', 'trouw',
+      'tien-kannen', 'kanttekening', 'twee-weken', 'eerste-potje', 'trouw',
     ]);
   });
 
@@ -89,26 +89,25 @@ describe('badges', () => {
     ['eerste-kan', { doelDagen: 1 }, { doelDagen: 0 }],
     ['tien-kannen', { doelDagen: 10 }, { doelDagen: 9 }],
     ['kanttekening', { notitieDagen: 5 }, { notitieDagen: 4 }],
-    ['gemoed', { stemmingDagen: 7 }, { stemmingDagen: 6 }],
     ['twee-weken', { lopendeReeks: 14 }, { lopendeReeks: 13 }],
   ])('%s: precies op de drempel', (id, genoeg, bijnaGenoeg) => {
     expect(verdiend(stats(genoeg))).toContain(id);
     expect(verdiend(stats(bijnaGenoeg))).not.toContain(id);
   });
 
-  test('alles bij elkaar geeft alle negen', () => {
+  test('alles bij elkaar geeft alle acht', () => {
     expect(verdiend(stats({
-      dagenBijgehouden: 100, lopendeReeks: 14, doelDagen: 10, notitieDagen: 5, stemmingDagen: 7,
-    }))).toHaveLength(9);
+      dagenBijgehouden: 100, lopendeReeks: 14, doelDagen: 10, notitieDagen: 5,
+    }))).toHaveLength(8);
   });
 });
 
 describe('vatSamen (weekoverzicht)', () => {
-  const dag = (datum, maaltijden, ml, stemming = null, energie = null) => ({ datum, maaltijden, ml, stemming, energie });
+  const dag = (datum, maaltijden, ml) => ({ datum, maaltijden, ml });
 
   test('een lege week', () => {
     const w = vatSamen([dag('2026-11-09', 0, 0), dag('2026-11-10', 0, 0)]);
-    expect(w).toMatchObject({ ingevuldeDagen: 0, stemming: null, energie: null });
+    expect(w).toMatchObject({ ingevuldeDagen: 0 });
   });
 
   test('ingevulde dagen: minstens één maaltijd of één drank', () => {
@@ -120,23 +119,6 @@ describe('vatSamen (weekoverzicht)', () => {
   test('geen eigen gemiddelde drinken', () => {
     const w = vatSamen([dag('2026-11-09', 1, 1000), dag('2026-11-10', 1, 1250), dag('2026-11-11', 1, 0)]);
     expect(w).not.toHaveProperty('gemiddeldMl');
-  });
-
-  test('meest voorkomende stemming en energie', () => {
-    const w = vatSamen([
-      dag('2026-11-09', 1, 0, 3, 2), dag('2026-11-10', 1, 0, 4, 2), dag('2026-11-11', 1, 0, 3, 5), dag('2026-11-12', 1, 0, null, null),
-    ]);
-    expect(w.stemming).toBe(3);
-    expect(w.energie).toBe(2);
-  });
-
-  test('gelijke stand: de waarde van de recentste dag wint, ook als de invoer door elkaar staat', () => {
-    const w = vatSamen([
-      dag('2026-11-11', 1, 0, 5, 1), dag('2026-11-09', 1, 0, 2, 4), dag('2026-11-10', 1, 0, 2, 4), dag('2026-11-12', 1, 0, 5, 1),
-    ]);
-    // 2 en 5 komen allebei twee keer voor; 12 november (5) is de recentste
-    expect(w.stemming).toBe(5);
-    expect(w.energie).toBe(1);
   });
 
   test('geeft de dagen terug', () => {

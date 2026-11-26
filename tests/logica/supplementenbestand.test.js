@@ -507,8 +507,8 @@ describe('rondgang: een lijst die het formulier aanvaardt, komt via het bestand 
     expect(controleer(periodiek('A', { soort: 'maand', start: '1969-12-31' }))).toEqual({ code: 'ritme', veld: 'start' });
     expect(controleer(periodiek('A', { soort: 'maand', start: '2100-01-01' }))).toEqual({ code: 'ritme', veld: 'start' });
     expect(controleer(periodiek('A', { soort: 'maand', start: '2026-02-30' }))).toEqual({ code: 'ritme', veld: 'start' });
-    expect(controleer({ ...leegFormulier(nu), naam: 'A', vanaf: '2100-01-01' })).toEqual({ code: 'periode', veld: 'vanaf' });
-    expect(controleer({ ...leegFormulier(nu), naam: 'A', tot: '1900-01-01' })).toEqual({ code: 'periode', veld: 'tot' });
+    expect(controleer({ ...leegFormulier(nu), naam: 'A', vanaf: '2100-01-01' })).toEqual({ code: 'datum', veld: 'vanaf' });
+    expect(controleer({ ...leegFormulier(nu), naam: 'A', tot: '1900-01-01' })).toEqual({ code: 'datum', veld: 'tot' });
   });
 
   test('een supplement van vóór de grenzen (4000 dagen, 1900, 99999) wordt vastgezet op de rand: de lijst blijft terugleesbaar', () => {

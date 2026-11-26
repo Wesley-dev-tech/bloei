@@ -63,9 +63,9 @@ describe('dagboekmelding', () => {
     expect(kiesMelding(basis({ status: status({ maaltijdenIngevuld: [...ROND], ml: 1000 }) })).tekst).toBe('Nog open voor vandaag: je drinkdoel.');
     expect(kiesMelding(basis({ status: status() })).tekst).toBe('Nog open voor vandaag: je ontbijt en je middagmaal.');
   });
-  it('tussendoortjes en stemming worden nooit genoemd', () => {
+  it('tussendoortjes worden nooit genoemd', () => {
     const m = kiesMelding(basis({ status: status({ maaltijdenIngevuld: ['tussendoortje', 'vieruurtje', 'latesnack'] }) }));
-    expect(m.tekst).not.toMatch(/tussendoor|vieruurtje|snack|stemming/i);
+    expect(m.tekst).not.toMatch(/tussendoor|vieruurtje|snack/i);
   });
   it('supplementen die nog open staan tellen mee voor een ronde dag', () => {
     expect(kiesMelding(basis({ status: status({ maaltijdenIngevuld: [...ROND], ml: 2500, supplementen: { genomen: 1, totaal: 2 } }) })).tekst).toBe('Nog open voor vandaag: je supplementen.');

@@ -251,16 +251,16 @@ describe('tellen', () => {
   });
 
   test('vatSamen telt supplementVolleDagen (alle momenten afgevinkt)', () => {
-    const dagMet = (datum, klaar, totaal) => ({ datum, maaltijden: 0, ml: 0, stemming: null, energie: null, supplementMomenten: { klaar, totaal } });
+    const dagMet = (datum, klaar, totaal) => ({ datum, maaltijden: 0, ml: 0, supplementMomenten: { klaar, totaal } });
     const w = vatSamen([dagMet('2026-11-09', 3, 3), dagMet('2026-11-10', 1, 3), dagMet('2026-11-11', 0, 0), dagMet('2026-11-12', 2, 2)]);
     expect(w.supplementVolleDagen).toBe(2);
   });
 
   test('vatSamen telt supplementDagen en rekent een inname-dag als ingevuld', () => {
     const w = vatSamen([
-      { datum: '2026-11-09', maaltijden: 0, ml: 0, stemming: null, energie: null, supplementen: { genomen: 2, totaal: 3 } },
-      { datum: '2026-11-10', maaltijden: 1, ml: 0, stemming: null, energie: null, supplementen: { genomen: 0, totaal: 3 } },
-      { datum: '2026-11-11', maaltijden: 0, ml: 0, stemming: null, energie: null },
+      { datum: '2026-11-09', maaltijden: 0, ml: 0, supplementen: { genomen: 2, totaal: 3 } },
+      { datum: '2026-11-10', maaltijden: 1, ml: 0, supplementen: { genomen: 0, totaal: 3 } },
+      { datum: '2026-11-11', maaltijden: 0, ml: 0 },
     ]);
     expect(w.supplementDagen).toBe(1);
     expect(w.ingevuldeDagen).toBe(2);

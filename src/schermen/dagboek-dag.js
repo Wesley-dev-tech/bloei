@@ -1,8 +1,7 @@
-// Dagboek · Dag: een raster met Eten (de zes maaltijdregels), Drinken, Supplementen per moment, Stemming en energie en een
-// notitie (V1, V2, E1, E2). Elke kaart begint met dezelfde kaartkop met de stand rechts. Op een groot scherm vult het raster
+// Dagboek · Dag: een raster met Eten (de zes maaltijdregels), Drinken, Supplementen per moment, en een notitie (V1, V2, E1, E2). Elke kaart begint met dezelfde kaartkop met de stand rechts. Op een groot scherm vult het raster
 // de hoogte van het venster. Een dag in de toekomst is te bekijken maar niet in te vullen.
 import { h } from '../ui/dom.js';
-import { kaart, kaartkop, bladerkop, knop, icoontegel, gevoelschaal, energiekiezer, icoonknop, tekstvak, legeToestand, strook, tril } from '../ui/componenten.js';
+import { kaart, kaartkop, bladerkop, knop, icoontegel, icoonknop, tekstvak, legeToestand, strook, tril } from '../ui/componenten.js';
 import { maaltijdenRijen } from '../ui/maaltijdregel.js';
 import { DRANKICOON } from '../ui/beeld.js';
 import { bloeiOp, eersteToon, komOp, vervaag } from '../ui/beweging.js';
@@ -10,7 +9,7 @@ import { beheerScherm, uitgesteldBewaren, drinkbaan, drankErbij } from './hulp.j
 import { t } from '../teksten.js';
 import { opmaakDatum, plusDagen, vandaag, isToekomst, DAGDEEL_UREN, datumVoluit, datumKortDag } from '../kern/datum.js';
 import { opmaakLiter } from '../kern/getal.js';
-import { leesDag, zetNotitie, zetStemming, zetEnergie } from '../data/dagen.js';
+import { leesDag, zetNotitie } from '../data/dagen.js';
 import { DRANKSOORTEN, leesDranken, totaalMl, verwijderDrank, zetDrankTerug } from '../data/dranken.js';
 import { isIngevuld, leesMaaltijden } from '../data/maaltijden.js';
 import { leesInstelling } from '../data/instellingen.js';
@@ -54,13 +53,16 @@ function momentRij({ moment, items, datum, alleenLezen, tijdstip }) {
 }
 
 // Op een breed scherm (twee kolommen) is de Notitie het elastische blok: haar kolom is korter dan de andere en ze vult het verschil, zodat beide
-// kolommen gelijk eindigen. Standaard links Eten en rechts Drinken en Supplementen; de Notitie staat dan in de kortste van die twee. Past ze daar
-// niet (het verschil is kleiner dan haar minimum), dan worden eerst de rijen van de andere kolom gelijk iets ruimer (--dag-rek, hoogstens 8 px per
-// rij, zodat tussen twee rijen nooit meer dan 32 px lucht komt). Lukt dat ook niet, dan schuift Drinken of Supplementen naar de andere kolom
-// (Eten + Supplementen | Drinken + Notitie, of Eten + Drinken | Supplementen + Notitie), zodat de Notitie een groter tekstvak krijgt in plaats van
-// dat er een leeg vlak onder de kortste kolom blijft. Gemeten na het tekenen en bij elke verandering van een vaste kaart; tot de eerste meting is
-// het raster onzichtbaar (is-meet), zodat er niets verspringt. Er wordt niets verplaatst zolang er focus binnen het raster staat.
-const REK_MAX = 8;
+// kolommen altijd gelijk eindigen. De andere kaarten houden hun eigen hoogte: er komt nergens lucht bij (geen ruimere rijen, geen leeg vlak).
+// De Notitie is liefst een ruime kaart (minstens NOTITIE_RUIM hoog). Standaard staat links Eten en rechts Drinken en Supplementen, met de
+// Notitie in de kortste van die twee. Is ze daar kleiner dan ruim, of past ze er niet, dan schuift Supplementen of Drinken naar de andere
+// kolom (Eten + Supplementen | Drinken + Notitie, of Eten + Drinken | Supplementen + Notitie): de indeling waarin de Notitie het dichtst
+// bij NOTITIE_DOEL uitkomt. Lange tekst scrolt binnen het tekstvak; de kaart groeit niet mee. Gemeten na het tekenen en bij elke
+// verandering van een vaste kaart; tot de eerste meting is het raster onzichtbaar (is-meet), zodat er niets verspringt. Er wordt niets
+// verplaatst zolang er focus binnen het raster staat.
+const REK_MAX = 0; // de rijen van de andere kaarten worden nooit ruimer gemaakt
+const NOTITIE_RUIM = 360; // zo hoog is de kaart Notitie liefst minstens
+const NOTITIE_DOEL = 460; // en hier ligt ze liefst het dichtst bij als er gekozen moet worden
 function verdeelKolommen({ raster, links, zij, eten, drinken, supplementen, notitie, vak }) {
   const breed = window.matchMedia('(min-width: 1100px)');
   let raf = 0;
@@ -99,8 +101,15 @@ function verdeelKolommen({ raster, links, zij, eten, drinken, supplementen, noti
     const vastgezet = raster.contains(document.activeElement);
     const lijst = vastgezet ? keuzes.filter((k) => huidig(k) && (k.n === 'r') === (notitie.parentNode === zij)) : keuzes;
     if (!lijst.length) return;
-    const rest = (k) => (k.rest > 4 ? k.rest : 0);
-    const kies = lijst.slice().sort((a, b) => rest(a) - rest(b) || Number(b.vast) - Number(a.vast) || (a.nodig > 1 ? 1 : 0) - (b.nodig > 1 ? 1 : 0) || (a.vast && b.vast ? a.hoogte - b.hoogte : 0))[0];
+    // De Notitie past (op haar minimum steekt ze niet uit): eerst de standaard als de Notitie daar ruim is, anders de indeling waarin ze
+    // het dichtst bij haar doel uitkomt. Past ze nergens (dat gebeurt alleen met de focus in het raster), dan de indeling die het minst uitsteekt.
+    const passend = lijst.filter((k) => k.nodig <= 1);
+    const ruimVast = passend.filter((k) => k.vast && k.hoogte >= NOTITIE_RUIM);
+    const kies = ruimVast.length
+      ? ruimVast.sort((a, b) => a.hoogte - b.hoogte)[0]
+      : passend.length
+        ? passend.sort((a, b) => Math.abs(a.hoogte - NOTITIE_DOEL) - Math.abs(b.hoogte - NOTITIE_DOEL) || Number(b.vast) - Number(a.vast))[0]
+        : lijst.slice().sort((a, b) => a.nodig - b.nodig)[0];
     if (!vastgezet) {
       kies.l.forEach((c, i) => { if (links.children[i] !== kaart_[c].el) links.insertBefore(kaart_[c].el, links.children[i] ?? null); });
       kies.r.forEach((c, i) => { if (zij.children[i] !== kaart_[c].el) zij.insertBefore(kaart_[c].el, zij.children[i] ?? null); });
@@ -268,50 +277,24 @@ export function toon(houder, params = {}) {
         : [legeToestand({ tekst: t('supplementen.leeg'), actie: { label: t('supplementen.eerste'), opKlik: () => ga('#/supplementen') } })]),
     );
 
-    // ---- Stemming en energie: één kaart, dezelfde opbouw als op het hoofdscherm (BESLISSING 237): twee delen met het kopje links en de gekozen waarde
-    // in woorden rechts, de gezichtjes en de blaadjes in hetzelfde raster van vijf kolommen. BESLISSING 241: de hint is de laatste regel van de kaart en houdt
-    // altijd haar plek (verborgen zolang er niets gekozen is), zodat de kaart niet van hoogte springt.
-    // BESLISSING 468: de gekozen waarde staat niet nog eens als sierwoord naast het kopje; de keuze is te zien in de rij eronder (aria-checked op de gekozen knop).
-    const stemming = kaart(
-      { klasse: 'dag__stemming stemmingkaart kaart--licht-op' },
-      kaartkop({ tegel: begripOpties('stemming'), label: t('vandaag.stemmingEnergie') }),
-      h(
-        'div',
-        { class: 'stemming__inhoud' },
-        h(
-          'div',
-          { class: 'stemming__deel stemming__vraag' },
-          h('div', { class: 'stemming__kop' }, h('p', { class: 'label' }, t('stemming.vraag'))),
-          h('div', { class: 'kaart__inhoud', dataset: { fk: 'stemming' } }, gevoelschaal({ soort: 'stemming', waarde: dag.stemming, alleenLezen: toekomst, opKies: (n) => { zetStemming(datum, n); } })),
-        ),
-        h('div', { class: 'stemming__lijn', 'aria-hidden': 'true' }),
-        h(
-          'div',
-          { class: 'stemming__deel vandaag__energie' },
-          h('div', { class: 'stemming__kop' }, h('p', { class: 'label' }, t('energie.titel'))),
-          energiekiezer({ waarde: dag.energie, woorden: true, alleenLezen: toekomst, opKies: (n) => { zetEnergie(datum, n); } }),
-        ),
-        toekomst ? null : h('p', { class: ['t-klein t-gedempt dag__wis', dag.stemming == null && dag.energie == null && 'is-leeg'] }, t('dag.wisUitleg')),
-      ),
-    );
-
     // ---- Notitie
     const vak = tekstvak({ waarde: dag.notitie, plaats: t('dag.notitiePlaats'), label: t('dag.notitie'), rijen: 7, uitgeschakeld: toekomst, opWijzig: (v) => notitieBewaarder.plan(v) });
     vak.maxLength = MAX_LENGTE.notitie;
     vak.addEventListener('blur', () => notitieBewaarder.nu());
     const notitie = kaart({ klasse: 'dag__notitie kaart--licht-op' }, kaartkop({ tegel: begripOpties('notitie'), label: t('dag.notitieTitel') }), vak);
 
-    // Op een groot scherm twee onafhankelijke kolommen: links Eten en daaronder de Notitie (die de resterende hoogte vult), rechts Drinken en Supplementen,
-    // en daaronder Stemming en energie over de volle breedte; op een telefoon één kolom: Eten, Drinken, Supplementen, Stemming en energie, Notitie.
+    // Op een groot scherm twee onafhankelijke kolommen: links Eten en daaronder de Notitie (die de resterende hoogte vult), rechts Drinken en
+    // Supplementen; op een telefoon één kolom: Eten, Drinken, Supplementen, Notitie.
+    // Er staat niets anders: de dag bestaat uit haar vier eigen kaarten, in twee even hoge kolommen.
     const links = h('div', { class: 'dag__links' }, eten, notitie);
     const zij = h('div', { class: 'dag__zij' }, drinken, supplementen);
-    const kaarten = [eten, drinken, supplementen, stemming, notitie];
+    const kaarten = [eten, drinken, supplementen, notitie];
     if (opent) komOp(kaarten, { stap: 90 });
     // Een dag waarop alle momenten net afgevinkt zijn: het tegeltje bloeit één keer op.
     if (eerderKlaar.has(datum) && !eerderKlaar.get(datum) && alleKlaar) bloeiOp(supplementen.querySelector('.tegel'));
     eerderKlaar.set(datum, alleKlaar);
 
-    const raster = h('div', { class: 'raster dag__raster is-meet' }, links, zij, stemming);
+    const raster = h('div', { class: 'raster dag__raster is-meet' }, links, zij);
     ctx.opruim(verdeelKolommen({ raster, links, zij, eten, drinken, supplementen, notitie, vak }));
     const inhoud = h(
       'div',
@@ -324,7 +307,7 @@ export function toon(houder, params = {}) {
     if (params.bladeren) vervaag(inhoud);
     return inhoud;
   });
-  const stopHaken = haakUitleg(houder, { haken: [['.dag__eten','dag-stand'],['.dag__drinken','dag-drinken'],['.dag__supplementen','dag-supplementen'],['.dag__stemming','dag-stemming'],['.dag__notitie','dag-notitie']] });
+  const stopHaken = haakUitleg(houder, { haken: [['.dag__eten','dag-stand'],['.dag__drinken','dag-drinken'],['.dag__supplementen','dag-supplementen'],['.dag__notitie','dag-notitie']] });
   return () => {
     stopHaken();
     opruimScherm();

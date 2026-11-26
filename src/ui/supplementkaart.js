@@ -136,15 +136,31 @@ async function bouw({ id, opener, staat, klaar }) {
       v.fout.textContent = '';
     }
   };
-  const toonFout = ({ code, veld: naam }) => {
+  // Zolang er een fout staat, is Bewaren uitgeschakeld (eigenaar, 0.5.8): pas als zij de fout zelf oplost, kan ze bewaren. Annuleren en het
+  // kruisje blijven werken. stil: de melding bijwerken terwijl ze typt, zonder de focus te verplaatsen.
+  let foutActief = false;
+  const toonFout = ({ code, veld: naam }, { stil = false } = {}) => {
     wisFouten();
     const v = velden[naam] ?? velden.naam;
     v.fout.textContent = t('supplementkaart.fout.' + code);
     v.fout.hidden = false;
+    foutActief = true;
+    bewaarKnop.disabled = true;
+    if (stil) return;
     const invoer = { naam: naamInv, hoeveelheid: hoeveelInv, aanwijzing: aanwijsInv, dagen: dagenInv, start: startInv, vanaf: vanafInv, tot: totInv }[naam];
     if (invoer) invoer.focus();
     else (naam === 'momenten' ? ritmeHouder.querySelector('.chip') : null)?.focus();
     v.fout.scrollIntoView?.({ block: 'nearest' });
+  };
+  // Na elke wijziging in de kaart: is de fout opgelost, dan verdwijnt de melding en kan ze weer bewaren; staat er nog een fout, dan toont de
+  // kaart die.
+  const herbekijk = () => {
+    if (!foutActief || bezig || gesloten) return;
+    const fout = controleer(f);
+    if (fout) return void toonFout(fout, { stil: true });
+    wisFouten();
+    foutActief = false;
+    bewaarKnop.disabled = false;
   };
 
   // ---- opbouw van de kaart
@@ -224,6 +240,9 @@ async function bouw({ id, opener, staat, klaar }) {
         console.error(e);
         toonFout({ code: 'leeg', veld: 'naam' });
         velden.naam.fout.textContent = t('supplementkaart.fout.onbekend');
+        // Een fout die niet aan een veld ligt, kan ze niet zelf oplossen: opnieuw proberen blijft mogelijk.
+        foutActief = false;
+        bewaarKnop.disabled = false;
       }
     }
   }
@@ -258,6 +277,8 @@ async function bouw({ id, opener, staat, klaar }) {
   // Escape en een tik naast de kaart doen hetzelfde als het kruisje.
   // AN-08: een tweede terugveeg op Android zonder tik ertussen is een cancel die niet te annuleren is: de browser sluit de kaart dan
   // zelf. Er mag niets stil verloren gaan: de kaart komt meteen terug, met de vraag of de wijzigingen bewaard moeten worden.
+  // Elke invoer, keuze of tik in de kaart kan de fout oplossen: daarna opnieuw bekijken (na de eigen afhandeling van het veld).
+  for (const soort of ['input', 'change', 'click']) dlg.addEventListener(soort, () => foutActief && setTimeout(herbekijk, 0));
   dlg.addEventListener('cancel', (e) => {
     e.preventDefault();
     if (!e.cancelable) gedwongen = true;

@@ -45,7 +45,6 @@ export async function leesVerleden({ datum, rijen, badgeStats = null, badges = [
     doelDatums: dagen.filter((d) => d.doelGehaald).map((d) => d.datum),
     volleDatums,
     wegingWeken: r.wegingen.filter(isEigen).map((w) => w.week),
-    stemmingen: new Map(dagen.filter((d) => d.stemming != null).map((d) => [d.datum, d.stemming])),
     mlGisteren: ml.get(plusDagen(datum, -1)) ?? 0,
     totaal: {
       maaltijden: badgeStats?.maaltijden ?? maaltijden.length,
@@ -53,7 +52,6 @@ export async function leesVerleden({ datum, rijen, badgeStats = null, badges = [
       volledigeDagen: badgeStats?.volledigeMomentDagen ?? volleDatums.length,
       rondeDagen: badgeStats?.dagRondDagen ?? rondeDatums.length,
       notitieDagen: badgeStats?.notitieDagen ?? 0,
-      stemmingDagen: badgeStats?.stemmingDagen ?? 0,
       wegingen: badgeStats?.wegingen ?? 0,
       favorieten: badgeStats?.favorieten ?? 0,
     },

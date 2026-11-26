@@ -29,11 +29,11 @@ async function vulVeertienDagen(page) {
             const d = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - i);
             const datum = sleutel(d);
             [['ontbijt', '08:15', 'testmaaltijd ontbijt'], ['middagmaal', '12:30', 'testmaaltijd middag'], ['avondmaal', '18:45', 'testmaaltijd avond']].forEach(([soort, tijd, tekst]) =>
-              tx.objectStore('maaltijden').put({ datum, soort, tijd, tekst, fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: 1 }),
+              tx.objectStore('maaltijden').put({ datum, soort, tijd, tekst, fotoId: null, voorbeeld: false, gewijzigdOp: 1 }),
             );
             tx.objectStore('dranken').add({ datum, tijdstip: Date.now() - 1000 - i, soort: 'water', ml: 500 + (i % 4) * 500, voorbeeld: false });
             tx.objectStore('dranken').add({ datum, tijdstip: Date.now() - 900 - i, soort: 'thee', ml: 200, voorbeeld: false });
-            tx.objectStore('dagen').put({ datum, stemming: 3, energie: 4, notitie: i % 3 === 0 ? `Verzonnen notitie ${i}` : '', doelGehaald: false, voorbeeld: false });
+            tx.objectStore('dagen').put({ datum, notitie: i % 3 === 0 ? `Verzonnen notitie ${i}` : '', doelGehaald: false, voorbeeld: false });
             if (i === 0 || i === 9) {
               const maandag = sleutel(new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7)));
               tx.objectStore('wegingen').put({ week: maandag, datum, kg: i === 0 ? 70.9 : 71.3, voorbeeld: false, gewijzigdOp: 1 });
@@ -126,11 +126,10 @@ test('Delen: de pdf van twee weken heeft kop en voet op elke pagina, de dagen in
     expect(plek, titel(d)).toBeGreaterThan(vorige);
     vorige = plek;
   }
-  // alleen de aangevinkte onderdelen: Eten en Drinken wel, Gewicht en Notities niet; nooit gevoel, supplementen, stemming of energie
   expect(tekst).toContain('testmaaltijd ontbijt');
   expect(tekst).toMatch(/l van 2,5 l/);
   for (const stuk of ['Verzonnen notitie', 'Notitie', '70,9 kg', 'LAATSTE WEGING', 'Gewicht']) expect(tekst, stuk).not.toContain(stuk);
-  for (const woord of ['Gevoel', 'GEVOEL', 'upplement', 'temming', 'nergie', 'Vitamine D']) expect(tekst, woord).not.toContain(woord);
+  for (const woord of ['upplement', 'Vitamine D']) expect(tekst, woord).not.toContain(woord);
 
   // Alle vier de onderdelen, en dat zonder verbinding: de pdf wordt op het toestel gemaakt
   await context.setOffline(true);
@@ -147,7 +146,7 @@ test('Delen: de pdf van twee weken heeft kop en voet op elke pagina, de dagen in
   for (const stuk of ['Verzonnen notitie 0', 'Notitie', 'Gewicht', '70,9 kg', '71,3 kg', 'LAATSTE WEGING', 'VERSCHIL']) expect(volledig, stuk).toContain(stuk);
   expect(volRegels).toContain('-0,4 kg'); // 71,3 naar 70,9: het verschil met de vorige weging, zonder oordeel
   expect(volledig).not.toContain('%');
-  for (const woord of ['Gevoel', 'GEVOEL', 'upplement', 'temming', 'nergie', 'Vitamine D']) expect(volledig, woord).not.toContain(woord);
+  for (const woord of ['upplement', 'Vitamine D']) expect(volledig, woord).not.toContain(woord);
 
   expect(extern).toEqual([]);
   expect(fouten).toEqual([]);

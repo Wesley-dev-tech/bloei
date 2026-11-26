@@ -7,7 +7,7 @@ import { plusDagen, vandaag } from '../../src/kern/datum.js';
 import { leesInstelling, migreerKan, STANDAARD, zetInstelling } from '../../src/data/instellingen.js';
 import { bewaarMaaltijd } from '../../src/data/maaltijden.js';
 import { voegDrankToe } from '../../src/data/dranken.js';
-import { leesDag, zetNotitie, zetStemming } from '../../src/data/dagen.js';
+import { leesDag, zetNotitie } from '../../src/data/dagen.js';
 import { leesBadgeStats } from '../../src/data/badges.js';
 import { dagStatus, leesStats } from '../../src/data/statistiek.js';
 
@@ -16,8 +16,8 @@ const V = vandaag();
 // Rijen met de vlag voorbeeld, zoals een bestaande gebruiker ze nog in haar database kan hebben. Laden kan niet meer (BESLISSING 407),
 // maar wat er nog staat, mag nooit als eigen invoer tellen.
 async function oudeVoorbeelddag(datum) {
-  await db.dagen.put({ datum, notitie: 'verzonnen', stemming: 2, energie: 2, doelGehaald: false, voorbeeld: true, gewijzigdOp: 1 });
-  await db.maaltijden.put({ datum, soort: 'ontbijt', tijd: '08:00', tekst: 'boterham met kaas', fotoId: null, gevoel: 3, voorbeeld: true, gewijzigdOp: 1 });
+  await db.dagen.put({ datum, notitie: 'verzonnen', doelGehaald: false, voorbeeld: true, gewijzigdOp: 1 });
+  await db.maaltijden.put({ datum, soort: 'ontbijt', tijd: '08:00', tekst: 'boterham met kaas', fotoId: null, voorbeeld: true, gewijzigdOp: 1 });
   await db.dranken.add({ datum, tijdstip: 1, soort: 'water', ml: 800, voorbeeld: true });
 }
 
@@ -131,31 +131,29 @@ describe('R1-03 en R1-04 gelijktijdig bewaren', () => {
 });
 
 describe('R1-05 eigen invoer op een voorbeelddag', () => {
-  // Een oude voorbeelddag: stemming 2, energie 2, doel niet gehaald.
+  // Een oude voorbeelddag: een verzonnen notitie, doel niet gehaald.
   const DAG = plusDagen(V, -18);
 
-  test('een drank die het doel haalt, neemt de verzonnen stemming en energie niet over', async () => {
+  test('een drank die het doel haalt, neemt de verzonnen notitie niet over', async () => {
     await oudeVoorbeelddag(DAG);
     const voor = await db.dagen.get(DAG);
-    expect(voor).toMatchObject({ voorbeeld: true, stemming: 2, doelGehaald: false });
+    expect(voor).toMatchObject({ voorbeeld: true, doelGehaald: false });
     await voegDrankToe(DAG, 'water', 3000);
-    expect(await leesDag(DAG)).toMatchObject({ voorbeeld: false, doelGehaald: true, stemming: null, energie: null, notitie: '' });
-    expect((await leesStats()).stemmingDagen).toBe(0);
+    expect(await leesDag(DAG)).toMatchObject({ voorbeeld: false, doelGehaald: true, notitie: '' });
   });
 
-  test('een eigen notitie op een voorbeelddag neemt de verzonnen stemming niet over', async () => {
+  test('een eigen notitie op een voorbeelddag neemt niets van de voorbeelddag over', async () => {
     await oudeVoorbeelddag(DAG);
     await zetNotitie(DAG, 'van mij');
-    expect(await leesDag(DAG)).toMatchObject({ voorbeeld: false, notitie: 'van mij', stemming: null, energie: null });
-    expect((await leesStats()).stemmingDagen).toBe(0);
+    expect(await leesDag(DAG)).toMatchObject({ voorbeeld: false, notitie: 'van mij' });
   });
 });
 
 describe('R1-06 "Weer thuis" volgt BESLISSING 168', () => {
-  test('dagen met alleen een stemming tellen als bijgehouden', async () => {
+  test('dagen met alleen een notitie tellen als bijgehouden', async () => {
     const begin = plusDagen(V, -10);
     await bewaarMaaltijd(begin, 'ontbijt', { tekst: 'iets' });
-    for (let i = 1; i <= 5; i++) await zetStemming(plusDagen(begin, i), 3);
+    for (let i = 1; i <= 5; i++) await zetNotitie(plusDagen(begin, i), 'kort');
     await bewaarMaaltijd(plusDagen(begin, 6), 'ontbijt', { tekst: 'iets' });
     expect((await leesBadgeStats()).terugDagen).toBe(0);
   });

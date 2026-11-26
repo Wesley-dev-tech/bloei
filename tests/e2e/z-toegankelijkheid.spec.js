@@ -158,9 +158,7 @@ test.describe('toetsenbord', () => {
           if (!el || el === document.body) return null;
           const r = el.getBoundingClientRect();
           const cs = getComputedStyle(el);
-          const kind = el.querySelector(':scope > .gevoel__tegel');
-          const ks = kind ? getComputedStyle(kind) : null;
-          const ring = (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || cs.boxShadow !== 'none' || (ks && ks.outlineStyle !== 'none');
+          const ring = (cs.outlineStyle !== 'none' && parseFloat(cs.outlineWidth) > 0) || cs.boxShadow !== 'none';
           let afgesneden = false;
           for (let p = el.parentElement; p && p !== document.body; p = p.parentElement) {
             const ps = getComputedStyle(p);

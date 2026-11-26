@@ -8,7 +8,7 @@ import { kaart, kerncijfer, knop, blad, schermkop } from '../ui/componenten.js';
 import { eersteToon, komOp, telOp } from '../ui/beweging.js';
 import { medaille, badgeVoortgang } from '../ui/medaille.js';
 import { beheerScherm, terugKnop } from './hulp.js';
-import { ALLE_BADGES, GROEPEN, VERBORGEN, telBadges } from '../logica/badgeregels.js';
+import { ALLE_BADGES, GROEPEN, VERBORGEN, telBadges, inGroepVolgorde } from '../logica/badgeregels.js';
 import { t } from '../teksten.js';
 import { naarSleutel, opmaakDatum } from '../kern/datum.js';
 import { leesBadges, markeerGezien, leesBadgeStats } from '../data/badges.js';
@@ -120,7 +120,7 @@ export function toon(houder) {
     // De medailles staan per groep, in de volgorde van de beloning; een groep zonder zichtbare badges ontbreekt.
     const kaarten = [];
     const groepen = GROEPEN.map((groep) => {
-      const leden = zichtbaar.filter((b) => b.groep === groep);
+      const leden = inGroepVolgorde(groep, zichtbaar.filter((b) => b.groep === groep));
       if (!leden.length) return null;
       const kaartjes = leden.map(maakKaart);
       kaarten.push(...kaartjes);

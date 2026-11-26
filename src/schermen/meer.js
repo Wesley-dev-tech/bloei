@@ -360,10 +360,10 @@ export function toon(houder) {
     const privacyRegels = [
       ['home', t('privacy.regel1')],
       ['herinneringen', t('privacy.regel2')],
+      ['weer', t('privacy.regel6')], // de tweede dienst waarmee de app verbindt: het weerbericht, naast de herinneringen
       ['verslag', t('privacy.regel3')],
       ['profiel', t('privacy.regel4')], // BESLISSING 567: niet het slotje van de kaartkop
-      ['uitleg', t('privacy.regel5')],
-      ['verwijderen', t('privacy.regel6')],
+      ['verwijderen', t('privacy.regel5')],
     ];
     const privacy = kaart(
       { klasse: 'privacy' },

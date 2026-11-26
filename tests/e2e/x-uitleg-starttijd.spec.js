@@ -27,9 +27,9 @@ function vul(page) {
         for (let k = 0; k < 4; k++) {
           const x = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - k, nu.getHours(), nu.getMinutes());
           const ds = iso(x);
-          await schrijf('dagen', { datum: ds, notitie: '', stemming: 3, energie: 3, doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
+          await schrijf('dagen', { datum: ds, notitie: '', doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
           await schrijf('dranken', { datum: ds, tijdstip: x.getTime() - 3600e3, soort: 'water', ml: 800, voorbeeld: false }, 'add');
-          await schrijf('maaltijden', { datum: ds, soort: 'ontbijt', tekst: 'havermout', fotoId: null, gevoel: 4, voorbeeld: false, gewijzigdOp: 1 });
+          await schrijf('maaltijden', { datum: ds, soort: 'ontbijt', tekst: 'havermout', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
         }
         db.close();
         klaar();
@@ -39,7 +39,7 @@ function vul(page) {
 }
 
 const RIJEN = {
-  gevuld: ['maaltijd', 'drinken', 'gewicht', 'stemming'],
+  gevuld: ['maaltijd', 'drinken', 'gewicht'],
   leeg: ['supplementen', 'lijst', 'gewicht', 'maaltijd'],
 };
 

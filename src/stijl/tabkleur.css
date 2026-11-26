@@ -17,7 +17,7 @@
    2. Per tabblad wijzen --fam-* naar de rollen van zijn familie: Dagboek abrikoos, Drinken mist, Supplementen salie, Gewicht duifblauw,
       Algemeen en de instellingen het accent van het thema (BESLISSING 365), Delen lavendel. Op Vandaag elke kaart in de familie van haar tabblad (370).
    3. Eén gemeenschappelijk blok herbenoemt alle familie- en accenttokens naar --fam-*. Uitzonderingen die blijven: --c-day (de paarse stip
-      van vandaag, de boog van een medaille), de gevoelschaal (--mood-*), de blaadjes van de energie (--energy-*, op :root berekend) en het
+      van vandaag, de boog van een medaille) en het
       verslagvel (zet zijn eigen Poeder-tokens, src/ui/pdf-tokens.js).
    ============================================================ */
 :root {
@@ -142,10 +142,10 @@
   --fam-gehaald: var(--f-delen-gehaald); --fam-mix: var(--f-delen-mix);
 }
 
-/* Vandaag (BESLISSING 370): het overzicht; elke kaart in de familie van het tabblad waar haar inhoud thuishoort. Eten, Stemming en energie en de
+/* Vandaag (BESLISSING 370): het overzicht; elke kaart in de familie van het tabblad waar haar inhoud thuishoort. Eten en de
    Kalender horen bij het Dagboek, Supplementen bij Supplementen, de weegkaart bij Gewicht, de bovenste kaart bij Vandaag zelf. De kaart Drinken
    regelt scherm-vandaag.css (niet hier); de kop (begroeting, Uitleg, Delen) blijft pruim. */
-#scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart) {
+#scherm[data-scherm="vandaag"] :is(.etenkaart, .kalkaart) {
   --fam-basis: var(--f-dagboek-basis); --fam-zacht: var(--f-dagboek-zacht); --fam-icoon: var(--f-dagboek-icoon); --fam-tekst: var(--f-dagboek-tekst);
   --fam-gevuld: var(--f-dagboek-gevuld); --fam-vol: var(--f-dagboek-vol); --fam-vulling: var(--f-dagboek-vulling); --fam-op-vulling: var(--f-dagboek-op-vulling);
   --fam-gehaald: var(--f-dagboek-gehaald); --fam-mix: var(--f-dagboek-mix);
@@ -163,7 +163,7 @@
 
 /* ---- 3. Alle familie- en accenttokens naar de familie van het tabblad ---- */
 #scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]),
-#scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart, .suppkaart, .voortgang),
+#scherm[data-scherm="vandaag"] :is(.etenkaart, .kalkaart, .suppkaart, .voortgang),
 :root:has(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"])) body > :is(.blad, dialog, .strokenhouder),
 body > :is(.blad, dialog)[data-familie],
 body > .blad > dialog[data-familie],
@@ -256,8 +256,8 @@ body > .blad > dialog[data-familie],
   --tile-health-bg: var(--f-gezond-zacht); --tile-health-fg: var(--f-gezond-icoon);
 }
 #scherm[data-scherm="vandaag"] .kalkaart .kalkaart__link { color: var(--fam-tekst); }
-/* De bovenste kaart is van Vandaag (pruim), maar haar vier tegels tonen elk hun onderwerp: Eten zoals de kaart Eten (Dagboek), Drinken, Supplementen;
-   de stemming zet haar eigen kleur inline (vandaag.js) en blijft. De medailles erin blijven groen (BESLISSING 367). */
+/* De bovenste kaart is van Vandaag (pruim), maar haar vier tegels tonen elk hun onderwerp: Eten zoals de kaart Eten (Dagboek), Drinken, Supplementen.
+   De medailles erin blijven groen (BESLISSING 367). */
 #scherm[data-scherm="vandaag"] .voortgang .tegel--maaltijd { --t-bg: var(--f-dagboek-zacht); --t-fg: var(--f-dagboek-icoon); }
 #scherm[data-scherm="vandaag"] .voortgang .tegel--drank { --t-bg: var(--f-drank-zacht); --t-fg: var(--f-drank-icoon); }
 #scherm[data-scherm="vandaag"] .voortgang .tegel--gezondheid { --t-bg: var(--f-gezond-zacht); --t-fg: var(--f-gezond-icoon); }
@@ -265,30 +265,30 @@ body > .blad > dialog[data-familie],
 /* ---- BESLISSING 371: bedieningsvlakken en knoppen in de familie van het scherm (en op Vandaag van de kaart) ----
    Wat het zachte kaartvlak (--c-surface-soft) gebruikte en bediening is, krijgt --fam-bediening: niet-gekozen chips en keuzeknoppen, het spoor
    van een keuzerij, de stappers, invoervakken (ook het notitievak en de tijdvelden), het vak van de periode in woorden op Delen, de kalendercellen
-   van de maand, de momenten in het maandpaneel, de keuzevlakken van stemming en energie in de dag, en de lege sporen van staafjes, bolletjes en
+   van de maand, de momenten in het maandpaneel, en de lege sporen van staafjes, bolletjes en
    het gewichtspad. Gekozen = het vollere familievlak met een rand in de icoontint, dus niet alleen een andere tint.
    Bewust gebleven: echte kaartachtergronden, het voorbeeldvlak van een instelscherm, de profielfoto en de foto's, het verslagvel, de navigatie,
    de supplementkaart (eigen gevulde chips) en de wisdialoog (gevaarlijke actie). */
 :is(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]),
-    #scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart, .suppkaart, .voortgang),
+    #scherm[data-scherm="vandaag"] :is(.etenkaart, .kalkaart, .suppkaart, .voortgang),
     :root:has(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"])) body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis)),
     body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis))[data-familie],
     body > .blad > dialog[data-familie]:not(.supplementkaart, .dialoog--wis))
-  :is(.chip, .segment, .veld__invoer, .verjaardag__lijst, .stapper__knop, .delen__periodewoorden, .mk__dag, .maand__moment, .dag__stemming .gevoel__optie, .dag__stemming .energie__tik,
+  :is(.chip, .segment, .veld__invoer, .verjaardag__lijst, .stapper__knop, .delen__periodewoorden, .mk__dag, .maand__moment,
       .week__bol, .weekstaaf__balk, .weekdag__bol, .gewicht__pad, .gewvoorbeeld__dag) {
   /* alleen het token herbenoemen: elke staat van het onderdeel (gekozen, gevuld, transparant) blijft zijn eigen regel volgen */
   --c-surface-soft: var(--fam-bediening);
 }
 /* Gekozen chip of keuze: het vollere familievlak (accent-soft = --fam-zacht) en een rand in de icoontint. Niet in de supplementkaart (eigen gevulde chips). */
 :is(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]),
-    #scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart, .suppkaart, .voortgang))
+    #scherm[data-scherm="vandaag"] :is(.etenkaart, .kalkaart, .suppkaart, .voortgang))
   :is(.chip.is-actief, .segment__deel.is-actief)::before { box-shadow: inset 0 0 0 1px var(--fam-icoon); }
 
 /* Knoppen: de hoofdknop in de volle familiekleur met het lichte teken (de rol vol, >= 4,5 : 1 in elke familie); de omrande knop heeft haar zachte vlak via --knop-zacht-bg (BESLISSING 537).
    Op Vandaag per kaart. Niet in de supplementkaart (eigen knop) en niet in de
    wisdialoog (gevaarlijke actie, eigen kleur). Bron: componenten.css .knop--primair (--knop-bg/--knop-fg) en .knop--secundair (--c-line). */
 #scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"]),
-#scherm[data-scherm="vandaag"] :is(.etenkaart, .stemmingkaart, .kalkaart, .suppkaart, .voortgang),
+#scherm[data-scherm="vandaag"] :is(.etenkaart, .kalkaart, .suppkaart, .voortgang),
 :root:has(#scherm:is([data-scherm^="dagboek"], [data-scherm="drinken"], [data-scherm="supplementen"], [data-scherm="gewicht"], [data-scherm^="meer"], [data-scherm="delen"])) body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis)),
 body > :is(.blad, dialog:not(.supplementkaart, .dialoog--wis))[data-familie],
 body > .blad > dialog[data-familie]:not(.supplementkaart, .dialoog--wis) {

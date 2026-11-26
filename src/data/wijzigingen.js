@@ -8,6 +8,27 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.5.8',
+    datum: '2026-11-26',
+    tijd: '13:09',
+    punten: [
+      { begrip: 'weer', tekst: 'Op Vandaag staat een weerbericht: het weer van nu, tien cijfers van vandaag en de komende dagen.' },
+      { begrip: 'weer', tekst: 'Het weer staat er altijd, ook zonder locatie en als de weerdienst even niet antwoordt.' },
+      { begrip: 'weer', tekst: 'De warme zin op Vandaag past nu ook bij het weer en bij wat je die dag al deed.' },
+      { begrip: 'drinken', tekst: 'Naast Drinken staat op Vandaag je dagdoel in procent.' },
+      { begrip: 'delen', tekst: 'Op Delen eindigen de kaarten links en rechts nu op dezelfde lijn.' },
+      { begrip: 'weer', tekst: 'Onder Rondleiding staat een nieuwe uitleg: Het weer lezen.' },
+      { begrip: 'dagboek', tekst: 'In de dag is de notitie ruimer; lange tekst scrolt binnenin. De maand toont per dag je zes maaltijden.' },
+      { begrip: 'algemeen', tekst: 'Stemming, energie en het gevoel bij een maaltijd zijn uit Bloei gehaald, ook wat je er vroeger van noteerde.' },
+      { begrip: 'badge', tekst: 'Veertien nieuwe medailles: zeven voor je notities en zeven voor je verslagen. Er zijn er nu 126.' },
+      { begrip: 'delen', tekst: 'Bloei telt vanaf nu ook of je een verslag verstuurt of bewaart, en over hoeveel dagen het gaat.' },
+      { begrip: 'uitleg', tekst: 'Alle zinnen, rondleidingen en handleidingen zijn nagelezen. Ze lezen nu eenvoudiger.' },
+      { begrip: 'uitleg', tekst: 'Een rondleiding duidt altijd een heel blok aan, nooit een half.' },
+      { begrip: 'supplementen', tekst: 'Een foutmelding in de supplementkaart valt nu op. Bewaren wacht tot de fout opgelost is.' },
+      { begrip: 'vergrendeling', tekst: 'Voor het weer gaat je locatie naar één weerdienst. Je laatste plek blijft alleen op dit toestel.' },
+    ],
+  },
+  {
     versie: '0.5.7',
     datum: '2026-11-25',
     tijd: '16:32',
@@ -87,7 +108,7 @@ export const WIJZIGINGEN = [
     datum: '2026-11-25',
     tijd: '14:25',
     punten: [
-      { begrip: 'algemeen', tekst: 'De zinnen over het weer passen nu bij je dag: ze gaan over je dagdoel, je dagboek, je stemming of je supplementen.' },
+      { begrip: 'algemeen', tekst: 'De zinnen over het weer passen nu bij je dag: ze gaan over je dagdoel, je dagboek of je supplementen.' },
       { begrip: 'uitleg', tekst: 'De rondleiding van Vandaag heeft een nieuwe stap over het weerbericht.' },
     ],
   },
@@ -154,7 +175,7 @@ export const WIJZIGINGEN = [
     datum: '2026-11-24',
     tijd: '21:01',
     punten: [
-      { begrip: 'algemeen', tekst: 'De warme zin op Vandaag reageert nu op wat je net deed: een maaltijd, een drank, een vinkje, je stemming, een notitie of een weging.' },
+      { begrip: 'algemeen', tekst: 'De warme zin op Vandaag reageert nu op wat je net deed: een maaltijd, een drank, een vinkje, een notitie of een weging.' },
       { begrip: 'algemeen', tekst: 'De zin kent je dagboek: je reeks, je totaal aantal dagen en hoe lang je Bloei al gebruikt.' },
       { begrip: 'algemeen', tekst: 'Elke medaille heeft haar eigen zin op de dag dat je ze behaalt, en de zin zegt het als een medaille dichtbij is.' },
       { begrip: 'dagboek', tekst: 'De zin boven de week vertelt het ook als je week voller is dan de vorige.' },

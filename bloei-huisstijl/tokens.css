@@ -66,20 +66,7 @@
   --c-primary:       #3B2A3C;  /* primaire knop */
   --c-on-primary:    #FBF7F4;
   /* Bewust GEEN rood/waarschuwingskleur voor gewicht. */
-
-  /* ---- Gevoelschaal (gezichtjes + kalenderbolletjes E2) ----
-     Van ingetogen naar bloeiend. Geen rood, geen oranje. */
-  --mood-1: #8983A6;  --mood-1-soft: #ECEBF2;  /* moe        face-tired; Poeder en Salie: bijgesteld voor 3 : 1 op de tint (BESLISSING 414) */
-  --mood-2: #987EB5;  --mood-2-soft: #F1ECF6;  /* gewoon     face-meh */
-  --mood-3: #A3844C;  --mood-3-soft: #F4EDDD;  /* goed       face-smile */
-  --mood-4: #AD812F;  --mood-4-soft: #F7ECD3;  /* blij       face-grin-beam */
-  --mood-5: #A77A27;  --mood-5-soft: #F2E2BE;  /* stralend   face-grin-hearts */
-
-  /* ---- Energieschaal (E2): blaadjes uit het logo ---- */
-  --energy-on:  var(--c-accent);       /* gevuld blaadje */
-  --energy-off: var(--c-accent-soft);  /* leeg blaadje */
-  --energy-gap: 6px;
-  --energy-leaf-h: 24px;               /* hoogste blaadje; de andere 70 - 90% */
+  --c-fout-text:     #A8382C;  /* de tekst van een foutmelding in een formulier (6,4:1 op de kaart, 5,5:1 op de zachte tint); nooit voor gewicht */
 
   /* ---- Icoontegels ---- */
   --tile-size: 40px;          /* lijsten; 56px voor de grote drinkknop-iconen */
@@ -157,6 +144,7 @@
 
 /* ---- Thema "Nacht" (donker) ---- */
 [data-theme="nacht"] {
+  --c-fout-text:    #F2A493;  /* foutmelding op het donkere vlak (7,8:1) */
   --c-bg:           #1F1720;
   --c-surface:      #2A202B;
   --c-surface-soft: #342935;
@@ -189,10 +177,6 @@
   --c-on-share:     #2A202B;
   --c-primary:      #EED9D6;
   --c-on-primary:   #3B2A3C;
-  --mood-1-soft: #322F3D; --mood-2-soft: #382F40; --mood-3-soft: #3A3326;
-  --mood-4-soft: #3D3421; --mood-5-soft: #40351C;
-  /* de gezichtjes blijven in Nacht zoals ze waren (haalden het al op de donkere tint) */
-  --mood-1: #9D98B5; --mood-2: #B7A5CB; --mood-3: #B89B66; --mood-4: #CFA24E; --mood-5: #BC8A2C;
   --tile-drink-fg: #A9C7C9; --tile-health-fg: #A9C0A6;
   --c-weight-text: var(--c-weight);
   --c-health-gevuld: var(--c-health);

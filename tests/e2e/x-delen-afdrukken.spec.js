@@ -33,11 +33,11 @@ async function vulDagen(page, aantal) {
             const d = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - i);
             const datum = sl(d);
             [['ontbijt', '08:15', 'testmaaltijd ontbijt'], ['middagmaal', '12:30', 'testmaaltijd middag'], ['avondmaal', '18:45', 'testmaaltijd avond']].forEach(([soort, tijd, tekst]) =>
-              tx.objectStore('maaltijden').put({ datum, soort, tijd, tekst, fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: 1 }),
+              tx.objectStore('maaltijden').put({ datum, soort, tijd, tekst, fotoId: null, voorbeeld: false, gewijzigdOp: 1 }),
             );
             tx.objectStore('dranken').add({ datum, tijdstip: Date.now() - 1000 - i, soort: 'water', ml: 500 + (i % 4) * 500, voorbeeld: false });
             tx.objectStore('dranken').add({ datum, tijdstip: Date.now() - 900 - i, soort: 'thee', ml: 200, voorbeeld: false });
-            tx.objectStore('dagen').put({ datum, stemming: 3, energie: 4, notitie: i % 3 === 0 ? `Verzonnen notitie ${i}` : '', doelGehaald: false, voorbeeld: false });
+            tx.objectStore('dagen').put({ datum, notitie: i % 3 === 0 ? `Verzonnen notitie ${i}` : '', doelGehaald: false, voorbeeld: false });
             if (i === 0 || i === 9 || i === 20) {
               const maandag = sl(new Date(d.getFullYear(), d.getMonth(), d.getDate() - ((d.getDay() + 6) % 7)));
               tx.objectStore('wegingen').put({ week: maandag, datum, kg: 70.9 + i / 10, voorbeeld: false, gewijzigdOp: 1 });

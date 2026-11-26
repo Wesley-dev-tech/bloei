@@ -55,7 +55,7 @@ svg { vertical-align: middle; }
   font-size: var(--fs-h2);
   line-height: var(--lh-tight);
 }
-/* Cursief: zinnen in lege toestanden, het woord bij de energieschaal */
+/* Cursief: zinnen in lege toestanden */
 .t-cursief {
   font-family: var(--font-display);
   font-style: italic;
@@ -163,8 +163,7 @@ dialog:focus, dialog:focus-visible { outline: none; }
    mag op iOS Safari :focus-visible krijgen, ook na een tik. Dan hoort er geen ring te staan. Het kenmerk data-bediening op html wordt gezet door een
    klein stuk js (nog te bouwen, zie rapport): "aanraak" bij pointerdown van een vinger of pen, "toetsen" bij keydown Tab, pijl, Enter of spatie.
    Zonder dat kenmerk blijft de ring zoals hij was; met "toetsen" blijft hij exact. */
-html[data-bediening="aanraak"] :focus-visible,
-html[data-bediening="aanraak"] :focus-visible .gevoel__tegel { outline: none !important; }
+html[data-bediening="aanraak"] :focus-visible { outline: none !important; }
 /* Zonder js alvast op de twee plekken waar de app zelf focus zet op een knop bij het openen: het cijferblok en de keuze van het slot, alleen op een
    toestel zonder hover en met een grove aanwijzer (een telefoon). Een iPad met toetsenbord valt daar ook onder: op het slot telt het cijferblok als tikbediening. */
 @media (hover: none) and (pointer: coarse) {

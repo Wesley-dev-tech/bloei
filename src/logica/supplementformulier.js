@@ -55,7 +55,7 @@ const ONZICHTBAAR = '\\p{Default_Ignorable_Code_Point}\\u2800\\u115F\\u1160\\u31
 const ZICHTBAAR = new RegExp(`[^\\s\\p{M}\\p{Cf}\\p{Cc}${ONZICHTBAAR}]`, 'u');
 export const heeftZichtbaarTeken = (s) => ZICHTBAAR.test(String(s ?? ''));
 
-// Controleert het formulier vóór het bewaren. Geeft null als alles klopt, anders { code, veld } met code 'leeg' | 'momenten' | 'ritme' | 'periode'
+// Controleert het formulier vóór het bewaren. Geeft null als alles klopt, anders { code, veld } met code 'leeg' | 'momenten' | 'ritme' | 'datum' | 'periode'
 // (dezelfde woorden als de Error-berichten van de datalaag) en het veld waar de melding bij hoort.
 // Een naam zonder een enkel zichtbaar teken telt als leeg (dezelfde melding).
 export function controleer(f) {
@@ -66,8 +66,9 @@ export function controleer(f) {
     if (f.soort === 'interval' && !(Number.isInteger(Number(f.dagen)) && Number(f.dagen) >= 2 && Number(f.dagen) <= MAX_INTERVAL_DAGEN)) return { code: 'ritme', veld: 'dagen' };
     if (!isEchteDatum(f.start)) return { code: 'ritme', veld: 'start' };
   }
-  if (f.vanaf && !isEchteDatum(f.vanaf)) return { code: 'periode', veld: 'vanaf' };
-  if (f.tot && !isEchteDatum(f.tot)) return { code: 'periode', veld: 'tot' };
+  // Twee meldingen (0.5.8): een datum die niet bestaat ('datum') en een einde vóór het begin ('periode'). Elk zegt precies wat er scheelt.
+  if (f.vanaf && !isEchteDatum(f.vanaf)) return { code: 'datum', veld: 'vanaf' };
+  if (f.tot && !isEchteDatum(f.tot)) return { code: 'datum', veld: 'tot' };
   if (f.vanaf && f.tot && f.tot < f.vanaf) return { code: 'periode', veld: 'tot' };
   return null;
 }

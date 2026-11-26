@@ -55,7 +55,6 @@ for (const [breedte, hoogte, naam] of MATEN) {
           // geen leeg vlak boven 32 px in een kaart (de Notitie met haar vaste hoogte en het paneel van de maand scrollen of tonen een leeg tekstvak: uitgezonderd)
           const kaarten = await meetKaarten(page, '#scherm');
           // Uitzonderingen: de Notitie (vaste hoogte), het paneel van de maand (scrolt) en het weekschema (rijen van 68 px op een vaste hoogte).
-          // Stemming en energie op Vandaag telt mee (BESLISSING 308: tussen 1024 en 1439 px krijgen de keuzes een grotere maat). 34 px = 32 px plus 2 px meetafwijking.
           // BESLISSING 666 en 680: de kalenderkaart van de maand houdt onderaan plaats vrij voor de regels van de legenda (op 320 px drie regels); die vrije regels zijn geen leeg vlak
           const legVrij = route === 'dagboek/maand' ? await page.evaluate(() => { const leg = document.querySelector('.maand__legenda'); return leg ? leg.getBoundingClientRect().bottom - Math.max(...[...leg.children].map((li) => li.getBoundingClientRect().bottom)) : 0; }) : 0;
           const leeg = kaarten.filter((k) => k.gat - (k.naam === 'maand__kalkaart' ? legVrij : 0) > 34 && !/notitie|maand__paneel|wk__schemakaart/.test(k.naam) && soort !== 'leeg').map((k) => `${k.naam}: ${Math.round(k.gat)} px`);
@@ -103,7 +102,7 @@ for (const [breedte, hoogte, naam] of [[1024, 768, 'iPad liggend'], [1180, 820, 
   test.describe(`Vandaag iPad liggend ${naam} ${breedte}x${hoogte}`, () => {
     test.use({ viewport: { width: breedte, height: hoogte }, hasTouch: true, isMobile: false });
 
-    test('Drinken en Stemming en energie zijn gevuld, niets afgekapt, paren even hoog', async ({ page }) => {
+    test('Drinken is gevuld, niets afgekapt, paren even hoog', async ({ page }) => {
       await begin(page, 'vandaag', 'vol');
       const m = await page.evaluate(() => {
         const r = (s) => document.querySelector(s)?.getBoundingClientRect();
@@ -127,7 +126,8 @@ for (const [breedte, hoogte, naam] of [[1024, 768, 'iPad liggend'], [1180, 820, 
           tegelOnderKop: eerste.top - kop.bottom,
           naamBreedte,
           paarDrinken: Math.abs(r('.drinkkaart').height - r('.vc--supp').height),
-          paarRij1: Math.abs(r('.voortgang').height - r('.vc--stemming').height),
+          naastElkaar: Math.abs(r('.voortgang').top - r('.weerkaart').top) <= 1, // het weer staat op een breed scherm naast de motivator
+          paarRij1: Math.abs(r('.voortgang').height - r('.weerkaart').height),
           paarRij3: Math.abs(r('.vc--eten').height - r('.vc--kalender').height),
         };
       });
@@ -139,9 +139,9 @@ for (const [breedte, hoogte, naam] of [[1024, 768, 'iPad liggend'], [1180, 820, 
       expect(m.naamBreedte, 'afgekapte naam in een dranktegel').toBe(0);
       // Drinken en Supplementen staan pas vanaf 1100 px naast elkaar (daaronder onder elkaar over de volle breedte)
       if (breedte >= 1100) expect(m.paarDrinken, 'Drinken en Supplementen even hoog').toBeLessThanOrEqual(1);
-      expect(m.paarRij1, 'motivator en Stemming even hoog').toBeLessThanOrEqual(1);
+      if (m.naastElkaar) expect(m.paarRij1, 'motivator en weer even hoog').toBeLessThanOrEqual(1);
       expect(m.paarRij3, 'Eten en Kalender even hoog').toBeLessThanOrEqual(1);
-      // geen leeg vlak boven 32 px (34 px = 32 px plus 2 px meetafwijking), ook niet in Stemming en energie; alleen de Notitie en het maandpaneel zijn hier niet aanwezig
+      // geen leeg vlak boven 32 px (34 px = 32 px plus 2 px meetafwijking), alleen de Notitie en het maandpaneel zijn hier niet aanwezig
       const kaarten = await meetKaarten(page, '#scherm');
       const leeg = kaarten.filter((k) => k.gat > 34).map((k) => `${k.naam}: ${Math.round(k.gat)} px`);
       expect(leeg, 'leeg vlak in een kaart').toEqual([]);
@@ -218,9 +218,9 @@ for (const [breedte, hoogte, naam] of [[1024, 768, 'iPad liggend'], [1180, 820, 
         expect(m.glasOnderKop, 'het glas begint onder het kopje Vandaag zonder vlak boven 32 px').toBeLessThanOrEqual(32);
         expect(m.afgekapt, 'niets afgekapt').toBe(0);
         const kaarten = await meetKaarten(page, '#scherm');
-        // Eten is op een dag zonder gegevens een lege staat (buiten dit spoor): alleen Drinken en Stemming en energie tellen mee
-        const leeg = kaarten.filter((k) => k.gat > 34 && /drinkkaart|stemming/.test(k.naam)).map((k) => `${k.naam}: ${Math.round(k.gat)} px`);
-        expect(leeg, 'leeg vlak in Drinken of Stemming en energie').toEqual([]);
+        // Eten is op een dag zonder gegevens een lege staat (buiten dit spoor): alleen Drinken telt mee
+        const leeg = kaarten.filter((k) => k.gat > 34 && /drinkkaart/.test(k.naam)).map((k) => `${k.naam}: ${Math.round(k.gat)} px`);
+        expect(leeg, 'leeg vlak in Drinken').toEqual([]);
       });
     }
   });

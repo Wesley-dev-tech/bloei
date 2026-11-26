@@ -1,11 +1,10 @@
-// Dagboek · Maand (BESLISSING 255, herzien): een rustige kalender (per dag het nummer, een salie bolletje bij alle supplementen genomen en een eventueel spuitje; BESLISSING 294: geen stemming) met
+// Dagboek · Maand (BESLISSING 255, herzien): een rustige kalender (per dag het nummer, een salie bolletje bij alle supplementen genomen en een eventueel spuitje) met
 // eromheen: bovenaan het overzicht van de volle maand (acht cijfers), naast de kalender het paneel van de gekozen dag (alle detail uit de cel) en
 // daaronder een compact blok "Gepland deze maand". Alles komt uit haar echte gegevens. Op een telefoon staan ze onder elkaar.
 // Vandaag is bij het openen gekozen (in een andere maand de eerste dag), zodat het paneel nooit leeg is.
 import { h } from '../ui/dom.js';
-import { kaart, kaartkop, bladerkop, knop, energieschaal, rij } from '../ui/componenten.js';
+import { kaart, kaartkop, bladerkop, knop, rij } from '../ui/componenten.js';
 import { maandkalender } from '../ui/maandkalender.js';
-import { gevoelIcoon } from '../ui/maaltijdregel.js';
 import { eersteToon, komOp, vervaag } from '../ui/beweging.js';
 import { beheerScherm } from './hulp.js';
 import { t } from '../teksten.js';
@@ -15,7 +14,6 @@ import { leesMaand } from '../data/statistiek.js';
 import { leesInstelling } from '../data/instellingen.js';
 import { leesWegingen } from '../data/wegingen.js';
 import { MAALTIJDSOORTEN, isIngevuld, leesMaaltijden } from '../data/maaltijden.js';
-import { leesDag } from '../data/dagen.js';
 import { leesAgenda, leesBegindagen } from '../data/agenda.js';
 import { zetBeurt } from '../ui/beurt.js';
 import { schemaVanDag } from '../data/supplementen.js';
@@ -61,8 +59,8 @@ export function toon(houder, params = {}) {
     const opent = !params.bladeren && eersteToon('dagboek:maand');
     const dagkaart = h('div', { class: 'maand__dag' });
 
-    // Het paneel van de gekozen dag: stemming en energie, eten (de maaltijden met hun uur), drinken (een baan tot het dagdoel), supplementen als
-    // momenten (BESLISSING 150), de geplande beurt, de notitie en de knop naar de dag.
+    // Het paneel van de gekozen dag: eten (de maaltijden met hun uur), drinken (een baan tot het dagdoel), supplementen als
+    // momenten (BESLISSING 150), de geplande beurt en de knop naar de dag. De notitie staat niet in de maand (0.5.8): die lees je in de dag.
     let tekening = 0;
     async function vulDag() {
       const mijn = ++tekening;
@@ -71,15 +69,42 @@ export function toon(houder, params = {}) {
         dagkaart.replaceChildren(kaart({ klasse: 'maand__paneel' }, kaartkop({ tegel: begripOpties('dagboek'), label: t('maand.gekozenDag') }), h('p', { class: 'maand__tik t-cursief' }, t('maand.tikDag'))));
         return;
       }
-      const [maaltijden, dagRecord, schema] = await Promise.all([leesMaaltijden(datum), leesDag(datum), schemaVanDag(datum)]);
+      const [maaltijden, schema] = await Promise.all([leesMaaltijden(datum), schemaVanDag(datum)]);
       if (mijn !== tekening) return; // intussen is er een andere dag gekozen
-      const g = gegevens[datum] ?? { stemming: null, energie: null, maaltijden: 0, ml: 0 };
+      const g = gegevens[datum] ?? { maaltijden: 0, ml: 0 };
       // De momenten komen uit het schema van die dag, zonder periodieke supplementen (BESLISSING 209 en 219): een afgevinkte spuit telt hier niet mee.
       const m = telMomenten(schema);
       const dagelijksGenomen = schema.momenten.some((mo) => mo.items.some((i) => i.genomen));
       const pillen = dagelijksGenomen && m.totaal > 0 ? t('supplementen.momentStand', { genomen: m.klaar, totaal: m.totaal }) : '-';
       const gegeten = MAALTIJDSOORTEN.filter((soort) => maaltijden[soort] && isIngevuld(maaltijden[soort]));
-      const notitie = (dagRecord?.notitie ?? '').trim();
+      // Eten: altijd de zes maaltijden op hun vaste plaats: het uur (of een streepje bij wat nog open staat), de naam en eronder wat er
+      // gegeten is. Dit blok rekt mee met de hoogte van het paneel en past zijn indeling aan de hoogte aan (scherm-dagboek-maand.css):
+      // twee kolommen of één, met of zonder de regel met wat er gegeten is. Zo is het paneel op elke dag en op elke breedte tot onderaan
+      // gevuld met haar eigen dagboek, zonder iets van een ander tabblad.
+      const etenBlok = blok(
+        'eten',
+        t('dag.eten'),
+        gegeten.length ? t('maand.etenWaarde', { aantal: gegeten.length, totaal: MAALTIJDSOORTEN.length }) : '-',
+        h(
+          'div',
+          { class: 'maand__etenlijst' },
+          h(
+            'ul',
+            { class: 'maand__maaltijden' },
+            ...MAALTIJDSOORTEN.map((soort) => {
+              const klaar = gegeten.includes(soort);
+              const wat = klaar ? (maaltijden[soort].tekst ?? '').trim().split('\n')[0] : t('maand.maaltijdOpen');
+              return h(
+                'li',
+                { class: ['maand__maaltijd', !klaar && 'is-open'] },
+                h('span', { class: 'maand__maaltijdkop' }, h('span', { class: 'cijfer t-gedempt' }, klaar ? maaltijden[soort].tijd : '-'), h('span', { class: 'maand__maaltijdnaam' }, t('maaltijd.' + soort))),
+                h('span', { class: 'maand__maaltijdtekst' }, wat),
+              );
+            }),
+          ),
+        ),
+      );
+      etenBlok.classList.add('maand__blok--rek');
       dagkaart.replaceChildren(
         kaart(
           { klasse: 'maand__paneel' },
@@ -89,24 +114,7 @@ export function toon(houder, params = {}) {
           h(
             'div',
             { class: 'maand__paneelinhoud' },
-          h(
-            'div',
-            { class: 'maand__waarden' },
-            h('div', null, h('p', { class: 'label' }, t('maand.stemmingDag')), g.stemming ? h('p', { class: 'maand__waarde' }, gevoelIcoon(g.stemming, 22), h('span', null, t('stemming.' + g.stemming))) : h('p', { class: 'maand__waarde t-gedempt' }, '-')),
-            h('div', null, h('p', { class: 'label' }, t('energie.titel')), g.energie ? energieschaal({ waarde: g.energie }) : h('p', { class: 'maand__waarde t-gedempt' }, '-')),
-          ),
-          blok(
-            'eten',
-            t('dag.eten'),
-            gegeten.length ? t('maand.etenWaarde', { aantal: gegeten.length, totaal: MAALTIJDSOORTEN.length }) : '-',
-            gegeten.length
-              ? h(
-                  'ul',
-                  { class: 'maand__maaltijden' },
-                  ...gegeten.map((soort) => h('li', { class: 'maand__maaltijd' }, h('span', { class: 'cijfer t-gedempt' }, maaltijden[soort].tijd), h('span', { class: 'maand__maaltijdnaam' }, t('maaltijd.' + soort)))),
-                )
-              : h('p', { class: 'maand__leegregel' }, t('maand.etenLeeg')),
-          ),
+          etenBlok,
           blok(
             'drinken',
             t('tab.drinken'),
@@ -144,18 +152,6 @@ export function toon(houder, params = {}) {
             }),
           ),
           ...(begindagen[datum] ?? []).map((x) => rij({ tegel: begripOpties('supplementen'), titel: t(datum <= vandaag() ? 'agenda.begonnen' : 'agenda.begint', { naam: x.naam }), tekst: x.hoeveelheid || null })),
-          // De notitie als één afgekapte regel (de volledige tekst staat in de dag)
-          h(
-            'div',
-            { class: 'maand__blok' },
-            h(
-              'div',
-              { class: 'maand__blokkop' },
-              h('span', { class: 'maand__teken--notitie', 'aria-hidden': 'true' }, begripIcoon('notitie', { grootte: 20 })),
-              notitie ? h('span', { class: 'maand__bloktitel maand__notitie t-cursief', title: notitie }, notitie) : h('span', { class: 'maand__bloktitel' }, t('dag.notitieTitel')),
-              notitie ? null : h('span', { class: 'maand__blokwaarde cijfer' }, '-'),
-            ),
-          ),
           ),
           knop(t('maand.openen'), { soort: 'secundair', breed: true, opKlik: () => ga(`#/dagboek/dag/${datum}`) }),
         ),
@@ -186,12 +182,11 @@ export function toon(houder, params = {}) {
     const aantalSupp = bijgehouden.filter(([, g]) => (g.supplementMomenten?.totaal ?? 0) > 0 && g.supplementMomenten.klaar >= g.supplementMomenten.totaal).length;
     const aantalMaaltijden = bijgehouden.reduce((som, [, g]) => som + (g.maaltijden ?? 0), 0);
     const totaalMl = bijgehouden.reduce((som, [, g]) => som + (g.ml ?? 0), 0);
-    const telling = [0, 0, 0, 0, 0, 0];
-    let meest = null;
-    for (const [, g] of bijgehouden) {
-      if (!g.stemming) continue;
-      telling[g.stemming] += 1;
-      if (meest == null || telling[g.stemming] >= telling[meest]) meest = g.stemming;
+    // De langste reeks van de maand: het grootste aantal dagen op rij dat ze iets bijhield.
+    let langsteReeks = 0;
+    for (let i = 0, loop = 0; i < bijgehouden.length; i++) {
+      loop = i > 0 && naarDatum(bijgehouden[i][0]) - naarDatum(bijgehouden[i - 1][0]) < 36 * 3600000 ? loop + 1 : 1;
+      langsteReeks = Math.max(langsteReeks, loop);
     }
     // BESLISSING 456: gemiddeld over de dagen van de maand die voorbij zijn (vandaag inbegrepen; een eerdere maand: alle dagen), een lege dag telt als 0
     const gemiddeldMl = gemiddeldOverDagen(`${jaarMaand}-01`, laatsteDag, (d) => (d.startsWith(jaarMaand) ? gegevens[d]?.ml ?? 0 : 0), vandaag());
@@ -223,7 +218,8 @@ export function toon(houder, params = {}) {
       kc('drinken', t('maand.kcGedronken'), { ...(totaalMl ? metEenheid(opmaakLiter(totaalMl)) : {}), sub: totaalMl && gemiddeldMl != null ? t('maand.kcSubGemiddeld', { liter: opmaakLiter(gemiddeldMl) }) : '' }),
       kc('drinken', t('maand.kcDoel'), { waarde: aantalDoel || null, sub: t('maand.kcSubDoel', { totaal: dagenInMaand }) }),
       kc('supplementen', t('maand.kcSupplementen'), { waarde: aantalSupp || null, sub: t('maand.kcSubSupplementen', { totaal: dagenInMaand }) }),
-      kc('stemming', t('maand.kcStemming'), { waarde: null, teken: meest ? gevoelIcoon(meest, 30) : null, naam: meest ? `${t('maand.kcStemming')}: ${t('stemming.' + meest)}, ${t(telling[meest] === 1 ? 'maand.stemEenDag' : 'maand.stemDagen', { aantal: telling[meest] })}` : null, sub: meest ? t(telling[meest] === 1 ? 'maand.stemEenDag' : 'maand.stemDagen', { aantal: telling[meest] }) : '' }),
+      // De langste reeks van de maand. Zo blijven het acht cijfers en blijft elke rij gevuld.
+      kc('reeks', t('maand.kcReeks'), { waarde: langsteReeks || null, sub: t('maand.kcSubReeks') }),
       kc('gewicht', t('maand.kcGewicht'), { ...(laatsteWeging ? metEenheid(opmaakKg(laatsteWeging.kg)) : {}), sub: laatsteWeging ? t(wegingenMaand.length === 1 ? 'maand.kcSubWeging' : 'maand.kcSubWegingen', { aantal: wegingenMaand.length }) : '' }),
       // Alleen echte spuiten tellen als "Spuiten"; zijn er geen spuiten maar wel andere geplande beurten, dan heet het "Gepland" (BESLISSING 275).
       spuitenMaand.length || !anderenMaand.length

@@ -22,7 +22,7 @@ async function zaai(page, supp = {}) {
           tx.objectStore('instellingen').put({ sleutel: 'drinken.dagdoelMl', waarde: 2500 });
           tx.objectStore('instellingen').put({ sleutel: 'drinken.dagdoelOmgezet', waarde: true });
           tx.objectStore('supplementen').put({ id: 1, naam: 'Testmix', dosis: '', hoeveelheid: '1', aanwijzing: '', momenten: ['ochtend'], ritme: { soort: 'dagelijks' }, volgorde: 1, actief: true, voorbeeld: false, aangemaaktOp: 1, ...grens });
-          const maaltijd = (datum, soort) => tx.objectStore('maaltijden').put({ datum, soort, tijd: '12:00', tekst: 'testmaaltijd', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1 });
+          const maaltijd = (datum, soort) => tx.objectStore('maaltijden').put({ datum, soort, tijd: '12:00', tekst: 'testmaaltijd', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
           maaltijd('2026-11-16', 'ontbijt');
           maaltijd('2026-11-16', 'middagmaal');
           maaltijd('2026-11-18', 'ontbijt');
@@ -48,11 +48,11 @@ async function opDag(page, datum, supp) {
   await zaai(page, supp);
 }
 
-// De vijf kaartjes bovenaan de week: per kaartje [getal, eenheid, onderregel]
+// De vier kaartjes bovenaan de week: per kaartje [getal, eenheid, onderregel]
 async function weekKaartjes(page, maandag) {
   await page.goto(`./#/dagboek/week/${maandag}`);
   await schermKlaar(page, `#/dagboek/week/${maandag}`);
-  await expect(page.locator('.wk__skaart')).toHaveCount(5);
+  await expect(page.locator('.wk__skaart')).toHaveCount(4);
   return page.locator('.wk__skaart').evaluateAll((kaartjes) =>
     kaartjes.slice(0, 3).map((k) => [k.querySelector('.wk__sgetal')?.textContent.trim(), k.querySelector('.wk__seenheid')?.textContent.trim() ?? '', k.querySelector('.wk__sub')?.textContent.trim()]),
   );

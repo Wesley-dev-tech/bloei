@@ -4,7 +4,7 @@ import { db, openDb, SCHEMA_VERSIE } from '../../src/data/db.js';
 import { luister } from '../../src/kern/bus.js';
 import { plusDagen, vandaag, weekStart } from '../../src/kern/datum.js';
 import { alleInstellingen, leesInstelling, migreerKan, STANDAARD, zetInstelling } from '../../src/data/instellingen.js';
-import { leesDag, zetEnergie, zetNotitie, zetStemming } from '../../src/data/dagen.js';
+import { leesDag, zetNotitie } from '../../src/data/dagen.js';
 import {
   bewaarMaaltijd, isIngevuld, leesMaaltijden, MAALTIJDSOORTEN, STANDAARDTIJD, wisMaaltijd, zelfdeAlsGisteren,
 } from '../../src/data/maaltijden.js';
@@ -31,8 +31,8 @@ beforeEach(async () => {
 
 describe('database', () => {
   test('schema 4 met de tien stores', () => {
-    expect(SCHEMA_VERSIE).toBe(4);
-    expect(db.verno).toBe(4);
+    expect(SCHEMA_VERSIE).toBe(5);
+    expect(db.verno).toBe(5);
     expect(db.tables.map((t) => t.name).sort()).toEqual(
       ['badges', 'dagen', 'dranken', 'favorieten', 'fotos', 'instellingen', 'maaltijden', 'momentinnames', 'supplementen', 'wegingen'],
     );
@@ -67,40 +67,32 @@ describe('instellingen', () => {
 
 describe('dagen', () => {
   test('een dag zonder record is een lege bladzijde en wordt niet bewaard', async () => {
-    expect(await leesDag(VANDAAG)).toMatchObject({ datum: VANDAAG, notitie: '', stemming: null, energie: null, doelGehaald: false });
+    expect(await leesDag(VANDAAG)).toMatchObject({ datum: VANDAAG, notitie: '', doelGehaald: false });
     expect(await db.dagen.count()).toBe(0);
   });
 
-  test('notitie, stemming en energie', async () => {
+  test('de notitie', async () => {
     const { lijst, meldAf } = vang('data:gewijzigd');
     await zetNotitie(VANDAAG, 'rustige dag');
-    await zetStemming(VANDAAG, 4);
-    await zetEnergie(VANDAAG, 2);
+    await zetNotitie(VANDAAG, 'rustige dag, vroeg naar bed');
     meldAf();
-    expect(await leesDag(VANDAAG)).toMatchObject({ notitie: 'rustige dag', stemming: 4, energie: 2 });
-    expect(lijst).toHaveLength(3);
+    expect(await leesDag(VANDAAG)).toMatchObject({ notitie: 'rustige dag, vroeg naar bed' });
+    expect(lijst).toHaveLength(2);
     expect(lijst[0]).toEqual({ store: 'dagen', datum: VANDAAG });
 
-    await zetStemming(VANDAAG, null);
-    expect((await leesDag(VANDAAG)).stemming).toBeNull();
+    await zetNotitie(VANDAAG, '');
+    expect((await leesDag(VANDAAG)).notitie).toBe('');
   });
 
   test('het verleden is aanvulbaar, de toekomst niet', async () => {
     await zetNotitie(plusDagen(VANDAAG, -400), 'lang geleden');
     await expect(zetNotitie(MORGEN, 'x')).rejects.toThrow('toekomst');
-    await expect(zetStemming(MORGEN, 3)).rejects.toThrow('toekomst');
-    await expect(zetEnergie(MORGEN, 3)).rejects.toThrow('toekomst');
-  });
-
-  test('alleen 1 tot 5 of leeg', async () => {
-    await expect(zetStemming(VANDAAG, 6)).rejects.toThrow('schaal');
-    await expect(zetEnergie(VANDAAG, 0)).rejects.toThrow('schaal');
   });
 
   test('een voorbeelddag wijzigen maakt hem van de gebruiker, zonder de verzonnen velden (R1-05)', async () => {
-    await db.dagen.put({ datum: GISTEREN, notitie: 'voorbeeld', stemming: 3, energie: 3, doelGehaald: false, voorbeeld: true, gewijzigdOp: 1 });
-    await zetStemming(GISTEREN, 5);
-    expect(await leesDag(GISTEREN)).toMatchObject({ notitie: '', energie: null, stemming: 5, voorbeeld: false });
+    await db.dagen.put({ datum: GISTEREN, notitie: 'voorbeeld', doelGehaald: true, voorbeeld: true, gewijzigdOp: 1 });
+    await zetNotitie(GISTEREN, 'van mij');
+    expect(await leesDag(GISTEREN)).toMatchObject({ notitie: 'van mij', doelGehaald: false, voorbeeld: false });
   });
 });
 
@@ -115,7 +107,7 @@ describe('maaltijden', () => {
   test('aanmaken: vandaag met het huidige uur, een andere dag met het gewone uur', async () => {
     const nu = await bewaarMaaltijd(VANDAAG, 'ontbijt', { tekst: 'havermout met banaan' });
     expect(nu.tijd).toMatch(/^\d\d:\d\d$/);
-    expect(nu).toMatchObject({ tekst: 'havermout met banaan', fotoId: null, gevoel: null, voorbeeld: false });
+    expect(nu).toMatchObject({ tekst: 'havermout met banaan', fotoId: null, voorbeeld: false });
 
     const toen = await bewaarMaaltijd(GISTEREN, 'avondmaal', { tekst: 'soep' });
     expect(toen.tijd).toBe(STANDAARDTIJD.avondmaal);
@@ -123,9 +115,9 @@ describe('maaltijden', () => {
   });
 
   test('wijzigen houdt de andere velden', async () => {
-    await bewaarMaaltijd(VANDAAG, 'ontbijt', { tekst: 'boterham', gevoel: 4 });
+    await bewaarMaaltijd(VANDAAG, 'ontbijt', { tekst: 'boterham' });
     await bewaarMaaltijd(VANDAAG, 'ontbijt', { tijd: '07:15' });
-    expect((await leesMaaltijden(VANDAAG)).ontbijt).toMatchObject({ tekst: 'boterham', gevoel: 4, tijd: '07:15' });
+    expect((await leesMaaltijden(VANDAAG)).ontbijt).toMatchObject({ tekst: 'boterham', tijd: '07:15' });
   });
 
   test('alles leeg = het record verdwijnt', async () => {
@@ -138,10 +130,8 @@ describe('maaltijden', () => {
     expect(await db.maaltijden.count()).toBe(0);
   });
 
-  test('alleen een gevoel blijft bewaard maar telt niet als ingevuld', async () => {
-    const m = await bewaarMaaltijd(VANDAAG, 'ontbijt', { gevoel: 3 });
-    expect(m.gevoel).toBe(3);
-    expect(isIngevuld(m)).toBe(false);
+  test('ingevuld is een maaltijd met tekst of een foto', async () => {
+    expect(isIngevuld({ tekst: '', fotoId: null })).toBe(false);
     expect(isIngevuld(null)).toBe(false);
     expect(isIngevuld({ tekst: 'x', fotoId: null })).toBe(true);
     expect(isIngevuld({ tekst: '', fotoId: 7 })).toBe(true);
@@ -151,13 +141,12 @@ describe('maaltijden', () => {
     await expect(bewaarMaaltijd(MORGEN, 'ontbijt', { tekst: 'x' })).rejects.toThrow('toekomst');
     await expect(bewaarMaaltijd(VANDAAG, 'brunch', { tekst: 'x' })).rejects.toThrow('soort');
     await expect(bewaarMaaltijd(VANDAAG, 'ontbijt', { tijd: '25:00' })).rejects.toThrow('tijd');
-    await expect(bewaarMaaltijd(VANDAAG, 'ontbijt', { gevoel: 9 })).rejects.toThrow('schaal');
   });
 
   test('een voorbeeldmaaltijd wijzigen maakt hem van de gebruiker', async () => {
-    await db.maaltijden.put({ datum: GISTEREN, soort: 'ontbijt', tijd: '08:00', tekst: 'voorbeeld', fotoId: null, gevoel: null, voorbeeld: true, gewijzigdOp: 1 });
-    await bewaarMaaltijd(GISTEREN, 'ontbijt', { gevoel: 5 });
-    expect((await leesMaaltijden(GISTEREN)).ontbijt).toMatchObject({ tekst: 'voorbeeld', gevoel: 5, voorbeeld: false });
+    await db.maaltijden.put({ datum: GISTEREN, soort: 'ontbijt', tijd: '08:00', tekst: 'voorbeeld', fotoId: null, voorbeeld: true, gewijzigdOp: 1 });
+    await bewaarMaaltijd(GISTEREN, 'ontbijt', { tijd: '09:30' });
+    expect((await leesMaaltijden(GISTEREN)).ontbijt).toMatchObject({ tekst: 'voorbeeld', tijd: '09:30', voorbeeld: false });
   });
 
   test('wisMaaltijd en het event', async () => {
@@ -171,9 +160,9 @@ describe('maaltijden', () => {
 
   test('zelfde als gisteren neemt alleen de tekst over', async () => {
     expect(await zelfdeAlsGisteren(VANDAAG, 'ontbijt')).toBeNull();
-    await db.maaltijden.put({ datum: GISTEREN, soort: 'ontbijt', tijd: '07:00', tekst: 'yoghurt', fotoId: 12, gevoel: 5, voorbeeld: false, gewijzigdOp: 1 });
+    await db.maaltijden.put({ datum: GISTEREN, soort: 'ontbijt', tijd: '07:00', tekst: 'yoghurt', fotoId: 12, voorbeeld: false, gewijzigdOp: 1 });
     const m = await zelfdeAlsGisteren(VANDAAG, 'ontbijt');
-    expect(m).toMatchObject({ tekst: 'yoghurt', fotoId: null, gevoel: null });
+    expect(m).toMatchObject({ tekst: 'yoghurt', fotoId: null });
     expect(m.tijd).not.toBe('07:00');
   });
 });
@@ -278,7 +267,7 @@ describe('dranken', () => {
     expect(new Date(drank.tijdstip).getDate()).toBe(new Date(Date.now() - 86400000).getDate());
   });
 
-  test('het doel halen laat notitie en stemming staan', async () => {
+  test('het doel halen laat de notitie staan', async () => {
     await zetInstelling('drinken.dagdoelMl', 500); // het kleinste dagdoel (GRENZEN); een kan water haalt het
     await zetNotitie(VANDAAG, 'blijft staan');
     await voegDrankToe(VANDAAG);

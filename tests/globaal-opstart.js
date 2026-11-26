@@ -28,6 +28,9 @@ export default async function globaalOpstart(config) {
           const tx = db.transaction('instellingen', 'readwrite');
           tx.objectStore('instellingen').put({ sleutel: 'start.klaar', waarde: true });
           tx.objectStore('instellingen').put({ sleutel: 'profiel.naam', waarde: 'Testnaam' }); // de app heeft geen standaardnaam; de tests beginnen met een verzonnen naam
+          // De vraag naar de geboortedatum (één keer, voor wie Bloei al gebruikte) is in deze stand al gesteld: anders opent ze in elke test een blad
+          // boven het scherm. Een test voor die vraag zelf zet de vlag eerst terug op false.
+          tx.objectStore('instellingen').put({ sleutel: 'profiel.verjaardagGevraagd', waarde: true });
           tx.oncomplete = () => {
             db.close();
             klaar();

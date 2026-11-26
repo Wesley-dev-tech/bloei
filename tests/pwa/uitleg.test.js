@@ -143,13 +143,31 @@ describe('plaats van het kaartje', () => {
     expect(p.kant).toBe('onder');
     expect(p.schuif).toBe(700 + 100 + MAAT.afstand + 220 - (800 - MAAT.rand));
   });
-  it('een onderdeel dat niets naast zich laat: bovenaan, het kaartje vast onderaan, het gat afgesneden erboven', () => {
+  // Eigenaar, 0.5.8: de aanduiding stopt nooit halverwege een blok. Past het blok niet naast het kaartje, dan blijft het hele blok aangeduid
+  // en ligt het kaartje over zijn onderste deel.
+  it('een onderdeel dat niets naast zich laat: bovenaan, het kaartje vast onderaan en over het blok, het gat niet afgesneden', () => {
     const gebied = { links: 296, rechts: 1280 };
     const p = schikking({ gat: { left: 300, top: 300, width: 970, height: 1500 }, kaart, venster, gebied });
     expect(p.kant).toBe('vast');
     expect(p.schuif).toBe(300 - MAAT.rand);
     expect(p.boven + kaart.hoog).toBe(800 - MAAT.rand);
-    expect(p.snij).toBe(p.boven - MAAT.afstand);
+    expect(p.snij).toBe(null);
+    expect(p.over).toBe(true);
+    expect(p.pijl).toBe(null);
+  });
+  it('op een telefoon met heel: het hele blok bovenaan, de kaart vast onderaan erover, en het vak eindigt achter de kaart', () => {
+    const tel = { breed: 390, hoog: 844 };
+    const k = { breed: 366, hoog: 360 };
+    const zone = { top: 120, bottom: 760 };
+    const gat = { left: 20, top: 400, width: 350, height: 520 };
+    const gewoon = schikking({ gat, kaart: k, venster: tel, zone, telefoon: true });
+    expect(gewoon.snij).not.toBe(null); // zonder heel: afgesneden boven de kaart, zoals voorheen
+    expect(gewoon.over).toBe(undefined);
+    const p = schikking({ gat, kaart: k, venster: tel, zone, telefoon: true, heel: true });
+    expect(p.kant).toBe('vast-onder');
+    expect(p.over).toBe(true);
+    expect(p.snij).toBeGreaterThan(p.boven); // het einde van het vak ligt achter de kaart
+    expect(p.snij).toBeLessThan(p.boven + k.hoog);
   });
   it('nooit over het onderdeel en altijd binnen het venster, voor veel standen', () => {
     const gebied = { links: 296, rechts: 1280 };

@@ -1,9 +1,8 @@
 /* scherm-dagboek-dag: zie BESLISSING 267. Alleen de bouwer van dit scherm schrijft in dit bestand, met de Edit-tool.
    Dit bestand laadt na schermen.css en wint van de oudere regels met dezelfde specificiteit; elke selector begint met .dag.
    Opbouw: op 1100 px en breder twee onafhankelijke kolommen: links Eten en daaronder de Notitie (het elastische deel: haar tekstvak
-   vult de resterende hoogte, zodat beide kolommen op dezelfde lijn eindigen), rechts Drinken en Supplementen; daaronder Stemming en
-   energie over de volle breedte met de twee delen naast elkaar. Op een telefoon één kolom: Eten, Drinken, Supplementen, Stemming en
-   energie, Notitie. Geen kaart is hoger dan haar inhoud, behalve de Notitie. */
+   vult de resterende hoogte, zodat beide kolommen op dezelfde lijn eindigen), rechts Drinken en Supplementen.
+   Op een telefoon één kolom: Eten, Drinken, Supplementen, Notitie. Geen kaart is hoger dan haar inhoud, behalve de Notitie. */
 
 /* ---------- Raster ---------- */
 .dag .dag__raster { display: flex; flex-direction: column; gap: var(--s-4); align-items: stretch; min-width: 0; }
@@ -11,14 +10,12 @@
 .dag .dag__eten { order: 1; }
 .dag .dag__drinken { order: 2; }
 .dag .dag__supplementen { order: 3; }
-.dag .dag__stemming { order: 4; }
 .dag .dag__notitie { order: 5; }
 .dag .dag__raster .kaart { height: auto; flex: none; min-width: 0; }
 @media (min-width: 1100px) {
   .dag .dag__raster { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: var(--s-6); align-items: stretch; }
   .dag .dag__links, .dag .dag__zij { display: flex; flex-direction: column; gap: var(--s-6); min-width: 0; }
   .dag .dag__links > .kaart, .dag .dag__zij > .kaart { order: 0; }
-  .dag .dag__stemming { grid-column: 1 / -1; }
 }
 
 /* ---------- Eten: zes compacte rijen van ± 65 px, zoals op het hoofdscherm ---------- */
@@ -26,7 +23,6 @@
 .dag .dag__eten .maaltijd { --tile-size: 40px; --tile-size-groot: 40px; --miniatuur: 40px; padding: var(--s-3) 0; }
 /* Eén afstand van de lijn onder de kaartkop naar de eerste inhoud (s-3, BESLISSING 281): de gedeelde kaartkop zet die als marge, het eerste element heeft geen eigen bovenruimte. */
 .dag .dag__eten > .kaartkop + .maaltijd { padding-top: 0; border-top: 0; }
-.dag .dag__stemming .stemming__inhoud { padding-top: 0; }
 .dag .dag__notitie .veld__vak { margin-top: 0; }
 .dag .dag__eten > .maaltijd:last-child:not(.is-open) { padding-bottom: 0; }
 .dag .dag__eten > .maaltijd:not(.is-open) { flex: none; max-height: none; display: flow-root; } /* flow-root: de negatieve marge van de rij (tikvlak 44 px) klapt niet door de omhullende heen */
@@ -75,22 +71,16 @@
 .dag .dag__supplementen .leeg__merk { display: none; }
 .dag .dag__supplementen .leeg__tekst { margin: 0; max-width: none; font-size: var(--fs-body); text-align: left; text-wrap: pretty; }
 
-/* ---------- Stemming en energie: de opbouw van het hoofdscherm; de hint is de laatste regel ---------- */
-.dag .dag__stemming { display: flex; flex-direction: column; }
-.dag .dag__stemming .stemming__inhoud { flex: 1 1 auto; justify-content: flex-start; gap: var(--s-4); }
-.dag .dag__stemming .dag__wis { margin: 0; text-align: left; }
-.dag .dag__stemming .dag__wis.is-leeg { visibility: hidden; }
-
 /* ---------- Notitie: het tekstvak vult de hoogte van de kaart; lange tekst scrolt binnenin ---------- */
 .dag .dag__notitie { display: flex; flex-direction: column; }
 /* Vaste hoogte, los van de tekst: tekstvak() zet inline een hoogte naar de inhoud, die hier bewust genegeerd wordt (!important); lange tekst scrolt in het vak. */
-.dag .dag__notitie .veld__vak { flex: none; width: 100%; height: calc(var(--tap-min) * 3.4) !important; min-height: 0; max-height: none; overflow-y: auto; }
+.dag .dag__notitie .veld__vak { flex: none; width: 100%; height: calc(var(--tap-min) * 5.5) !important; min-height: 0; max-height: none; overflow-y: auto; } /* een ruim vak (0.5.8): 264 px op een telefoon */
 @media (min-width: 700px) and (max-width: 1099.98px) {
-  .dag .dag__notitie .veld__vak { height: calc(var(--tap-min) * 4.2) !important; }
+  .dag .dag__notitie .veld__vak { height: calc(var(--tap-min) * 6.5) !important; }
 }
 /* Tot de eerste meting van de kolommen (verdeelKolommen in dagboek-dag.js) is het raster onzichtbaar: de Notitie kan nog naar de andere kolom verhuizen. */
 .dag .dag__raster.is-meet { visibility: hidden; }
-/* Ruimte die de Notitie op haar minimum niet kan opvangen, verdeelt de script over de rijen van de andere kolom (--dag-rek, hoogstens 10 px per rij). */
+/* --dag-rek blijft sinds 0.5.8 altijd 0: de rijen van de andere kaarten worden nooit ruimer gemaakt (dagboek-dag.js, REK_MAX). */
 .dag .dag__eten > .maaltijd + .maaltijd { padding-top: calc(var(--s-3) + var(--dag-rek, 0px) / 2); }
 .dag .dag__eten > .maaltijd:not(:last-child) { padding-bottom: calc(var(--s-3) + var(--dag-rek, 0px) / 2); }
 .dag .dag__momenten > .momentrij:not(:first-child) { padding-top: calc(var(--s-3) + var(--dag-rek, 0px) / 2); }
@@ -110,15 +100,3 @@
 /* De zes dranken: "Kan water" en "Glas water" stonden op twee regels naast vier labels op één regel (labels van 12 px kleiner maken kan niet). Alle zes labels krijgen nu de hoogte van twee regels
    (met de breedte van hun tegel, ze raken elkaar niet): evenveel ruimte onder elke tegel. Vanaf 1440 px blijven de labels op één regel zoals ze waren. */
 
-/* ---------- Stemming en energie over de volle breedte: de twee delen naast elkaar, gescheiden door een verticale lijn ---------- */
-@media (min-width: 1100px) {
-  .dag .dag__stemming .stemming__inhoud { display: grid; grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr); column-gap: var(--s-8); align-items: start; }
-  .dag .dag__stemming .stemming__lijn { width: 0; height: 100%; border-top: 0; border-left: var(--lijn); }
-  .dag .dag__stemming .dag__wis { grid-column: 1 / -1; }
-  .dag .dag__stemming .dag__wis.is-leeg { visibility: visible; } /* in de brede kaart staat de hint altijd: zo blijft er geen lege band onder de tegels */
-  /* De vijf keuzes van elk deel zijn gelijke tegels die de breedte van hun helft vullen, met een vaste tussenruimte: geen kleine tekens met lucht ertussen */
-  .dag .dag__stemming .stemming__inhoud { row-gap: var(--s-3); }
-  .dag .dag__stemming .gevoel, .dag .dag__stemming .energie--kiezer { gap: var(--s-2); --gevoel-tegel: 40px; --lh: 32px; }
-  .dag .dag__stemming .gevoel__optie, .dag .dag__stemming .energie__tik { width: 100%; min-height: calc(var(--tap-min) * 1.6); padding: var(--s-2); justify-content: center; border-radius: var(--r-md); background: var(--c-surface-soft); }
-  .dag .dag__stemming .energie__tik { justify-content: flex-end; }
-}

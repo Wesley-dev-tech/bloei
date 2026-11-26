@@ -1,12 +1,12 @@
 // Eén maaltijd als rij in een kaart, met het invulvenster in een blad (HUISSTIJL §5, §6 en §7; PLAN.md §7; BESLISSING 419).
-// Dicht: maaltijdtegel, naam van het moment, uur, tekst en het gekozen gezichtje.
-// Het blad: uur, tekstvak, chips, favoriet, gevoel en de knoppen Klaar, Annuleren en Verwijderen (zichtbaar zolang er iets staat). Een maaltijd heeft geen foto: de rij toont altijd de maaltijdtegel.
+// Dicht: maaltijdtegel, naam van het moment, uur, en tekst.
+// Het blad: uur, tekstvak, chips, favoriet en de knoppen Klaar, Annuleren en Verwijderen (zichtbaar zolang er iets staat). Een maaltijd heeft geen foto: de rij toont altijd de maaltijdtegel.
 // Alles bewaart zichzelf: tekst 400 ms na de laatste toets en bij verlaten, de rest meteen.
 import { h } from './dom.js';
 import { icoon } from './iconen.js';
-import { rij, tijdveld, tekstvak, chip, icoonknop, knop, gevoelschaal, bevestig, strook, blad } from './componenten.js';
+import { rij, tijdveld, tekstvak, chip, icoonknop, knop, bevestig, strook, blad } from './componenten.js';
 import { miniatuur } from './beeld.js';
-import { ICOON, STEMMING_STAP, begripIcoon } from './iconenkaart.js';
+import { ICOON, begripIcoon } from './iconenkaart.js';
 import { t } from '../teksten.js';
 import { plusDagen, nuAlsTijd, vandaag } from '../kern/datum.js';
 import {
@@ -33,15 +33,8 @@ const inKeten = (fn) => {
   return volgende;
 };
 
-const GEVOEL_ICONEN = STEMMING_STAP;
-
 // Een losse kopie van een maaltijdrecord (of null), voor de stand bij het openen van het venster.
 const kopieVan = (m) => (m ? { ...m } : null);
-
-// Het gezichtje klein, in de kleur van zijn stap.
-export function gevoelIcoon(waarde, grootte = 18) {
-  return h('span', { class: 'gevoelicoon', dataset: { stap: waarde } }, icoon(GEVOEL_ICONEN[waarde - 1], { grootte, stijl: 'regular' }));
-}
 
 const naarMinuten = (tijd) => {
   const [u, m] = tijd.split(':').map(Number);
@@ -107,7 +100,6 @@ export function maaltijdregel(opties) {
           'span',
           { class: 'maaltijd__eind' },
           h('span', { class: 'cijfer' }, m.tijd),
-          m.gevoel ? gevoelIcoon(m.gevoel) : null,
           alleenLezen ? null : h('span', { class: 'maaltijd__wijzig', title: t('maaltijd.wijzig') }, begripIcoon('volgende', { grootte: 14 })),
         )
       : alleenLezen
@@ -134,7 +126,7 @@ export function maaltijdregel(opties) {
     kop.setAttribute('aria-expanded', 'false');
   }
 
-  // R5-02: na elke bewaarde wijziging toont de rij wat er nu bewaard is (tekst, uur en gevoel), ook terwijl het blad open is.
+  // R5-02: na elke bewaarde wijziging toont de rij wat er nu bewaard is (tekst en uur), ook terwijl het blad open is.
   // Dezelfde knop blijft staan (de focus blijft erop); alleen de inhoud wordt vervangen.
   function werkKopBij(m) {
     huidig = m ?? null;
@@ -197,7 +189,6 @@ export function maaltijdregel(opties) {
     const state = {
       tijd: huidig?.tijd ?? (datum === vandaag() ? nuAlsTijd() : STANDAARDTIJD[soort]),
       tekst: huidig?.tekst ?? '',
-      gevoel: huidig?.gevoel ?? null,
     };
     // R5-01: alleen wat in dit venster gewijzigd is, gaat naar de database (op het record zoals het daar nu staat). Het uur gaat mee
     // als het gewijzigd is, of bij een maaltijd die nog niet bestond (dan het uur dat in het venster staat).
@@ -335,23 +326,7 @@ export function maaltijdregel(opties) {
       }
     })();
 
-    // Gevoel
-    const gevoel = h(
-      'div',
-      { class: 'maaltijd__veld', dataset: { fk: 'gevoel-' + soort } },
-      h('p', { class: 'label' }, t('gevoel.vraag')),
-      gevoelschaal({
-        waarde: state.gevoel,
-        soort: 'gevoel',
-        opKies: (n) => {
-          state.gevoel = n;
-          zetVerwijder();
-          return schrijf({ gevoel: n });
-        },
-      }),
-    );
-
-    // Verwijderen: staat in het open paneel zolang er iets staat (tekst of gevoel), ook als dat pas tijdens het
+    // Verwijderen: staat in het open paneel zolang er iets staat (tekst), ook als dat pas tijdens het
     // typen in een eerst lege maaltijd gebeurt. Na het verwijderen volgt een strook met Ongedaan maken.
     const verwijderHouder = h('div', { class: 'maaltijd__verwijder' });
     const verwijderKnop = knop(t('maaltijd.verwijderen'), {
@@ -365,7 +340,7 @@ export function maaltijdregel(opties) {
         });
         if (!ja) return;
         await bewaarNu(); // wat nog wacht, wordt eerst bewaard zodat het niet na het verwijderen terugkomt
-        const terug = { tijd: state.tijd, tekst: state.tekst, gevoel: state.gevoel };
+        const terug = { tijd: state.tijd, tekst: state.tekst };
         await inKeten(() => wisMaaltijd(datum, soort));
         vergeetMislukt({ soort: 'maaltijd', datum, maaltijd: soort }); // een mislukte tekst komt niet terug uit het vangnet
         werkKopBij(null);
@@ -435,7 +410,7 @@ export function maaltijdregel(opties) {
       }
     });
     function zetVerwijder() {
-      verwijderHouder.hidden = !(state.tekst.trim() !== '' || state.gevoel != null);
+      verwijderHouder.hidden = state.tekst.trim() === '';
       bewaarKnop.disabled = state.tekst.trim() === '';
     }
     zetVerwijder();
@@ -446,7 +421,6 @@ export function maaltijdregel(opties) {
       uur,
       h('div', { class: 'maaltijd__tekst' }, vak, hart),
       chipRij,
-      gevoel,
       h('div', { class: 'maaltijd__acties' }, bewaarKnop, annuleerKnop, verwijderHouder), // BESLISSING 417: Klaar, Annuleren, Verwijderen
     );
     // Escape doet hetzelfde als Klaar: bewaren wat wacht, sluiten, de focus terug op de rij (BESLISSING 412; R5-02). Niet annuleren.

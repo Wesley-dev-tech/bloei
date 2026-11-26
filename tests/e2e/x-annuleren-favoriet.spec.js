@@ -42,7 +42,7 @@ const zetRij = (page, tabel, rij) =>
     [tabel, rij, DB],
   );
 const favoriet = (id, tekst, laatstGebruikt) => ({ id, tekst, sleutel: tekst.trim().toLowerCase(), laatstGebruikt });
-const record = (soort, tekst, extra = {}) => ({ datum: D, soort, tijd: '12:30', tekst, fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1, ...extra });
+const record = (soort, tekst, extra = {}) => ({ datum: D, soort, tijd: '12:30', tekst, fotoId: null, voorbeeld: false, gewijzigdOp: 1, ...extra });
 const maaltijd = (page, soort) => rijen(page, 'maaltijden').then((l) => l.find((m) => m.soort === soort && m.datum === D) ?? null);
 
 const blad = (page) => page.locator('dialog.dialoog[open]');

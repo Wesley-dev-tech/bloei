@@ -5,7 +5,6 @@ import { beforeEach, describe, expect, test } from 'vitest';
 import { db, openDb } from '../../src/data/db.js';
 import { luister, zend } from '../../src/kern/bus.js';
 import { plusDagen, vandaag } from '../../src/kern/datum.js';
-import { zetEnergie, zetStemming } from '../../src/data/dagen.js';
 import { bewaarMaaltijd } from '../../src/data/maaltijden.js';
 import { voegDrankToe } from '../../src/data/dranken.js';
 import { bewaarWeging } from '../../src/data/wegingen.js';
@@ -14,7 +13,7 @@ import { controleerBadges, leesBadges, leesBadgeStats, startBadges, stopBadges }
 import { ALLE_BADGES, GROEPEN, NIEUWE_BADGES, DOEL, dagRondDagen, langsteReeks, telBadges, terugDagen, verdiendAlle, voortgangVan } from '../../src/logica/badgeregels.js';
 import { TEKSTEN } from '../../src/teksten.js';
 
-const NUL = { dagenBijgehouden: 0, lopendeReeks: 0, doelDagen: 0, notitieDagen: 0, stemmingDagen: 0, innameDagen: 0, volledigeMomentDagen: 0, maaltijden: 0, favorieten: 0, energieDagen: 0, wegingen: 0, langsteDoelReeks: 0, dagRondDagen: 0, terugDagen: 0, verslagen: 0 };
+const NUL = { dagenBijgehouden: 0, lopendeReeks: 0, doelDagen: 0, notitieDagen: 0, innameDagen: 0, volledigeMomentDagen: 0, maaltijden: 0, favorieten: 0, wegingen: 0, langsteDoelReeks: 0, dagRondDagen: 0, terugDagen: 0, verslagen: 0 };
 const heeft = (id, stats) => verdiendAlle(stats).includes(id);
 
 // [id, stat, drempel]: net niet (drempel min 1) en net wel (drempel)
@@ -33,8 +32,6 @@ const REGELS = [
   ['alles-afgevinkt', 'volledigeMomentDagen', 1],
   ['week-trouw', 'volledigeMomentDagen', 7],
   ['dertig-vol', 'volledigeMomentDagen', 30],
-  ['dertig-stemmingen', 'stemmingDagen', 30],
-  ['zeven-energie', 'energieDagen', 7],
   ['twintig-notities', 'notitieDagen', 20],
   ['eerste-weging', 'wegingen', 1],
   ['vier-wegingen', 'wegingen', 4],
@@ -60,7 +57,6 @@ const REGELS = [
   ['vijfhonderd-maaltijden', 'maaltijden', 500],
   ['vijf-favorieten', 'favorieten', 5],
   ['drie-op-een-dag', 'etenKlaarDagen', 1],
-  ['tien-gevoel', 'gevoelMaaltijden', 10],
   ['tien-maaltijden', 'maaltijden', 10],
   ['tien-favorieten', 'favorieten', 10],
   ['zeven-drie-maaltijden', 'etenKlaarDagen', 7],
@@ -80,12 +76,14 @@ const REGELS = [
   ['honderd-vinkjes', 'innames', 100],
   ['zeven-op-rij-afgevinkt', 'langsteVolReeks', 7],
   ['vijftig-notities', 'notitieDagen', 50],
-  ['honderd-stemmingen', 'stemmingDagen', 100],
-  ['dertig-energie', 'energieDagen', 30],
-  ['week-gezichtjes', 'langsteStemmingReeks', 7],
   ['honderd-notities', 'notitieDagen', 100],
-  ['maand-gezichtjes', 'langsteStemmingReeks', 30],
-  ['gezichtje-en-blaadje', 'beideDagen', 7],
+  ['eerste-notitie', 'notitieDagen', 1],
+  ['tien-notities', 'notitieDagen', 10],
+  ['tweehonderd-notities', 'notitieDagen', 200],
+  ['drie-notities-op-rij', 'langsteNotitieReeks', 3],
+  ['week-notities-op-rij', 'langsteNotitieReeks', 7],
+  ['maand-notities-op-rij', 'langsteNotitieReeks', 30],
+  ['lange-notitie', 'langeNotities', 1],
   ['twaalf-wegingen', 'wegingen', 12],
   ['halfjaar-wegen', 'wegingen', 26],
   ['jaar-wegen', 'wegingen', 52],
@@ -98,6 +96,13 @@ const REGELS = [
   ['volledige-dag', 'helemaalDagen', 1],
   ['vijf-verslagen', 'verslagen', 5],
   ['tien-verslagen', 'verslagen', 10],
+  ['twintig-verslagen', 'verslagen', 20],
+  ['verslag-verstuurd', 'verslagenVerstuurd', 1],
+  ['verslag-bewaard', 'verslagenBewaard', 1],
+  ['volledig-verslag', 'verslagenVolledig', 1],
+  ['weekverslag', 'verslagenWeek', 1],
+  ['maandverslag', 'verslagenMaand', 1],
+  ['maand-na-maand', 'verslagMaanden', 3],
   ['eerste-rondleiding', 'rondleidingen', 1],
   ['eigen-kleur', 'themaGekozen', 1],
   ['seintje-aan', 'herinneringAan', 1],
@@ -108,7 +113,7 @@ const REGELS = [
   ['tien-medailles', 'medailles', 10],
   ['vijfentwintig-medailles', 'medailles', 25],
   ['vijftig-medailles', 'medailles', 50],
-  ['verzameling-compleet', 'medailles', 120],
+  ['verzameling-compleet', 'medailles', 125],
   ['geboortedatum', 'geboortedatum', 1],
   ['jarig', 'jarigGeopend', 1],
   ['jarig-genoteerd', 'jarigGenoteerd', 1],
@@ -118,7 +123,7 @@ describe('badgeregels (puur)', () => {
   test('alle badges hebben een unieke sleutel, een groep, een naam, een uitleg en een voortgang', () => {
     const ids = ALLE_BADGES.map((b) => b.id);
     expect(new Set(ids).size).toBe(ids.length);
-    expect(ids).toHaveLength(121);
+    expect(ids).toHaveLength(126);
     expect(ids).not.toContain('veilig');
     for (const b of ALLE_BADGES) {
       expect(GROEPEN, b.id).toContain(b.groep);
@@ -160,7 +165,7 @@ describe('badgeregels (puur)', () => {
     expect(terugDagen([d(0), d(5), d(12)])).toBe(2);
   });
 
-  test('dagRondDagen: eten, supplementen en drinkdoel in orde; stemming telt niet (zelfde regel als de motivatiezin)', () => {
+  test('dagRondDagen: eten, supplementen en drinkdoel in orde (zelfde regel als de motivatiezin)', () => {
     const rond = { etenKlaar: true, supplementen: { genomen: 2, totaal: 2 }, ml: 2500, doelMl: 2500 };
     expect(dagRondDagen([rond])).toBe(1);
     expect(dagRondDagen([{ ...rond, supplementen: { genomen: 0, totaal: 0 } }])).toBe(1); // geen supplementen is in orde
@@ -177,10 +182,10 @@ describe('badgeregels (puur)', () => {
   });
 
   test('telBadges: behaald is nooit groter dan het totaal; een oude bewaarde rij "veilig" telt niet mee', () => {
-    expect(telBadges([])).toEqual({ behaald: 0, totaal: 121 });
-    expect(telBadges(['veilig', 'week-vol'])).toEqual({ behaald: 1, totaal: 121 });
+    expect(telBadges([])).toEqual({ behaald: 0, totaal: 126 });
+    expect(telBadges(['veilig', 'week-vol'])).toEqual({ behaald: 1, totaal: 126 });
     const alle = ALLE_BADGES.map((b) => b.id);
-    expect(telBadges(alle)).toEqual({ behaald: 121, totaal: 121 });
+    expect(telBadges(alle)).toEqual({ behaald: 126, totaal: 126 });
     expect(telBadges(['onbekend']).behaald).toBe(0);
   });
 
@@ -199,25 +204,23 @@ beforeEach(async () => {
 });
 
 describe('leesBadgeStats (eigen gegevens, nooit voorbeelddata)', () => {
-  test('telt maaltijden, favorieten, energie, wegingen en dagen rond', async () => {
+  test('telt maaltijden, favorieten, wegingen en dagen rond', async () => {
     await bewaarMaaltijd(dag(-1), 'ontbijt', { tekst: 'havermout' });
     await voegFavorietToe('yoghurt');
-    await zetEnergie(dag(-1), 3);
-    await zetStemming(dag(-1), 4);
     await bewaarWeging(dag(-1), 68.4);
     await voegDrankToe(dag(-1));
     const s = await leesBadgeStats();
-    expect(s).toMatchObject({ maaltijden: 1, favorieten: 1, energieDagen: 1, wegingen: 1, stemmingDagen: 1 });
+    expect(s).toMatchObject({ maaltijden: 1, favorieten: 1, wegingen: 1 });
     expect(s.dagRondDagen).toBe(0); // alleen een ontbijt en een kan: eten en drinkdoel niet in orde
   });
 
   test('voorbeelddata telt nooit mee', async () => {
     await db.maaltijden.put({ datum: dag(-1), soort: 'ontbijt', tekst: 'voorbeeld', voorbeeld: true });
     await db.dranken.add({ datum: dag(-1), tijdstip: Date.now(), soort: 'water', ml: 250, voorbeeld: true });
-    await db.dagen.put({ datum: dag(-1), stemming: 3, energie: 3, notitie: 'x', doelGehaald: true, voorbeeld: true });
+    await db.dagen.put({ datum: dag(-1), notitie: 'x', doelGehaald: true, voorbeeld: true });
     await db.wegingen.put({ week: dag(-1), datum: dag(-1), kg: 70, voorbeeld: true });
     const s = await leesBadgeStats();
-    expect(s).toMatchObject({ maaltijden: 0, energieDagen: 0, wegingen: 0, langsteDoelReeks: 0, doelDagen: 0, dagRondDagen: 0, terugDagen: 0 });
+    expect(s).toMatchObject({ maaltijden: 0, wegingen: 0, langsteDoelReeks: 0, doelDagen: 0, dagRondDagen: 0, terugDagen: 0 });
   });
 
   test('weer thuis: iets noteren na vier lege dagen', async () => {
@@ -259,6 +262,24 @@ describe('stil toekennen en het event verslag:gemaakt', () => {
     expect(gevierd).toEqual(['eerste-maaltijd']);
   });
 
+  // 0.5.8 (notities en verslagen): wie Bloei al gebruikte, heeft de drie oudere vlaggen al. De nieuwe medailles voor wat al in haar dagboek
+  // staat komen stil, met één rustige melding, niet als een reeks vieringen. De vierde vlag onthoudt dat.
+  test('na de uitbreiding van 0.5.8: de nieuwe medailles voor notities komen stil en de vierde vlag wordt gezet', async () => {
+    for (const sleutel of ['badges.uitgebreid', 'badges.uitgebreid2', 'badges.uitgebreid3']) await db.instellingen.put({ sleutel, waarde: true });
+    for (let i = 3; i >= 1; i--) await db.dagen.put({ datum: dag(-i), notitie: 'Een rustige dag.', doelGehaald: false, voorbeeld: false });
+    const vieringen = [];
+    const stil = [];
+    const af1 = luister('badge:behaald', (d) => vieringen.push(d.id));
+    const af2 = luister('badges:stil', (d) => stil.push(d.aantal));
+    const nieuw = await controleerBadges();
+    af1();
+    af2();
+    expect(nieuw).toEqual(expect.arrayContaining(['eerste-notitie', 'drie-notities-op-rij']));
+    expect(vieringen).toEqual([]);
+    expect(stil).toEqual([nieuw.length]);
+    expect((await db.instellingen.get('badges.uitgebreid4'))?.waarde).toBe(true);
+  });
+
   test('zonder gegevens bij de eerste start: niets te melden, en daarna wordt wel gevierd', async () => {
     const stil = [];
     const af = luister('badges:stil', (d) => stil.push(d));
@@ -281,5 +302,30 @@ describe('stil toekennen en het event verslag:gemaakt', () => {
     await controleerBadges();
     stopBadges();
     expect((await leesBadges()).map((b) => b.id)).toContain('eerste-verslag');
+  });
+
+  // 0.5.8: Bloei onthoudt hoe een verslag gemaakt werd (alleen aantallen en de maand), voor de nieuwe medailles van Bewaren en delen.
+  test('een verstuurd verslag van een week met alle onderdelen geeft Verstuurd, Volledig verslag en Weekverslag, en niet Op je toestel of Maandverslag', async () => {
+    await db.instellingen.put({ sleutel: 'badges.uitgebreid', waarde: true });
+    startBadges();
+    zend('verslag:gemaakt', { van: dag(-6), tot: VANDAAG, manier: 'versturen', onderdelen: { eten: true, drinken: true, gewicht: true, notities: true } });
+    await new Promise((klaar) => setTimeout(klaar, 900));
+    await controleerBadges();
+    stopBadges();
+    const ids = (await leesBadges()).map((b) => b.id);
+    for (const id of ['eerste-verslag', 'verslag-verstuurd', 'volledig-verslag', 'weekverslag']) expect(ids, id).toContain(id);
+    for (const id of ['verslag-bewaard', 'maandverslag', 'maand-na-maand', 'twintig-verslagen']) expect(ids, id).not.toContain(id);
+    expect((await db.instellingen.get('delen.verslagTelling')).waarde).toEqual({ verstuurd: 1, bewaard: 0, volledig: 1, week: 1, maand: 0, maanden: [VANDAAG.slice(0, 7)] });
+    const stats = await leesBadgeStats();
+    expect(stats).toMatchObject({ verslagen: 1, verslagenVerstuurd: 1, verslagenBewaard: 0, verslagenVolledig: 1, verslagenWeek: 1, verslagenMaand: 0, verslagMaanden: 1 });
+  });
+
+  test('notities: dagen na elkaar en een lange notitie tellen mee in de stats', async () => {
+    const lang = Array(50).fill('woord').join(' ');
+    for (const [n, notitie] of [[-4, 'kort'], [-3, lang], [-2, 'ook kort'], [0, 'vandaag']]) await db.dagen.put({ datum: dag(n), notitie, doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
+    const stats = await leesBadgeStats();
+    expect(stats).toMatchObject({ notitieDagen: 4, langsteNotitieReeks: 3, langeNotities: 1 });
+    expect(verdiendAlle(stats)).toEqual(expect.arrayContaining(['eerste-notitie', 'drie-notities-op-rij', 'lange-notitie']));
+    expect(verdiendAlle(stats)).not.toContain('tien-notities');
   });
 });

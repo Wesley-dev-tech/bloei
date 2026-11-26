@@ -99,9 +99,9 @@ describe('OW-05: de schrijfpaden begrenzen', () => {
 
   it('wat al langer bewaard is, wordt bij het lezen niet afgekapt (en een wijziging van iets anders laat het staan)', async () => {
     const lang = 'L'.repeat(MAX_LENGTE.notitie * 2);
-    await db.dagen.put({ datum: GISTEREN, notitie: lang, stemming: null, energie: null, voorbeeld: false, gewijzigdOp: 1 });
+    await db.dagen.put({ datum: GISTEREN, notitie: lang, voorbeeld: false, gewijzigdOp: 1 });
     await db.instellingen.put({ sleutel: 'profiel.naam', waarde: 'X'.repeat(500) });
-    await db.maaltijden.put({ datum: GISTEREN, soort: 'middagmaal', tijd: '12:00', tekst: 'M'.repeat(MAX_LENGTE.maaltijd * 2), fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1 });
+    await db.maaltijden.put({ datum: GISTEREN, soort: 'middagmaal', tijd: '12:00', tekst: 'M'.repeat(MAX_LENGTE.maaltijd * 2), fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
     const sid = await db.supplementen.add({ naam: 'Z'.repeat(500), dosis: '', hoeveelheid: '', aanwijzing: '', momenten: ['ochtend'], ritme: { soort: 'dagelijks' }, volgorde: 1, actief: true, voorbeeld: false, aangemaaktOp: 1 });
     expect((await leesDag(GISTEREN)).notitie).toBe(lang);
     expect(await leesInstelling('profiel.naam')).toHaveLength(500);

@@ -17,8 +17,8 @@ const NU = new Date(2026, 10, 15, 14, 30);
 const DAG = vandaag(NU);
 
 // De badges die de demo als behaald toont, en de nog niet behaalde met minstens 70 procent voortgang (BESLISSING 401).
-const BEHAALD = ['eerste-bladzijde', 'week-vol', 'eerste-kan', 'tien-kannen', 'kanttekening', 'gemoed', 'eerste-potje', 'drie-op-rij', 'week-op-rij', 'eerste-maaltijd', 'vijftig-maaltijden', 'eerste-favoriet', 'alles-afgevinkt', 'week-trouw', 'zeven-energie', 'eerste-weging', 'dag-rond'];
-const BIJNA = ['dertig-stemmingen', 'maand-vol', 'twee-weken', 'trouw', 'week-water', 'vier-wegingen', 'zeven-dagen-rond'];
+const BEHAALD = ['eerste-bladzijde', 'week-vol', 'eerste-kan', 'tien-kannen', 'kanttekening', 'eerste-potje', 'drie-op-rij', 'week-op-rij', 'eerste-maaltijd', 'vijftig-maaltijden', 'eerste-favoriet', 'alles-afgevinkt', 'week-trouw', 'eerste-weging', 'dag-rond'];
+const BIJNA = ['maand-vol', 'twee-weken', 'trouw', 'week-water', 'vier-wegingen', 'zeven-dagen-rond'];
 
 afterEach(() => vi.useRealTimers());
 
@@ -95,10 +95,7 @@ describe('de rijen', () => {
     for (const x of [...vroeg.dranken, ...vroeg.innames]) expect(x.tijdstip).toBeLessThanOrEqual(new Date(2026, 10, 15, 6, 0).getTime());
   });
 
-  test('stemming, energie en notities', () => {
-    expect(r.dagen.filter((d) => d.stemming != null).length).toBeGreaterThanOrEqual(20);
-    expect(r.dagen.filter((d) => d.energie != null).length).toBeGreaterThanOrEqual(20);
-    for (const d of r.dagen) for (const w of [d.stemming, d.energie]) expect(w === null || (Number.isInteger(w) && w >= 1 && w <= 5)).toBe(true);
+  test('notities', () => {
     expect(r.dagen.filter((d) => d.notitie).length).toBeGreaterThanOrEqual(5);
   });
 
@@ -184,7 +181,7 @@ describe('in de database, met de echte logica', () => {
   test('Opnieuw beginnen wist de database en vult opnieuw, ook na een eigen wijziging', async () => {
     await vulDemo(NU);
     await db.dranken.add({ datum: DAG, tijdstip: NU.getTime(), soort: 'water', ml: 800, voorbeeld: false });
-    await db.maaltijden.put({ datum: DAG, soort: 'avondmaal', tijd: '18:00', tekst: 'Eigen maaltijd', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: 1 });
+    await db.maaltijden.put({ datum: DAG, soort: 'avondmaal', tijd: '18:00', tekst: 'Eigen maaltijd', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
     const voor = bouwDemo(NU);
     await begin(NU);
     expect(await db.dranken.count()).toBe(voor.dranken.length);

@@ -8,14 +8,14 @@ import { lopendeReeks } from './reeks.js';
 import { DOEL, FEESTBADGES } from './badgeregels.js';
 import { feestdagOp } from './kalender.js';
 
-// feiten: [{ datum, bij (bijgehouden), maaltijden, etenKlaar, gevoel, dranken, ml, soorten: [..], doel (dagdoel gehaald), innames, periodiek,
-//            vol (alle momenten afgevinkt), stemming, energie, notitie (boolean), wegingen: [maandag van de week, ...], rond }]
+// feiten: [{ datum, bij (bijgehouden), maaltijden, etenKlaar, dranken, ml, soorten: [..], doel (dagdoel gehaald), innames, periodiek,
+//            vol (alle momenten afgevinkt), notitie (boolean), langeNotitie (boolean), wegingen: [maandag van de week, ...], rond }]
 // ids: de medailles waarvoor een datum gezocht wordt. Geeft een Map id → datumsleutel (alleen voor wie een datum heeft).
 export function eersteDatums(feiten, ids) {
   const s = {
-    dagenBijgehouden: 0, lopendeReeks: 0, terugDagen: 0, volleWeken: 0, volleMaanden: 0, maaltijden: 0, etenKlaarDagen: 0, gevoelMaaltijden: 0,
+    dagenBijgehouden: 0, lopendeReeks: 0, terugDagen: 0, volleWeken: 0, volleMaanden: 0, maaltijden: 0, etenKlaarDagen: 0,
     dranken: 0, liters: 0, drankSoorten: 0, doelDagen: 0, langsteDoelReeks: 0, innameDagen: 0, innames: 0, periodiekInnames: 0,
-    volledigeMomentDagen: 0, langsteVolReeks: 0, notitieDagen: 0, stemmingDagen: 0, energieDagen: 0, beideDagen: 0, langsteStemmingReeks: 0,
+    volledigeMomentDagen: 0, langsteVolReeks: 0, notitieDagen: 0, langsteNotitieReeks: 0, langeNotities: 0,
     wegingen: 0, langsteWeegReeks: 0, dagRondDagen: 0, langsteRondReeks: 0, helemaalDagen: 0,
     ...Object.fromEntries(Object.keys(FEESTBADGES).map((feest) => ['feest:' + feest, 0])), // iets genoteerd op die feestdag
   };
@@ -37,9 +37,9 @@ export function eersteDatums(feiten, ids) {
   };
   const rDoel = reeks();
   const rVol = reeks();
-  const rStemming = reeks();
   const rRond = reeks();
   const rWeeg = reeks();
+  const rNotitie = reeks();
   for (const f of [...feiten].sort((a, b) => (a.datum < b.datum ? -1 : a.datum > b.datum ? 1 : 0))) {
     const d = f.datum;
     if (f.bij) {
@@ -60,7 +60,6 @@ export function eersteDatums(feiten, ids) {
     }
     s.maaltijden += f.maaltijden ?? 0;
     if (f.etenKlaar) s.etenKlaarDagen += 1;
-    s.gevoelMaaltijden += f.gevoel ?? 0;
     s.dranken += f.dranken ?? 0;
     ml += f.ml ?? 0;
     s.liters = Math.floor(ml / 1000);
@@ -77,13 +76,11 @@ export function eersteDatums(feiten, ids) {
       s.volledigeMomentDagen += 1;
       s.langsteVolReeks = Math.max(s.langsteVolReeks, tel(rVol, d));
     }
-    if (f.notitie) s.notitieDagen += 1;
-    if (f.energie != null) s.energieDagen += 1;
-    if (f.stemming != null) {
-      s.stemmingDagen += 1;
-      if (f.energie != null) s.beideDagen += 1;
-      s.langsteStemmingReeks = Math.max(s.langsteStemmingReeks, tel(rStemming, d));
+    if (f.notitie) {
+      s.notitieDagen += 1;
+      s.langsteNotitieReeks = Math.max(s.langsteNotitieReeks, tel(rNotitie, d));
     }
+    if (f.langeNotitie) s.langeNotities += 1;
     for (const week of f.wegingen ?? []) {
       s.wegingen += 1;
       s.langsteWeegReeks = Math.max(s.langsteWeegReeks, tel(rWeeg, week, 7));
@@ -91,7 +88,7 @@ export function eersteDatums(feiten, ids) {
     if (f.rond) {
       s.dagRondDagen += 1;
       s.langsteRondReeks = Math.max(s.langsteRondReeks, tel(rRond, d));
-      if (f.stemming != null && f.energie != null && f.notitie) s.helemaalDagen += 1;
+      if (f.notitie) s.helemaalDagen += 1;
     }
     for (const id of zoek) {
       if (uit.has(id)) continue;

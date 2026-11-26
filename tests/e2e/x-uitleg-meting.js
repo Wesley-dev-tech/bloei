@@ -12,7 +12,6 @@
 export const MAAT = { marge: 8, margeTelefoon: 12, afstand: 14, rand: 12 };
 
 // Genoeg gegevens om elke voorwaardelijke stap te laten verschijnen (zoals zaai() in c-uitleg.spec.js): supplementen met een spuit vandaag,
-// een streefgewicht, drie wegingen, vier dagen met stemming, drank en een maaltijd. Daarna herladen.
 export function zaaiUitleg(page, { wegingen = 3, streef = true, spuit = true } = {}) {
   return page.evaluate(
     (o) =>
@@ -43,9 +42,9 @@ export function zaaiUitleg(page, { wegingen = 3, streef = true, spuit = true } =
             for (let k = 0; k < 4; k++) {
               const x = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - k, nu.getHours(), nu.getMinutes());
               const ds = iso(x);
-              await schrijf('dagen', { datum: ds, notitie: k % 2 ? 'Rustige dag.' : '', stemming: 3 + (k % 3), energie: 2 + (k % 3), doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
+              await schrijf('dagen', { datum: ds, notitie: k % 2 ? 'Rustige dag.' : '', doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
               for (const [soort, ml] of [['water', 800], ['thee', 200], ['water', 800]]) await schrijf('dranken', { datum: ds, tijdstip: x.getTime() - 3600e3, soort, ml, voorbeeld: false }, 'add');
-              await schrijf('maaltijden', { datum: ds, soort: 'ontbijt', tekst: 'havermout met banaan', fotoId: null, gevoel: 4, voorbeeld: false, gewijzigdOp: 1 });
+              await schrijf('maaltijden', { datum: ds, soort: 'ontbijt', tekst: 'havermout met banaan', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
             }
             db.close();
             klaar();
@@ -477,11 +476,16 @@ export function meetStreng() {
   if (el.closest('#tabbalk')) zone.b = innerHeight;
   uit.zone = zone;
   const tol = 1.5;
-  if (G.t < zone.t - tol || G.b > zone.b + tol || G.l < -tol || G.r > innerWidth + tol) uit.fouten.push(`gat buiten de vrije zone (${G.t.toFixed(0)}-${G.b.toFixed(0)}, zone ${zone.t.toFixed(0)}-${zone.b.toFixed(0)})`);
+  // (een blok waar de kaart over ligt, data-over, mag onder de kaart en de onderrand doorlopen: het hele blok blijft aangeduid)
+  if ((G.t < zone.t - tol || G.l < -tol || G.r > innerWidth + tol || (G.b > zone.b + tol && kaartEl.dataset.over !== '1'))) uit.fouten.push(`gat buiten de vrije zone (${G.t.toFixed(0)}-${G.b.toFixed(0)}, zone ${zone.t.toFixed(0)}-${zone.b.toFixed(0)})`);
   const kz = { t: (inBalk && !el.closest('#tabbalk')) || innerHeight < 600 ? 0 : kop, b: inDialog || innerHeight < 700 ? innerHeight : balk }; // BESLISSING 570: op een lage telefoon mag de kaart over de balk; BESLISSING 750 (K2): onder 600 px hoogte ook over de gedimde vaste kop
   if (K.t < kz.t - tol || K.b > kz.b + tol) uit.fouten.push(`uitlegkaart buiten de vrije zone (${K.t.toFixed(0)}-${K.b.toFixed(0)}, zone ${kz.t.toFixed(0)}-${kz.b.toFixed(0)})`);
   const over = (a, b, m = 1) => a.l < b.r - m && a.r > b.l + m && a.t < b.b - m && a.b > b.t + m;
-  if (over(G, K)) uit.fouten.push('gat en uitlegkaart overlappen');
+  // Eigenaar, 0.5.8: de aanduiding stopt nooit halverwege een blok. Past het hele blok niet naast de uitlegkaart, dan blijft het hele blok aangeduid
+  // en ligt de kaart over zijn onderste deel (data-over op de kaart). Dan mogen het vak en de kaart overlappen en telt alleen het zichtbare deel.
+  const kaartOver = kaartEl.dataset.over === '1';
+  uit.over = kaartOver;
+  if (over(G, K) && !kaartOver) uit.fouten.push('gat en uitlegkaart overlappen');
   // doelvak tegenover gat: het doel moet volledig in het gat
   // visuele eenheden
   const voorouders = new Set();
@@ -572,7 +576,7 @@ export function meetStreng() {
   const vastHouder = inBalk || null;
   const m = 2.5;
   const buitenDoel = eenheden.filter(({ e, R }) => (el.contains(e) || (ander && ander.contains(e))) && !(R.l < G.r - m && R.r > G.l + m && R.t < G.b - m && R.b > G.t + m));
-  if (buitenDoel.length && !uit.deel) uit.fouten.push('doel niet volledig in het gat: ' + buitenDoel.slice(0, 3).map((x) => naam(x.e)).join(' | '));
+  if (buitenDoel.length && !uit.deel && !kaartOver) uit.fouten.push('doel niet volledig in het gat: ' + buitenDoel.slice(0, 3).map((x) => naam(x.e)).join(' | '));
   const doorsneden = [];
   // BESLISSINGEN 651 en 656: een deel van de maandkalender wordt per ontwerp tussen twee weken gesneden. Een geschilderd vlak (het raster) dat de
   // boven- of onderrand van het vak kruist, telt dan niet als doorsneden, maar ALLEEN in een deel, alleen boven of onder, en alleen als die rand
@@ -610,7 +614,7 @@ export function meetStreng() {
       if (af) doorsneden.push(`hoek van het gat over ${naam(e)}`);
     }
   }
-  if (doorsneden.length) uit.fouten.push(`doorsneden:${doorsneden.slice(0, 6).join(' | ')}${doorsneden.length > 6 ? ` (+${doorsneden.length - 6})` : ''}`);
+  if (doorsneden.length && !kaartOver) uit.fouten.push(`doorsneden:${doorsneden.slice(0, 6).join(' | ')}${doorsneden.length > 6 ? ` (+${doorsneden.length - 6})` : ''}`);
   // de kaart van het doel
   let kaart = null;
   for (let e = el; e && e !== scope && e !== document.body; e = e.parentElement) {

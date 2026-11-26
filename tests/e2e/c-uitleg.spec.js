@@ -131,9 +131,9 @@ function zaai(page, { wegingen = 3, streef = true, spuit = true } = {}) {
             for (let k = 0; k < 4; k++) {
               const x = new Date(nu.getFullYear(), nu.getMonth(), nu.getDate() - k, nu.getHours(), nu.getMinutes());
               const ds = iso(x);
-              await schrijf('dagen', { datum: ds, notitie: k % 2 ? 'Rustige dag.' : '', stemming: 3 + (k % 3), energie: 2 + (k % 3), doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
+              await schrijf('dagen', { datum: ds, notitie: k % 2 ? 'Rustige dag.' : '', doelGehaald: false, voorbeeld: false, gewijzigdOp: 1 });
               for (const [soort, ml] of [['water', 800], ['thee', 200], ['water', 800]]) await schrijf('dranken', { datum: ds, tijdstip: x.getTime() - 3600e3, soort, ml, voorbeeld: false }, 'add');
-              await schrijf('maaltijden', { datum: ds, soort: 'ontbijt', tekst: 'havermout met banaan', fotoId: null, gevoel: 4, voorbeeld: false, gewijzigdOp: 1 });
+              await schrijf('maaltijden', { datum: ds, soort: 'ontbijt', tekst: 'havermout met banaan', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
             }
             db.close();
             klaar();
@@ -500,7 +500,7 @@ test('Een maaltijd noteren (openMaaltijd): het maaltijdblad gaat open bij de jui
   const bladOpen = page.locator('body > .blad.maaltijdblad > dialog.dialoog[open]');
   const gezien = await doorloopHandeling(page, 'Een maaltijd noteren', 'vandaag', async () => (await bladOpen.count()) > 0);
   expect(gezien.length, JSON.stringify(gezien)).toBeGreaterThanOrEqual(8);
-  for (const t of ['Schrijf wat je at', 'Het uur', 'Hoe voelde het?', BEWAAR_MAALTIJD_TEKST, 'Verwijderen', 'Een favoriet maken']) expect(stand(gezien, t), t + ' ' + JSON.stringify(gezien)).toBe(true);
+  for (const t of ['Schrijf wat je at', 'Het uur', BEWAAR_MAALTIJD_TEKST, 'Verwijderen', 'Een favoriet maken']) expect(stand(gezien, t), t + ' ' + JSON.stringify(gezien)).toBe(true);
   for (const t of ['Kies een moment', 'Later aanpassen', 'Een favoriet gebruiken']) if (stand(gezien, t) !== undefined) expect(stand(gezien, t), t).toBe(false);
   await expect(bladOpen).toHaveCount(0);
   expect(zonderGezien(await momentopname(page))).toEqual(zonderGezien(voor));
@@ -548,9 +548,9 @@ const VERWACHT = {
   'vandaag.kop': { tag: 'button', naam: /Rondleiding/ }, // BESLISSING 593: de knop heet Rondleiding; Delen en het tandwiel hebben een eigen stap
   'vandaag.instellingen': { sel: '.begroeting__instellingen', optioneel: true }, // alleen op een telefoon: het tandwiel naar Algemeen
   'vandaag.dag': { sel: '.voortgang' },
+  'vandaag.weer': { sel: '.kaart.weerkaart' }, // het weer bij jou: de hele kaart, die er altijd staat (ook terwijl ze laadt)
   'vandaag.badges': { haak: 'badges' },
   'vandaag.week': { haak: 'week' },
-  'vandaag.gevoel': { sel: '.stemmingkaart' },
   'vandaag.glas': { sel: '.kaart.drinkkaart' }, // BESLISSINGEN 548 en 570: de hele kaart Drinken (op een telefoon in delen)
   'vandaag.afvinken': { haak: 'momenten' },
   'vandaag.spuit': { tag: 'button', sel: '.momentrij[data-moment="beurt"]', naam: /spuit/i, optioneel: true }, // alleen op de dag van een spuit
@@ -565,7 +565,6 @@ const VERWACHT = {
   'dagboek.notitie': { sel: '.dag__notitie' },
   'dagboek.drinken': { sel: '.dag__drinken' },
   'dagboek.supplementen': { sel: '.dag__supplementen' },
-  'dagboek.stemming': { sel: '.dag__stemming' },
   'dagboek.weekcijfers': { sel: '.wk__samenvatting' },
   'dagboek.weekschema': { sel: '.wk__schemakaart' },
   'dagboek.cijfers': { sel: '.maand__cijferkaart' },
@@ -669,7 +668,6 @@ const VERWACHT = {
   'h:maaltijd.regel': { sel: '.maaltijd' },
   'h:maaltijd.open': { tag: 'textarea' },
   'h:maaltijd.uur': { haak: 'maaltijd-uur', naam: /Uur/ },
-  'h:maaltijd.gevoel': { haak: 'maaltijd-gevoel', naam: /Hoe voelde/ },
   'h:maaltijd.bewaard': { tag: 'button', haak: 'maaltijd-bewaren', naam: new RegExp(`^${BEWAAR_MAALTIJD_TEKST}$`) }, // BESLISSING 226
   'h:maaltijd.annuleer': { tag: 'button', sel: '.maaltijd__annuleer', naam: /Annuleren/ }, // Klaar, Annuleren en Verwijderen: elk een eigen stap
   'h:maaltijd.later': { sel: '.maaltijd' },
@@ -711,10 +709,6 @@ const VERWACHT = {
   'h:gewicht.periode': { rol: 'radiogroup', haak: 'grafiek-periode' }, // alleen vanaf twee wegingen
   'h:gewicht.punt': { haak: 'grafiek-vlak' },
   'h:gewicht.streef': { haak: 'streefgewicht' },
-  'h:stemming.gezicht': { rol: 'radiogroup', sel: '.gevoel' },
-  'h:stemming.energie': { rol: 'radiogroup', sel: '.energie' },
-  'h:stemming.wissen': { sel: '.gevoel .is-gekozen' },
-  'h:stemming.terug': { tag: 'a', sel: '.tabbalk__item--dagboek, .zijbalk__item--dagboek', naam: /Dagboek/ },
   'h:dagboek.weergave': { rol: 'radiogroup', naam: /Weergave/ },
   'h:dagboek.bladeren': { sel: '.bladerkop' },
   'h:dagboek.vandaag': { sel: '.dagboek__home', naam: /Naar vandaag|Vandaag/ },
@@ -726,6 +720,12 @@ const VERWACHT = {
   'h:slot.terugkeer': { sel: '.instel__weetjes, .meldingen__goed' },
   'h:slot.wijzigen': { haak: 'slot-pin', optioneel: true }, // alleen als het slot aan staat
   'h:slot.vergeten': { sel: '.slotvoorbeeld__kwijt', naam: /Ik ken mijn code niet meer/ },
+  // Het weer lezen: van boven naar onder door de kaart, dan een kaartje over de plek en tot slot de warme zin.
+  'h:weer.nu': { sel: '.weerkaart__nu' },
+  'h:weer.cijfers': { sel: '.weerkaart__cijfers' },
+  'h:weer.week': { sel: '.weerkaart__week' },
+  'h:weer.plek': GEEN,
+  'h:weer.zin': { sel: '.voortgang__zin' },
   // BESLISSING 645: "Een thema kiezen" is dezelfde stap als Thema op Algemeen (de hele kaart met haar kop).
   'h:thema.kaart': { haak: 'thema', sel: '.kaart.meer__themakaart' },
 };
@@ -756,7 +756,7 @@ const SCHERM_SLEUTELS = Object.keys(STAPPEN).filter((k) => !k.startsWith('h:') &
 const HANDELING_SLEUTELS = Object.keys(STAPPEN).filter((k) => k.startsWith('h:') && k !== 'h:beginscherm');
 const VARIANTEN = [
   ...SCHERM_SLEUTELS.map((s) => ({ naam: s, sleutel: s, hash: s })),
-  { naam: 'dagboek (dag)', sleutel: 'dagboek', hash: 'dagboek', alleen: ['kop', 'weergave', 'bladeren', 'delen', 'eten', 'notitie', 'drinken', 'supplementen', 'stemming'] },
+  { naam: 'dagboek (dag)', sleutel: 'dagboek', hash: 'dagboek', alleen: ['kop', 'weergave', 'bladeren', 'delen', 'eten', 'notitie', 'drinken', 'supplementen'] },
   { naam: 'dagboek (week)', sleutel: 'dagboek', hash: 'dagboek/week', alleen: ['kop', 'weergave', 'bladeren', 'delen', 'weekcijfers', 'weekschema'] },
   { naam: 'dagboek (maand)', sleutel: 'dagboek', hash: 'dagboek/maand', alleen: ['kop', 'weergave', 'bladeren', 'delen', 'cijfers', 'maand', 'tekens', 'paneel', 'dagOpenen', 'beurt'] }, // BESLISSING 703: tekens alleen in maand
   // Zonder spuit staat er op Vandaag geen rij voor een spuit.
@@ -1429,7 +1429,7 @@ for (const [breed, hoog, aanraak] of [[390, 844, true], [360, 740, true], [820, 
           return titels;
         }
         await tik(kaart(page).getByRole('button', { name: TEKSTEN.uitleg.volgende }));
-        await expect(stapLabel(page)).toHaveText(`Stap ${i + 1} van ${totaal}`);
+        await expect(stapLabel(page), `${wie}: na "${titel}"`).toHaveText(`Stap ${i + 1} van ${totaal}`);
       }
       fouten.push(`${wie}: eindigt niet`);
       return titels;

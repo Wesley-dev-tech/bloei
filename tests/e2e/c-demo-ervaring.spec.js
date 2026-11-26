@@ -41,7 +41,7 @@ async function schrijfEigenMaaltijd(page) {
           const nu = new Date();
           const datum = `${nu.getFullYear()}-${t2(nu.getMonth() + 1)}-${t2(nu.getDate())}`;
           const tx = idb.transaction(['maaltijden'], 'readwrite');
-          tx.objectStore('maaltijden').put({ datum, soort: 'vieruurtje', tijd: '16:00', tekst: 'Eigen vieruurtje van de test', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: Date.now() });
+          tx.objectStore('maaltijden').put({ datum, soort: 'vieruurtje', tijd: '16:00', tekst: 'Eigen vieruurtje van de test', fotoId: null, voorbeeld: false, gewijzigdOp: Date.now() });
           tx.oncomplete = () => { idb.close(); klaar(); };
           tx.onerror = () => mislukt(tx.error);
         };

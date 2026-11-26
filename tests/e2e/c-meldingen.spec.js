@@ -247,10 +247,11 @@ test.describe('zonder push-dienst', () => {
     expect(Math.max(...kaarten.map((k) => k.gat)), 'een opgevoegd leeg vlak van 90 px wordt gemeten').toBeGreaterThan(32);
   });
 
-  test('de CSP staat connect-src alleen op de eigen oorsprong toe', async ({ page }) => {
+  test('de CSP staat connect-src alleen op de eigen oorsprong en de weerdienst toe', async ({ page }) => {
     await page.goto('./');
     const csp = await page.locator('meta[http-equiv="Content-Security-Policy"]').getAttribute('content');
-    expect(csp.split('; ')).toContain("connect-src 'self'");
+    // Zonder meldingsdienst in de testbouw: alleen de eigen oorsprong en de weerdienst (die niet in de demo).
+    expect(csp.split('; ').find((regel) => regel.startsWith('connect-src'))).toMatch(/^connect-src 'self'( https:\/\/api\.open-meteo\.com)?$/);
   });
 });
 
@@ -660,7 +661,7 @@ test.describe('met push-dienst', { tag: '@push' }, () => {
       const d = new Date();
       return `${String(d.getHours()).padStart(2, '0')}:${String(d.getMinutes()).padStart(2, '0')}`;
     };
-    const maaltijd = (soort) => ({ datum: dagVandaag(), soort, tijd: '12:00', tekst: 'Soep en brood', fotoId: null, gevoel: null, voorbeeld: false, gewijzigdOp: Date.now() });
+    const maaltijd = (soort) => ({ datum: dagVandaag(), soort, tijd: '12:00', tekst: 'Soep en brood', fotoId: null, voorbeeld: false, gewijzigdOp: Date.now() });
     const drank = (ml) => ({ datum: dagVandaag(), tijdstip: Date.now(), soort: 'water', ml, voorbeeld: false });
     const supplement = () => ({ id: 1, naam: 'Testmiddel', dosis: '', hoeveelheid: '', aanwijzing: '', momenten: ['ochtend', 'middag', 'avond'], ritme: { soort: 'dagelijks' }, volgorde: 0, actief: true, voorbeeld: false, aangemaaktOp: Date.now() });
 

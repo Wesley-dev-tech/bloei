@@ -76,7 +76,6 @@ test('Trusted Types: 0 schendingen en 0 lege svg\'s over alle schermen, ook met 
     await schermKlaar(page, route);
     for (const s of await legeSvgs()) leeg.push(`${route}: ${s}`);
   }
-  // Een maaltijdblad en het weegblad: hun iconen (het kruisje, de gezichtjes) komen ook uit de svg-policy.
   await page.goto('./#/vandaag');
   await schermKlaar(page, 'vandaag');
   await page.locator('.vandaag .maaltijd[data-soort="ontbijt"] > .rij').click();
@@ -144,9 +143,6 @@ test('alle zes tabs, een glas, een maaltijd en een moment: elk verzoek gaat naar
   await blad.locator('textarea').fill('yoghurt met noten');
   await blad.getByRole('button', BEWAAR_MAALTIJD).click();
   await expect(blad).toHaveCount(0);
-  // Een moment (stemming)
-  await page.locator('.gevoel__optie[data-stap="4"]').first().click();
-  await expect(page.locator('.gevoel__optie[data-stap="4"]').first()).toHaveAttribute('aria-checked', 'true');
 
   for (const route of ZES) {
     await page.goto('./#/' + route);

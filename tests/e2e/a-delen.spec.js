@@ -52,9 +52,9 @@ async function vul(page, dagenGeleden = 1) {
         open.onsuccess = () => {
           const idb = open.result;
           const tx = idb.transaction(['maaltijden', 'dranken', 'dagen', 'wegingen', 'supplementen', 'momentinnames'], 'readwrite');
-          tx.objectStore('maaltijden').put({ datum, soort: 'ontbijt', tijd: '08:15', tekst: 'havermout met fruit', fotoId: null, gevoel: 3, voorbeeld: false, gewijzigdOp: 1 });
+          tx.objectStore('maaltijden').put({ datum, soort: 'ontbijt', tijd: '08:15', tekst: 'havermout met fruit', fotoId: null, voorbeeld: false, gewijzigdOp: 1 });
           tx.objectStore('dranken').add({ datum, tijdstip: Date.now() - 1000, soort: 'water', ml: 500, voorbeeld: false });
-          tx.objectStore('dagen').put({ datum, stemming: 3, energie: 4, notitie: 'Geheime verzonnen notitie', doelGehaald: false, voorbeeld: false });
+          tx.objectStore('dagen').put({ datum, notitie: 'Geheime verzonnen notitie', doelGehaald: false, voorbeeld: false });
           tx.objectStore('wegingen').put({ week: datum, datum, kg: 71.3, voorbeeld: false, gewijzigdOp: 1 });
           const sup = tx.objectStore('supplementen').add({ naam: 'Vitamine D', dosis: '1x per dag 1 capsule', hoeveelheid: '1 capsule', aanwijzing: '', momenten: ['ochtend'], ritme: { soort: 'dagelijks' }, volgorde: 1, actief: true, voorbeeld: false, aangemaaktOp: 1 });
           sup.onsuccess = () => tx.objectStore('momentinnames').put({ datum, supplementId: sup.result, moment: 'ochtend', tijdstip: Date.now() - 500, voorbeeld: false });
@@ -94,7 +94,8 @@ test('Delen: een verslag van twee weken, gewicht en notities standaard niet erin
   const fouten = [];
   page.on('request', (r) => {
     const url = new URL(r.url());
-    if (!['localhost', '127.0.0.1'].includes(url.hostname) && url.protocol.startsWith('http')) extern.push(r.url());
+    // de weerdienst van het weerbericht op Vandaag (sinds 0.5.8) is de enige externe dienst en telt hier niet mee
+    if (!['localhost', '127.0.0.1', 'api.open-meteo.com'].includes(url.hostname) && url.protocol.startsWith('http')) extern.push(r.url());
   });
   page.on('console', (m) => m.type() === 'error' && fouten.push(m.text()));
   page.on('pageerror', (e) => fouten.push(String(e)));
@@ -163,7 +164,6 @@ test('Delen: precies vier opties in de volgorde Eten, Drinken, Gewicht, Notities
   const fouten = [];
   page.on('pageerror', (e) => fouten.push(String(e)));
   await vul(page, 0);
-  // Een oude bewaarde keuze: supplementen en stemming aan, Eten uit
   await page.evaluate(
     () =>
       new Promise((klaar, fout) => {
@@ -171,7 +171,7 @@ test('Delen: precies vier opties in de volgorde Eten, Drinken, Gewicht, Notities
         open.onerror = () => fout(open.error);
         open.onsuccess = () => {
           const tx = open.result.transaction(['instellingen'], 'readwrite');
-          tx.objectStore('instellingen').put({ sleutel: 'delen.onderdelen', waarde: { eten: true, drinken: false, supplementen: true, stemming: true, gewicht: false, notities: false } });
+          tx.objectStore('instellingen').put({ sleutel: 'delen.onderdelen', waarde: { eten: true, drinken: false, supplementen: true, gewicht: false, notities: false } });
           tx.oncomplete = () => {
             open.result.close();
             klaar();
@@ -195,7 +195,7 @@ test('Delen: precies vier opties in de volgorde Eten, Drinken, Gewicht, Notities
   expect(fouten).toEqual([]);
 });
 
-test('Delen: een verslag met alle vier de onderdelen heeft de vier secties en geen supplementen, stemming of energie; met Gewicht en Notities uit ontbreken die', async ({ page }) => {
+test('Delen: een verslag met alle vier de onderdelen heeft de vier secties en geen supplementen; met Gewicht en Notities uit ontbreken die', async ({ page }) => {
   await vul(page, 0);
   await page.goto('./#/delen');
   const vel = page.locator('.verslagvel');
@@ -208,14 +208,13 @@ test('Delen: een verslag met alle vier de onderdelen heeft de vier secties en ge
   await expect(vel).toContainText('0,5 l');
   await expect(vel).toContainText('71,3 kg');
   await expect(vel).toContainText('Geheime verzonnen notitie');
-  for (const woord of ['Supplementen', 'Mijn supplementen', 'Stemming', 'Energie', 'Vitamine D']) await expect(vel).not.toContainText(woord);
-  await expect(vel.locator('.verslag__gevoel')).toHaveCount(0);
+  for (const woord of ['Supplementen', 'Mijn supplementen', 'Vitamine D']) await expect(vel).not.toContainText(woord);
   await expect(page.getByRole('button', { name: 'Bewaren', exact: true })).toBeEnabled();
   const download = page.waitForEvent('download');
   await page.getByRole('button', { name: 'Bewaren', exact: true }).click();
   const tekst = pdfTekst(readFileSync(await (await download).path()));
   for (const marker of ['havermout met fruit', 'Water', '71,3', 'Geheime verzonnen notitie']) expect(tekst).toContain(marker); // getal en eenheid van een kerncijfer staan apart in de pdf
-  for (const woord of ['upplement', 'temming', 'nergie', 'Vitamine D', 'Gevoel', 'GEVOEL']) expect(tekst).not.toContain(woord);
+  for (const woord of ['upplement', 'Vitamine D']) expect(tekst).not.toContain(woord);
 });
 
 for (const [breedte, hoogte] of [[1690, 1230], [390, 844]]) {
@@ -504,7 +503,7 @@ test('Delen: snel wisselen van periode laat de laatste keuze winnen, in het voor
 });
 
 for (const breedte of [390, 360]) {
-  test(`Delen: de dagtabel in het voorbeeld heeft tabelrollen, twee cellen per rij zonder Gevoel en zonder Uur, en ruimte tussen naam en tekst (${breedte} px)`, async ({ page }) => {
+  test(`Delen: de dagtabel in het voorbeeld heeft tabelrollen, twee cellen per rij zonder Uur, en ruimte tussen naam en tekst (${breedte} px)`, async ({ page }) => {
     await page.setViewportSize({ width: breedte, height: 844 });
     await vul(page, 0);
     await page.goto('./#/delen');
@@ -514,10 +513,7 @@ for (const breedte of [390, 360]) {
     await expect(raster).toBeVisible();
     await expect(vel.locator('.verslagvel__kolomkop > span')).toHaveText(['Maaltijd', 'Wat']);
     await expect(vel).not.toContainText('Uur'); // BESLISSING 336
-    await expect(vel).not.toContainText('Gevoel'); // ook al is er bij het ontbijt een gevoel ingevuld
     await expect(raster.getByRole('row')).toHaveCount(2); // het ontbijt en Drinken
-    // Geen gezichtje: er is geen cel met een gevoelswoord
-    await expect(raster.getByRole('cell', { name: 'goed' })).toHaveCount(0);
     await expect(raster.getByRole('cell')).toHaveCount(4);
     // De afstand tussen de naam en de tekst is minstens 8 px, zonder horizontale scroll
     const rij = raster.getByRole('row').nth(0);
