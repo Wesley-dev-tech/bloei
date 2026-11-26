@@ -41,7 +41,7 @@ import { leesVerleden } from '../data/verleden.js';
 import { noteerMoment, openingVoor, reactieVoor } from '../data/motivatiestand.js';
 import { startWeer, weerStand } from '../data/weer.js';
 import { weerSoort } from '../logica/weer.js';
-import { weerkaart } from '../ui/weerkaart.js';
+import { weerkaart, weerregel } from '../ui/weerkaart.js';
 import { telMomenten } from '../logica/supplementen.js';
 import { feestdagOp, isJarig, leeftijdOp, seizoenOp } from '../logica/kalender.js';
 
@@ -92,7 +92,20 @@ export function toon(houder) {
     // ophalen begint in main.js, voor het eerste scherm) en past zich ter plaatse aan bij 'weer:gewijzigd'.
     startWeer();
     const weer = weerkaart(weerStand());
-    beheer.opruim(luister('weer:gewijzigd', (stand) => weer.teken(stand)));
+    // Op een telefoon staat de kaart helemaal onderaan: onder de datum staat daar het weer in het kort. Eén tik brengt haar naar de kaart.
+    const kortWeer = weerregel(weerStand(), {
+      naar: () => {
+        weer.el.setAttribute('tabindex', '-1');
+        weer.el.scrollIntoView({ behavior: magBewegen() ? 'smooth' : 'auto', block: 'start' });
+        weer.el.focus({ preventScroll: true });
+      },
+    });
+    beheer.opruim(
+      luister('weer:gewijzigd', (stand) => {
+        weer.teken(stand);
+        kortWeer.teken(stand);
+      }),
+    );
     const schrijfDag = dagBinder(datum);
     // Het dagdeel van deze tekening (R2-01, BESLISSING 411): is er invoer bezig, dan blijft dat van de vorige tekening staan, op dezelfde dag; een nieuwe dag gaat meteen door.
     const deel = staat.getoondDeel !== null && staat.getoondDatum === datum && invoerBezig(houder) ? staat.getoondDeel : dagdeel();
@@ -141,6 +154,7 @@ export function toon(houder) {
         { class: 'begroeting__tekst' },
         h('h1', { class: 't-hero begroeting__titel' }, h('span', { class: 'begroeting__groet' }, groet), ...(voornaam ? [' ', h('span', { class: 'begroeting__naam' }, voornaam)] : [])),
         h('p', { class: 'label begroeting__datum' }, opmaakDatum(datum, 'lang', new Date(0))), // referentie 1970: het jaar staat er altijd bij
+        kortWeer.el,
       ),
       // De knop Delen (naar het verslag voor bv. de diëtiste) staat alleen als het icoon bestaat; op een telefoon alleen het icoon.
       ICOONNAMEN.some((n) => n.endsWith('/arrow-up-from-bracket'))

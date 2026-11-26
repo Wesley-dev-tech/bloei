@@ -163,6 +163,8 @@ export function uvWoord(uv) {
 }
 
 // Het weerbeeld: het icoon (src/iconen/solid) en de naam (TEKSTEN.weer) bij een weercode van de WMO, zoals Open-Meteo ze geeft.
+// Open-Meteo is de maatstaf: waar de dienst zwaar meldt (65, 75, 82, 86, 97, 99), zegt de naam dat ook. Lichte en matige vormen
+// van hetzelfde weer delen soms een korte naam (motregen, ijzel, mist).
 // 's Nachts een maan in plaats van een zon (alleen voor het weer van nu; een dag in de week is altijd overdag).
 const BEELD = {
   0: ['sun', 'zonnig'], 1: ['sun', 'vrijZonnig'], 2: ['cloud-sun', 'halfBewolkt'], 3: ['cloud', 'bewolkt'],
@@ -172,8 +174,10 @@ const BEELD = {
   61: ['cloud-rain', 'lichteRegen'], 63: ['cloud-rain', 'regen'], 65: ['cloud-showers-heavy', 'zwareRegen'],
   71: ['snowflake', 'lichteSneeuw'], 73: ['snowflake', 'sneeuw'], 75: ['snowflake', 'zwareSneeuw'], 77: ['snowflake', 'sneeuw'],
   80: ['cloud-rain', 'lichteBuien'], 81: ['cloud-showers-heavy', 'buien'], 82: ['cloud-showers-heavy', 'zwareBuien'],
-  85: ['snowflake', 'sneeuwbuien'], 86: ['snowflake', 'sneeuwbuien'],
-  95: ['cloud-bolt', 'onweer'], 96: ['cloud-bolt', 'onweerHagel'], 99: ['cloud-bolt', 'onweerHagel'],
+  85: ['snowflake', 'sneeuwbuien'], 86: ['snowflake', 'zwareSneeuwbuien'],
+  // Onweer: 95 onweer, 97 zwaar onweer. 96 en 99 (onweer met lichte of zware hagel) geven alleen de modellen die hagel voorspellen;
+  // alle andere melden 95 en 97 (open-meteo.com/en/docs, de tabel met weercodes).
+  95: ['cloud-bolt', 'onweer'], 96: ['cloud-bolt', 'onweerHagel'], 97: ['cloud-bolt', 'zwaarOnweer'], 99: ['cloud-bolt', 'onweerZwareHagel'],
 };
 const NACHT = { sun: 'moon', 'cloud-sun': 'cloud-moon' };
 const NACHTNAAM = { zonnig: 'helder', vrijZonnig: 'vrijHelder' };
@@ -189,26 +193,23 @@ export function weerBeeld(weer) {
 }
 
 // De groep zinnen van de motivator die bij het weer van nu hoort (TEKSTEN.motivatie, logica/motivatie.js), of null als er niets over te
-// zeggen valt (een zachte nacht zonder regen). Eerst het extreme weer, waarbij de zin ook raad geeft (WEER_EXTREEM): storm, zwaar onweer,
-// hevige sneeuw, ijzel, zware regen en een hittegolf. Daarna het gewone weer, het opvallendste eerst: onweer en sneeuw, hitte en vorst,
-// regen, mist en wind, en pas daarna een warme dag, zon, kou of een grijze lucht.
-const ONWEER = [95, 96, 99];
-const ZWAAR_ONWEER = [96, 99]; // onweer met hagel
+// zeggen valt (een zachte nacht zonder regen). Open-Meteo is de maatstaf: het weer zelf leest de zin alleen uit de weercode, zonder eigen
+// grenzen op wind, regen of sneeuw. Eerst het zware weer zoals de dienst het meldt, waarbij de zin ook raad geeft (WEER_EXTREEM): zwaar
+// onweer, zware sneeuw, ijzel, zware regen, en een hittegolf. Daarna het gewone weer, het opvallendste eerst: onweer en sneeuw, hitte en
+// vorst, regen en mist, en pas daarna een warme dag, zon, kou of een grijze lucht. Voor warm en koud bestaat geen weercode: daar telt
+// de temperatuur van de dienst.
+const ONWEER = [95, 96, 97, 99];
+const ZWAAR_ONWEER = [97, 99]; // wat Open-Meteo zelf zwaar noemt: zwaar onweer (97) en onweer met zware hagel (99)
 const SNEEUW = [71, 73, 75, 77, 85, 86];
-const ZWARE_SNEEUW = [75, 86];
+const ZWARE_SNEEUW = [75, 86]; // zware sneeuw en zware sneeuwbuien
 const REGEN = [51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 80, 81, 82];
-const ZWARE_REGEN = [65, 82];
+const ZWARE_REGEN = [65, 82]; // zware regen en zware buien
 const IJZEL = [56, 57, 66, 67];
 const MIST = [45, 48];
 const HELDER = [0, 1];
 const BEWOLKT = [2, 3];
-export const STORM_KMU = 62; // vanaf 8 beaufort (stormachtig), het getal dat ook op de kaart staat
-export const WIND_KMU = 40;
 export const HEET_GRADEN = 27; // vanaf hier geeft de zin raad: drinken, schaduw, koel blijven, zorgen voor jezelf
 export const WARM_GRADEN = 25; // een zomerse dag
-export const SNEEUWVAL_CM = 5; // zoveel sneeuw op een dag is hevige sneeuwval
-export const STORTREGEN_MM = 20; // zoveel regen op een dag is zware regen
-const getalOf = (w) => (Number.isFinite(w) ? w : 0);
 // Een hittegolf zoals het KMI ze telt (vijf dagen na elkaar minstens 25 graden, waarvan drie minstens 30), gelezen in de verwachting:
 // vandaag en de vier dagen erna. Wat voorbij is, kent Bloei niet; een warme dag zonder zo'n verwachting krijgt de zinnen van weerHeet.
 export function isHittegolf(weer) {
@@ -219,13 +220,11 @@ export function isHittegolf(weer) {
 export function weerSoort(weer) {
   if (!weer || !Number.isFinite(weer.code) || !Number.isFinite(weer.temp)) return null;
   const { code, temp, dag = true } = weer;
-  const wind = getalOf(weer.wind);
-  // Extreem weer: de zin geeft raad.
-  if (wind >= STORM_KMU) return 'weerStorm';
+  // Zwaar weer, zoals de weerdienst het meldt: de zin geeft raad.
   if (ZWAAR_ONWEER.includes(code)) return 'weerZwaarOnweer';
-  if (ZWARE_SNEEUW.includes(code) || (SNEEUW.includes(code) && getalOf(weer.sneeuw) >= SNEEUWVAL_CM)) return 'weerSneeuwval';
+  if (ZWARE_SNEEUW.includes(code)) return 'weerSneeuwval';
   if (IJZEL.includes(code)) return 'weerIjzel';
-  if (ZWARE_REGEN.includes(code) || (REGEN.includes(code) && getalOf(weer.mm) >= STORTREGEN_MM)) return 'weerStortregen';
+  if (ZWARE_REGEN.includes(code)) return 'weerStortregen';
   // Gewoon weer.
   if (ONWEER.includes(code)) return 'weerOnweer';
   if (SNEEUW.includes(code)) return 'weerSneeuw';
@@ -234,7 +233,6 @@ export function weerSoort(weer) {
   if (temp <= 0) return 'weerVorst';
   if (REGEN.includes(code)) return 'weerRegen';
   if (MIST.includes(code)) return 'weerMist';
-  if (wind >= WIND_KMU) return 'weerWind';
   if (temp >= WARM_GRADEN) return 'weerWarm';
   if (HELDER.includes(code) && dag !== false) return 'weerZon';
   if (temp <= 7) return 'weerKoud';
@@ -242,9 +240,9 @@ export function weerSoort(weer) {
   return null;
 }
 // De groepen waarbij de zin raad geeft: het extreme weer en een hete dag.
-export const WEER_EXTREEM = ['weerStorm', 'weerZwaarOnweer', 'weerSneeuwval', 'weerIjzel', 'weerStortregen', 'weerHittegolf'];
+export const WEER_EXTREEM = ['weerZwaarOnweer', 'weerSneeuwval', 'weerIjzel', 'weerStortregen', 'weerHittegolf'];
 // Alle weergroepen, voor de tests.
-export const WEERGROEPEN = [...WEER_EXTREEM, 'weerOnweer', 'weerSneeuw', 'weerHeet', 'weerVorst', 'weerRegen', 'weerMist', 'weerWind', 'weerWarm', 'weerZon', 'weerKoud', 'weerGrijs'];
+export const WEERGROEPEN = [...WEER_EXTREEM, 'weerOnweer', 'weerSneeuw', 'weerHeet', 'weerVorst', 'weerRegen', 'weerMist', 'weerWarm', 'weerZon', 'weerKoud', 'weerGrijs'];
 
 // De demo verbindt met geen enkele dienst (BESLISSING 364) en vraagt geen locatie: ze krijgt voorbeeldweer dat bij de maand past, vast
 // per dag, met een week erbij.

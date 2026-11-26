@@ -478,7 +478,7 @@ describe('elke keuze geeft een volledige zin', () => {
         },
       };
       // Het weer van nu (0.5.8) en de hoeveelste opening van de dag (0.4.7).
-      status.weer = i % 3 === 0 ? WEERGROEPEN[i % WEERGROEPEN.length] : null;
+      status.weer = i % 3 === 0 ? WEERGROEPEN[(i / 3) % WEERGROEPEN.length] : null; // i / 3: elke groep komt aan bod, hoeveel groepen er ook zijn
       // (zonder de generator: de reeks toestanden hierboven blijft dezelfde als voorheen)
       status.opening = i % 5;
       const keuze = kiesMotivatie(status);

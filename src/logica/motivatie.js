@@ -252,13 +252,11 @@ export const GROEPEN = {
   weerHeet: 8,
   // Extreem weer: de zin geeft ook raad (logica/weer.js, WEER_EXTREEM).
   weerHittegolf: 8,
-  weerStorm: 8,
   weerZwaarOnweer: 8,
   weerSneeuwval: 8,
   weerIjzel: 8,
   weerStortregen: 8,
   weerMist: 8,
-  weerWind: 8,
   weerOnweer: 8,
   maaltijdOchtend: 3,
   maaltijdMiddag: 3,
@@ -418,7 +416,7 @@ export function reactieUit(vorige, nu, gebeurd) {
 // terugkeer). Bij het openen komt zo'n moment één keer; staat het in gehad, dan gaat de zin verder naar de stand van de dag. Zo blijft een
 // mijlpaal niet de hele dag staan. Haar verjaardag en een feestdag blijven wel de hele dag, met elke keer een andere zin.
 // De weergroepen waarvan de zin raad geeft: een hete dag en het extreme weer.
-export const WEER_MET_RAAD = ['weerHeet', 'weerHittegolf', 'weerStorm', 'weerZwaarOnweer', 'weerSneeuwval', 'weerIjzel', 'weerStortregen'];
+export const WEER_MET_RAAD = ['weerHeet', 'weerHittegolf', 'weerZwaarOnweer', 'weerSneeuwval', 'weerIjzel', 'weerStortregen'];
 
 export function kiesMotivatie(status) {
   const { maaltijden = 0, ml = 0, doelMl = 0, supplementen = { genomen: 0, totaal: 0 }, lopendeReeks = 0, dagenBijgehouden = 0, dagenSindsVorige = null, datum = '', iets: ietsOpgegeven, etenKlaar, dagdeel = null, drankenAantal = 0, reactie = null, opening = 0, gehad = [], weer = null } = status ?? {};

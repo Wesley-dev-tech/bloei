@@ -585,8 +585,11 @@ export const TEKSTEN = {
     buien: 'Buien',
     zwareBuien: 'Zware buien',
     sneeuwbuien: 'Sneeuwbuien',
+    zwareSneeuwbuien: 'Zware sneeuwbuien',
     onweer: 'Onweer',
     onweerHagel: 'Onweer met hagel',
+    onweerZwareHagel: 'Onweer met zware hagel',
+    zwaarOnweer: 'Zwaar onweer', // weercode 97, zoals de weerdienst ze meldt
     graden: '{aantal}°',
     voelt: 'Voelt als {aantal}°',
     min: 'Min.',
@@ -608,6 +611,10 @@ export const TEKSTEN = {
     procent: '{aantal}%',
     mm: '{aantal} mm',
     cm: '{aantal} cm',
+    // Het weer in het kort onder de datum, op een telefoon (ui/weerkaart.js, weerregel)
+    kansRegen: '{aantal}% regen',
+    kansSneeuw: '{aantal}% sneeuw',
+    naarKaart: 'Ga naar het hele weerbericht.',
     week: 'De komende dagen',
     vandaag: 'Vandaag',
     // Een korte toevoeging achter de gevoelstemperatuur, alleen in de demo
@@ -1546,6 +1553,8 @@ export const TEKSTEN = {
       // "Het weer lezen" (0.5.8): de kaart Het weer op Vandaag (ui/weerkaart.js), waar het weer vandaan komt (data/weer.js) en de zin van de
       // motivator die het weer volgt (logica/motivatie.js).
       weer: {
+        // Alleen op een telefoon: de regel onder de datum (ui/weerkaart.js, weerregel)
+        regel: { titel: "Het weer in het kort", tekst: "Op Vandaag staat onder de datum het weer in het kort: het weer van nu, met de laagste en de hoogste temperatuur van vandaag. Tik erop en je gaat naar de kaart Het weer onderaan." },
         nu: { titel: "Het weer van nu", tekst: "Op Vandaag staat de kaart Het weer. Bovenaan zie je de temperatuur van nu, het weerbeeld en hoe het aanvoelt." },
         cijfers: { titel: "Vandaag in tien cijfers", tekst: "Regen is de kans dat het regent, Neerslag hoeveel er valt. Wind staat er in beaufort met de richting, Snelheid in kilometer per uur. De uv-index zegt hoe sterk de zon is." },
         week: { titel: "De komende dagen", tekst: "Per dag zie je het weerbeeld, de hoogste en de laagste temperatuur en de kans op regen. De eerste dag is vandaag." },
@@ -1594,6 +1603,8 @@ export const TEKSTEN = {
         menu: { titel: "De balk onderaan", tekst: "Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Bij het tabblad waar je bent, licht het icoon op met een bolletje eronder." },
         kop: { titel: "Rondleiding", tekst: "Bovenaan staat een vraagteken. Daarmee start je deze rondleiding opnieuw, wanneer je maar wil. Je vindt het op elk scherm terug." },
         instellingen: { titel: "Algemeen", tekst: "Naast Delen staat een tandwiel. Daarachter zit Algemeen: je profiel, je favoriete maaltijden, je badges en alle instellingen." },
+        // Alleen op een telefoon: het weer in het kort onder de datum (ui/weerkaart.js, weerregel).
+        weerregel: { titel: "Het weer in het kort", tekst: "Onder de datum staat het weer van nu, met de laagste en de hoogste temperatuur van vandaag. Tik erop en je gaat naar het hele weerbericht onderaan." },
         // De kaart met het weerbericht (ui/weerkaart.js), naast de motivator; op een telefoon helemaal onderaan.
         weer: { titel: "Het weer bij jou", tekst: "Hier staat het weer bij jou: bovenaan de temperatuur van nu, het weerbeeld en hoe het aanvoelt. Daaronder staan tien cijfers van vandaag, van regen en wind tot zon op en zon onder. Onderaan zie je de komende dagen." },
         dag: { titel: "Je dag in één blik", tekst: "Bovenaan staan tegels met hoe je dag ervoor staat: eten, drinken, je dagdoel en supplementen. Je hoeft er niets mee te doen: de cijfers tellen vanzelf mee. De zin eronder moedigt je aan en past bij je dag en bij het weer." },
@@ -2584,21 +2595,11 @@ export const TEKSTEN = {
       7: 'Er is een hittegolf, {naam}. Zorg goed voor jezelf, Bloei wacht wel.',
       8: 'Hete dagen, {naam}. Blijf in de schaduw en hou het koel. Bloei loopt niet weg.',
     },
-    weerStorm: {
-      1: 'Het stormt, {naam}. Blijf veilig binnen, een glas water telt voor je dagdoel.',
-      2: 'Storm buiten, {naam}. Binnen ben je veilig, een goed moment om je dag te noteren.',
-      3: 'Het stormt, {naam}. Jij noteerde vandaag al iets. Blijf waar het veilig is.',
-      4: 'Stormweer, {naam}. Vink binnen je supplementen af tot de wind gaat liggen.',
-      5: 'Storm buiten, {naam}. Jouw dagdoel is gehaald, blijf lekker veilig binnen.',
-      6: 'Storm of niet, {naam}: al {aantal} dagen op rij in Bloei. Hou het veilig vandaag.',
-      7: 'Het stormt bij jou, {naam}. Zorg goed voor jezelf, Bloei wacht wel.',
-      8: 'Stormweer, {naam}. Blijf weg van bomen en kijk uit onderweg. Bloei loopt niet weg.',
-    },
     weerZwaarOnweer: {
       1: 'Zwaar onweer, {naam}. Blijf veilig binnen, een glas water telt voor je dagdoel.',
       2: 'Het onweert hevig, {naam}. Binnen ben je veilig, noteer daar rustig je dag.',
       3: 'Zwaar onweer, {naam}. Jij noteerde vandaag al iets. Blijf waar het veilig is.',
-      4: 'Onweer met hagel, {naam}. Vink binnen rustig je supplementen af.',
+      4: 'Zwaar onweer, {naam}. Vink binnen rustig je supplementen af.',
       5: 'Zwaar onweer buiten, {naam}. Jouw dagdoel is gehaald, blijf veilig binnen.',
       6: 'Hoe hard het ook dondert, {naam}: al {aantal} dagen op rij in Bloei.',
       7: 'Het onweert hevig, {naam}. Wacht binnen tot het voorbij is, Bloei wacht mee.',
@@ -2643,16 +2644,6 @@ export const TEKSTEN = {
       6: 'Mist of niet, {naam}: je vindt Bloei al {aantal} dagen op rij.',
       7: 'De mist hangt laag, {naam}. Jouw dag in Bloei blijft goed zichtbaar.',
       8: 'Mistig bij jou, {naam}. Neem je tijd, je dagboek heeft geen haast.',
-    },
-    weerWind: {
-      1: 'Het waait stevig, {naam}. Binnen met een glas water werk je aan je dagdoel.',
-      2: 'Veel wind, {naam}. Noteer je dag binnen, waar het rustig is.',
-      3: 'Het waait, {naam}. Wat jij vandaag al noteerde, staat stevig in Bloei.',
-      4: 'Wind buiten, {naam}. Je supplementen waaien niet weg, vink ze gerust af.',
-      5: 'Stevige wind, {naam}. Jouw dagdoel is gehaald, jij staat sterk.',
-      6: 'Wind tegen of wind mee, {naam}: al {aantal} dagen op rij in Bloei.',
-      7: 'De wind is van de partij, {naam}. Jij blijft mooi op koers in Bloei.',
-      8: 'Een winderige dag, {naam}. In je dagboek blijft alles netjes liggen.',
     },
     weerOnweer: {
       1: 'Het onweert, {naam}. Binnen met iets te drinken werk je aan je dagdoel.',

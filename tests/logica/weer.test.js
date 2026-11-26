@@ -227,7 +227,7 @@ describe('het weerbeeld', () => {
   test('elke weercode van de dienst heeft een icoon dat bestaat en een naam in de teksten', () => {
     for (const naam of WEERNAMEN) expect(typeof TEKSTEN.weer[naam], naam).toBe('string');
     for (const icoon of WEERICONEN) expect(existsSync(new URL(`../../src/iconen/solid/${icoon}.svg`, import.meta.url)), icoon).toBe(true);
-    for (const code of [0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 99]) {
+    for (const code of [0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 97, 99]) {
       const beeld = weerBeeld({ code });
       expect(WEERICONEN, String(code)).toContain(beeld.icoon);
       expect(WEERNAMEN, String(code)).toContain(beeld.naam);
@@ -242,6 +242,21 @@ describe('het weerbeeld', () => {
     expect(weerBeeld({ code: 42 })).toEqual({ icoon: 'cloud', naam: 'bewolkt' });
     expect(weerBeeld(null)).toBe(null);
     expect(weerBeeld({})).toBe(null);
+  });
+
+  test('onweer volgt de weercodes van Open-Meteo: 95 onweer, 96 en 99 met hagel, 97 zwaar onweer; de wind verandert de naam niet', () => {
+    expect(weerBeeld({ code: 95 })).toEqual({ icoon: 'cloud-bolt', naam: 'onweer' });
+    expect(weerBeeld({ code: 96 })).toEqual({ icoon: 'cloud-bolt', naam: 'onweerHagel' });
+    expect(weerBeeld({ code: 97 })).toEqual({ icoon: 'cloud-bolt', naam: 'zwaarOnweer' });
+    expect(weerBeeld({ code: 99 })).toEqual({ icoon: 'cloud-bolt', naam: 'onweerZwareHagel' });
+    expect(TEKSTEN.weer.zwaarOnweer).toBe('Zwaar onweer');
+    expect(TEKSTEN.weer.onweerZwareHagel).toBe('Onweer met zware hagel');
+    // Waar Open-Meteo zwaar meldt, zegt de naam dat ook.
+    expect(weerBeeld({ code: 85 }).naam).toBe('sneeuwbuien');
+    expect(weerBeeld({ code: 86 }).naam).toBe('zwareSneeuwbuien');
+    for (const [code, naam] of [[65, 'zwareRegen'], [75, 'zwareSneeuw'], [82, 'zwareBuien'], [86, 'zwareSneeuwbuien'], [97, 'zwaarOnweer'], [99, 'onweerZwareHagel']]) expect(TEKSTEN.weer[weerBeeld({ code }).naam], String(code)).toMatch(/[Zz]wa(ar|re)/);
+    // Geen eigen regels: storm (veel wind) geeft geen andere naam, de weercode beslist.
+    expect(weerBeeld({ code: 3, wind: 90 })).toEqual({ icoon: 'cloud', naam: 'bewolkt' });
   });
 });
 
@@ -328,7 +343,7 @@ describe('weerSoort', () => {
     expect(weerSoort(w({ code: 61, temp: 0 }))).toBe('weerVorst');
     expect(weerSoort(w({ code: 61, wind: 55 }))).toBe('weerRegen');
     expect(weerSoort(w({ code: 45, wind: 55 }))).toBe('weerMist');
-    expect(weerSoort(w({ code: 0, wind: 40 }))).toBe('weerWind');
+    expect(weerSoort(w({ code: 0, wind: 40 }))).toBe('weerZon'); // de wind verandert de zin niet: alleen de weercode en de temperatuur tellen
   });
   test('daarna zon, kou of een grijze lucht; een zachte nacht zonder regen geeft niets', () => {
     expect(weerSoort(w({ code: 0, temp: 3 }))).toBe('weerZon');
@@ -345,8 +360,8 @@ describe('weerSoort', () => {
     expect(weerSoort({ code: 3, temp: 12 })).toBe('weerGrijs'); // zonder wind en zonder dag: overdag en windstil
   });
   test('elke uitkomst is een bekende weergroep, ook voor het voorbeeldweer van de demo en het weer uit een antwoord', () => {
-    expect(new Set(WEERGROEPEN).size).toBe(17);
-    expect(WEERGROEPEN.length).toBe(17);
+    expect(new Set(WEERGROEPEN).size).toBe(15);
+    expect(WEERGROEPEN.length).toBe(15);
     for (let code = 0; code <= 99; code++) for (const temp of [-5, 5, 15, 30]) for (const dag of [true, false]) {
       const soort = weerSoort({ code, temp, wind: 5, dag });
       if (soort !== null) expect(WEERGROEPEN, `${code} ${temp}`).toContain(soort);
@@ -354,32 +369,36 @@ describe('weerSoort', () => {
     const demo = weerSoort(voorbeeldWeer('2026-07-14'));
     expect(demo === null || WEERGROEPEN.includes(demo)).toBe(true);
   });
-  test('een warme dag (vanaf 25 graden) en een hete dag (vanaf 27 graden) zijn twee groepen; regen en wind gaan voor op een warme dag', () => {
+  test('een warme dag (vanaf 25 graden) en een hete dag (vanaf 27 graden) zijn twee groepen; regen gaat voor op een warme dag', () => {
     expect(weerSoort(w({ code: 0, temp: 25 }))).toBe('weerWarm');
     expect(weerSoort(w({ code: 3, temp: 26, dag: false }))).toBe('weerWarm');
     expect(weerSoort(w({ code: 0, temp: 24 }))).toBe('weerZon');
     expect(weerSoort(w({ code: 61, temp: 26 }))).toBe('weerRegen');
-    expect(weerSoort(w({ code: 0, temp: 26, wind: 45 }))).toBe('weerWind');
+    expect(weerSoort(w({ code: 0, temp: 26, wind: 45 }))).toBe('weerWarm');
     expect(weerSoort(w({ code: 61, temp: 28 }))).toBe('weerHeet');
   });
-  test('extreem weer gaat voor alles: storm, zwaar onweer, hevige sneeuw, ijzel en zware regen', () => {
-    expect(weerSoort(w({ code: 95, wind: 62 }))).toBe('weerStorm');
-    expect(weerSoort(w({ code: 0, wind: 61 }))).toBe('weerWind');
-    expect(weerSoort(w({ code: 96 }))).toBe('weerZwaarOnweer');
-    expect(weerSoort(w({ code: 99, temp: 30 }))).toBe('weerZwaarOnweer');
+  test('zwaar weer gaat voor alles, en alleen zoals Open-Meteo het meldt (de weercode): zwaar onweer, zware sneeuw, ijzel en zware regen', () => {
+    // Geen eigen grenzen: veel wind, veel millimeters of veel centimeters veranderen de groep niet.
+    expect(weerSoort(w({ code: 95, wind: 90 }))).toBe('weerOnweer');
+    expect(weerSoort(w({ code: 3, wind: 90 }))).toBe('weerGrijs');
+    expect(weerSoort(w({ code: 97 }))).toBe('weerZwaarOnweer'); // zwaar onweer, zoals Open-Meteo het meldt
+    expect(weerSoort(w({ code: 99, temp: 30 }))).toBe('weerZwaarOnweer'); // onweer met zware hagel
+    expect(weerSoort(w({ code: 96 }))).toBe('weerOnweer'); // onweer met lichte hagel is geen zwaar onweer
     expect(weerSoort(w({ code: 95 }))).toBe('weerOnweer');
     expect(weerSoort(w({ code: 75, temp: -2 }))).toBe('weerSneeuwval');
     expect(weerSoort(w({ code: 86, temp: 0 }))).toBe('weerSneeuwval');
-    expect(weerSoort(w({ code: 71, temp: -1, sneeuw: 5 }))).toBe('weerSneeuwval');
-    expect(weerSoort(w({ code: 71, temp: -1, sneeuw: 4.9 }))).toBe('weerSneeuw');
+    expect(weerSoort(w({ code: 71, temp: -1, sneeuw: 30 }))).toBe('weerSneeuw'); // lichte sneeuw blijft lichte sneeuw, hoeveel er ook valt
+    expect(weerSoort(w({ code: 85, temp: -1 }))).toBe('weerSneeuw');
     expect(weerSoort(w({ code: 3, temp: -1, sneeuw: 12 }))).toBe('weerVorst'); // het sneeuwt nu niet
     for (const code of [56, 57, 66, 67]) expect(weerSoort(w({ code, temp: -1 })), code).toBe('weerIjzel');
     expect(weerSoort(w({ code: 65 }))).toBe('weerStortregen');
     expect(weerSoort(w({ code: 82 }))).toBe('weerStortregen');
-    expect(weerSoort(w({ code: 61, mm: 20 }))).toBe('weerStortregen');
-    expect(weerSoort(w({ code: 61, mm: 19.9 }))).toBe('weerRegen');
+    expect(weerSoort(w({ code: 61, mm: 60 }))).toBe('weerRegen'); // lichte regen blijft regen, hoeveel er ook valt
+    expect(weerSoort(w({ code: 81, mm: 60 }))).toBe('weerRegen');
     expect(weerSoort(w({ code: 3, mm: 40 }))).toBe('weerGrijs'); // het regent nu niet
-    expect(WEER_EXTREEM).toHaveLength(6);
+    expect(WEER_EXTREEM).toHaveLength(5);
+    expect(WEERGROEPEN).not.toContain('weerStorm');
+    expect(WEERGROEPEN).not.toContain('weerWind');
   });
   test('een hittegolf: vijf dagen vanaf vandaag minstens 25 graden, waarvan drie minstens 30', () => {
     const dagen = (...max) => max.map((m) => ({ max: m }));

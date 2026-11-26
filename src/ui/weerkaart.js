@@ -15,6 +15,7 @@ import { naarDatum, plusDagen, vandaag } from '../kern/datum.js';
 import { t } from '../teksten.js';
 import { h } from './dom.js';
 import { icoontegel, kaart, kaartkop } from './componenten.js';
+import { icoon } from './iconen.js';
 
 // Een hoeveelheid zoals ze hier gelezen wordt: 2 mm, 12 mm, 0,4 mm.
 const hoeveel = (x) => (Number.isInteger(x) || x >= 10 ? String(Math.round(x)) : x.toFixed(1).replace('.', ','));
@@ -27,6 +28,84 @@ const graden = (x) => (x == null ? LEEG : t('weer.graden', { aantal: x }));
 // cijfer). De kaart schuift de temperatuur zoveel naar links: zo begint het cijfer precies op de lijn waarop de V van "Voelt als" eronder begint.
 const INKT_LINKS = { 0: 0.04, 1: 0.0825, 2: 0.0575, 3: 0.0775, 4: 0.04, 5: 0.0725, 6: 0.0575, 7: 0.07, 8: 0.045, 9: 0.0525, '-': 0.0275, '\u2212': 0.0275 };
 const inktLinks = (tekst) => INKT_LINKS[String(tekst).trim()[0]] ?? 0.06;
+
+// Het weer in het kort, onder de datum op Vandaag. Alleen op een telefoon (de css verbergt de regel vanaf 720 px): daar staat de kaart
+// helemaal onderaan, en zo ziet ze het weer toch meteen. Eén regel in een afgeronde pil: het weerbeeld, de temperatuur van nu, de naam
+// van het weer, de laagste en de hoogste temperatuur, de kans op regen (of sneeuw) en de hoeveelheid. De regel breekt nooit af: past
+// alles niet naast elkaar, dan valt eerst de hoeveelheid weg en daarna de kans op regen, en worden zo nodig de letters iets kleiner
+// (pas). De naam van het weer en de laagste en de hoogste temperatuur blijven altijd voluit staan. Eén tik brengt haar naar de kaart (naar). Zolang er geen weer is, staan er streepjes, nooit een zin.
+// weerregel(stand, { naar }) -> { el, teken(stand) }
+export function weerregel(stand, { naar } = {}) {
+  const pil = h('span', { class: 'weerregel__pil', 'aria-hidden': 'true' });
+  const knop = h('button', { type: 'button', class: 'weerregel__knop' }, pil);
+  knop.addEventListener('click', () => naar?.());
+  // De rij, de knop en de pil zijn zo breed als de kolom, net als de kaart eronder.
+  const el = h('div', { class: 'weerregel' }, knop);
+  const deel = (woord, waarde) => h('span', null, h('span', { class: 'weerregel__woord' }, woord), ' ', h('span', { class: 'cijfer' }, waarde ?? LEEG));
+  // Toont zoveel als er op één regel past: eerst alles, dan zonder de hoeveelheid, dan ook zonder de kans op regen.
+  const pas = () => {
+    if (!el.isConnected) return;
+    const extra = [...pil.querySelectorAll('[data-extra]')];
+    const beeld = pil.querySelector('.weerregel__beeld');
+    const teBreed = () => pil.scrollWidth > pil.clientWidth + 0.5 || (beeld && beeld.scrollWidth > beeld.clientWidth + 0.5);
+    pil.dataset.krap = '';
+    for (const e of extra) e.hidden = false;
+    for (const e of extra.reverse()) {
+      if (!teBreed()) break;
+      e.hidden = true;
+    }
+    // Past de naam van het weer dan nog niet voluit naast Min. en Max. (de langste naam op een smalle telefoon), dan worden de letters
+    // stap voor stap iets kleiner (scherm-vandaag.css): de naam wordt nooit afgekapt.
+    for (const stap of ['1', '2', '3']) {
+      if (!teBreed()) break;
+      pil.dataset.krap = stap;
+    }
+  };
+  // De kolom wordt breder of smaller (het toestel draait, het venster verandert) of de letters komen binnen: opnieuw passen.
+  if (typeof ResizeObserver === 'function') new ResizeObserver(pas).observe(el);
+  globalThis.document?.fonts?.ready?.then(pas);
+  const teken = (s = { fase: 'laden' }) => {
+    const w = s.fase === 'klaar' && weerBeeld(s.weer) ? s.weer : null;
+    const beeld = w ? weerBeeld(w) : null; // dezelfde naam als op de kaart: wat de weerdienst meldt (de weercode), geen eigen regels
+    const naam = beeld ? t('weer.' + beeld.naam) : null;
+    const sneeuw = !!w && Number.isFinite(w.sneeuw) && w.sneeuw > 0;
+    const hoeveelheid = w ? (sneeuw ? w.sneeuw : w.mm) : null;
+    const heeftHoeveel = Number.isFinite(hoeveelheid);
+    el.dataset.fase = w ? 'klaar' : 'laden';
+    // Een schermlezer hoort het weer in gewone zinnen (altijd alles, ook wat niet op de regel past), en waar de knop naartoe gaat.
+    knop.setAttribute(
+      'aria-label',
+      (w
+        ? [
+            t('weer.label', { naam, aantal: w.temp }),
+            w.min != null && w.max != null && t('weer.labelBereik', { min: w.min, max: w.max }),
+            w.kans != null && t(sneeuw ? 'weer.labelKansSneeuw' : 'weer.labelKansRegen', { aantal: w.kans }),
+            heeftHoeveel && t(sneeuw ? 'weer.labelVerwachtSneeuw' : 'weer.labelVerwachtRegen', { aantal: hoeveel(hoeveelheid) }),
+            t('weer.naarKaart'),
+          ]
+        : [t('weer.laden'), t('weer.naarKaart')]
+      )
+        .filter(Boolean)
+        .join(' '),
+    );
+    pil.replaceChildren(
+      icoon(beeld?.icoon ?? 'cloud-sun', { grootte: 18 }),
+      h('span', { class: 'weerregel__graden cijfer' }, w ? graden(w.temp) : LEEG),
+      h(
+        'span',
+        { class: 'weerregel__delen' },
+        naam ? h('span', { class: 'weerregel__beeld' }, naam) : null,
+        deel(t('weer.min'), w?.min != null ? graden(w.min) : null),
+        deel(t('weer.max'), w?.max != null ? graden(w.max) : null),
+        w?.kans != null ? h('span', { class: 'cijfer', 'data-extra': 'kans' }, t(sneeuw ? 'weer.kansSneeuw' : 'weer.kansRegen', { aantal: w.kans })) : null,
+        heeftHoeveel ? h('span', { class: 'cijfer', 'data-extra': 'hoeveel' }, t(sneeuw ? 'weer.cm' : 'weer.mm', { aantal: hoeveel(hoeveelheid) })) : null,
+      ),
+    );
+    pas();
+  };
+  teken(stand);
+  return { el, teken };
+}
 
 export function weerkaart(stand) {
   const binnen = h('div', { class: 'weerkaart__binnen' });
@@ -145,7 +224,9 @@ export function weerkaart(stand) {
         h(
           'div',
           { class: 'weerkaart__waar' },
-          h('p', { class: 'weerkaart__beeld' }, naam),
+          // De langste naam (Onweer met zware hagel) krijgt op het smalste toestel iets kleinere letters, zodat hij op één regel blijft
+          // en de kaart even hoog (scherm-vandaag.css).
+          h('p', { class: ['weerkaart__beeld', naam.length > 18 && 'weerkaart__beeld--lang'] }, naam),
           // De delen staan met een puntje ertussen. Past de toevoeging niet meer op de regel, dan gaat ze als geheel naar de volgende,
           // zonder puntje vooraan (scherm-vandaag.css).
           h('p', { class: 'weerkaart__voelt cijfer' }, h('span', { class: 'weerkaart__voeltrij' }, w.gevoel != null ? h('span', null, t('weer.voelt', { aantal: w.gevoel })) : null, bij ? h('span', null, bij) : null)),

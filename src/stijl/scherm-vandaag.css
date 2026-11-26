@@ -337,6 +337,49 @@
    motivator en hoeft geen van beide gerekt te worden. Gemeten op 1024 tot 1920 px: de motivator is er 402 tot 469 px hoog, het weerbericht
    van nature 5 tot 30 px lager; dat kleine verschil verdeelt de kaart over haar twee tussenruimtes. */
 @media (min-width: 1024px) { .vandaag__rij1 > .weerkaart > .kaartkop { display: none; } }
+/* ---------- Het weer in het kort (ui/weerkaart.js, weerregel): alleen op een telefoon, onder de datum ----------
+   Eén regel in een afgeronde pil in de zachte kleur van de dag, altijd even breed als de kolom: ze lijnt links en rechts met de kaart
+   eronder. Links het weer van nu (weerbeeld, temperatuur, naam), rechts de cijfers van vandaag met een puntje ertussen. De regel breekt
+   nooit af en de naam wordt nooit afgekapt: wat niet past, laat weerkaart.js weg (eerst de hoeveelheid, dan de kans op regen), en bij
+   de langste naam worden de letters een stap kleiner (data-krap, verderop).
+   De maten (gemeten op de inkt, 320 tot 440 px): tussen begroeting en datum en tussen datum en pil staat telkens 8 px wit; onder de pil
+   16 px tot de eerste kaart, zoals tussen twee kaarten. De knop is hoger dan de pil (4 px erboven, 8 px eronder, met een negatieve marge
+   onderaan): zo is het tikvlak 44 px hoog zonder dat er iets verschuift, en ligt het nergens over de datum. */
+.weerregel { display: none; }
+@media (max-width: 719.98px) {
+  .weerregel { display: block; min-width: 0; margin: 0 0 -8px; }
+  .weerregel__knop { display: flex; width: 100%; min-width: 0; margin: 0; padding: 4px 0 8px; border: 0; border-radius: var(--r-pill); background: none; font: inherit; color: var(--c-text); text-align: left; cursor: pointer; -webkit-tap-highlight-color: transparent; }
+  .weerregel__pil { display: flex; flex: 1 1 auto; box-sizing: border-box; align-items: center; gap: 6px; min-width: 0; width: 100%; height: 32px; padding: 0 10px 0 var(--s-2); border-radius: var(--r-pill); background: var(--c-day-soft); overflow: hidden; white-space: nowrap; font-family: var(--font-ui); font-size: var(--fs-small); line-height: 1.3; }
+  .weerregel__pil > .icoon { flex: none; color: var(--c-day); }
+  .weerregel__graden { flex: none; font-weight: 500; }
+  .weerregel__delen { display: flex; flex: 1 1 auto; min-width: 0; }
+  .weerregel__delen > span { flex: none; }
+  /* De naam staat links, de cijfers van vandaag rechts, tegen de rand van de pil: zo lijnt de pil links en rechts met de kaart eronder. */
+  .weerregel__delen > .weerregel__beeld { flex: 0 1 auto; min-width: 0; margin-right: auto; padding-right: .75em; overflow: hidden; text-overflow: ellipsis; }
+  .weerregel__delen > .weerregel__beeld + span::before { content: none; }
+  .weerregel__delen > span:first-child:not(.weerregel__beeld) { margin-left: auto; }
+  .weerregel__delen > span + span::before { content: "\00B7"; display: inline-block; width: .75em; text-align: center; color: var(--c-text-muted); }
+  .weerregel__delen > [hidden] { display: none; }
+  .weerregel__woord { color: var(--c-text-muted); }
+  .weerregel__knop:active .weerregel__pil { background: color-mix(in srgb, var(--c-day) 22%, var(--c-day-soft)); }
+  .weerregel[data-fase="laden"] .weerregel__pil > .icoon { color: var(--c-text-muted); animation: weer-wacht 1.6s var(--ease) infinite alternate; }
+  .vandaag > .vandaag__begroeting > .begroeting__tekst.begroeting__tekst { margin-bottom: 0; } /* de pil staat 16 px boven de eerste kaart (de gewone ruimte tussen kaarten) */
+  .vandaag .vandaag__begroeting .begroeting__datum { margin-top: 9px; } /* 1 px meer dan elders: de staart van de g in de begroeting hangt in dit wit */
+  /* De kaart komt onder de vaste balk met het logo te staan als de regel haar naar boven haalt. */
+  .vandaag .weerkaart { scroll-margin-top: calc(var(--safe-top, 0px) + var(--demo-balk-h, 0px) + 64px + var(--s-4)); }
+}
+/* Past de langste naam (Onweer met zware hagel) niet voluit naast Min. en Max., dan zet weerkaart.js de letters een stap kleiner
+   (data-krap 1 tot 3: 13, 12 en 11 px). Onder 360 px (de eerste iPhone SE of een vergrote weergave) zijn de letters al 12 px, zodat de
+   gewone namen er altijd passen; alleen de langste naam gaat daar naar 11 px. Gemeten voor alle namen op 320 tot 440 px. */
+@media (max-width: 719.98px) {
+  .weerregel__pil[data-krap="1"] { font-size: .8125rem; }
+  .weerregel__pil[data-krap="2"] { gap: var(--s-1); padding: 0 var(--s-2) 0 6px; font-size: var(--fs-label); }
+}
+@media (max-width: 359.98px) { .weerregel__pil, .weerregel__pil[data-krap="1"], .weerregel__pil[data-krap="2"] { gap: var(--s-1); padding: 0 var(--s-2) 0 6px; font-size: var(--fs-label); } }
+/* Dezelfde langste naam in de kaart onderaan: onder 360 px past hij met de gewone maat niet op één regel naast de temperatuur. */
+@media (max-width: 359.98px) { .weerkaart .weerkaart__beeld.weerkaart__beeld--lang { font-size: var(--fs-label); letter-spacing: -.01em; white-space: nowrap; } }
+@media (max-width: 719.98px) { .weerregel__pil[data-krap="3"] { gap: var(--s-1); padding: 0 var(--s-2) 0 6px; font-size: .6875rem; } }
+@media (prefers-reduced-motion: reduce) { .weerregel[data-fase="laden"] .weerregel__pil > .icoon { animation: none; } }
 /* Nu: het weerbeeld in een grote tegel, de temperatuur in het sierlettertype (zoals de liters op Drinken), ernaast de naam van het weer
    en hoe het aanvoelt. */
 /* De kop van de kaart: links de tegel, daarnaast de temperatuur met het weerbeeld ernaast, en "Voelt als" op de regel eronder, vanaf de

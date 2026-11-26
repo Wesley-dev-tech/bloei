@@ -8,6 +8,17 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.6.0',
+    datum: '2026-11-26',
+    tijd: '17:04',
+    punten: [
+      { begrip: 'weer', tekst: 'Op een telefoon staat het weer in het kort onder de datum. Tik erop en je gaat naar het hele weerbericht.' },
+      { begrip: 'weer', tekst: 'Zwaar onweer, zware sneeuwbuien en onweer met zware hagel staan nu bij naam in het weer.' },
+      { begrip: 'weer', tekst: 'De warme zin volgt nu precies het weer dat de weerdienst meldt.' },
+      { begrip: 'uitleg', tekst: 'De rondleiding van Vandaag en de handleiding Het weer lezen tonen de nieuwe regel.' },
+    ],
+  },
+  {
     versie: '0.5.9',
     datum: '2026-11-26',
     tijd: '13:56',

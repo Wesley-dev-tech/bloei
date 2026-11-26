@@ -556,6 +556,7 @@ const VERWACHT = {
   'vandaag.menu': { sel: '#zijbalk, #tabbalk' },
   'vandaag.kop': { tag: 'button', naam: /Rondleiding/ }, // BESLISSING 593: de knop heet Rondleiding; Delen en het tandwiel hebben een eigen stap
   'vandaag.instellingen': { sel: '.begroeting__instellingen', optioneel: true }, // alleen op een telefoon: het tandwiel naar Algemeen
+  'vandaag.weerregel': { sel: '.weerregel__pil', optioneel: true }, // alleen op een telefoon: het weer in het kort onder de datum (0.6.0)
   'vandaag.dag': { sel: '.voortgang' },
   'vandaag.weer': { sel: '.kaart.weerkaart' }, // het weer bij jou: de hele kaart, die er altijd staat (ook terwijl ze laadt)
   'vandaag.badges': { haak: 'badges' },
@@ -730,6 +731,7 @@ const VERWACHT = {
   'h:slot.wijzigen': { haak: 'slot-pin', optioneel: true }, // alleen als het slot aan staat
   'h:slot.vergeten': { sel: '.slotvoorbeeld__kwijt', naam: /Ik ken mijn code niet meer/ },
   // Het weer lezen: van boven naar onder door de kaart, dan een kaartje over de plek en tot slot de warme zin.
+  'h:weer.regel': { sel: '.weerregel__pil', optioneel: true }, // alleen op een telefoon: de pil onder de datum (0.6.0)
   'h:weer.nu': { sel: '.weerkaart__nu' },
   'h:weer.cijfers': { sel: '.weerkaart__cijfers' },
   'h:weer.week': { sel: '.weerkaart__week' },

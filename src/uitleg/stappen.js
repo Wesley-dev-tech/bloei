@@ -48,6 +48,9 @@ export const STAPPEN = {
     // Alleen op een telefoon: daar staat Algemeen niet in de balk onderaan, maar achter dit tandwiel. Vanaf 720 px staat het weer
     // gewoon in het menu en slaat de rondleiding deze stap vanzelf over (de knop staat er niet).
     { id: 'instellingen', doel: '.begroeting__instellingen' },
+    // Alleen op een telefoon: het weer in het kort onder de datum, in een afgeronde pil (ui/weerkaart.js, weerregel). Eén tik brengt haar
+    // naar de kaart Het weer onderaan. Vanaf 720 px staat de pil er niet en slaat de rondleiding deze stap vanzelf over.
+    { id: 'weerregel', doel: '.weerregel__pil' },
     { id: 'dag', doel: '.voortgang' },
     { id: 'badges', doel: '[data-uitleg="badges"]' },
     { id: 'week', doel: '[data-uitleg="week"]' },
@@ -346,6 +349,7 @@ export const STAPPEN = {
   'h:thema': [{ id: 'kaart', ...THEMA_KAART }],
   // "Het weer lezen" (0.5.8): de kaart Het weer op Vandaag, deel per deel, waar het weer vandaan komt en de zin die het weer volgt.
   'h:weer': [
+    { id: 'regel', doel: '.weerregel__pil' }, // alleen op een telefoon: het weer in het kort onder de datum, met de tik naar de kaart
     { id: 'nu', doel: '.weerkaart .weerkaart__nu' },
     { id: 'cijfers', doel: '.weerkaart .weerkaart__cijfers' },
     { id: 'week', doel: '.weerkaart .weerkaart__week' },
