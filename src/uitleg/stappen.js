@@ -783,8 +783,8 @@ export const heeftUitleg = (sleutel) => Boolean(STAPPEN[sleutel]);
 export const TOESTEL_TEKST = {
   'stap.vandaag.menu': {
     // telefoon: vijf tabbladen, Algemeen zit achter het tandwiel bovenaan; tablet: zes tabbladen in dezelfde balk; breed: het menu links.
-    telefoon: { titel: 'De balk onderaan', tekst: 'Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen en Gewicht. Algemeen opent met het tandwiel bovenaan. Het tabblad waar je bent, staat in een glazen druppel en licht op in zijn eigen kleur.' },
-    smal: { titel: 'De balk onderaan', tekst: 'Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Het tabblad waar je bent, staat in een glazen druppel en licht op in zijn eigen kleur.' },
+    telefoon: { titel: 'De balk onderaan', tekst: 'Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen en Gewicht. Algemeen opent met het tandwiel bovenaan. Het tabblad waar je bent, staat in een glazen druppel en licht op in zijn eigen kleur. Veeg over de balk om de druppel naar een ander tabblad te schuiven.' },
+    smal: { titel: 'De balk onderaan', tekst: 'Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Het tabblad waar je bent, staat in een glazen druppel en licht op in zijn eigen kleur. Veeg over de balk om de druppel naar een ander tabblad te schuiven.' },
     breed: { titel: 'Het menu links', tekst: 'Links kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Het tabblad waar je bent, staat in een zacht vlak.' },
   },
   // Het tandwiel naar Algemeen staat alleen op een telefoon; op een tablet en een computer slaat de rondleiding die stap over.

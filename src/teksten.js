@@ -1588,7 +1588,7 @@ export const TEKSTEN = {
       // Dezelfde knoppen op een tabblad (zonder de knop terug naar Algemeen).
       kopTab: { titel: "De knoppen bovenaan", tekst: "Het vraagteken start de rondleiding van dit scherm, met Delen maak je een verslag en het huisje brengt je naar Vandaag." },
       vandaag: {
-        menu: { titel: "De balk onderaan", tekst: "Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Het tabblad waar je bent, staat in een glazen druppel en licht op in zijn eigen kleur." },
+        menu: { titel: "De balk onderaan", tekst: "Onderaan kies je een tabblad: Vandaag, Dagboek, Drinken, Supplementen, Gewicht en Algemeen. Het tabblad waar je bent, staat in een glazen druppel en licht op in zijn eigen kleur. Veeg over de balk om de druppel naar een ander tabblad te schuiven." },
         kop: { titel: "Rondleiding", tekst: "Bovenaan staat een vraagteken. Daarmee start je deze rondleiding opnieuw, wanneer je maar wil. Je vindt het op elk scherm terug." },
         instellingen: { titel: "Algemeen", tekst: "Naast Delen staat een tandwiel. Daarachter zit Algemeen: je profiel, je favoriete maaltijden, je badges en alle instellingen." },
         // Alleen op een telefoon: het weer in het kort onder de datum (ui/weerkaart.js, weerregel).
