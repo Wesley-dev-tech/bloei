@@ -112,6 +112,32 @@
   --shadow-card: 0 1px 2px rgba(59,42,60,.04), 0 8px 24px -12px rgba(59,42,60,.12);
   --shadow-float: 0 12px 32px -12px rgba(59,42,60,.28);
 
+  /* ---- Glas (BESLISSING 753): alleen voor de tabbalk onderaan op telefoon en tablet, in de stijl van Liquid Glass van Apple ---- */
+  /* Liquid Glass van Apple (iOS 26). De balk heeft per thema één vaste kleur: wat erachter schuift, verandert die kleur niet (zo gevraagd). De dikte van het glas zit in de rand: een lichtrand (felst linksboven en rechtsonder) en daarbinnen een
+     zachte schaduw. De druppel is van hetzelfde glas, maar helderder. Licht uitzicht in Poeder en Salie (donkere labels), donker in Nacht (witte labels); de iconen houden de kleur van hun tabblad. */
+  --glas-vlak:   color-mix(in srgb, var(--c-accent-soft) 55%, var(--c-surface));   /* het glas in de themakleur, één vaste kleur: wat erachter schuift, kleurt het niet */
+  --glas-vlak-vol: var(--glas-vlak);       /* dezelfde kleur zonder glaseffect (toestellen zonder glas, minder doorzichtigheid gevraagd) */
+  --glas-glans:  rgba(255,255,255,.55);   /* het licht bovenaan het glas */
+  --glas-diepte: rgba(59,42,60,.08);      /* de schaduw binnenin langs de onderkant */
+  --glas-binnenrand: rgba(59,42,60,.10);  /* de zachte schaduw binnenin langs de hele rand: de dikte van het glas */
+  --glas-rim-sterk: rgba(255,255,255,1);  /* de lichtrand, linksboven en rechtsonder */
+  --glas-rim-zwak:  color-mix(in srgb, var(--c-accent) 28%, transparent); /* langs de rest van de rand: een fijne lijn in de themakleur */
+  --glas-lens:   rgba(255,255,255,.50);   /* de glazen druppel rond de actieve tab: helderder glas */
+  --glas-lens-glans: rgba(255,255,255,.65); /* het licht bovenin de druppel */
+  --glas-lens-voet:  rgba(59,42,60,.08);  /* de zachte onderrand van de druppel */
+  --glas-lens-schaduw: rgba(59,42,60,.22); /* de schaduw onder de druppel */
+  --glas-inhoud: #1C1C1E;                 /* labels van de tabs die niet actief zijn */
+  --glas-actief-dag:        #8E3F9C;   /* Vandaag */
+  --glas-actief-dagboek:    #C25E2C;   /* Dagboek */
+  --glas-actief-drank:      #1A8796;   /* Drinken */
+  --glas-actief-gezondheid: #3D8638;   /* Supplementen */
+  --glas-actief-gewicht:    #3A63B5;   /* Gewicht */
+  --glas-actief-neutraal:   #B0445A;   /* Algemeen (tablet) */
+  --glas-vaag: 6px;                        /* vervaging (alleen zichtbaar waar een toestel het glas zou tekenen) */
+  --glas-helderheid: 1.04;                 /* het glas laat iets meer licht door */
+  --glas-leesbaar: 0 0 4px rgba(255,255,255,.7); /* zachte gloed achter iconen en labels, zodat ze op glas leesbaar blijven */
+  --glas-verzadiging: 100%;                /* geen kleurversterking: de balk houdt altijd dezelfde kleur */
+
   /* ---- Interactie ---- */
   --tap-min: 48px;
   --ease: cubic-bezier(.2,.7,.2,1);
@@ -121,7 +147,7 @@
   /* ---- Layout ---- */
   --content-max: 560px;     /* telefoon- en tabletbreedte */
   --rail-width: 248px;      /* zijnavigatie op desktop (≥ 960px) */
-  --tabbar-h: 64px;
+  --tabbar-h: 70px;        /* BESLISSING 753: 6 px hoger voor de glazen druppel rond het icoon (was 64) */
   --safe-top: env(safe-area-inset-top, 0px);
   --safe-bottom: env(safe-area-inset-bottom, 0px);
 
@@ -188,5 +214,25 @@
   --shadow-card: 0 1px 2px rgba(0,0,0,.3);
   /* De Poeder-schaduw (aubergine, 28%) is op #1F1720 onzichtbaar: diepere zwarte schaduw plus een fijne lichte rand, zodat een zwevend vlak loskomt. */
   --shadow-float: 0 12px 32px -8px rgba(0,0,0,.6), 0 0 0 1px rgba(243,233,230,.10);
+  /* Glas in Nacht: het donkere uitzicht, in pruim; witte labels, de actieve tab in een heldere tint van haar kleur */
+  --glas-vlak:   color-mix(in srgb, var(--c-accent-soft) 62%, var(--c-bg));
+  --glas-helderheid: .95;
+  --glas-leesbaar: 0 1px 3px rgba(0,0,0,.6);
+  --glas-glans:  rgba(255,255,255,.10);
+  --glas-diepte: rgba(0,0,0,.30);
+  --glas-binnenrand: rgba(0,0,0,.35);
+  --glas-rim-sterk: rgba(255,255,255,.55);
+  --glas-rim-zwak:  rgba(255,255,255,.12);
+  --glas-lens:   rgba(255,255,255,.12);
+  --glas-lens-glans: rgba(255,255,255,.14);
+  --glas-lens-voet:  rgba(0,0,0,.25);
+  --glas-lens-schaduw: rgba(0,0,0,.45);
+  --glas-inhoud: #FFFFFF;
+  --glas-actief-dag:        #D8A8E0;
+  --glas-actief-dagboek:    #F4B48E;
+  --glas-actief-drank:      #86D2DA;
+  --glas-actief-gezondheid: #9AD494;
+  --glas-actief-gewicht:    #9DB9F2;
+  --glas-actief-neutraal:   #F2A2B0;
   color-scheme: dark;
 }

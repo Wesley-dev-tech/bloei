@@ -3,6 +3,7 @@
 import { luister, zend } from './kern/bus.js';
 import { t } from './teksten.js';
 import { tabbalk as maakTabbalk, zijbalk as maakZijbalk, legeToestand, sluitAlleBladen } from './ui/componenten.js';
+import { koppelGlaslens } from './ui/glaslens.js';
 import { isOpen as slotIsOpen } from './vergrendeling/slot.js';
 import { h } from './ui/dom.js';
 import { dagdeel, vandaag as vandaagSleutel } from './kern/datum.js';
@@ -173,6 +174,7 @@ export function startApp(houder) {
   // andere op display: none, zodat die ook voor schermlezers en toetsenbord weg is.
   const { el: tabbalk, links: tabknoppen } = maakTabbalk();
   tabbalk.id = 'tabbalk';
+  const zetLens = koppelGlaslens(tabbalk); // de glazen druppel rond de actieve tab (BESLISSING 753)
   const { el: zijbalk, links: zijknoppen } = maakZijbalk();
   zijbalk.id = 'zijbalk';
   houder.classList.add('schil');
@@ -418,6 +420,7 @@ export function startApp(houder) {
     tabbalk.hidden = zonderNav;
     zijbalk.hidden = zonderNav;
     houder.dataset.nav = zonderNav ? 'uit' : 'aan';
+    zetLens();
 
     // Vooruit naar een scherm: bovenaan. Terugkeren: de oude stand en de focus op de rij waarmee ze vertrok (BESLISSING 465); de stand
     // staat er vóór de eerste verf en wordt vastgehouden terwijl het scherm zijn gegevens laadt (src/kern/scroll.js).

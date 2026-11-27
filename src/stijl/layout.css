@@ -67,6 +67,12 @@
   #tabbalk .tabbalk__item { flex: 1 1 auto; min-width: var(--tap-min); padding-inline: var(--s-1); }
   #tabbalk .tabbalk__label { white-space: nowrap; }
 }
+/* BESLISSING 753: op elke telefoon krijgt een tab de breedte van zijn label plus een gelijk deel van de rest (flex 1 1 auto), ook vanaf 440 px. Zo staat er
+   tussen elke twee labels evenveel ruimte, en past de glazen druppel (overal even groot) rond elk label zonder een buur te raken. */
+@media (max-width: 719.98px) {
+  #tabbalk .tabbalk__item { flex: 1 1 auto; min-width: var(--tap-min); padding-inline: var(--s-1); }
+  #tabbalk .tabbalk__label { white-space: nowrap; }
+}
 /* BESLISSING 504: de balk onderaan is een zwevend, afgerond vlak dat niet van rand tot rand loopt. Het element zelf houdt zijn plaats en maat (niets in de
    indeling verschuift); zijn achtergrond is doorzichtig en het zichtbare vlak is een afgeronde vorm erbinnen (::before). De tabs staan binnen dat vlak.
    Op een telefoon is de ruimte links en rechts zo groot als past: vijf labels op één regel vragen ongeveer 300 px (de zesde, Algemeen, staat
@@ -75,20 +81,99 @@
 #tabbalk > * { pointer-events: auto; }
 /* de tabs (en het vlak van de actieve tab) blijven binnen het afgeronde vlak: 2 px lucht boven en onder; een tab blijft 48 px hoog (tikdoel) */
 #tabbalk .tabbalk__item { position: relative; margin-top: 2px; margin-bottom: calc(2px + max(0px, 6px - var(--safe-bottom))); }
-/* Icoon en label staan samen verticaal in het midden van het vlak, met evenveel ruimte erboven als eronder: het bolletje van de actieve tab telt niet mee in
-   die verdeling en staat los onder het label. */
-#tabbalk .tabbalk__item::after { position: absolute; left: 50%; bottom: 1px; margin-left: calc(var(--stip) / -2); }
-#tabbalk::before { content: ""; position: absolute; z-index: -1; top: 0; bottom: max(var(--safe-bottom), 6px); left: var(--tb-inzet); right: var(--tb-inzet); border-radius: var(--r-lg); background: var(--c-surface); border: var(--lijn); box-shadow: var(--shadow-float); }
+/* Icoon en label staan samen verticaal in het midden van het vlak, met evenveel ruimte erboven als eronder. Sinds BESLISSING 753 valt het bolletje onder
+   het label weg: de glazen druppel rond de actieve tab toont waar je bent. */
+#tabbalk .tabbalk__item { z-index: 1; }
+#tabbalk .tabbalk__item::after { display: none; }
+/* BESLISSING 753: het vlak is van Liquid Glass (Apple, iOS 26), in de middenstand tussen Helder en Getint. Vorm, maat en schaduw blijven precies die van
+   BESLISSING 504; alleen het materiaal verandert. Het glas draagt de themakleur (Poeder roze, Salie salie, Nacht pruim) als één vaste kleur, die niet verandert met wat erachter schuift;
+   de dikte zit in de rand: een lichtrand (::after, het helderst linksboven en rechtsonder) en daarbinnen een zachte schaduw. De iconen houden de kleur van
+   hun tabblad, de labels zijn donker op licht glas en wit in Nacht; de actieve tab ligt in een heldere glazen druppel en licht op in de kleur van haar tabblad.
+   Alle glaskleuren komen uit de --glas-tokens (tokens.css). */
+#tabbalk::before {
+  content: ""; position: absolute; z-index: -1; top: 0; bottom: max(var(--safe-bottom), 6px); left: var(--tb-inzet); right: var(--tb-inzet);
+  border-radius: var(--r-lg);
+  background: linear-gradient(to bottom, var(--glas-glans), transparent 45%), var(--glas-vlak);
+  -webkit-backdrop-filter: blur(var(--glas-vaag)) saturate(var(--glas-verzadiging)) brightness(var(--glas-helderheid));
+  backdrop-filter: blur(var(--glas-vaag)) saturate(var(--glas-verzadiging)) brightness(var(--glas-helderheid));
+  box-shadow: inset 0 0 10px -2px var(--glas-binnenrand), inset 0 -10px 16px -14px var(--glas-diepte), var(--shadow-float);
+}
+/* Op het glas houdt elk icoon de kleur van zijn tabblad (zoals in de rest van Bloei); de labels zijn donker op licht glas en wit op donker glas. Het actieve tabblad in zijn eigen kleur (icoon en label), zonder vergroting of schaduw, zoals in de App Store. */
+#tabbalk .tabbalk__item { color: var(--glas-inhoud); }
+/* Plaats voor de druppel rond het icoon (de balk is daarvoor 6 px hoger, --tabbar-h 70). Het label staat 9 px onder het icoon, zodat de druppel (30 px hoog,
+   5 px boven en onder het icoon) 4 px van het label blijft. Het geheel van druppel en label (51,2 px: 5 + icoon 24 + 9 + label 13,2) staat verticaal in het midden van het glas, ook op een
+   iPhone met thuisbalk (daar is het glas hoger): de ruimte erboven is dan even groot als eronder. De tab zelf begint 2 px onder de bovenkant van het glas. */
+#tabbalk .tabbalk__item {
+  gap: 9px; justify-content: flex-start;
+  padding-top: calc((var(--tabbar-h) + var(--safe-bottom) - max(var(--safe-bottom), 6px) - 51.2px) / 2 + 3px);
+}
+/* De iconen in de balk zijn 24 px (elders in het menu 20): op het glas iets groter, zoals bij Apple. */
+#tabbalk .navicoon .icoon { width: 24px; height: 24px; }
+/* Optisch even groot: de vijf iconen hebben een andere vorm (de zon en de weegschaal vullen hun vak, het boek en de capsules zijn breed en laag, het glas
+   smal en hoog). Elk icoon krijgt de maat waarbij het even groot oogt (gemeten als het gemiddelde van de wortel uit zijn kleuroppervlak en de wortel uit
+   zijn omhullende vak; doel 20,8 px): de weegschaal iets kleiner, het glas en de capsules iets groter. De negatieve marge houdt het vak op 24 px, zodat
+   de plaats van het label en de maat van de druppel overal gelijk blijven. */
+#tabbalk .tabbalk__item--dagboek .navicoon .icoon { width: 24.5px; height: 24.5px; margin: -0.25px; }
+#tabbalk .tabbalk__item--drinken .navicoon .icoon { width: 25.75px; height: 25.75px; margin: -0.875px; }
+#tabbalk .tabbalk__item--supplementen .navicoon .icoon { width: 26.5px; height: 26.5px; margin: -1.25px; }
+#tabbalk .tabbalk__item--gewicht .navicoon .icoon { width: 22.5px; height: 22.5px; margin: 0.75px; }
+#tabbalk .tabbalk__item .navicoon { opacity: 1; filter: drop-shadow(var(--glas-leesbaar)); }
+#tabbalk .tabbalk__label { text-shadow: var(--glas-leesbaar); }
+#tabbalk .tabbalk__item[data-kleur="dag"][aria-current="page"], #tabbalk .tabbalk__item[data-kleur="dag"][aria-current="page"] .navicoon { color: var(--glas-actief-dag); }
+#tabbalk .tabbalk__item[data-kleur="dagboek"][aria-current="page"], #tabbalk .tabbalk__item[data-kleur="dagboek"][aria-current="page"] .navicoon { color: var(--glas-actief-dagboek); }
+#tabbalk .tabbalk__item[data-kleur="drank"][aria-current="page"], #tabbalk .tabbalk__item[data-kleur="drank"][aria-current="page"] .navicoon { color: var(--glas-actief-drank); }
+#tabbalk .tabbalk__item[data-kleur="gezondheid"][aria-current="page"], #tabbalk .tabbalk__item[data-kleur="gezondheid"][aria-current="page"] .navicoon { color: var(--glas-actief-gezondheid); }
+#tabbalk .tabbalk__item[data-kleur="gewicht"][aria-current="page"], #tabbalk .tabbalk__item[data-kleur="gewicht"][aria-current="page"] .navicoon { color: var(--glas-actief-gewicht); }
+#tabbalk .tabbalk__item[data-kleur="neutraal"][aria-current="page"], #tabbalk .tabbalk__item[data-kleur="neutraal"][aria-current="page"] .navicoon { color: var(--glas-actief-neutraal); }
+#tabbalk::after {
+  content: ""; position: absolute; z-index: -1; top: 0; bottom: max(var(--safe-bottom), 6px); left: var(--tb-inzet); right: var(--tb-inzet);
+  border-radius: var(--r-lg);
+  border: 1.5px solid transparent;
+  background: linear-gradient(135deg, var(--glas-rim-sterk), var(--glas-rim-zwak) 28%, var(--glas-rim-zwak) 72%, var(--glas-rim-sterk)) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0);
+  pointer-events: none;
+}
+/* De glazen druppel rond het icoon van de actieve tab: een capsule van hetzelfde glas maar helderder, met een eigen lichtrand en een zachte schaduw,
+   overal even groot (14 px opzij en 5 px boven en onder het icoonvak van 24 px: 52 x 34 px). src/ui/glaslens.js zet zijn plaats en maat en houdt hem
+   minstens 4 px binnen het glas; hij raakt geen buur en niet zijn eigen label (4 px eronder).
+   Bij een andere tab glijdt hij erheen met een kleine veer; wie de actieve tab indrukt, ziet hem even opzwellen, zoals bij Apple. */
+#tabbalk .tabbalk__lens {
+  position: absolute; z-index: 0; left: 0; top: 0;
+  width: var(--lens-b, 0px); height: var(--lens-h, 0px);
+  transform: translate(var(--lens-x, 0px), var(--lens-y, 0px)) scale(var(--lens-druk, 1));
+  border-radius: var(--r-pill);
+  background: linear-gradient(to bottom, var(--glas-lens-glans), transparent 70%), var(--glas-lens);
+  box-shadow: inset 0 1px 0 var(--glas-rim-sterk), inset 0 -1px 0 var(--glas-lens-voet), 0 2px 8px -2px var(--glas-lens-schaduw);
+  opacity: 0; pointer-events: none;
+}
+#tabbalk[data-lens] .tabbalk__lens { opacity: 1; }
+#tabbalk[data-lens="glijdt"] .tabbalk__lens {
+  transition: transform 460ms cubic-bezier(.3, 1.3, .5, 1), opacity var(--dur) var(--ease);
+}
+#tabbalk:has(.tabbalk__item[aria-current="page"]:active) .tabbalk__lens { --lens-druk: 1.06; }
+@media (prefers-reduced-motion: reduce) { #tabbalk[data-lens="glijdt"] .tabbalk__lens { transition: none; } }
+/* Waar glas niet kan of niet gewenst is (een toestel zonder backdrop-filter, minder doorzichtigheid of meer contrast gevraagd): het effen vlak van vroeger. */
+@supports not ((backdrop-filter: blur(1px)) or (-webkit-backdrop-filter: blur(1px))) {
+  #tabbalk::before { background: var(--glas-vlak-vol); }
+  #tabbalk::after { display: none; }
+}
+@media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
+  #tabbalk::before { background: var(--glas-vlak-vol); -webkit-backdrop-filter: none; backdrop-filter: none; }
+  #tabbalk::after { display: none; }
+}
 /* De maten staan op :root, zodat een melding onderaan (.strokenhouder in componenten.css) precies even breed kan zijn als het vlak van de balk. */
 @media (max-width: 719.98px) {
   :root { --tb-pad: clamp(5px, calc((100vw - 300px) / 2), 40px); --tb-inzet: calc(var(--tb-pad) - 4px); }
   #tabbalk { --tb-inzet: calc(var(--tb-pad) - 4px); padding-inline: var(--tb-pad); }
 }
 /* BESLISSING 505: de actieve tab heeft geen eigen achtergrondvlak; haar icoon licht op (iets groter met een zachte schaduw, zoals de iconen bij aanwijzen).
-   Het bolletje eronder en de heldere tekst blijven. */
+   De heldere tekst blijft; het bolletje eronder is sinds BESLISSING 753 vervangen door de glazen druppel. */
 #tabbalk .tabbalk__item[aria-current="page"] { background: transparent; }
 #tabbalk .tabbalk__item .navicoon { transition: transform var(--dur) var(--ease), filter var(--dur) var(--ease); }
-#tabbalk .tabbalk__item[aria-current="page"] .navicoon { transform: scale(1.15); filter: drop-shadow(0 2px 3px color-mix(in srgb, var(--c-text) 25%, transparent)); }
+/* Sinds BESLISSING 753 groeit het icoon in de glazen druppel niet meer en krijgt het geen schaduw (zoals in de App Store); het licht op in de kleur van zijn tabblad. */
+#tabbalk .tabbalk__item[aria-current="page"] .navicoon { transform: none; filter: drop-shadow(var(--glas-leesbaar)); }
 @media (prefers-reduced-motion: reduce) { #tabbalk .tabbalk__item .navicoon { transition: none; } }
 
 /* ---------- Tablet: iets breder ---------- */
