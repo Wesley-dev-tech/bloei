@@ -365,7 +365,8 @@
   .weerregel__vak--nu > .icoon { flex: none; width: 1.286em; height: 1.286em; color: var(--c-day); }
   .weerregel__vak--eenheid { gap: .3em; } /* een cijfer met zijn eenheid (4 mm) hoort dichter bij elkaar */
   .weerregel__getal { font-weight: 500; }
-  .weerregel__woord { color: var(--c-text-muted); }
+  /* De woorden iets donkerder dan de gewone gedempte tekst: op de zachte tint van de pil haalt die in Salie de norm niet (4,46 : 1, nodig 4,5) */
+  .weerregel__woord { color: color-mix(in srgb, var(--c-text-muted) 85%, var(--c-text)); }
   .weerregel__punt { flex: 1 1 .9em; min-width: .6em; text-align: center; color: var(--c-text-muted); }
   .weerregel__punt::before { content: "\00B7"; }
   /* Tijdens het meten (weerkaart.js, pas): de kleinste breedte van de regel met deze lettermaat. */

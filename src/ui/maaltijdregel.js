@@ -43,6 +43,14 @@ const naarMinuten = (tijd) => {
 
 // De eerstvolgende open maaltijd: de eerste niet-ingevulde waarvan het gewone uur nog niet meer dan
 // 2 uur voorbij is; anders de eerste niet-ingevulde; zijn ze alle zes ingevuld: geen.
+// Er volgt hoogstens één rij de focus na het sluiten van een blad: de laatst gesloten maaltijd. Sloot je binnen 1,5 s een tweede blad
+// (of opende je er een), dan zette de waarnemer van de vorige maaltijd de focus anders terug op haar rij in plaats van op de juiste.
+let focusTerug = null;
+function stopFocusTerug() {
+  focusTerug?.disconnect();
+  focusTerug = null;
+}
+
 export function eerstvolgendeOpen(maaltijden, nu = new Date()) {
   const open = MAALTIJDSOORTEN.filter((soort) => !isIngevuld(maaltijden[soort]));
   if (!open.length) return null;
@@ -140,6 +148,7 @@ export function maaltijdregel(opties) {
   // kijkstand (de rondleiding): het blad opent zonder focus in het tekstvak.
   function openBlad({ kijkstand = false } = {}) {
     if (alleenLezen || bladEl) return bladEl;
+    stopFocusTerug(); // een nieuw blad: de focus van een vorig blad volgt niet langer zijn rij
     begin = kopieVan(huidig);
     paneel = bouwPaneel();
     kop.setAttribute('aria-expanded', 'true');
@@ -177,7 +186,12 @@ export function maaltijdregel(opties) {
       zoek()?.focus({ preventScroll: true });
     });
     waarnemer.observe(scherm, { childList: true, subtree: true, attributes: true, attributeFilter: ['class'] }); // ook als een scherm na het meten weer zichtbaar wordt (is-meet)
-    setTimeout(() => waarnemer.disconnect(), 1500);
+    stopFocusTerug();
+    focusTerug = waarnemer;
+    setTimeout(() => {
+      waarnemer.disconnect();
+      if (focusTerug === waarnemer) focusTerug = null;
+    }, 1500);
   }
 
   // Sluiten zoals Klaar of Escape (opSluit zet de focus terug op de rij).
