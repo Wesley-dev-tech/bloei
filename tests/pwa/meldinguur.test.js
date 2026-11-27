@@ -71,10 +71,10 @@ describe('de melding kiest de soort per minuut', () => {
 });
 
 describe('het maximum aantal tijdstippen tegenover de grens van de dienst', () => {
-  it('dagboek (3) + eten (3) + drinken (3) + supplementen (3) = 12, de grens van de dienst (BESLISSING 736)', () => {
-    expect(LIMIET).toEqual({ dagboek: 3, eten: 3, drinken: 3, supplementen: 3 });
-    expect(DAGBOEK_LIMIET).toBe(3);
-    expect(LIMIETEN.drinken).toBe(3);
+  it('dagboek (2) + eten (3) + drinken (4) + supplementen (3) = 12, de grens van de dienst (BESLISSING 736; Dagboek 2 en Drinken 4 sinds 0.6.7)', () => {
+    expect(LIMIET).toEqual({ dagboek: 2, eten: 3, drinken: 4, supplementen: 3 });
+    expect(DAGBOEK_LIMIET).toBe(2);
+    expect(LIMIETEN.drinken).toBe(4);
     const totaal = LIMIET.dagboek + LIMIET.eten + LIMIET.drinken + LIMIET.supplementen;
     expect(totaal).toBe(12);
     expect(totaal).toBeLessThanOrEqual(MAX_UREN_DIENST);

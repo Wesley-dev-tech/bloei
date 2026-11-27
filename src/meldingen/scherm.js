@@ -1,6 +1,6 @@
 // Meer › Herinneringen (#/meer/meldingen), in de vaste opbouw van een instelscherm (layout.css). BESLISSINGEN 307, 309, 312, 313 en 714.
 // Links: bovenaan een hoofdschakelaar (alles aan of uit) en daaronder vier soorten, elk apart aan en uit met hun eigen uren per minuut (BESLISSING 713):
-//   Dagboek (tot 3 tijdstippen), Drinken (tot 4) en Supplementen (tot 3). Bij elke soort kiest de gebruiker elk uur zelf, kan ze een tijdstip
+//   Dagboek (tot 2 tijdstippen), Eten en Supplementen (elk tot 3) en Drinken (tot 4). Bij elke soort kiest de gebruiker elk uur zelf, kan ze een tijdstip
 //   toevoegen en weghalen, in dezelfde rijen (714). Rechts: "Zo ziet het eruit" met een nagebootste melding. Standaard staat alles uit;
 //   elk toestel heeft zijn eigen keuzes.
 // Vier toestanden: beschikbaar, niet beschikbaar (geen push-dienst), installeren (iPhone of iPad in Safari) en geweigerd.
@@ -30,8 +30,9 @@ export function geweigerdStappenSleutel({ android = isAndroid(), standalone = is
 // BESLISSING 736: vier soorten, in de volgorde van de begrippen van de app (iconenkaart.js): Dagboek, Eten, Drinken, Supplementen.
 export const SOORTEN = ['dagboek', 'eten', 'drinken', 'supplementen'];
 const LIJSTEN = { dagboek: 'meldingen.dagboek', eten: 'meldingen.eten', drinken: 'meldingen.drinken', supplementen: 'meldingen.supplementenUren' };
-// BESLISSING 714 en 736: elke soort heeft dezelfde rijen, met hoogstens 3 tijdstippen per soort: samen 4 x 3 = 12, de grens van de dienst.
-// Een oude stand met 4 tijdstippen (Dagboek of Drinken, van voor 736): bij het inlezen blijven de eerste drie en vervalt de rest, een keer en stil.
+// BESLISSING 714 en 736: elke soort heeft dezelfde rijen, met hoogstens 3 tijdstippen per soort; op vraag van Caroline (0.6.7) Drinken 4
+// en Dagboek 2: samen 2 + 3 + 4 + 3 = 12, de grens van de dienst. Een stand met meer dan de grens van een soort: bij het inlezen blijven de eerste tijdstippen
+// tot die grens en vervalt de rest, een keer en stil.
 export const DAGBOEK_LIMIET = LIMIETEN.dagboek;
 export const LIMIET = { dagboek: LIMIETEN.dagboek, eten: LIMIETEN.eten, drinken: LIMIETEN.drinken, supplementen: LIMIETEN.supplementenUren };
 const twee = (n) => String(n).padStart(2, '0');
@@ -98,7 +99,7 @@ export function toon(houder) {
     const dagboekUurOud = typeof dagboek?.uur === 'string' ? dagboek.uur : '20:00';
     const stand = { dagboek: voegSamen(dagboekLijst(dagboek)), eten: voegSamen(Array.isArray(eten) ? eten : []), drinken: voegSamen(drinken ?? []), supplementen: voegSamen(supplementen ?? []), details: details === true };
     const toestand = pushToestand();
-    // BESLISSING 736: strikt drie tijdstippen per soort. Een oude stand met meer wordt hier een keer ingekort en bewaard, zonder melding.
+    // BESLISSING 736: strikt de grens per soort (Dagboek 2, Drinken 4, de rest 3). Een stand met meer wordt hier een keer ingekort en bewaard, zonder melding.
     for (const s of SOORTEN) {
       if (stand[s].length > LIMIET[s]) {
         stand[s] = stand[s].slice(0, LIMIET[s]);

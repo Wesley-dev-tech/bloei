@@ -204,28 +204,25 @@ test.describe('het tijdstip van een herinnering per minuut (713)', { tag: '@push
       });
     expect(await rij('dagboek')).toEqual(await rij('drinken'));
 
-    // toevoegen tot 3: daarna geen knop meer bij Dagboek
+    // toevoegen tot 2 (0.6.7): daarna geen knop meer bij Dagboek
     const toevoegen = page.locator('[data-meldingen="dagboek-toevoegen"]');
     await toevoegen.click();
     await expect(veldVan(page, 'dagboek', 1)).toHaveValue('22:00');
-    await toevoegen.click();
-    await expect(veldVan(page, 'dagboek', 2)).toHaveValue('00:00');
     await expect(toevoegen).toHaveCount(0);
     await veldVan(page, 'dagboek', 1).fill('18:07');
-    await expect.poll(() => lees(page, 'meldingen.dagboek')).toEqual({ aan: true, uur: '20:00', tijdstippen: [{ aan: true, uur: '20:00' }, { aan: true, uur: '18:07' }, { aan: true, uur: '00:00' }] });
-    await expect.poll(() => voorbeeldUren(page)).toEqual(['00:00', '11:00', '18:07', '20:00']);
+    await expect.poll(() => lees(page, 'meldingen.dagboek')).toEqual({ aan: true, uur: '20:00', tijdstippen: [{ aan: true, uur: '20:00' }, { aan: true, uur: '18:07' }] });
+    await expect.poll(() => voorbeeldUren(page)).toEqual(['11:00', '18:07', '20:00']);
 
-    // herladen: de drie tijdstippen blijven
+    // herladen: de twee tijdstippen blijven
     await page.reload();
-    await expect(veldVan(page, 'dagboek', 2)).toHaveValue('00:00');
     expect([await veldVan(page, 'dagboek', 0).inputValue(), await veldVan(page, 'dagboek', 1).inputValue()]).toEqual(['20:00', '18:07']);
 
     // het laatste tijdstip met het kruisje weghalen: zoals bij Drinken staat de soort daarna uit, zonder tijdstippen
-    for (let i = 0; i < 3; i += 1) await page.locator('.meldingen__slot:has([data-meldingen="dagboek-0"]) .meldingen__weg').click();
+    for (let i = 0; i < 2; i += 1) await page.locator('.meldingen__slot:has([data-meldingen="dagboek-0"]) .meldingen__weg').click();
     await expect(page.locator('[data-meldingen="dagboek-0"]')).toHaveCount(0);
     await expect(page.locator('.meldingen [data-meldingen="dagboek"]')).toHaveAttribute('aria-checked', 'false');
     // (uur houdt het laatst bekende uur, hier dat van het laatst weggehaalde tijdstip; alleen een oudere lezer kijkt ernaar, en aan is false)
-    await expect.poll(() => lees(page, 'meldingen.dagboek')).toEqual({ aan: false, uur: '00:00', tijdstippen: [] });
+    await expect.poll(() => lees(page, 'meldingen.dagboek')).toEqual({ aan: false, uur: '18:07', tijdstippen: [] });
     // weer aanzetten: een nieuw tijdstip, net als bij Drinken (12:00, twee uur na 10:00)
     await page.locator('.meldingen [data-meldingen="dagboek"]').click();
     await expect(veldVan(page, 'dagboek', 0)).toHaveValue('12:00');

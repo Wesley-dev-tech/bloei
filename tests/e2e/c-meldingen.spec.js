@@ -502,19 +502,52 @@ test.describe('met push-dienst', { tag: '@push' }, () => {
     await expect(page.locator('.meldingen__slot')).toHaveCount(3);
   });
 
-  test('een oude stand met vier tijdstippen bij Drinken houdt er stil de eerste drie over, op het toestel en bij de dienst', async ({ page, context }) => {
+  // Op vraag van Caroline (0.6.7): Drinken heeft hoogstens vier tijdstippen, de andere soorten blijven op drie.
+  test('drinken: vier tijdstippen met eigen uur, daarna geen Tijdstip toevoegen meer', async ({ page, context }) => {
     await nepPush(context);
     const verzoeken = await nepDienst(context);
     await openScherm(page);
-    const vier = ['08:00', '11:00', '15:00', '19:00'].map((uur) => ({ aan: true, uur }));
-    await IDB(page, 'put', { instellingen: [instelling('meldingen.drinken', vier)] });
+    await schakelaar(page, 'drinken').click();
+    await expect(page.locator('.meldingen__slot')).toHaveCount(1);
+    const toevoegen = page.locator('[data-meldingen="drinken-toevoegen"]');
+    for (const n of [2, 3, 4]) {
+      await toevoegen.click();
+      await expect(page.locator('.meldingen__slot')).toHaveCount(n);
+    }
+    await expect(toevoegen).toHaveCount(0);
+    await expect.poll(() => laatsteUren(verzoeken).length, { timeout: 8000 }).toBe(4);
     await page.reload();
-    await expect(page.locator('.meldingen__slot')).toHaveCount(3);
+    await expect(page.locator('.meldingen__slot')).toHaveCount(4);
+  });
+
+  test('een oude stand met drie tijdstippen bij Dagboek houdt er stil de eerste twee over, op het toestel en bij de dienst', async ({ page, context }) => {
+    await nepPush(context);
+    const verzoeken = await nepDienst(context);
+    await openScherm(page);
+    const drie = ['07:00', '13:00', '21:00'].map((uur) => ({ aan: true, uur }));
+    await IDB(page, 'put', { instellingen: [instelling('meldingen.dagboek', { aan: true, uur: '07:00', tijdstippen: drie })] });
+    await page.reload();
+    await expect(page.locator('.meldingen__slot')).toHaveCount(2);
+    await expect(page.locator('[data-meldingen="dagboek-toevoegen"]')).toHaveCount(0);
+    await expect.poll(async () => (await lees(page, 'meldingen.dagboek'))?.tijdstippen).toEqual(drie.slice(0, 2));
+    await schakelaar(page, 'dagboek-0').click();
+    await schakelaar(page, 'dagboek-0').click();
+    await expect.poll(() => laatsteUren(verzoeken), { timeout: 8000 }).toEqual(['07:00', '13:00']);
+  });
+
+  test('een stand met vijf tijdstippen bij Drinken houdt er stil de eerste vier over, op het toestel en bij de dienst', async ({ page, context }) => {
+    await nepPush(context);
+    const verzoeken = await nepDienst(context);
+    await openScherm(page);
+    const vijf = ['08:00', '11:00', '15:00', '19:00', '21:00'].map((uur) => ({ aan: true, uur }));
+    await IDB(page, 'put', { instellingen: [instelling('meldingen.drinken', vijf)] });
+    await page.reload();
+    await expect(page.locator('.meldingen__slot')).toHaveCount(4);
     await expect(page.locator('[data-meldingen="drinken-toevoegen"]')).toHaveCount(0);
-    await expect.poll(() => lees(page, 'meldingen.drinken')).toEqual(vier.slice(0, 3));
+    await expect.poll(() => lees(page, 'meldingen.drinken')).toEqual(vijf.slice(0, 4));
     await schakelaar(page, 'drinken-0').click();
     await schakelaar(page, 'drinken-0').click();
-    await expect.poll(() => laatsteUren(verzoeken), { timeout: 8000 }).toEqual(['08:00', '11:00', '15:00']);
+    await expect.poll(() => laatsteUren(verzoeken), { timeout: 8000 }).toEqual(['08:00', '11:00', '15:00', '19:00']);
   });
 
   // De volgorde (wissen.js): eerst het leegmaken in één transactie, dan het afmelden bij de dienst, dan de rij van het abonnement weg. Zolang dat
@@ -880,8 +913,8 @@ test.describe('met push-dienst', { tag: '@push' }, () => {
     ['drinken 1', { dagboek: { aan: false, uur: '20:00' }, drinken: lijst(1), supplementen: [] }],
     ['drinken 2', { dagboek: { aan: false, uur: '20:00' }, drinken: lijst(2), supplementen: [] }],
     ['drinken 3', { dagboek: { aan: false, uur: '20:00' }, drinken: lijst(3), supplementen: [] }],
-    // 714: Dagboek als lijst (tot 3 tijdstippen); de standen hierboven bewaren nog de oude vorm { aan, uur } en tonen zo dat die blijft werken.
-    ['alles aan met het maximum', { dagboek: { aan: true, uur: '07:15', tijdstippen: [{ aan: true, uur: '07:15' }, { aan: true, uur: '12:30' }, { aan: true, uur: '20:00' }] }, eten: lijst(3), drinken: lijst(3), supplementen: lijst(3) }], // 736: 3 per soort
+    // 714: Dagboek als lijst (tot 2 tijdstippen sinds 0.6.7); de standen hierboven bewaren nog de oude vorm { aan, uur } en tonen zo dat die blijft werken.
+    ['alles aan met het maximum', { dagboek: { aan: true, uur: '07:15', tijdstippen: [{ aan: true, uur: '07:15' }, { aan: true, uur: '20:00' }] }, eten: lijst(3), drinken: lijst(4), supplementen: lijst(3) }], // 0.6.7: 2 + 3 + 4 + 3
   ];
   for (const [breedte, hoogte] of [[1690, 1230], [1440, 900], [1180, 820], [1024, 768]]) {
     test(`kolommen eindigen gelijk op ${breedte}x${hoogte} in elke stand`, async ({ page, context }) => {

@@ -190,7 +190,9 @@ function ingeschakeld({ nu, dagboek, eten, supplementenUren, drinken }) {
   const lijst = [];
   const bron = [['dagboek', dagboekLijst(dagboek)], ['eten', Array.isArray(eten) ? eten : []], ['supplementen', supplementenUren ?? []], ['drinken', drinken ?? []]];
   for (const [soort, uren] of bron) {
-    for (const k of uren.slice(0, 3)) { // BESLISSING 736: hoogstens drie tijdstippen per soort (een vierde van een oude stand telt niet)
+    // BESLISSING 736: hoogstens drie tijdstippen per soort, bij Dagboek twee en bij Drinken vier (0.6.7; LIMIETEN in push.js, dat deze
+    // module importeert, dus hier een eigen kopie); wat daarboven staat, telt niet.
+    for (const k of uren.slice(0, { dagboek: 2, drinken: 4 }[soort] ?? 3)) {
       if (!k?.aan || typeof k.uur !== 'string') continue;
       const d = naHetUur(nu, k.uur);
       if (d === null || lijst.some((x) => x.soort === soort && x.uur === k.uur)) continue;

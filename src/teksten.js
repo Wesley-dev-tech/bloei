@@ -1691,9 +1691,9 @@ export const TEKSTEN = {
       meldingen: {
         installeren: { titel: "Eerst op je beginscherm", tekst: "Op een iPhone of iPad werken herinneringen pas als Bloei op je beginscherm staat. Volg de drie stappen en kom daarna terug." },
         hoofd: { titel: "De hoofdschakelaar", tekst: "Bovenaan zet je herinneringen in één tik aan of uit. Ze staan standaard uit, en je beslist zelf welke je wil. Wil je er geen meer, zet ze hier dan weer uit." },
-        soort: { titel: "Kies een soort", tekst: "Zet per soort een herinnering aan: Dagboek, Eten, Drinken of Supplementen. Zet je een soort aan, dan kies je eronder het uur. Elke soort kan drie tijdstippen hebben." },
+        soort: { titel: "Kies een soort", tekst: "Zet per soort een herinnering aan: Dagboek, Eten, Drinken of Supplementen. Zet je een soort aan, dan kies je eronder het uur. Drinken kan vier tijdstippen hebben, Eten en Supplementen drie, Dagboek twee." },
         uur: { titel: "Het uur kiezen", tekst: "Kies het uur en de minuut waarop je het seintje wil. Met de schakelaar zet je dit tijdstip aan of uit, en met het kruisje haal je het weg." },
-        toevoegen: { titel: "Een tijdstip erbij", tekst: "Met Tijdstip toevoegen zet je er een tijdstip bij. Elke soort kan er drie hebben, elk met een eigen uur." },
+        toevoegen: { titel: "Een tijdstip erbij", tekst: "Met Tijdstip toevoegen zet je er een tijdstip bij. Drinken kan er vier hebben, Eten en Supplementen drie, Dagboek twee. Elk tijdstip heeft een eigen uur." },
         details: { titel: "Details tonen", tekst: "Standaard staat er in je melding alleen dat Bloei klaarligt. Zet je Details tonen aan, dan lees je ook waarover de herinnering gaat, ook op je vergrendelde scherm. Jij kiest." },
         voorbeeld: { titel: "Meekijken", tekst: "In het voorbeeld zie je hoe de melding op je toestel verschijnt. Zet je Details tonen in meldingen aan, dan zie je hier meteen wat er in je melding komt te staan." },
         weetjes: { titel: "Goed om te weten", tekst: "Hier lees je kort hoe herinneringen werken." },

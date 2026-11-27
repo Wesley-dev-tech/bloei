@@ -12,12 +12,13 @@ import { dagboekLijst } from './tekst.js';
 // Zoveel ms na de laatste tik geeft de app de uren door (was 700): een reeks tikken wordt zo één wijziging bij de dienst.
 export const WACHTTIJD_MS = 3000;
 
-// Vier soorten (BESLISSINGEN 313 en 736): dagboek (een lijst tijdstippen, BESLISSING 714), eten, drinken en supplementen, elk tot 3 uren.
-// Het maximum aantal uren per abonnement is 12 (de grens van de dienst): 4 x 3 = 12. Een oude stand van voor 736 kan bij Dagboek of
-// Drinken nog 4 tijdstippen hebben: alleen de eerste drie van elke lijst tellen (het scherm Herinneringen haalt het vierde een keer stil weg).
+// Vier soorten (BESLISSINGEN 313 en 736): dagboek (een lijst tijdstippen, BESLISSING 714) tot 2 uren, eten en supplementen elk tot 3,
+// en drinken tot 4. Op vraag van Caroline (versie 0.6.7) kreeg Drinken een vierde tijdstip en gaf Dagboek er een af, zodat het totaal
+// op 12 blijft, de grens van de dienst (MAX_UREN in worker/src/valideer.js): 2 + 3 + 4 + 3 = 12. Een lijst met meer dan haar grens
+// telt alleen tot die grens (het scherm Herinneringen haalt de rest een keer stil weg).
 export const MAX_UREN = 12;
 export const PER_SOORT = 3;
-export const LIMIETEN = { dagboek: PER_SOORT, eten: PER_SOORT, drinken: PER_SOORT, supplementenUren: PER_SOORT };
+export const LIMIETEN = { dagboek: 2, eten: PER_SOORT, drinken: 4, supplementenUren: PER_SOORT };
 const SLEUTELS_DIE_TELLEN = ['meldingen.dagboek', 'meldingen.eten', 'meldingen.drinken', 'meldingen.supplementenUren'];
 
 // ---- hulpjes
@@ -46,10 +47,11 @@ export function schoonUur(waarde) {
 // uren zijn één signaal). Alleen wat aan staat telt, en alleen een geldig uur. Dagboek: elk tijdstip uit de lijst (ook de oude vorm
 // { aan, uur }, via dagboekLijst). opties.kwartieren: elk uur afgerond op het kwartier ervoor (alleen voor een oude dienst).
 export function alleUren(keuzes, { kwartieren = false } = {}) {
-  // Per soort de geldige uren die aan staan, uit de eerste drie tijdstippen van de lijst (BESLISSING 736).
-  const perSoort = [dagboekLijst(keuzes.dagboek), keuzes.eten, keuzes.drinken, keuzes.supplementenUren].map((lijst) => {
+  // Per soort de geldige uren die aan staan, uit de eerste tijdstippen van de lijst tot de grens van die soort (BESLISSING 736; Dagboek 2, Drinken 4).
+  const bronnen = [[dagboekLijst(keuzes.dagboek), LIMIETEN.dagboek], [keuzes.eten, LIMIETEN.eten], [keuzes.drinken, LIMIETEN.drinken], [keuzes.supplementenUren, LIMIETEN.supplementenUren]];
+  const perSoort = bronnen.map(([lijst, grens]) => {
     const uren = [];
-    for (const k of (Array.isArray(lijst) ? lijst : []).slice(0, PER_SOORT)) {
+    for (const k of (Array.isArray(lijst) ? lijst : []).slice(0, grens)) {
       const uur = k?.aan ? schoonUur(k.uur) : null;
       const q = uur && (kwartieren ? kwartier(uur) : uur);
       if (q && !uren.includes(q)) uren.push(q);

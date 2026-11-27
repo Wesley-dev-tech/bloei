@@ -48,10 +48,10 @@ describe('lichaam van het verzoek', () => {
   });
   it('houdt zich aan het maximum van 12 uren', () => {
     const veel = { dagboek: { aan: false }, drinken: Array.from({ length: 20 }, (_, i) => ({ aan: true, uur: `${String(8 + Math.floor(i / 4)).padStart(2, '0')}:${['00', '15', '30', '45'][i % 4]}` })), supplementenUren: [] };
-    // BESLISSING 736: hoogstens drie tijdstippen per soort, dus van een lange lijst Drinken gaan alleen de eerste drie mee.
-    expect(alleUren(veel)).toEqual(['08:00', '08:15', '08:30']);
-    const vol = (u) => [0, 1, 2].map((i) => ({ aan: true, uur: `${String(u + i).padStart(2, '0')}:00` }));
-    expect(alleUren({ dagboek: { aan: true, uur: '06:00', tijdstippen: vol(6) }, eten: vol(9), drinken: vol(12), supplementenUren: vol(15) })).toHaveLength(12);
+    // BESLISSING 736: hoogstens drie tijdstippen per soort, bij Drinken vier (0.6.7), dus van een lange lijst Drinken gaan alleen de eerste vier mee.
+    expect(alleUren(veel)).toEqual(['08:00', '08:15', '08:30', '08:45']);
+    const vol = (u, n = 3) => Array.from({ length: n }, (_, i) => ({ aan: true, uur: `${String(u + i).padStart(2, '0')}:00` }));
+    expect(alleUren({ dagboek: { aan: true, uur: '06:00', tijdstippen: vol(6) }, eten: vol(9), drinken: vol(12, 4), supplementenUren: vol(16) })).toHaveLength(12); // Dagboek telt er twee
   });
   it('geeft het uur per minuut door, zonder afronding (BESLISSING 713)', () => {
     expect(alleUren({ ...keuzes, dagboek: { aan: true, uur: '19:59' } })).toContain('19:59');

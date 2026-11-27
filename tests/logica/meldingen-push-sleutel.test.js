@@ -100,34 +100,35 @@ describe('uren per minuut en de lijst van dagboek (713, 714)', () => {
     opslag.set('meldingen.dagboek', {
       aan: true,
       uur: '07:01',
-      tijdstippen: [{ aan: true, uur: '07:01' }, { aan: false, uur: '12:00' }, { aan: true, uur: '21:59' }, { aan: true, uur: '23:59' }],
+      tijdstippen: [{ aan: true, uur: '07:01' }, { aan: true, uur: '21:59' }, { aan: true, uur: '23:59' }],
     });
     await werkUrenBij();
-    // BESLISSING 736: hoogstens drie tijdstippen per soort; het vierde van een oude stand (23:59) gaat niet mee.
+    // BESLISSING 736 (Dagboek 2 sinds 0.6.7): hoogstens twee tijdstippen; het derde van een oude stand (23:59) gaat niet mee.
     expect(posts()[0].uren).toEqual(['07:01', '11:00', '21:59']);
     // De lijst uit (bovenaan aan: false), zoals zetKeuzesUit ze achterlaat: geen enkel dagboektijdstip.
     expect(alleUren({ dagboek: { aan: false, uur: '07:01', tijdstippen: [{ aan: true, uur: '07:01' }] }, drinken: [], supplementenUren: [] })).toEqual([]);
     expect(alleUren({ dagboek: { aan: true, uur: '19:44' } })).toEqual(['19:44']);
   });
 
-  it('dubbels worden een, een ongeldig uur valt weg, en hoogstens drie per soort (BESLISSING 736)', () => {
+  it('dubbels worden een, een ongeldig uur valt weg, en hoogstens de grens per soort (BESLISSING 736; Dagboek 2)', () => {
     const tijdstippen = Array.from({ length: 10 }, (_, i) => ({ aan: true, uur: `${String(10 + i).padStart(2, '0')}:0${i % 10}` }));
     const keuzes = {
       dagboek: { aan: true, uur: '10:00', tijdstippen },
       drinken: [{ aan: true, uur: '10:00' }, { aan: true, uur: '08:30' }, { aan: true, uur: '24:00' }, { aan: true, uur: 'x' }],
       supplementenUren: [{ aan: true, uur: '07:05' }, { aan: true, uur: '22:22' }, { aan: true, uur: '23:00' }],
     };
-    expect(alleUren(keuzes)).toEqual(['07:05', '08:30', '10:00', '11:01', '12:02', '22:22', '23:00']);
+    expect(alleUren(keuzes)).toEqual(['07:05', '08:30', '10:00', '11:01', '22:22', '23:00']);
   });
 
-  it('vier soorten met elk drie verschillende uren geven precies 12; een oude stand met vier blijft hoogstens 12 (BESLISSING 736)', () => {
-    const lijst = (start) => [0, 1, 2, 3].map((i) => ({ aan: true, uur: `${String(start + i).padStart(2, '0')}:00` }));
-    const keuzes = { dagboek: { aan: true, uur: '06:00', tijdstippen: lijst(6) }, eten: lijst(10).slice(0, 3), drinken: lijst(14), supplementenUren: lijst(19).slice(0, 3) };
+  it('alle soorten vol met verschillende uren geven precies 12: Dagboek twee, Eten en Supplementen drie, Drinken vier (0.6.7)', () => {
+    const lijst = (start, n = 4) => Array.from({ length: n }, (_, i) => ({ aan: true, uur: `${String(start + i).padStart(2, '0')}:00` }));
+    const keuzes = { dagboek: { aan: true, uur: '05:00', tijdstippen: lijst(5) }, eten: lijst(9, 3), drinken: lijst(12, 5), supplementenUren: lijst(19, 3) };
     const uren = alleUren(keuzes);
     expect(uren).toHaveLength(12);
-    expect(uren).not.toContain('09:00'); // het vierde van Dagboek
-    expect(uren).not.toContain('17:00'); // het vierde van Drinken
-    expect(uren).toContain('10:00'); // Eten gaat mee
+    expect(uren).not.toContain('07:00'); // het derde van Dagboek
+    expect(uren).toContain('15:00'); // het vierde van Drinken gaat mee
+    expect(uren).not.toContain('16:00'); // een vijfde van Drinken niet
+    expect(uren).toContain('09:00'); // Eten gaat mee
   });
 });
 
