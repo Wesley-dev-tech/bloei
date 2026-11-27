@@ -4,7 +4,7 @@
      1. De ronde knoppen bovenaan (Vandaag: rondleiding, delen, tandwiel; de andere tabbladen: rondleiding, delen, huisje).
      2. De vaste kop bovenaan als je scrolt (de schermkop, de kop van het Dagboek en de balk met het logo op Vandaag).
      3. De meldingen onderaan (.strook): hetzelfde glas als de tabbalk, even breed.
-     4. Een blad (pop-up): een lichtrand rond het kadertje, een glazen titelrij die blijft staan als de inhoud schuift, en een glazen kruisje.
+     4. Elke pop-up: een glazen titelrij die blijft staan als de inhoud schuift en een glazen kruisje; het kadertje zelf zonder rand, zoals bij Apple.
    Alle kleuren komen uit de --glas-tokens (bloei-huisstijl/tokens.css): per thema één vaste kleur, die niet verandert met wat erachter schuift.
    Als laatste geladen (src/main.js), zodat het de effen vlakken van componenten.css, layout.css en uitleg.css vervangt.
    ============================================================ */
@@ -81,33 +81,46 @@
 }
 
 /* ---------- 3. Meldingen onderaan ---------- */
-/* Hetzelfde glas als de tabbalk eronder (vaste kleur per thema, lichtrand, zachte schaduw); de tekst in de kleur van de labels van de balk,
-   de knop in de accentkleur. Maat, plaats en letter blijven die van componenten.css (BESLISSING 704). */
+/* Hetzelfde glas als de tabbalk eronder, ook in de rand: dezelfde ronding (--r-lg), dezelfde lichtrand van 1,5 px (::after, het helderst linksboven en
+   rechtsonder) en dezelfde schaduw binnenin en eronder. De tekst in de kleur van de labels van de balk, de knop in de accentkleur. Maat, plaats en letter
+   blijven die van componenten.css (BESLISSING 704). */
 .strook {
+  position: relative;
+  isolation: isolate;
+  border-radius: var(--r-lg);
   background: linear-gradient(to bottom, var(--glas-glans), transparent 45%), var(--glas-vlak);
   color: var(--glas-inhoud);
-  box-shadow: inset 0 0 0 1px var(--glas-rim-zwak), inset 0 1.5px 1px var(--glas-rim-sterk), inset 0 0 10px -2px var(--glas-binnenrand), var(--shadow-float);
+  box-shadow: inset 0 0 10px -2px var(--glas-binnenrand), inset 0 -10px 16px -14px var(--glas-diepte), var(--shadow-float);
+}
+.strook::after {
+  content: ""; position: absolute; inset: 0; z-index: -1; pointer-events: none;
+  border-radius: inherit;
+  border: 1.5px solid transparent;
+  background: linear-gradient(135deg, var(--glas-rim-sterk), var(--glas-rim-zwak) 28%, var(--glas-rim-zwak) 72%, var(--glas-rim-sterk)) border-box;
+  -webkit-mask: linear-gradient(#000 0 0) padding-box, linear-gradient(#000 0 0);
+  -webkit-mask-composite: xor;
+  mask: linear-gradient(#000 0 0) padding-box exclude, linear-gradient(#000 0 0);
 }
 .strook .strook__actie { color: var(--glas-actief-neutraal); }
 
 /* ---------- 4. Een blad (pop-up) ---------- */
-/* Het kadertje zelf blijft effen (de inhoud moet rustig leesbaar zijn), maar krijgt de lichtrand van het glas. De titelrij met het kruisje blijft
-   bovenaan staan als de inhoud schuift, als mat glas in de kleur van het blad; het kruisje is een glazen cirkel zoals de knoppen bovenaan. */
-dialog.dialoog:not(#slot *) { box-shadow: inset 0 0 0 1px var(--glas-rim-zwak), inset 0 1.5px 1px var(--glas-rim-sterk), var(--shadow-float); }
-.dialoog .blad__kop {
-  position: sticky;
-  top: 0;
-  z-index: 2;
-  margin: calc(var(--s-6) * -1) calc(var(--s-5) * -1) 0;
-  padding: var(--s-5) var(--s-5) var(--s-3);
-  border-radius: var(--r-lg) var(--r-lg) 0 0;
+/* Geldt voor elke pop-up met het kadertje van Bloei (dialog.dialoog): de bladen van blad() (een maaltijd, een drank, een weging, een medaille, Nieuw in Bloei),
+   bevestig(), de supplementkaart, het bestand van supplementen, Alles wissen en Profiel verwijderen. Het slot (#slot) blijft zoals het is.
+   Zoals bij Apple heeft het kadertje geen zichtbare rand: alleen zijn zachte schaduw (componenten.css). Het glas zit in de titelrij en het kruisje;
+   de inhoud blijft effen, zodat ze rustig leesbaar is. */
+/* De titelrij met het kruisje (.blad__kop) blijft bovenaan staan als de inhoud schuift, als mat glas in de kleur van het blad. Haar glas (::before) loopt tot
+   de randen van het kadertje en bovenaan erbuiten; het kadertje zelf knipt het af langs zijn ronde rand. Zo past ze bij elke pop-up, ook bij die met minder
+   ruimte bovenaan (een medaille, het bestand van supplementen), en verschuift er niets. */
+.dialoog .blad__kop { position: sticky; top: 0; z-index: 2; }
+.dialoog .blad__kop::before {
+  content: ""; position: absolute; z-index: -1; inset: -48px calc(var(--s-5) * -1) 0; pointer-events: none; /* opzij precies tot de rand (de binnenruimte van elk blad is 20 px), bovenaan erbuiten */
   background: var(--glas-blad-kop);
   -webkit-backdrop-filter: blur(20px);
   backdrop-filter: blur(20px);
 }
-.dialoog .blad__kop > .blad__sluit {
-  margin-block: 0;
-  margin-right: calc(var(--s-1) * -1);
+/* Het kruisje is een glazen cirkel, zoals de knoppen bovenaan (40 px tikvlak, 36 px zichtbaar); ook het kruisje van de supplementkaart. */
+.dialoog .blad__kop > .blad__sluit,
+.supplementkaart .supplementkaart__kruis {
   min-width: 40px;
   min-height: 40px;
   width: 40px;
@@ -118,12 +131,13 @@ dialog.dialoog:not(#slot *) { box-shadow: inset 0 0 0 1px var(--glas-rim-zwak), 
   box-shadow: inset 0 0 0 1px var(--glas-rim-zwak), inset 0 1.5px 1px var(--glas-rim-sterk);
   filter: drop-shadow(0 2px 4px var(--glas-lens-schaduw));
 }
-.dialoog .blad__kop > .blad__sluit .icoon { width: 18px; height: 18px; }
+.dialoog .blad__kop > .blad__sluit { margin-block: -6px; margin-right: calc(var(--s-1) * -1); } /* even hoog in de rij als het oude kruisje (44 px met -8 px): de titelrij en de inhoud verschuiven niet */
+:is(.dialoog .blad__kop > .blad__sluit, .supplementkaart .supplementkaart__kruis) .icoon { width: 18px; height: 18px; }
 
 /* ---------- Waar glas niet kan of niet gewenst is ---------- */
 @media (prefers-reduced-transparency: reduce), (prefers-contrast: more) {
   .schermkop, .dagboek > .dagboek__kop, .schermkop::before, .dagboek > .dagboek__kop::before,
-  .vandaag > .vandaag__begroeting > .vandaag__logo::before, .dialoog .blad__kop { -webkit-backdrop-filter: none; backdrop-filter: none; }
+  .vandaag > .vandaag__begroeting > .vandaag__logo::before, .dialoog .blad__kop::before { -webkit-backdrop-filter: none; backdrop-filter: none; }
   .schermkop, .dagboek > .dagboek__kop, .vandaag > .vandaag__begroeting > .vandaag__logo::before { background: var(--c-bg); box-shadow: 0 1px 0 var(--c-line); }
-  .dialoog .blad__kop { background: var(--c-surface); }
+  .dialoog .blad__kop::before { background: var(--c-surface); }
 }

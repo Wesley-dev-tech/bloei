@@ -8,6 +8,14 @@
 // Hou de zinnen kort en in de taal van de app: wat zij nu ziet, niet wat er in de code veranderde.
 export const WIJZIGINGEN = [
   {
+    versie: '0.7.2',
+    datum: '2026-11-27',
+    tijd: '21:18',
+    punten: [
+      { begrip: 'thema', tekst: 'De pop-ups hebben geen rand meer, zoals bij Apple, en de meldingen onderaan hebben dezelfde rand als de balk.' },
+    ],
+  },
+  {
     versie: '0.7.1',
     datum: '2026-11-27',
     tijd: '21:02',
