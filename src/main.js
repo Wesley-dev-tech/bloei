@@ -29,6 +29,7 @@ import './stijl/slot.css';
 import './stijl/uitleg.css';
 import './stijl/tabkleur.css'; // elk tabblad in zijn eigen kleurfamilie (BESLISSINGEN 357 - 359); als laatste, zodat het de familietokens per scherm herbenoemt
 import './stijl/telefoon.css'; // onder 720 px: "Goed om te weten" onderaan en gelijke ruimte (BESLISSING 363); na tabkleur.css, de laatste
+import './stijl/glas.css'; // Liquid Glass voor de zwevende laag: knoppen bovenaan, vaste kop, meldingen, bladen (BESLISSING 754); als allerlaatste
 
 // Dezelfde voorwaarde als DEMO in kern/demo.js, maar hier rechtstreeks: de bundelaar vervangt ze dan bij het bouwen door een letterlijke
 // waarde en laat de demo-bestanden bij de echte versie weg. Met de optionele keten van DEMO gebeurt dat niet.

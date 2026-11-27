@@ -952,6 +952,9 @@ dialog.dialoog[open]::backdrop { animation: scherm-in var(--dur) var(--ease); }
 @media (max-width: 959px) {
   .schermkop { flex-wrap: nowrap; }
   .schermkop__titel { font-size: clamp(1.35rem, 6.2vw, 1.75rem); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+  /* Cormorant heeft diepe staarten (de g van Algemeen, de p van Supplementen) die onder de regelhoogte van 1,1 vallen; overflow: hidden (voor de ellips)
+     knipte ze af. Binnenruimte boven en onder verruimt het zichtbare vlak, de negatieve marge houdt de kop even hoog en de titel op dezelfde plaats. */
+  .schermkop__titel { padding-block: .16em; margin-block: -.16em; }
   .schermkop__acties { gap: 0; }
   .schermkop .icoonknop { width: 40px; height: 40px; }
   .schermkop .knop--tekst { padding-left: var(--s-1); padding-right: var(--s-1); }

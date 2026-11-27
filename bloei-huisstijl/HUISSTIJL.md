@@ -170,6 +170,6 @@ Font Awesome levert de vorm, Bloei geeft de stijl. Een kaal, zwart FA-icoon komt
 - In Nacht-thema: `theme-color` `#1F1720`.
 
 ## 10. Niet doen (vibecoding-trekjes)
-Paarse/blauwe verlopen, glassmorphism (enige uitzondering: de tabbalk onderaan op telefoon en tablet, in Liquid Glass van Apple: glas in de themakleur, iconen in de kleur van hun tabblad, de actieve tab in een glazen druppel, BESLISSING 753; tokens `--glas-*`), emoji als icoon, Inter/Poppins/Roboto, gekleurde
+Paarse/blauwe verlopen, glassmorphism (enige uitzondering: de tabbalk onderaan op telefoon en tablet, in Liquid Glass van Apple: glas in de themakleur, iconen in de kleur van hun tabblad, de actieve tab in een glazen druppel, BESLISSING 753; en de zwevende laag: ronde knoppen bovenaan, de vaste kop, meldingen en de titelrij van een blad, BESLISSING 754, src/stijl/glas.css; tokens `--glas-*`), emoji als icoon, Inter/Poppins/Roboto, gekleurde
 linkerrand op kaarten, overal pill-badges, gecentreerde hero met drie feature-kaarten,
 neon-accenten, grijze schaduwen op elke laag, willekeurige hexwaarden buiten `tokens.css`.

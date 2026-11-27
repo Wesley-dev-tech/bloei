@@ -127,6 +127,9 @@
   --glas-lens-voet:  rgba(59,42,60,.08);  /* de zachte onderrand van de druppel */
   --glas-lens-schaduw: rgba(59,42,60,.22); /* de schaduw onder de druppel */
   --glas-inhoud: #1C1C1E;                 /* labels van de tabs die niet actief zijn */
+  --glas-kop:     color-mix(in srgb, var(--c-bg) 88%, transparent);      /* BESLISSING 754: de vaste kop bovenaan, mat glas in de kleur van de achtergrond */
+  --glas-kop-rand: color-mix(in srgb, var(--c-accent) 22%, transparent);  /* de fijne rand onder die kop */
+  --glas-blad-kop: color-mix(in srgb, var(--c-surface) 88%, transparent); /* de titelrij van een blad, mat glas in de kleur van het blad */
   --glas-actief-dag:        #8E3F9C;   /* Vandaag */
   --glas-actief-dagboek:    #C25E2C;   /* Dagboek */
   --glas-actief-drank:      #1A8796;   /* Drinken */
@@ -228,6 +231,7 @@
   --glas-lens-voet:  rgba(0,0,0,.25);
   --glas-lens-schaduw: rgba(0,0,0,.45);
   --glas-inhoud: #FFFFFF;
+  --glas-kop-rand: rgba(255,255,255,.12);
   --glas-actief-dag:        #D8A8E0;
   --glas-actief-dagboek:    #F4B48E;
   --glas-actief-drank:      #86D2DA;
