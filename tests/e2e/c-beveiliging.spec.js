@@ -15,6 +15,7 @@ const HTML = `<img src=x onerror="window.__xss='img'"> "><svg onload="window.__x
 const RAAR = String.raw`(haakje) \backslash 🍲🥖 ‮omgekeerd‬ ZWJ‍teken ﷽`;
 const MERK = 'Merkteken-dagboek-7Q';
 const WEERDIENST = 'api.open-meteo.com';
+const KMI = 'feeds.meteoalarm.org'; // de waarschuwingen van het KMI (0.7.0), zonder plek
 
 // Verzamelt verzoeken naar een andere oorsprong, CSP-overtredingen en paginafouten.
 function bewaak(page) {
@@ -22,7 +23,7 @@ function bewaak(page) {
   page.on('request', (v) => {
     const url = new URL(v.url());
     // De weerdienst (Open-Meteo) is sinds 0.5.8 de enige externe dienst: het weerbericht op Vandaag vraagt daar het weer op, zonder iets uit het dagboek.
-    if ((url.protocol === 'http:' || url.protocol === 'https:') && url.origin !== OORSPRONG && url.hostname !== WEERDIENST) uit.vreemd.push(v.url());
+    if ((url.protocol === 'http:' || url.protocol === 'https:') && url.origin !== OORSPRONG && url.hostname !== WEERDIENST && url.hostname !== KMI) uit.vreemd.push(v.url());
   });
   page.on('console', (b) => /content security policy|refused to/i.test(b.text()) && uit.csp.push(b.text()));
   page.on('pageerror', (e) => uit.fouten.push(String(e)));

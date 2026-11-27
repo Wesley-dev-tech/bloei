@@ -95,6 +95,9 @@ Geen emoji in de interface. Iconen 20px in lijsten, 24px in de tabbalk, kleur `c
 | Ongedaan maken | `solid/rotate-left` |
 | Instellingen | `solid/gear` |
 | Vergrendeling | `solid/lock` |
+| Het weer (kop van de kaart) | `solid/temperature-half` |
+| Weerbeeld storm / vorst | `solid/wind` / `solid/temperature-low` |
+| Waarschuwing van het KMI | `solid/triangle-exclamation` |
 
 ### 5.1 Hoe een icoon er in Bloei uitziet
 Font Awesome levert de vorm, Bloei geeft de stijl. Een kaal, zwart FA-icoon komt nergens voor.

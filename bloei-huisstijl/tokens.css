@@ -240,3 +240,60 @@
   --glas-actief-neutraal:   #F2A2B0;
   color-scheme: dark;
 }
+
+/* ---- Het weer op Vandaag (ui/weerkaart.js, stijl/scherm-vandaag.css): de kleur van de lucht per weerbeeld, per thema ----
+   --lucht-X        de lucht (Poeder en Salie: bovenaan de kaart, die uitloopt in de kaart; Nacht: bovenaan de kaart)
+   --lucht-X-onder  alleen in Nacht: de lucht onderaan de kaart (de hele kaart is daar een lucht)
+   --lucht-X-tegel  de tegels (Poeder en Salie: een stevigere tint van de lucht)
+   --lucht-X-icoon  het icoon in de tegels en de weerbalk
+   Elke kleur hoort bij een soort waarschuwing van het KMI (regen, onweer, sneeuw bij gladheid, mist, hitte, storm bij wind, vorst bij
+   koude). Getoetst: tekst minstens 4,5 : 1, iconen minstens 3 : 1 op hun tegel. */
+:root {
+  --lucht-zon: #FAEFD7; --lucht-zon-tegel: #F1DEB0; --lucht-zon-icoon: #815D00;
+  --lucht-hitte: #FFEADB; --lucht-hitte-tegel: #FFD5B9; --lucht-hitte-icoon: #994A02;
+  --lucht-half: #E4F0FF; --lucht-half-tegel: #C6DEFF; --lucht-half-icoon: #2A62A8;
+  --lucht-grijs: #EEF0F3; --lucht-grijs-tegel: #D1D6DC; --lucht-grijs-icoon: #3E4F63;
+  --lucht-mist: #F3F1F0; --lucht-mist-tegel: #E4E0DE; --lucht-mist-icoon: #785D46;
+  --lucht-regen: #E2E8F0; --lucht-regen-tegel: #AEC2D9; --lucht-regen-icoon: #344B66;
+  --lucht-onweer: #E2DFEC; --lucht-onweer-tegel: #D3CDE4; --lucht-onweer-icoon: #675B84;
+  --lucht-sneeuw: #F2F7FE; --lucht-sneeuw-tegel: #DDE7F3; --lucht-sneeuw-icoon: #4F657F;
+  --lucht-storm: #C8CAD1; --lucht-storm-tegel: #868C9A; --lucht-storm-icoon: #182240;
+  --lucht-vorst: #D9EFFA; --lucht-vorst-tegel: #9CCCE3; --lucht-vorst-icoon: #005675;
+  --lucht-nacht: #D1E0FC; --lucht-nacht-tegel: #7C99CD; --lucht-nacht-icoon: #092866;
+  /* De gedempte tekst en de kans op regen op de gekleurde lucht */
+  --lucht-tekst-gedempt: #5E4F5D; --lucht-water-tekst: #2F5378;
+  /* De waarschuwingen van het KMI: de kleuren van de codes, in elk thema dezelfde */
+  --waarschuwing-geel: #F7D24A; --waarschuwing-geel-tekst: #3B2F00;
+  --waarschuwing-oranje: #F08A24; --waarschuwing-oranje-tekst: #2E1400;
+  --waarschuwing-rood: #D93A32; --waarschuwing-rood-tekst: #FFFFFF;
+}
+[data-theme="salie"] {
+  --lucht-zon: #F7F0D7; --lucht-zon-tegel: #EDE0B0; --lucht-zon-icoon: #735B00;
+  --lucht-hitte: #FFEBDA; --lucht-hitte-tegel: #FFD6B6; --lucht-hitte-icoon: #8C4A00;
+  --lucht-half: #E0F1FD; --lucht-half-tegel: #BFE0FA; --lucht-half-icoon: #1F5E91;
+  --lucht-grijs: #ECF1F2; --lucht-grijs-tegel: #CDD6D9; --lucht-grijs-icoon: #33535C;
+  --lucht-mist: #F2F2EF; --lucht-mist-tegel: #E2E1DD; --lucht-mist-icoon: #645E41;
+  --lucht-regen: #DFE8EE; --lucht-regen-tegel: #A9C3D3; --lucht-regen-icoon: #2F4B5E;
+  --lucht-onweer: #E0DEEE; --lucht-onweer-tegel: #CBC6E4; --lucht-onweer-icoon: #554C85;
+  --lucht-sneeuw: #EFF9FA; --lucht-sneeuw-tegel: #D8EAEB; --lucht-sneeuw-icoon: #3E6568;
+  --lucht-storm: #C4CCCE; --lucht-storm-tegel: #7E9094; --lucht-storm-icoon: #002B34;
+  --lucht-vorst: #D7F1F4; --lucht-vorst-tegel: #96D0D7; --lucht-vorst-icoon: #005B66;
+  --lucht-nacht: #CEE1FD; --lucht-nacht-tegel: #7497CA; --lucht-nacht-icoon: #002A66;
+  --lucht-tekst-gedempt: #4F5A52; --lucht-water-tekst: #2A5470;
+}
+[data-theme="nacht"] {
+  --lucht-zon: #1F4A73; --lucht-zon-tegel: #385E83; --lucht-zon-icoon: #C6E1FF; --lucht-zon-onder: #132946;
+  --lucht-hitte: #7D331B; --lucht-hitte-tegel: #7D331B; --lucht-hitte-icoon: #FFDBBF; --lucht-hitte-onder: #3A0E0B;
+  --lucht-half: #30506C; --lucht-half-tegel: #4B6A84; --lucht-half-icoon: #C3E2FE; --lucht-half-onder: #262F38;
+  --lucht-grijs: #41464A; --lucht-grijs-tegel: #595E63; --lucht-grijs-icoon: #DBE2E9; --lucht-grijs-onder: #24272A;
+  --lucht-mist: #524C43; --lucht-mist-tegel: #6B655C; --lucht-mist-icoon: #E8E0D3; --lucht-mist-onder: #302D28;
+  --lucht-regen: #243846; --lucht-regen-tegel: #395061; --lucht-regen-icoon: #AED7F5; --lucht-regen-onder: #121F28;
+  --lucht-onweer: #342556; --lucht-onweer-tegel: #4C3B75; --lucht-onweer-icoon: #DACFFF; --lucht-onweer-onder: #161229;
+  --lucht-sneeuw: #3D545B; --lucht-sneeuw-tegel: #55717A; --lucht-sneeuw-icoon: #D9F4FD; --lucht-sneeuw-onder: #2A383D;
+  --lucht-storm: #272B33; --lucht-storm-tegel: #272B33; --lucht-storm-icoon: #D4E5FF; --lucht-storm-onder: #0B0D12;
+  --lucht-vorst: #0D4B51; --lucht-vorst-tegel: #0D4B51; --lucht-vorst-icoon: #A3F5FE; --lucht-vorst-onder: #001D21;
+  --lucht-nacht: #0C1A3D; --lucht-nacht-tegel: #1C2E58; --lucht-nacht-icoon: #CBDBFD; --lucht-nacht-onder: #030819;
+  --lucht-tekst-gedempt: #CDC2CA; --lucht-water-tekst: #A9D2F5;
+  /* In Nacht hebben de tegels de kleur van de lucht waar ze staan, een tint donkerder */
+  --lucht-tegel-laag: rgb(0 0 0 / .22);
+}

@@ -658,3 +658,12 @@ de kans op neerslag met de verwachte hoeveelheid, de wind (omgerekend naar windk
 richting en de snelheid), de uv-index, zonsopgang en zonsondergang en de luchtvochtigheid, en een weekoverzicht van
 zeven dagen. Het laatste weerbericht blijft op het toestel bewaard, voor als de dienst even niet antwoordt.
 ==============================================================================
+KMI, Koninklijk Meteorologisch Instituut van België (https://www.meteo.be), weerwaarschuwingen, via MeteoAlarm
+(https://meteoalarm.org)
+Bloei toont de waarschuwing van het KMI (code geel, oranje of rood) voor de plek van het weerbericht. Bloei vraagt de
+waarschuwingen van heel België op, zonder plek, en kiest op het toestel welke gelden. Er wordt niets van bewaard.
+Bron: KMI, via MeteoAlarm (EUMETNET).
+==============================================================================
+Grenzen van de provincies (om de waarschuwingen van het KMI bij de plek te zoeken): Statbel, statistische sectoren 2025,
+samengevoegd door bmesuere/belgium-topojson (https://github.com/bmesuere/belgium-topojson), CC0 1.0. Vereenvoudigd.
+==============================================================================

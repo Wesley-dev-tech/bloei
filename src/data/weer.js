@@ -1,8 +1,8 @@
 // Het weerbericht op Vandaag: de plek van het toestel en het weer van daar (logica/weer.js, ui/weerkaart.js).
 // Altijd aan, zonder schakelaar en zonder vraag van Bloei zelf. Het toestel vraagt wel één keer toestemming voor de locatie.
 //
-// Wat er het toestel verlaat: alleen een plaats, naar één dienst: Open-Meteo. Geen naam, geen dagboek, geen cookie. Er is geen tweede
-// dienst (geen naam van een gemeente, geen kaart).
+// Wat er het toestel verlaat: alleen een plaats, naar één dienst: Open-Meteo. Geen naam, geen dagboek, geen cookie. Daarnaast vraagt
+// Bloei de waarschuwingen van het KMI op (data/kmi.js), voor heel België en zonder plek: welke voor de plek gelden, kiest het toestel.
 //
 // Het weer staat er altijd. Op de kaart komt nooit een zin dat het niet lukt, op geen enkel toestel:
 // 1. De plek van nu. Bloei vraagt de fijne locatie en neemt nooit een plek van daarnet over (maximumAge 0). Een fijne meting
@@ -24,11 +24,13 @@
 // Wat het toestel bewaart (localStorage, sleutel 'bloei-weer'; nooit in de database, dus nooit in een reservekopie of een verslag): de
 // laatste plek, afgerond, en het laatste weerbericht (vijftien dagen en de uren van een week). "Alles wissen" wist het mee.
 //
-// De stand gaat uit met 'weer:gewijzigd': { fase, weer?, tijd?, voorbeeld? }.
+// De stand gaat uit met 'weer:gewijzigd': { fase, weer?, tijd?, voorbeeld?, waarschuwing? }.
 //   'laden'   er is nog geen weer (de kaart staat er met streepjes)
-//   'klaar'   weer (logica/weer.js, leesAntwoord of weerVoorNu), tijd (ms: wanneer de dienst het gaf)
+//   'klaar'   weer (logica/weer.js, leesAntwoord of weerVoorNu), tijd (ms: wanneer de dienst het gaf), en de waarschuwing van het
+//             KMI voor die plek als er een is ({ soort, niveau }, data/kmi.js)
 import { zend } from '../kern/bus.js';
 import { DEMO, OPSLAG_VOORVOEGSEL } from '../kern/demo.js';
+import { waarschuwingVoor } from './kmi.js';
 import { vandaag } from '../kern/datum.js';
 import { besteMeting, isBruikbaar, isFijn, leesAntwoord, plekVanTijdzone, rondePlek, voorbeeldWeer, weerAdres, weerBeeld, weerVoorNu } from '../logica/weer.js';
 
@@ -214,8 +216,16 @@ async function ververs() {
     const tijd = Date.now();
     gelukt = true;
     mislukt = 0;
-    zet({ fase: 'klaar', weer, tijd });
+    zet({ fase: 'klaar', weer, tijd, waarschuwing: stand.waarschuwing ?? null });
     bewaar({ weer, tijd, ...(plek ? { plek } : {}) });
+    // De waarschuwing van het KMI voor deze plek. Bij de noodplek alleen als het de laatste plek van dit toestel is (niet de hoofdstad
+    // van de tijdzone: dat is niet haar plek). Ze komt los van het weer binnen; het weer wacht er nooit op.
+    const waar = nood ? leesBewaard()?.plek : [breedte, lengte];
+    waarschuwingVoor(...(waar ?? [NaN, NaN]))
+      .catch(() => null)
+      .then((waarschuwing) => {
+        if (geldt() && stand.fase === 'klaar' && stand.tijd === tijd) zet({ ...stand, waarschuwing });
+      });
     return true;
   };
   let nood = null; // één vraag voor de noodplek per verversing

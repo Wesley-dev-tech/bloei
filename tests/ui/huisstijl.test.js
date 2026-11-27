@@ -66,7 +66,9 @@ describe('huisstijl', () => {
         'cloud-bolt', 'cloud-moon', 'cloud-rain', 'cloud-showers-heavy', 'smog', 'snowflake',
         // Toegevoegd op vraag van de eigenaar (0.5.8): de nieuwe medailles voor notities en verslagen.
         'align-left', 'box-archive', 'clipboard', 'envelope', 'file-circle-check', 'folder-open', 'handshake-simple', 'message', 'pen-clip', 'pen-fancy', 'pen-nib',
-        'quote-left', 'scroll'],
+        'quote-left', 'scroll',
+        // Toegevoegd op vraag van de eigenaar (0.7.0): de thermometer van de kaart Het weer, vorst, en de waarschuwing van het KMI.
+        'temperature-half', 'temperature-low', 'triangle-exclamation'],
       regular: ['heart', 'bell'],
     };
     // BESLISSING 606: een eigen bestand, op vraag van de eigenaar: het teken voor Face ID; de gratis iconenset heeft er geen.

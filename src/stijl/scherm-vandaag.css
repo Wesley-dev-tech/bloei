@@ -453,3 +453,51 @@
   .weerkaart__vak--wind, .weerkaart__vak--snelheid, .weerkaart__vak--zonop, .weerkaart__vak--zononder { order: 1; }
   .weerkaart__vak--vocht { order: 2; }
 }
+
+/* ---- De kleur van de lucht (data-lucht, logica/weer.js weerLucht) en de waarschuwing van het KMI (data-niveau) ----
+   De kleuren staan per thema in tokens.css. Poeder en Salie: de lucht bovenaan de kaart, die zacht uitloopt in de kaart; de tegels een
+   stevigere tint van de lucht. Nacht: de hele kaart is een lucht, van boven naar onder; de tegels de kleur van de lucht waar ze staan,
+   een tint donkerder. De weerbalk krijgt dezelfde lucht. */
+[data-lucht="zon"] { --lucht-a: var(--lucht-zon); --lucht-b: var(--lucht-zon-tegel); --lucht-icoon: var(--lucht-zon-icoon); --lucht-c: var(--lucht-zon-onder, var(--lucht-zon)); }
+[data-lucht="hitte"] { --lucht-a: var(--lucht-hitte); --lucht-b: var(--lucht-hitte-tegel); --lucht-icoon: var(--lucht-hitte-icoon); --lucht-c: var(--lucht-hitte-onder, var(--lucht-hitte)); }
+[data-lucht="half"] { --lucht-a: var(--lucht-half); --lucht-b: var(--lucht-half-tegel); --lucht-icoon: var(--lucht-half-icoon); --lucht-c: var(--lucht-half-onder, var(--lucht-half)); }
+[data-lucht="grijs"] { --lucht-a: var(--lucht-grijs); --lucht-b: var(--lucht-grijs-tegel); --lucht-icoon: var(--lucht-grijs-icoon); --lucht-c: var(--lucht-grijs-onder, var(--lucht-grijs)); }
+[data-lucht="mist"] { --lucht-a: var(--lucht-mist); --lucht-b: var(--lucht-mist-tegel); --lucht-icoon: var(--lucht-mist-icoon); --lucht-c: var(--lucht-mist-onder, var(--lucht-mist)); }
+[data-lucht="regen"] { --lucht-a: var(--lucht-regen); --lucht-b: var(--lucht-regen-tegel); --lucht-icoon: var(--lucht-regen-icoon); --lucht-c: var(--lucht-regen-onder, var(--lucht-regen)); }
+[data-lucht="onweer"] { --lucht-a: var(--lucht-onweer); --lucht-b: var(--lucht-onweer-tegel); --lucht-icoon: var(--lucht-onweer-icoon); --lucht-c: var(--lucht-onweer-onder, var(--lucht-onweer)); }
+[data-lucht="sneeuw"] { --lucht-a: var(--lucht-sneeuw); --lucht-b: var(--lucht-sneeuw-tegel); --lucht-icoon: var(--lucht-sneeuw-icoon); --lucht-c: var(--lucht-sneeuw-onder, var(--lucht-sneeuw)); }
+[data-lucht="storm"] { --lucht-a: var(--lucht-storm); --lucht-b: var(--lucht-storm-tegel); --lucht-icoon: var(--lucht-storm-icoon); --lucht-c: var(--lucht-storm-onder, var(--lucht-storm)); }
+[data-lucht="vorst"] { --lucht-a: var(--lucht-vorst); --lucht-b: var(--lucht-vorst-tegel); --lucht-icoon: var(--lucht-vorst-icoon); --lucht-c: var(--lucht-vorst-onder, var(--lucht-vorst)); }
+[data-lucht="nacht"] { --lucht-a: var(--lucht-nacht); --lucht-b: var(--lucht-nacht-tegel); --lucht-icoon: var(--lucht-nacht-icoon); --lucht-c: var(--lucht-nacht-onder, var(--lucht-nacht)); }
+.weerregel__pil[data-lucht] { background: linear-gradient(100deg, color-mix(in srgb, var(--lucht-a) 70%, var(--c-surface)), var(--lucht-a) 45%, var(--lucht-b)); }
+.weerregel__pil[data-lucht] .weerregel__vak--nu .icoon { color: var(--lucht-icoon); }
+.weerkaart[data-lucht] { background: linear-gradient(180deg, var(--lucht-a) 0, var(--lucht-a) 90px, var(--c-surface) 300px); }
+[data-theme="nacht"] .weerregel__pil[data-lucht] { background: linear-gradient(100deg, var(--lucht-a), var(--lucht-c)); }
+[data-theme="nacht"] .weerkaart[data-lucht] { background: linear-gradient(180deg, var(--lucht-a) 0, var(--lucht-c) 100%); }
+.weerkaart[data-lucht] > .kaartkop .tegel,
+.weerkaart[data-lucht] .weerkaart__nu .tegel,
+.weerkaart[data-lucht] .weerweek__dag .tegel { --t-bg: var(--lucht-b); --t-fg: var(--lucht-icoon); }
+[data-theme="nacht"] .weerkaart[data-lucht] > .kaartkop .tegel,
+[data-theme="nacht"] .weerkaart[data-lucht] .weerkaart__nu .tegel,
+[data-theme="nacht"] .weerkaart[data-lucht] .weerweek__dag .tegel { --t-bg: var(--lucht-tegel-laag); }
+/* Op de gekleurde lucht is de gedempte tekst iets sterker, zodat hij overal 4,5 : 1 haalt */
+.weerregel__pil[data-lucht], .weerkaart[data-lucht] { --c-text-muted: var(--lucht-tekst-gedempt); --c-water-text: var(--lucht-water-tekst); }
+
+/* De waarschuwing van het KMI, in de kleur van de code. Vooraan in de weerbalk een rondje met een waarschuwingsdriehoek; in de kop
+   van de kaart een label "Let op!" met de soort. */
+[data-niveau="geel"] { --wl-bg: var(--waarschuwing-geel); --wl-fg: var(--waarschuwing-geel-tekst); }
+[data-niveau="oranje"] { --wl-bg: var(--waarschuwing-oranje); --wl-fg: var(--waarschuwing-oranje-tekst); }
+[data-niveau="rood"] { --wl-bg: var(--waarschuwing-rood); --wl-fg: var(--waarschuwing-rood-tekst); }
+.weerregel__letop { display: inline-flex; flex: none; align-items: center; justify-content: center; align-self: center; width: 1.9em; height: 1.55em; margin: 0 .5em 0 -.25em; border-radius: 999px; background: var(--wl-bg); color: var(--wl-fg); }
+.weerregel__letop .icoon { width: .95em; height: .95em; }
+.weerkaart__letop:empty { display: none; }
+.weerkaart__letop { display: inline-flex; align-items: center; gap: 6px; padding: 5px 12px 5px 10px; border-radius: 999px; background: var(--wl-bg); color: var(--wl-fg); font: 600 .875rem/1.2 var(--font-ui); white-space: nowrap; }
+.weerkaart__letop .icoon { flex: none; width: 15px; height: 15px; }
+.weerkaart[data-niveau] .kaartkop__eind { color: inherit; }
+/* Naast de motivator (vanaf 1024 px) staat de kop van de kaart er niet. Bij een waarschuwing staat het label dan rechtsboven in de
+   kaart, op de hoogte van het weer van nu: zo is de waarschuwing ook op een groot scherm meteen te zien. */
+@media (min-width: 1024px) {
+  .vandaag__rij1 > .weerkaart[data-niveau] { position: relative; }
+  .vandaag__rij1 > .weerkaart.kaart.kaart[data-niveau] > .kaartkop.kaartkop { display: block; position: absolute; top: var(--s-5); right: var(--s-5); min-height: 0; margin: 0; padding: 0; border-bottom: 0; }
+  .vandaag__rij1 > .weerkaart[data-niveau] > .kaartkop > :not(.kaartkop__eind) { display: none; }
+}

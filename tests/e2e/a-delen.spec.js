@@ -95,7 +95,7 @@ test('Delen: een verslag van twee weken, gewicht en notities standaard niet erin
   page.on('request', (r) => {
     const url = new URL(r.url());
     // de weerdienst van het weerbericht op Vandaag (sinds 0.5.8) is de enige externe dienst en telt hier niet mee
-    if (!['localhost', '127.0.0.1', 'api.open-meteo.com'].includes(url.hostname) && url.protocol.startsWith('http')) extern.push(r.url());
+    if (!['localhost', '127.0.0.1', 'api.open-meteo.com', 'feeds.meteoalarm.org'].includes(url.hostname) && url.protocol.startsWith('http')) extern.push(r.url());
   });
   page.on('console', (m) => m.type() === 'error' && fouten.push(m.text()));
   page.on('pageerror', (e) => fouten.push(String(e)));

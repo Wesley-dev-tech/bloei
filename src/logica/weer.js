@@ -59,14 +59,15 @@ export const BEWAARDAGEN = 15; // zoveel dagen vraagt Bloei: zo staan er de zeve
 export const BEWAARUREN = 168; // de uren vanaf nu, per uur: daarmee kent Bloei het weer van "nu" ook als de dienst een tijd niet antwoordt
 
 // Het adres van de vraag: alleen de plaats en wat Bloei wil weten.
-//   van nu       temperatuur, gevoelstemperatuur, luchtvochtigheid, weercode, wind (snelheid en richting), dag of nacht;
+//   van nu       temperatuur, gevoelstemperatuur, luchtvochtigheid, weercode, wind (snelheid, richting en windstoten), dag of nacht;
 //   per uur      hetzelfde, voor de komende 168 uur;
 //   per dag      vijftien dagen vanaf vandaag: het weerbeeld, de laagste en de hoogste temperatuur, de kans op neerslag en hoeveel er
-//                verwacht wordt, zonsopgang en zonsondergang en de uv-index (daarvoor wil de dienst een tijdzone: 'auto' is die van de plaats).
-const NU = 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,is_day';
+//                verwacht wordt, de sterkste windstoot, zonsopgang en zonsondergang en de uv-index (daarvoor wil de dienst een tijdzone:
+//                'auto' is die van de plaats).
+const NU = 'temperature_2m,apparent_temperature,relative_humidity_2m,weather_code,wind_speed_10m,wind_direction_10m,wind_gusts_10m,is_day';
 export function weerAdres(breedte, lengte) {
   if (!geldigePlek(breedte, lengte)) return null;
-  const dag = 'weather_code,temperature_2m_min,temperature_2m_max,precipitation_probability_max,precipitation_sum,snowfall_sum,sunrise,sunset,uv_index_max';
+  const dag = 'weather_code,temperature_2m_min,temperature_2m_max,precipitation_probability_max,precipitation_sum,snowfall_sum,wind_gusts_10m_max,sunrise,sunset,uv_index_max';
   return `${WEER_ORIGIN}/v1/forecast?latitude=${graad(breedte)}&longitude=${graad(lengte)}&current=${NU}&hourly=${NU}&forecast_hours=${BEWAARUREN}&daily=${dag}&forecast_days=${BEWAARDAGEN}&timezone=auto`;
 }
 
@@ -77,20 +78,22 @@ const tiende = (w, hoog) => (getal(w, 0, hoog) == null ? null : Math.round(w * 1
 // Het uur uit een tijdstip van de dienst ('2026-11-25T08:14' → '08:14'), of null.
 const uur = (tekst) => (typeof tekst === 'string' && /^\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/.test(tekst) ? tekst.slice(11, 16) : null);
 const weercode = (w) => (Number.isInteger(w) && w >= 0 && w <= 99 ? w : null);
-// Het weer van één ogenblik (nu, of één uur): { code, temp, gevoel, vocht, wind, richting, dag }, of null zonder temperatuur of weercode.
+// Het weer van één ogenblik (nu, of één uur): { code, temp, gevoel, vocht, wind, richting, stoot, dag }, of null zonder temperatuur of
+// weercode. stoot: de windstoten in km per uur.
 const ogenblik = (bron, i) => {
   const op = (veld) => (i == null ? bron?.[veld] : Array.isArray(bron?.[veld]) ? bron[veld][i] : undefined);
   const code = weercode(Number(op('weather_code')));
   const temp = getal(Number(op('temperature_2m')), -90, 60);
   if (code == null || temp == null || op('temperature_2m') == null) return null;
-  return { code, temp: Math.round(temp), gevoel: heel(op('apparent_temperature'), -90, 60), vocht: heel(op('relative_humidity_2m'), 0, 100), wind: heel(op('wind_speed_10m'), 0, 400), richting: getal(op('wind_direction_10m'), 0, 360), dag: op('is_day') !== 0 };
+  return { code, temp: Math.round(temp), gevoel: heel(op('apparent_temperature'), -90, 60), vocht: heel(op('relative_humidity_2m'), 0, 100), wind: heel(op('wind_speed_10m'), 0, 400), richting: getal(op('wind_direction_10m'), 0, 360), stoot: heel(op('wind_gusts_10m'), 0, 400), dag: op('is_day') !== 0 };
 };
 
 // Het antwoord van de dienst → het weer zoals de kaart het toont, of null als het niet is wat Bloei verwacht (dan komt er geen weer).
-//   nu:       code, temp, gevoel, vocht (luchtvochtigheid in procent), wind (km per uur), richting (graden, waar de wind vandaan komt), dag (true overdag)
+//   nu:       code, temp, gevoel, vocht (luchtvochtigheid in procent), wind (km per uur), richting (graden, waar de wind vandaan komt),
+//             stoot (windstoten in km per uur), dag (true overdag)
 //   vandaag:  min, max, kans (procent), mm (verwachte neerslag), sneeuw (cm), zonOp, zonOnder ('UU:MM'), uv
-//   dagen:    tot vijftien dagen vanaf vandaag: [{ datum: 'JJJJ-MM-DD', code, min, max, kans, mm, sneeuw, zonOp, zonOnder, uv }]
-//   uren:     tot 168 uur vanaf nu: [{ uur: 'JJJJ-MM-DDTUU:00', code, temp, gevoel, vocht, wind, richting, dag }]
+//   dagen:    tot vijftien dagen vanaf vandaag: [{ datum: 'JJJJ-MM-DD', code, min, max, kans, mm, sneeuw, stootMax, zonOp, zonOnder, uv }]
+//   uren:     tot 168 uur vanaf nu: [{ uur: 'JJJJ-MM-DDTUU:00', code, temp, gevoel, vocht, wind, richting, stoot, dag }]
 // Ontbreekt een waarde, dan is ze null en toont de kaart een streepje.
 export function leesAntwoord(json) {
   const nu = ogenblik(json?.current && typeof json.current === 'object' ? json.current : null, null);
@@ -108,6 +111,7 @@ export function leesAntwoord(json) {
       kans: heel(op(d.precipitation_probability_max, i), 0, 100),
       mm: tiende(op(d.precipitation_sum, i), 500),
       sneeuw: tiende(op(d.snowfall_sum, i), 300),
+      stootMax: heel(op(d.wind_gusts_10m_max, i), 0, 400),
       zonOp: uur(op(d.sunrise, i)),
       zonOnder: uur(op(d.sunset, i)),
       uv: heel(op(d.uv_index_max, i), 0, 20),
@@ -181,15 +185,49 @@ const BEELD = {
 };
 const NACHT = { sun: 'moon', 'cloud-sun': 'cloud-moon' };
 const NACHTNAAM = { zonnig: 'helder', vrijZonnig: 'vrijHelder' };
-export const WEERNAMEN = [...new Set([...Object.values(BEELD).map((b) => b[1]), ...Object.values(NACHTNAAM)])];
-export const WEERICONEN = [...new Set([...Object.values(BEELD).map((b) => b[0]), ...Object.values(NACHT)])];
+// Storm en vorst hebben geen weercode. Bloei leest ze uit de windstoten en de temperatuur van de dienst, met de grens van het KMI waar
+// er een is: storm vanaf windstoten van 80 km per uur (code geel voor wind), vorst vanaf -5 graden. Alleen bij droog weer: valt er
+// neerslag of onweert het, dan blijft dat het weerbeeld (de waarschuwing van het KMI zegt dan wel dat het ook stormt of vriest).
+export const STORM_KMU = 80;
+export const VORST_GRADEN = -5;
+const DROOG = [0, 1, 2, 3, 45, 48];
+const STORM = ['wind', 'storm'];
+const VORST = ['temperature-low', 'vorst'];
+export const WEERNAMEN = [...new Set([...Object.values(BEELD).map((b) => b[1]), ...Object.values(NACHTNAAM), STORM[1], VORST[1]])];
+export const WEERICONEN = [...new Set([...Object.values(BEELD).map((b) => b[0]), ...Object.values(NACHT), STORM[0], VORST[0]])];
 
-// weerBeeld({ code, dag? }) → { icoon, naam }, of null zonder weercode. Een code die Bloei niet kent, is gewoon bewolkt.
+// weerBeeld({ code, dag?, stoot?, temp? }) → { icoon, naam }, of null zonder weercode. Een code die Bloei niet kent, is gewoon bewolkt.
+// stoot: de windstoten in km per uur; temp: de temperatuur (voor een dag in de week: de hoogste van die dag).
 export function weerBeeld(weer) {
   if (!weer || !Number.isFinite(weer.code)) return null;
+  if (DROOG.includes(weer.code)) {
+    if (Number.isFinite(weer.stoot) && weer.stoot >= STORM_KMU) return { icoon: STORM[0], naam: STORM[1] };
+    if (Number.isFinite(weer.temp) && weer.temp <= VORST_GRADEN && weer.code !== 45 && weer.code !== 48) return { icoon: VORST[0], naam: VORST[1] };
+  }
   const [icoon, naam] = BEELD[weer.code] ?? ['cloud', 'bewolkt'];
   const nacht = weer.dag === false;
   return { icoon: nacht ? (NACHT[icoon] ?? icoon) : icoon, naam: nacht ? (NACHTNAAM[naam] ?? naam) : naam };
+}
+
+// De kleur van de lucht bij het weer (stijl/scherm-vandaag.css, data-lucht): zon, hitte, half, grijs, mist, regen, onweer, sneeuw,
+// storm, vorst of nacht, of null zonder weer. Elke kleur hoort bij een soort waarschuwing van het KMI: regen bij regen, onweer bij
+// onweer, sneeuw bij gladheid (ook ijzel), mist bij mist, hitte bij hitte, storm bij wind en vorst bij koude.
+// Zonnig wordt hitte vanaf HITTE_GRADEN, de grens van code geel voor hitte bij het KMI.
+export const HITTE_GRADEN = 32;
+export function weerLucht(weer) {
+  const beeld = weerBeeld(weer);
+  if (!beeld) return null;
+  if (beeld.naam === STORM[1]) return 'storm';
+  if (beeld.naam === VORST[1]) return 'vorst';
+  const { code, dag = true, temp } = weer;
+  if (ONWEER.includes(code)) return 'onweer';
+  if (SNEEUW.includes(code) || [56, 57, 66, 67].includes(code)) return 'sneeuw';
+  if (REGEN.includes(code)) return 'regen';
+  if (code === 45 || code === 48) return 'mist';
+  if (dag === false) return [0, 1, 2].includes(code) ? 'nacht' : 'grijs';
+  if (code === 0 || code === 1) return Number.isFinite(temp) && temp >= HITTE_GRADEN ? 'hitte' : 'zon';
+  if (code === 2) return 'half';
+  return 'grijs';
 }
 
 // De groep zinnen van de motivator die bij het weer van nu hoort (TEKSTEN.motivatie, logica/motivatie.js), of null als er niets over te

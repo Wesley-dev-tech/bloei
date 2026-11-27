@@ -212,7 +212,7 @@ test.describe('zonder push-dienst', () => {
   test('Herinneringen toont "niet beschikbaar", er zijn geen schakelaars en er gaat geen verzoek naar buiten', async ({ page }) => {
     const buiten = [];
     // (de weerdienst van het weerbericht op Vandaag, sinds 0.5.8, is de enige toegelaten externe dienst)
-    page.on('request', (v) => /^https?:/.test(v.url()) && !v.url().startsWith(OORSPRONG) && !v.url().startsWith('https://api.open-meteo.com/') && buiten.push(v.url()));
+    page.on('request', (v) => /^https?:/.test(v.url()) && !v.url().startsWith(OORSPRONG) && !v.url().startsWith('https://api.open-meteo.com/') && !v.url().startsWith('https://feeds.meteoalarm.org/') && buiten.push(v.url()));
     await openScherm(page);
     await expect(page.locator('.meldingen')).toContainText('Herinneringen zijn op dit toestel niet beschikbaar.');
     await expect(page.locator('.meldingen [role="switch"]')).toHaveCount(0);

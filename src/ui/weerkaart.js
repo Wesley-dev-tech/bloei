@@ -10,7 +10,7 @@
 // motivator ernaast. data/weer.js zorgt dat er altijd weer is zodra dit toestel één keer een weerbericht kreeg (de plek van het
 // toestel, anders de noodplek, anders het bewaarde weerbericht).
 // weerkaart(stand) → { el, teken(stand) }: teken past de kaart ter plaatse aan bij 'weer:gewijzigd'.
-import { WEEKDAGEN, uvWoord, weerBeeld, windkracht, windrichting } from '../logica/weer.js';
+import { WEEKDAGEN, uvWoord, weerBeeld, weerLucht, windkracht, windrichting } from '../logica/weer.js';
 import { naarDatum, opmaakDatum, plusDagen, vandaag } from '../kern/datum.js';
 import { t } from '../teksten.js';
 import { h } from './dom.js';
@@ -28,6 +28,12 @@ const graden = (x) => (x == null ? LEEG : t('weer.graden', { aantal: x }));
 // cijfer). De kaart schuift de temperatuur zoveel naar links: zo begint het cijfer precies op de lijn waarop de V van "Voelt als" eronder begint.
 const INKT_LINKS = { 0: 0.04, 1: 0.0825, 2: 0.0575, 3: 0.0775, 4: 0.04, 5: 0.0725, 6: 0.0575, 7: 0.07, 8: 0.045, 9: 0.0525, '-': 0.0275, '\u2212': 0.0275 };
 const inktLinks = (tekst) => INKT_LINKS[String(tekst).trim()[0]] ?? 0.06;
+
+// De kleur van de lucht (data-lucht) en de waarschuwing van het KMI (data-niveau) op een element zetten of weghalen
+// (stijl/scherm-vandaag.css): de weerbalk en de kaart krijgen de kleur van het weer, en bij een waarschuwing de kleur van de code.
+const zetData = (el, naam, waarde) => (waarde ? (el.dataset[naam] = waarde) : delete el.dataset[naam]);
+// De zin voor een schermlezer bij een waarschuwing van het KMI.
+const waarschuwingZin = (wa) => (wa ? t('weer.labelWaarschuwing', { code: t('weer.code.' + wa.niveau), soort: t('weer.waarschuwing.' + wa.soort).toLowerCase() }) : null);
 
 // Het weer in het kort, onder de datum op Vandaag. Alleen op een telefoon (de css verbergt de regel vanaf 720 px): daar staat de kaart
 // helemaal onderaan, en zo ziet ze het weer toch meteen. Eén regel in een afgeronde pil, even breed als de kaart eronder: het weerbeeld
@@ -74,12 +80,16 @@ export function weerregel(stand, { naar } = {}) {
     const sneeuw = !!w && Number.isFinite(w.sneeuw) && w.sneeuw > 0;
     const hoeveelheid = w ? (sneeuw ? w.sneeuw : w.mm) : null;
     const heeftHoeveel = Number.isFinite(hoeveelheid);
+    const wa = w ? (s.waarschuwing ?? null) : null;
     el.dataset.fase = w ? 'klaar' : 'laden';
-    // Een schermlezer hoort het weer in gewone zinnen, en waar de knop naartoe gaat.
+    zetData(pil, 'lucht', w ? weerLucht(w) : null);
+    zetData(pil, 'niveau', wa?.niveau);
+    // Een schermlezer hoort het weer in gewone zinnen, de waarschuwing van het KMI, en waar de knop naartoe gaat.
     knop.setAttribute(
       'aria-label',
       (w
         ? [
+            waarschuwingZin(wa),
             t('weer.label', { naam, aantal: w.temp }),
             w.min != null && w.max != null && t('weer.labelBereik', { min: w.min, max: w.max }),
             w.kans != null && t(sneeuw ? 'weer.labelKansSneeuw' : 'weer.labelKansRegen', { aantal: w.kans }),
@@ -93,6 +103,8 @@ export function weerregel(stand, { naar } = {}) {
     );
     // De naam van het weer staat hier niet: het weerbeeld is het icoon, de naam staat in de kaart Het weer.
     const vakken = [
+      // Bij een waarschuwing van het KMI: vooraan een rondje in de kleur van de code, met een waarschuwingsdriehoek.
+      wa ? h('span', { class: 'weerregel__letop' }, icoon('triangle-exclamation', { grootte: 14 })) : null,
       h('span', { class: 'weerregel__vak weerregel__vak--nu' }, icoon(beeld?.icoon ?? 'cloud-sun', { grootte: 18 }), h('span', { class: 'weerregel__getal weerregel__graden' }, w ? graden(w.temp) : LEEG)),
       punt(),
       vak(woord(t('weer.min')), getal(w?.min != null ? graden(w.min) : null)),
@@ -110,11 +122,13 @@ export function weerregel(stand, { naar } = {}) {
 
 export function weerkaart(stand) {
   const binnen = h('div', { class: 'weerkaart__binnen' });
+  // Bij een waarschuwing van het KMI: rechts in de kop een label "Let op!" met de soort, in de kleur van de code.
+  const letop = h('span', { class: 'weerkaart__letop', 'aria-hidden': 'true' });
   // De kop (tegel en "Het weer") staat er alleen waar de kaart tussen andere kaarten met een kop staat: op een telefoon en een tablet. Naast
   // de motivator, die zelf geen kop heeft, verbergt de css hem (scherm-vandaag.css): zo zijn de twee kaarten van nature even hoog.
   const el = kaart(
     { klasse: 'weerkaart', tag: 'section', 'aria-label': t('weer.titel'), 'data-uitleg': 'weer' },
-    kaartkop({ tegel: { naam: 'cloud-sun', familie: 'dag' }, label: t('weer.titel') }),
+    kaartkop({ tegel: { naam: 'temperature-half', familie: 'dag' }, label: t('weer.titel'), eind: letop }),
     binnen,
   );
 
@@ -130,7 +144,11 @@ export function weerkaart(stand) {
   const teken = (s = { fase: 'laden' }) => {
     const w = s.fase === 'klaar' && weerBeeld(s.weer) ? s.weer : null;
     const fase = w ? 'klaar' : 'laden';
+    const wa = w ? (s.waarschuwing ?? null) : null;
     el.dataset.fase = fase;
+    zetData(el, 'lucht', w ? weerLucht(w) : null);
+    zetData(el, 'niveau', wa?.niveau);
+    letop.replaceChildren(...(wa ? [icoon('triangle-exclamation', { grootte: 14 }), h('span', null, t('weer.letOp', { soort: t('weer.waarschuwing.' + wa.soort) }))] : []));
     el.setAttribute('aria-busy', String(fase === 'laden'));
 
     // ---- vandaag: acht vakken
@@ -171,7 +189,7 @@ export function weerkaart(stand) {
         'ul',
         { class: 'weerweek' },
         ...dagen.map((d) => {
-          const beeld = weerBeeld({ code: d.code });
+          const beeld = weerBeeld({ code: d.code, stoot: d.stootMax, temp: d.max });
           const naam = beeld ? t('weer.' + beeld.naam) : '';
           const dag = opmaakDatum(d.datum, 'lang'); // de schermlezer hoort de hele datum: vrijdag 27 november
           const voorLezer = beeld
@@ -206,6 +224,7 @@ export function weerkaart(stand) {
     const naam = t('weer.' + beeld.naam);
     // Een schermlezer krijgt het weer van nu en van vandaag in gewone zinnen; de tekens en cijfers zelf leest hij niet voor.
     const voorLezer = [
+      waarschuwingZin(wa),
       t('weer.label', { naam, aantal: w.temp }),
       w.gevoel != null && t('weer.labelVoelt', { aantal: w.gevoel }),
       w.min != null && w.max != null && t('weer.labelBereik', { min: w.min, max: w.max }),

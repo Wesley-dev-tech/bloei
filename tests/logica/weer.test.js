@@ -98,10 +98,10 @@ describe('wat er naar de weerdienst gaat', () => {
     expect(BEWAARUREN).toBe(168);
     expect(url.searchParams.get('hourly')).toBe(url.searchParams.get('current'));
     expect(url.searchParams.get('timezone')).toBe('auto');
-    expect(url.searchParams.get('current').split(',')).toEqual(['temperature_2m', 'apparent_temperature', 'relative_humidity_2m', 'weather_code', 'wind_speed_10m', 'wind_direction_10m', 'is_day']);
+    expect(url.searchParams.get('current').split(',')).toEqual(['temperature_2m', 'apparent_temperature', 'relative_humidity_2m', 'weather_code', 'wind_speed_10m', 'wind_direction_10m', 'wind_gusts_10m', 'is_day']);
     // Hoe het minimum en het maximum aanvoelen, staat niet op de kaart en wordt dus niet gevraagd.
     expect(url.searchParams.get('daily')).not.toMatch(/apparent_temperature/);
-    for (const veld of ['weather_code', 'temperature_2m_min', 'temperature_2m_max', 'precipitation_probability_max', 'precipitation_sum', 'snowfall_sum', 'sunrise', 'sunset', 'uv_index_max']) {
+    for (const veld of ['weather_code', 'temperature_2m_min', 'temperature_2m_max', 'precipitation_probability_max', 'precipitation_sum', 'snowfall_sum', 'wind_gusts_10m_max', 'sunrise', 'sunset', 'uv_index_max']) {
       expect(url.searchParams.get('daily').split(','), veld).toContain(veld);
     }
   });
@@ -113,7 +113,7 @@ describe('wat er naar de weerdienst gaat', () => {
 
 describe('het antwoord van de weerdienst', () => {
   const antwoord = {
-    current: { temperature_2m: 6.3, apparent_temperature: 3.4, relative_humidity_2m: 86.6, weather_code: 61, wind_speed_10m: 17.6, wind_direction_10m: 232, is_day: 0 },
+    current: { temperature_2m: 6.3, apparent_temperature: 3.4, relative_humidity_2m: 86.6, weather_code: 61, wind_speed_10m: 17.6, wind_direction_10m: 232, wind_gusts_10m: 41.4, is_day: 0 },
     daily: {
       time: ['2026-11-25', '2026-11-26', '2026-11-27', '2026-11-28', '2026-11-29', '2026-11-30', '2026-12-01'],
       weather_code: [61, 3, 2, 80, 63, 3, 45],
@@ -130,10 +130,10 @@ describe('het antwoord van de weerdienst', () => {
 
   test('alles wat de kaart toont komt eruit, afgerond zoals het getoond wordt', () => {
     const weer = leesAntwoord(antwoord);
-    expect(weer).toMatchObject({ code: 61, temp: 6, gevoel: 3, vocht: 87, wind: 18, richting: 232, dag: false, min: 3, max: 8, kans: 85, mm: 5.2, sneeuw: 0, zonOp: '08:14', zonOnder: '16:42', uv: 1 });
+    expect(weer).toMatchObject({ code: 61, temp: 6, gevoel: 3, vocht: 87, wind: 18, richting: 232, stoot: 41, dag: false, min: 3, max: 8, kans: 85, mm: 5.2, sneeuw: 0, zonOp: '08:14', zonOnder: '16:42', uv: 1 });
     expect(weer).not.toHaveProperty('voeltMin');
     expect(weer.dagen).toHaveLength(7);
-    expect(weer.dagen[0]).toEqual({ datum: '2026-11-25', code: 61, min: 3, max: 8, kans: 85, mm: 5.2, sneeuw: 0, zonOp: '08:14', zonOnder: '16:42', uv: 1 });
+    expect(weer.dagen[0]).toEqual({ datum: '2026-11-25', code: 61, min: 3, max: 8, kans: 85, mm: 5.2, sneeuw: 0, stootMax: null, zonOp: '08:14', zonOnder: '16:42', uv: 1 });
     expect(weer.dagen[6]).toMatchObject({ datum: '2026-12-01', code: 45, min: 1, max: 6, kans: 20, mm: 0 });
     expect(weer.uren).toEqual([]); // dit antwoord heeft geen uren
   });
@@ -168,7 +168,7 @@ describe('het bewaarde weerbericht, voor nu', () => {
   test('het antwoord houdt vijftien dagen en 168 uren bij', () => {
     expect(weer.dagen).toHaveLength(15);
     expect(weer.uren).toHaveLength(168);
-    expect(weer.uren[0]).toEqual({ uur: '2026-11-25T20:00', code: 61, temp: 10, gevoel: 8, vocht: 80, wind: 12, richting: 225, dag: false });
+    expect(weer.uren[0]).toEqual({ uur: '2026-11-25T20:00', code: 61, temp: 10, gevoel: 8, vocht: 80, wind: 12, richting: 225, stoot: null, dag: false });
   });
 
   test('hetzelfde uur: het weer van dat uur, van vandaag en van de zeven dagen erna (0.6.4)', () => {
@@ -413,5 +413,42 @@ describe('weerSoort', () => {
     expect(weerSoort(w({ code: 0, temp: 33, dag: false, dagen: golf }))).toBe('weerHittegolf');
     expect(weerSoort(w({ code: 95, temp: 30, dagen: golf }))).toBe('weerOnweer'); // wat er nu gebeurt, gaat voor
     expect(weerSoort(w({ code: 0, temp: 29, dagen: dagen(29, 28, 24, 22, 21) }))).toBe('weerHeet');
+  });
+});
+
+describe('de kleur van de lucht, storm en vorst (0.7.0)', () => {
+  test('storm vanaf windstoten van 80 km/u en vorst vanaf -5 graden, alleen bij droog weer', () => {
+    expect(weerBeeld({ code: 3, stoot: 79 })).toEqual({ icoon: 'cloud', naam: 'bewolkt' });
+    expect(weerBeeld({ code: 3, stoot: 80 })).toEqual({ icoon: 'wind', naam: 'storm' });
+    expect(weerBeeld({ code: 63, stoot: 110 })).toEqual({ icoon: 'cloud-rain', naam: 'regen' }); // neerslag gaat voor
+    expect(weerBeeld({ code: 0, temp: -4 })).toEqual({ icoon: 'sun', naam: 'zonnig' });
+    expect(weerBeeld({ code: 0, temp: -5 })).toEqual({ icoon: 'temperature-low', naam: 'vorst' });
+    expect(weerBeeld({ code: 45, temp: -8 })).toEqual({ icoon: 'smog', naam: 'mist' }); // mist blijft mist
+    expect(logica.STORM_KMU).toBe(80);
+    expect(logica.VORST_GRADEN).toBe(-5);
+  });
+
+  test('elke lucht hoort bij een soort waarschuwing van het KMI', () => {
+    const l = logica.weerLucht;
+    expect(l(null)).toBe(null);
+    expect(l({ code: 0, temp: 20 })).toBe('zon');
+    expect(l({ code: 0, temp: 31 })).toBe('zon');
+    expect(l({ code: 0, temp: 32 })).toBe('hitte'); // code geel voor hitte bij het KMI
+    expect(l({ code: 2, temp: 20 })).toBe('half');
+    expect(l({ code: 3 })).toBe('grijs');
+    expect(l({ code: 45 })).toBe('mist');
+    for (const code of [51, 61, 63, 65, 80, 82]) expect(l({ code }), code).toBe('regen');
+    for (const code of [95, 96, 97, 99]) expect(l({ code }), code).toBe('onweer');
+    for (const code of [56, 57, 66, 67, 71, 73, 75, 85, 86]) expect(l({ code }), code).toBe('sneeuw'); // ijzel hoort bij gladheid
+    expect(l({ code: 3, stoot: 95 })).toBe('storm');
+    expect(l({ code: 0, temp: -7 })).toBe('vorst');
+    expect(l({ code: 0, temp: 5, dag: false })).toBe('nacht');
+    expect(l({ code: 3, temp: 5, dag: false })).toBe('grijs');
+  });
+
+  test('storm en vorst hebben een naam en een icoon', () => {
+    expect(TEKSTEN.weer.storm).toBe('Storm');
+    expect(TEKSTEN.weer.vorst).toBe('Vorst');
+    for (const icoon of ['wind', 'temperature-low']) expect(existsSync(new URL(`../../src/iconen/solid/${icoon}.svg`, import.meta.url)), icoon).toBe(true);
   });
 });

@@ -585,6 +585,21 @@ export const TEKSTEN = {
     onweerHagel: 'Onweer met hagel',
     onweerZwareHagel: 'Onweer met zware hagel',
     zwaarOnweer: 'Zwaar onweer', // weercode 97, zoals de weerdienst ze meldt
+    storm: 'Storm', // droog weer met windstoten vanaf 80 km/u (logica/weer.js, STORM_KMU)
+    vorst: 'Vorst', // droog weer vanaf -5 graden (logica/weer.js, VORST_GRADEN)
+    // Een waarschuwing van het KMI (data/kmi.js): het label in de kaart, en een zin voor een schermlezer
+    letOp: 'Let op! {soort}',
+    waarschuwing: {
+      wind: 'Wind',
+      regen: 'Regen',
+      onweer: 'Onweer',
+      gladheid: 'Gladheid',
+      mist: 'Mist',
+      hitte: 'Hitte',
+      koude: 'Koude',
+    },
+    code: { geel: 'code geel', oranje: 'code oranje', rood: 'code rood' },
+    labelWaarschuwing: 'Let op: het KMI geeft {code} voor {soort}.',
     graden: '{aantal}°',
     voelt: 'Voelt als {aantal}°',
     min: 'Min.',
@@ -1545,8 +1560,10 @@ export const TEKSTEN = {
         regel: { titel: "Het weer in het kort", tekst: "Op Vandaag staat onder de datum het weer in het kort: de temperatuur van nu, de laagste en de hoogste van vandaag en de kans op regen. Tik erop en je gaat naar de kaart Het weer onderaan." },
         nu: { titel: "Het weer van nu", tekst: "Op Vandaag staat de kaart Het weer. Bovenaan zie je de temperatuur van nu, het weerbeeld en hoe het aanvoelt." },
         cijfers: { titel: "Vandaag in tien cijfers", tekst: "Regen is de kans dat het regent, Neerslag hoeveel er valt. Wind staat er in beaufort met de richting, Snelheid in kilometer per uur. De uv-index zegt hoe sterk de zon is." },
-        week: { titel: "De komende dagen", tekst: "Per dag zie je het weerbeeld, de hoogste en de laagste temperatuur en de kans op regen. De eerste dag is vandaag." },
-        plek: { titel: "Het weer van jouw plek", tekst: "Sta je Bloei toe om je locatie te gebruiken, dan zie je het weer van waar je bent. Zonder locatie toont Bloei het weer van je laatste plek of van de hoofdstad. Je locatie gaat alleen naar de weerdienst, zonder je naam." },
+        week: { titel: "De komende dagen", tekst: "Per dag zie je het weerbeeld, de hoogste en de laagste temperatuur en de kans op regen. Het zijn de zeven dagen na vandaag, met de datum erbij." },
+        kleur: { titel: "De kleur van het weer", tekst: "De weerbalk en de kaart krijgen de kleur van het weer van nu: zon, hitte, wolken, mist, regen, onweer, sneeuw, storm, vorst of een heldere nacht." },
+        waarschuwing: { titel: "Waarschuwingen van het KMI", tekst: "Waarschuwt het KMI voor jouw provincie, dan zie je vooraan in de weerbalk een rondje met een driehoek en in de kaart Let op! met de soort. De kleur is die van de code: geel, oranje of rood." },
+        plek: { titel: "Het weer van jouw plek", tekst: "Sta je Bloei toe om je locatie te gebruiken, dan zie je het weer van waar je bent. Zonder locatie toont Bloei het weer van je laatste plek of van de hoofdstad. Je locatie gaat alleen naar de weerdienst, zonder je naam. De waarschuwingen van het KMI haalt Bloei op zonder je locatie." },
         zin: { titel: "De zin volgt het weer", tekst: "De warme zin bovenaan past ook bij het weer. Bij hitte of zwaar weer geeft ze raad, zoals genoeg water drinken of veilig binnen blijven." },
       },
       thema: {
@@ -1594,7 +1611,7 @@ export const TEKSTEN = {
         // Alleen op een telefoon: het weer in het kort onder de datum (ui/weerkaart.js, weerregel).
         weerregel: { titel: "Het weer in het kort", tekst: "Onder de datum staat het weer in het kort: de temperatuur van nu, de laagste en de hoogste van vandaag en de kans op regen. Tik erop en je gaat naar het hele weerbericht onderaan." },
         // De kaart met het weerbericht (ui/weerkaart.js), naast de motivator; op een telefoon helemaal onderaan.
-        weer: { titel: "Het weer bij jou", tekst: "Hier staat het weer bij jou: bovenaan de temperatuur van nu, het weerbeeld en hoe het aanvoelt. Daaronder staan tien cijfers van vandaag, van regen en wind tot zon op en zon onder. Onderaan zie je de komende dagen." },
+        weer: { titel: "Het weer bij jou", tekst: "Hier staat het weer bij jou: bovenaan de temperatuur van nu, het weerbeeld en hoe het aanvoelt. Daaronder staan tien cijfers van vandaag, van regen en wind tot zon op en zon onder. Onderaan zie je de komende dagen. De kaart krijgt de kleur van het weer, en waarschuwt het KMI, dan staat er Let op! bij." },
         dag: { titel: "Je dag in één blik", tekst: "Bovenaan staan tegels met hoe je dag ervoor staat: eten, drinken, je dagdoel en supplementen. Je hoeft er niets mee te doen: de cijfers tellen vanzelf mee. De zin eronder moedigt je aan en past bij je dag en bij het weer." },
         glas: { titel: "Een kan water erbij", tekst: "Tik op een drank om ze toe te voegen. Eén tik op Kan water voegt een kan van 800 ml toe, en met Laatste weghalen zet je een vergissing recht." },
         spuit: { titel: "Een spuit vandaag", tekst: "Staat er vandaag een spuit gepland, dan zie je ze als extra rij in de kaart Supplementen. Vink ze af als je ze zette, en tik nog eens om ze terug te zetten." },
