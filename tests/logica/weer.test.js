@@ -416,7 +416,7 @@ describe('weerSoort', () => {
   });
 });
 
-describe('de kleur van de lucht, storm en vorst (0.7.0)', () => {
+describe('storm en vorst (0.7.3)', () => {
   test('storm vanaf windstoten van 80 km/u en vorst vanaf -5 graden, alleen bij droog weer', () => {
     expect(weerBeeld({ code: 3, stoot: 79 })).toEqual({ icoon: 'cloud', naam: 'bewolkt' });
     expect(weerBeeld({ code: 3, stoot: 80 })).toEqual({ icoon: 'wind', naam: 'storm' });
@@ -426,24 +426,6 @@ describe('de kleur van de lucht, storm en vorst (0.7.0)', () => {
     expect(weerBeeld({ code: 45, temp: -8 })).toEqual({ icoon: 'smog', naam: 'mist' }); // mist blijft mist
     expect(logica.STORM_KMU).toBe(80);
     expect(logica.VORST_GRADEN).toBe(-5);
-  });
-
-  test('elke lucht hoort bij een soort waarschuwing van het KMI', () => {
-    const l = logica.weerLucht;
-    expect(l(null)).toBe(null);
-    expect(l({ code: 0, temp: 20 })).toBe('zon');
-    expect(l({ code: 0, temp: 31 })).toBe('zon');
-    expect(l({ code: 0, temp: 32 })).toBe('hitte'); // code geel voor hitte bij het KMI
-    expect(l({ code: 2, temp: 20 })).toBe('half');
-    expect(l({ code: 3 })).toBe('grijs');
-    expect(l({ code: 45 })).toBe('mist');
-    for (const code of [51, 61, 63, 65, 80, 82]) expect(l({ code }), code).toBe('regen');
-    for (const code of [95, 96, 97, 99]) expect(l({ code }), code).toBe('onweer');
-    for (const code of [56, 57, 66, 67, 71, 73, 75, 85, 86]) expect(l({ code }), code).toBe('sneeuw'); // ijzel hoort bij gladheid
-    expect(l({ code: 3, stoot: 95 })).toBe('storm');
-    expect(l({ code: 0, temp: -7 })).toBe('vorst');
-    expect(l({ code: 0, temp: 5, dag: false })).toBe('nacht');
-    expect(l({ code: 3, temp: 5, dag: false })).toBe('grijs');
   });
 
   test('storm en vorst hebben een naam en een icoon', () => {

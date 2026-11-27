@@ -734,7 +734,6 @@ const VERWACHT = {
   'h:weer.nu': { sel: '.weerkaart__nu' },
   'h:weer.cijfers': { sel: '.weerkaart__cijfers' },
   'h:weer.week': { sel: '.weerkaart__week' },
-  'h:weer.kleur': { sel: '.weerkaart' },
   'h:weer.waarschuwing': GEEN, // alleen als het KMI waarschuwt
   'h:weer.plek': GEEN,
   'h:weer.zin': { sel: '.voortgang__zin' },

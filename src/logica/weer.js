@@ -209,27 +209,6 @@ export function weerBeeld(weer) {
   return { icoon: nacht ? (NACHT[icoon] ?? icoon) : icoon, naam: nacht ? (NACHTNAAM[naam] ?? naam) : naam };
 }
 
-// De kleur van de lucht bij het weer (stijl/scherm-vandaag.css, data-lucht): zon, hitte, half, grijs, mist, regen, onweer, sneeuw,
-// storm, vorst of nacht, of null zonder weer. Elke kleur hoort bij een soort waarschuwing van het KMI: regen bij regen, onweer bij
-// onweer, sneeuw bij gladheid (ook ijzel), mist bij mist, hitte bij hitte, storm bij wind en vorst bij koude.
-// Zonnig wordt hitte vanaf HITTE_GRADEN, de grens van code geel voor hitte bij het KMI.
-export const HITTE_GRADEN = 32;
-export function weerLucht(weer) {
-  const beeld = weerBeeld(weer);
-  if (!beeld) return null;
-  if (beeld.naam === STORM[1]) return 'storm';
-  if (beeld.naam === VORST[1]) return 'vorst';
-  const { code, dag = true, temp } = weer;
-  if (ONWEER.includes(code)) return 'onweer';
-  if (SNEEUW.includes(code) || [56, 57, 66, 67].includes(code)) return 'sneeuw';
-  if (REGEN.includes(code)) return 'regen';
-  if (code === 45 || code === 48) return 'mist';
-  if (dag === false) return [0, 1, 2].includes(code) ? 'nacht' : 'grijs';
-  if (code === 0 || code === 1) return Number.isFinite(temp) && temp >= HITTE_GRADEN ? 'hitte' : 'zon';
-  if (code === 2) return 'half';
-  return 'grijs';
-}
-
 // De groep zinnen van de motivator die bij het weer van nu hoort (TEKSTEN.motivatie, logica/motivatie.js), of null als er niets over te
 // zeggen valt (een zachte nacht zonder regen). Open-Meteo is de maatstaf: het weer zelf leest de zin alleen uit de weercode, zonder eigen
 // grenzen op wind, regen of sneeuw. Eerst het zware weer zoals de dienst het meldt, waarbij de zin ook raad geeft (WEER_EXTREEM): zwaar

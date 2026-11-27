@@ -10,7 +10,7 @@
 // motivator ernaast. data/weer.js zorgt dat er altijd weer is zodra dit toestel één keer een weerbericht kreeg (de plek van het
 // toestel, anders de noodplek, anders het bewaarde weerbericht).
 // weerkaart(stand) → { el, teken(stand) }: teken past de kaart ter plaatse aan bij 'weer:gewijzigd'.
-import { WEEKDAGEN, uvWoord, weerBeeld, weerLucht, windkracht, windrichting } from '../logica/weer.js';
+import { WEEKDAGEN, uvWoord, weerBeeld, windkracht, windrichting } from '../logica/weer.js';
 import { naarDatum, opmaakDatum, plusDagen, vandaag } from '../kern/datum.js';
 import { t } from '../teksten.js';
 import { h } from './dom.js';
@@ -29,8 +29,8 @@ const graden = (x) => (x == null ? LEEG : t('weer.graden', { aantal: x }));
 const INKT_LINKS = { 0: 0.04, 1: 0.0825, 2: 0.0575, 3: 0.0775, 4: 0.04, 5: 0.0725, 6: 0.0575, 7: 0.07, 8: 0.045, 9: 0.0525, '-': 0.0275, '\u2212': 0.0275 };
 const inktLinks = (tekst) => INKT_LINKS[String(tekst).trim()[0]] ?? 0.06;
 
-// De kleur van de lucht (data-lucht) en de waarschuwing van het KMI (data-niveau) op een element zetten of weghalen
-// (stijl/scherm-vandaag.css): de weerbalk en de kaart krijgen de kleur van het weer, en bij een waarschuwing de kleur van de code.
+// De waarschuwing van het KMI (data-niveau) op een element zetten of weghalen (stijl/scherm-vandaag.css): bij een waarschuwing krijgen
+// het rondje in de weerbalk en het label in de kaart de kleur van de code.
 const zetData = (el, naam, waarde) => (waarde ? (el.dataset[naam] = waarde) : delete el.dataset[naam]);
 // De zin voor een schermlezer bij een waarschuwing van het KMI.
 const waarschuwingZin = (wa) => (wa ? t('weer.labelWaarschuwing', { code: t('weer.code.' + wa.niveau), soort: t('weer.waarschuwing.' + wa.soort).toLowerCase() }) : null);
@@ -82,7 +82,6 @@ export function weerregel(stand, { naar } = {}) {
     const heeftHoeveel = Number.isFinite(hoeveelheid);
     const wa = w ? (s.waarschuwing ?? null) : null;
     el.dataset.fase = w ? 'klaar' : 'laden';
-    zetData(pil, 'lucht', w ? weerLucht(w) : null);
     zetData(pil, 'niveau', wa?.niveau);
     // Een schermlezer hoort het weer in gewone zinnen, de waarschuwing van het KMI, en waar de knop naartoe gaat.
     knop.setAttribute(
@@ -146,7 +145,6 @@ export function weerkaart(stand) {
     const fase = w ? 'klaar' : 'laden';
     const wa = w ? (s.waarschuwing ?? null) : null;
     el.dataset.fase = fase;
-    zetData(el, 'lucht', w ? weerLucht(w) : null);
     zetData(el, 'niveau', wa?.niveau);
     letop.replaceChildren(...(wa ? [icoon('triangle-exclamation', { grootte: 14 }), h('span', null, t('weer.letOp', { soort: t('weer.waarschuwing.' + wa.soort) }))] : []));
     el.setAttribute('aria-busy', String(fase === 'laden'));
