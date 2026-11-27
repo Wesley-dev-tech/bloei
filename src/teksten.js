@@ -1055,7 +1055,7 @@ export const TEKSTEN = {
       'maand-na-maand': 'Maak in drie verschillende maanden een verslag.',
       'eerste-rondleiding': 'Volg een rondleiding tot het einde.',
       'eigen-kleur': 'Kies zelf een thema voor Bloei.',
-      'seintje-aan': 'Zet een herinnering aan.',
+      'seintje-aan': 'Open Bloei met een tik op een herinnering.',
       'achter-slot': 'Zet de vergrendeling aan.',
       'op-beginscherm': 'Zet Bloei op je beginscherm en open de app van daaruit.',
       'eigen-profiel': 'Vul je naam in en kies zelf een figuur of een foto voor je profiel.',
@@ -3253,7 +3253,7 @@ export const TEKSTEN = {
       2: 'Eigen kleur staat in kleur, {naam}. Bloei ziet eruit zoals jij het wil.',
     },
     'm-seintje-aan': {
-      1: 'Je zette een herinnering aan, {naam}. De medaille Seintje aan is van jou.',
+      1: 'Je opende Bloei via een herinnering, {naam}. De medaille Seintje aan is van jou.',
       2: 'Seintje aan staat in kleur, {naam}. Bloei denkt voortaan met je mee.',
     },
     'm-achter-slot': {

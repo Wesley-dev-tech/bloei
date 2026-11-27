@@ -1,5 +1,5 @@
 // Badges nakijken en bewaren na elke wijziging (47). Een bewaarde badge verdwijnt nooit,
-// behalve door "Alles wissen". De voorwaarden en rekenregels staan in logica/badges.js en logica/badgeregels.js.
+// behalve door "Alles wissen" en het eenmalige nakijken van Seintje aan (BESLISSING 754, trekSeintjeIn). De voorwaarden en rekenregels staan in logica/badges.js en logica/badgeregels.js.
 import { db, huidigeEpoch, isEigen } from './db.js';
 import { luister, zend } from '../kern/bus.js';
 import { eigenBijgehoudenDatums, leesMomentopname, leesStats } from './statistiek.js';
@@ -18,6 +18,8 @@ import { naarSleutel, vandaag } from '../kern/datum.js';
 const WACHT_MS = 500;
 // Eén vlag per uitbreiding van de medailles: ontbreekt er een, dan krijgt wie Bloei al gebruikte de nieuwe medailles stil (zie kijkNa).
 const UITBREIDINGEN = ['badges.uitgebreid', 'badges.uitgebreid2', 'badges.uitgebreid3', 'badges.uitgebreid4'];
+// BESLISSING 754: Seintje aan is sinds 0.6.9 de tik op een herinnering, niet meer een schakelaar. Deze vlag onthoudt dat het nakijken gebeurd is.
+const SEINTJE_HERZIEN = 'badges.seintjeHerzien';
 let afmelden = null;
 let timer = null;
 let bezig = Promise.resolve();
@@ -28,7 +30,7 @@ let bezig = Promise.resolve();
 export async function leesBadgeStats(rijen) {
   const r = rijen ?? (await leesMomentopname());
   // Via leesInstelling, zoals de rest van de app: zonder bewaarde rij geldt het standaard dagdoel (R1-01).
-  const [basis, favorieten, doelMlRuw, verslag, bijgehouden, verslagenRuw, rondleidingenRuw, thema, kaft, naam, avatar, slotAan, mDagboek, mDrinken, mSupplementen, medailles, geboortedatum, gevierd, jarigJaren, verslagTelling] = await Promise.all([
+  const [basis, favorieten, doelMlRuw, verslag, bijgehouden, verslagenRuw, rondleidingenRuw, thema, kaft, naam, avatar, slotAan, getikt, medailles, geboortedatum, gevierd, jarigJaren, verslagTelling] = await Promise.all([
     leesStats(r),
     db.favorieten.count(),
     leesInstelling('drinken.dagdoelMl'),
@@ -41,9 +43,7 @@ export async function leesBadgeStats(rijen) {
     leesInstelling('profiel.naam'),
     leesInstelling('profiel.avatar'),
     leesInstelling('slot.aan'),
-    leesInstelling('meldingen.dagboek'),
-    leesInstelling('meldingen.drinken'),
-    leesInstelling('meldingen.supplementenUren'),
+    leesInstelling('meldingen.getikt'),
     telBewaardeBadges(),
     leesInstelling('profiel.verjaardag'),
     leesInstelling('profiel.verjaardagGevierd'),
@@ -70,7 +70,6 @@ export async function leesBadgeStats(rijen) {
   const heeftNotitie = (d) => (d.notitie ?? '').trim() !== '';
   // Een volledige dag: rond (eten, supplementen, drinkdoel) en met een notitie.
   const helemaal = new Set(dagen.filter((d) => heeftNotitie(d)).map((d) => d.datum));
-  const aan = (m) => [m].flat().some((x) => x?.aan);
   const verslagen = Math.max(Number(verslagenRuw) || 0, verslag ? 1 : 0);
   return {
     ...basis,
@@ -89,7 +88,7 @@ export async function leesBadgeStats(rijen) {
     helemaalDagen: rondeDatums.filter((datum) => helemaal.has(datum)).length,
     rondleidingen: new Set([...(Array.isArray(rondleidingenRuw) ? rondleidingenRuw : []), ...eerderGezien()]).size,
     themaGekozen: thema !== STANDAARD['thema.keuze'] || kaft !== STANDAARD['thema.kaft'] ? 1 : 0,
-    herinneringAan: aan(mDagboek) || aan(mDrinken) || aan(mSupplementen) ? 1 : 0,
+    meldingGetikt: getikt ? 1 : 0, // BESLISSING 754: een tik op een herinnering, niet alleen de schakelaar aan
     slotAan: slotAan ? 1 : 0,
     opBeginscherm: isStandalone() ? 1 : 0,
     eigenProfiel: String(naam ?? '').trim() !== '' && JSON.stringify(avatar) !== JSON.stringify(STANDAARD['profiel.avatar']) ? 1 : 0,
@@ -218,6 +217,8 @@ export function controleerBadges() {
       return new Date(j, m - 1, d, 12).getTime();
     };
     await db.transaction('rw', db.badges, db.instellingen, async () => {
+      if (epoch !== huidigeEpoch()) return;
+      await trekSeintjeIn(stats);
       // Hoogstens een paar rondes: een medaille van Je verzameling (tien medailles, ...) kan pas volgen als de andere bewaard zijn.
       for (let ronde = 0; ronde < 4; ronde++) {
         let erbij = 0;
@@ -267,6 +268,21 @@ export function controleerBadges() {
   });
   bezig = taak.catch(() => {});
   return taak;
+}
+
+// BESLISSING 754: wie Seintje aan kreeg door enkel een herinnering aan te zetten (tot 0.6.8), verliest ze tot ze op een herinnering tikt.
+// Eenmalig per toestel en stil, zonder melding. Valt de verzameling daardoor onder de drempel van Tien medailles, Vijfentwintig medailles,
+// Vijftig medailles of Verzameling compleet, dan gaat ook die medaille terug: ze komt vanzelf terug zodra de drempel weer gehaald is.
+async function trekSeintjeIn(stats) {
+  if ((await db.instellingen.get(SEINTJE_HERZIEN))?.waarde) return;
+  if (!stats.meldingGetikt && (await db.badges.get('seintje-aan'))) {
+    await db.badges.delete('seintje-aan');
+    const aantal = await telBewaardeBadges();
+    for (const b of await db.badges.toArray()) {
+      if (DOEL[b.id]?.[0] === 'medailles' && aantal < DOEL[b.id][1]) await db.badges.delete(b.id);
+    }
+  }
+  await db.instellingen.put({ sleutel: SEINTJE_HERZIEN, waarde: true });
 }
 
 function plan() {

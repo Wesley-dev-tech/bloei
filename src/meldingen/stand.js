@@ -40,6 +40,18 @@ export async function leesAfgehandeld() {
   }
 }
 
+// BESLISSING 754: de medaille Seintje aan vraagt een echte melding. De app ziet zelf niet of een melding afging (die stuurt de dienst),
+// maar een tik op een melding wel: de service worker onthoudt hier het moment van de eerste tik. Alleen een tijdstip, geen inhoud.
+export const GETIKT = 'meldingen.getikt';
+
+export async function onthoudTik(nu = Date.now()) {
+  try {
+    if (!(await leesInstelling(GETIKT))) await zetInstelling(GETIKT, nu);
+  } catch {
+    // niet kunnen onthouden: de volgende tik probeert het opnieuw, de melding opent de app gewoon
+  }
+}
+
 export async function bewaarAfgehandeld(sleutels) {
   if (!sleutels.length) return;
   const oud = await leesAfgehandeld();

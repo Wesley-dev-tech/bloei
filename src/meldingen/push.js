@@ -445,6 +445,8 @@ export function startMeldingen() {
   });
   navigator.serviceWorker.addEventListener('message', (e) => {
     if (e.data?.soort === 'ga' && typeof e.data.pad === 'string' && e.data.pad.startsWith('#/')) window.location.hash = e.data.pad;
+    // BESLISSING 754: de service worker bewaarde een tik op een herinnering; de medailles kijken na (data/badges.js luistert op meldingen.*).
+    else if (e.data?.soort === 'getikt') zend('instelling:gewijzigd', { sleutel: 'meldingen.getikt' });
   });
   // Bij de start: wacht er nog een tijdstip van de dienst, dan de herhaling plannen; anders de uren meteen in lijn brengen.
   leesWacht();

@@ -2,7 +2,7 @@
 // Offline cache, wisselen naar een nieuwe versie (bericht 'nu-wisselen') en de push-meldingen (push en notificationclick).
 
 import { kiesMeldingen, algemeneMelding } from './meldingen/tekst.js';
-import { leesMeldingInvoer, bewaarAfgehandeld } from './meldingen/stand.js';
+import { leesMeldingInvoer, bewaarAfgehandeld, onthoudTik } from './meldingen/stand.js';
 import { opneApp } from './meldingen/klik.js';
 import { CACHE_VOORVOEGSEL } from './kern/demo.js';
 import { OPSTART_BERICHT } from './pwa/opstart.js';
@@ -130,7 +130,18 @@ self.addEventListener('push', (event) => {
 });
 
 // Een tik op de melding opent of focust de app op het scherm van die melding (data.pad) en sluit alleen die melding; de andere blijven staan.
+// BESLISSING 754: tegelijk onthoudt het toestel dat er op een herinnering getikt werd (de medaille Seintje aan). Het openen wacht daar niet
+// op (een browser laat een venster alleen meteen na de tik openen). Daarna horen de open vensters het en kijken ze de medailles na; een
+// venster dat later opstart, leest de tik bij het opstarten.
 self.addEventListener('notificationclick', (event) => {
   event.notification.close();
-  event.waitUntil(opneApp(self.clients, BEREIK, event.notification.data?.pad));
+  event.waitUntil(
+    (async () => {
+      const tik = onthoudTik();
+      await opneApp(self.clients, BEREIK, event.notification.data?.pad);
+      await tik;
+      const vensters = await self.clients.matchAll({ type: 'window', includeUncontrolled: true });
+      for (const venster of vensters) if (venster.url.startsWith(BEREIK)) venster.postMessage({ soort: 'getikt' });
+    })(),
+  );
 });

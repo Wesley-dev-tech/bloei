@@ -105,7 +105,7 @@ const REGELS = [
   ['maand-na-maand', 'verslagMaanden', 3],
   ['eerste-rondleiding', 'rondleidingen', 1],
   ['eigen-kleur', 'themaGekozen', 1],
-  ['seintje-aan', 'herinneringAan', 1],
+  ['seintje-aan', 'meldingGetikt', 1],
   ['achter-slot', 'slotAan', 1],
   ['op-beginscherm', 'opBeginscherm', 1],
   ['eigen-profiel', 'eigenProfiel', 1],

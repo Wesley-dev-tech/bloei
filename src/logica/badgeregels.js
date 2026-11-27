@@ -141,7 +141,7 @@ export const DREMPELS = [
   ['maand-na-maand', 'delen', 'verslagMaanden', 3, 'maanden'],
   ['eerste-rondleiding', 'kennen', 'rondleidingen', 1, 'rondleidingen'],
   ['eigen-kleur', 'kennen', 'themaGekozen', 1, 'keer'],
-  ['seintje-aan', 'kennen', 'herinneringAan', 1, 'keer'],
+  ['seintje-aan', 'kennen', 'meldingGetikt', 1, 'keer'], // BESLISSING 754: een tik op een herinnering
   ['achter-slot', 'kennen', 'slotAan', 1, 'keer'],
   ['op-beginscherm', 'kennen', 'opBeginscherm', 1, 'keer'],
   ['eigen-profiel', 'kennen', 'eigenProfiel', 1, 'keer'],

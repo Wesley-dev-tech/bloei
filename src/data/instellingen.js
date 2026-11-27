@@ -30,6 +30,7 @@ export const STANDAARD = {
   'meldingen.supplementenUren': [{ aan: false, uur: '08:00' }, { aan: false, uur: '13:00' }, { aan: false, uur: '19:00' }],
   'meldingen.details': false, // BESLISSING 335: standaard staat er in elke melding alleen "Bloei ligt klaar."; aan = de tekst met details (alleen lokaal, gaat nooit naar de dienst)
   'meldingen.abonnement': null,
+  'meldingen.getikt': null, // BESLISSING 754: het moment van de eerste tik op een herinnering (alleen lokaal), voor de medaille Seintje aan
   'slot.aan': false,
   'slot.pin': null,
   'slot.vraag': null,
