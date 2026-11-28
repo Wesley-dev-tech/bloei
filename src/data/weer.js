@@ -10,8 +10,8 @@
 //    dan luistert Bloei nog kort naar een fijnere en neemt dan de beste, hoe grof ook.
 // 2. Geeft het toestel geen plek (de locatie staat uit, een computer zonder locatiedienst, de vraag van het toestel staat nog open),
 //    dan rekent Bloei met de noodplek: de laatste plek die dit toestel gaf (afgerond op ongeveer een kilometer, alleen op het toestel
-//    bewaard) en anders de hoofdstad van de tijdzone van het toestel. Is er na NOOD_MS nog niets in beeld, dan komt dat weer er al,
-//    terwijl Bloei verder naar de plek luistert.
+//    bewaard) en anders de hoofdstad van de tijdzone van het toestel. Staat er bij de opening geen weer van daarnet in beeld, dan
+//    komt dat weer er meteen al, terwijl Bloei verder naar de plek luistert.
 // 3. Antwoordt de weerdienst niet of is er geen netwerk, dan toont Bloei het weerbericht dat dit toestel het laatst kreeg: wat de
 //    dienst toen voorspelde voor dit uur, voor vandaag en voor de zeven dagen erna (logica/weer.js, weerVoorNu). Dat weerbericht gaat
 //    een week mee. Bloei probeert het intussen opnieuw: na 3, 6, 12 en 24 seconden en daarna elke minuut.
@@ -20,6 +20,10 @@
 // 4. Bij elke opening van de app en telkens ze terugkomt naar de app gebeurt dat opnieuw: de plek en het weer. De opening start hier
 //    al voor het eerste scherm getekend is (main.js), als het toestel de locatie voor Bloei al toeliet. Bij de opening staat het
 //    bewaarde weerbericht er meteen, tot het nieuwe er is.
+// 5. Live: zolang de app in beeld blijft, vraagt Bloei het weer elke minuut opnieuw (LIVE_MS), voor de plek van het weer dat in
+//    beeld staat. Zo staat een nieuw cijfer van de weerdienst er binnen de minuut, in de kaart en in de weerregel tegelijk. De plek
+//    zelf zoekt het toestel om de tien minuten opnieuw (PLEK_MS): elke minuut de gps aanzetten kost batterij en levert niets op.
+//    Komt ze terug naar de app, dan komt het weer van nu er meteen voor de plek van daarnet, en de plek van nu volgt.
 //
 // Wat het toestel bewaart (localStorage, sleutel 'bloei-weer'; nooit in de database, dus nooit in een reservekopie of een verslag): de
 // laatste plek, afgerond, en het laatste weerbericht (vijftien dagen en de uren van een week). "Alles wissen" wist het mee.
@@ -37,10 +41,11 @@ import { besteMeting, isBruikbaar, isFijn, leesAntwoord, plekVanTijdzone, rondeP
 const LUISTER_MS = 10 * 1000; // zo lang wacht Bloei hoogstens op een eerste meting
 const BETER_MS = 3 * 1000; // na een eerste, grovere meting: zo lang luistert Bloei nog naar een fijnere
 const GEEN_DIENST_MS = 3 * 1000; // het toestel zegt dat er geen plek is en gaf er nog geen: zo lang wacht Bloei dan nog
-const NOOD_MS = 1500; // staat er dan nog geen weer in beeld: het weer van de noodplek, terwijl Bloei verder luistert
-const VERS_MS = 10 * 60 * 1000; // zolang de app in beeld blijft: om de tien minuten opnieuw
+const NOOD_MS = 0; // staat er geen weer van daarnet in beeld: meteen het weer van de noodplek, terwijl Bloei verder luistert
+const LIVE_MS = 60 * 1000; // zolang de app in beeld blijft: elke minuut het weer opnieuw, voor de plek van het weer in beeld
+const PLEK_MS = 10 * 60 * 1000; // zolang de app in beeld blijft: om de tien minuten ook de plek van het toestel opnieuw
 const OPNIEUW_MS = [3, 6, 12, 24, 60].map((s) => s * 1000); // na een mislukte poging: snel opnieuw, daarna elke minuut
-const KIJK_MS = 30 * 1000; // zo vaak kijkt de app of het tijd is (geen netwerk, alleen de klok)
+const KIJK_MS = 5 * 1000; // zo vaak kijkt de app of het tijd is (geen netwerk, alleen de klok)
 const TERUG_MS = 3 * 1000; // terugkomen geeft meer dan één seintje (zichtbaar, pageshow): samen één verversing
 const OUD_MS = 60 * 60 * 1000; // weer in beeld dat niet ververst kon worden en ouder is: dan het bewaarde weerbericht voor dit uur
 const SLEUTEL = OPSLAG_VOORVOEGSEL + 'weer';
@@ -52,6 +57,11 @@ let laatsteStart = 0;
 let gelukt = false; // de laatste verversing gaf nieuw weer
 let mislukt = 0; // zoveel pogingen na elkaar gaven geen nieuw weer
 let opnieuwKlok = null;
+// Live (LIVE_MS): de plek van het weer dat in beeld staat, precies zoals ze naar de weerdienst ging: { breedte, lengte, nood }.
+// Alleen in het geheugen, nooit bewaard: na het sluiten van de app is ze weg.
+let livePlek = null;
+let laatsteLive = 0;
+let liveBezig = false;
 
 export const weerStand = () => stand;
 
@@ -195,6 +205,39 @@ function valTerug() {
   mislukt += 1;
 }
 
+// De waarschuwing van het KMI voor de plek van het weer dat net in beeld kwam (tijd: het ogenblik van dat weer). Bij de noodplek alleen
+// als het de laatste plek van dit toestel is (niet de hoofdstad van de tijdzone: dat is niet haar plek). Ze komt los van het weer
+// binnen; het weer wacht er nooit op. Staat er intussen ander weer in beeld, dan telt dit antwoord niet meer.
+function haalWaarschuwing(breedte, lengte, nood, tijd) {
+  const waar = nood ? leesBewaard()?.plek : [breedte, lengte];
+  waarschuwingVoor(...(waar ?? [NaN, NaN]))
+    .catch(() => null)
+    .then((waarschuwing) => {
+      if (stand.fase === 'klaar' && stand.tijd === tijd) zet({ ...stand, waarschuwing });
+    });
+}
+
+// Live: alleen het weer opnieuw, voor de plek van het weer dat in beeld staat. Het toestel zoekt zijn plek hier niet opnieuw, dus dit
+// is er in een tel. Geeft false als de weerdienst niet antwoordde (dan neemt de gewone verversing het over, met haar vangnet), en
+// anders true. Een gewone verversing die intussen zelf weer in beeld bracht, wint: dat is de plek van nu.
+async function verversLive() {
+  if (liveBezig || !livePlek || stand.fase !== 'klaar' || stand.voorbeeld) return true;
+  if (typeof navigator !== 'undefined' && navigator.onLine === false) return false;
+  liveBezig = true;
+  laatsteLive = Date.now();
+  const { breedte, lengte, nood } = livePlek;
+  const stond = stand.tijd;
+  const weer = await haalWeer(breedte, lengte).catch(() => null);
+  liveBezig = false;
+  if (stand.fase !== 'klaar' || stand.tijd !== stond) return true;
+  if (!weer) return false;
+  const tijd = Date.now();
+  zet({ fase: 'klaar', weer, tijd, waarschuwing: stand.waarschuwing ?? null });
+  bewaar({ weer, tijd });
+  haalWaarschuwing(breedte, lengte, nood, tijd);
+  return true;
+}
+
 // Verversen: de plek van nu, en daarmee het weer. Wat in beeld staat, blijft staan tot het nieuwe er is.
 async function ververs() {
   const mijn = ++beurt;
@@ -218,20 +261,14 @@ async function ververs() {
     mislukt = 0;
     zet({ fase: 'klaar', weer, tijd, waarschuwing: stand.waarschuwing ?? null });
     bewaar({ weer, tijd, ...(plek ? { plek } : {}) });
-    // De waarschuwing van het KMI voor deze plek. Bij de noodplek alleen als het de laatste plek van dit toestel is (niet de hoofdstad
-    // van de tijdzone: dat is niet haar plek). Ze komt los van het weer binnen; het weer wacht er nooit op.
-    const waar = nood ? leesBewaard()?.plek : [breedte, lengte];
-    waarschuwingVoor(...(waar ?? [NaN, NaN]))
-      .catch(() => null)
-      .then((waarschuwing) => {
-        if (geldt() && stand.fase === 'klaar' && stand.tijd === tijd) zet({ ...stand, waarschuwing });
-      });
+    livePlek = { breedte, lengte, nood: !!nood };
+    haalWaarschuwing(breedte, lengte, nood, tijd);
     return true;
   };
   let nood = null; // één vraag voor de noodplek per verversing
   const toonNood = () => (nood ??= toon(...noodplek(), { nood: true }));
   // Weer van daarnet dat er al stond bij de opening (het bewaarde weerbericht) telt niet als "er staat al weer": de noodplek mag het vervangen.
-  const alWeer = () => stand.fase === 'klaar' && Date.now() - stand.tijd < VERS_MS;
+  const alWeer = () => stand.fase === 'klaar' && Date.now() - stand.tijd < PLEK_MS;
 
   const geo = typeof navigator !== 'undefined' ? navigator.geolocation : null;
   const mag = geo ? await toestemming() : null;
@@ -241,7 +278,8 @@ async function ververs() {
     if (!(await toonNood()) && geldt()) valTerug();
     return;
   }
-  const noodKlok = setTimeout(() => geldt() && !vanToestel && !alWeer() && toonNood(), NOOD_MS);
+  // Loopt er al een live-vraag voor de plek van daarnet (ze komt terug naar de app), dan is de noodplek niet nodig: dat is dezelfde plek.
+  const noodKlok = setTimeout(() => geldt() && !vanToestel && !alWeer() && !liveBezig && toonNood(), NOOD_MS);
   const plek = await zoekPlek(mag);
   clearTimeout(noodKlok);
   if (!geldt()) return;
@@ -259,18 +297,24 @@ async function ververs() {
 
 function houdLive() {
   if (typeof document === 'undefined' || typeof window === 'undefined') return;
-  // Terug in beeld (de app opnieuw geopend vanuit de achtergrond): de plek en het weer van nu.
+  // Terug in beeld (de app opnieuw geopend vanuit de achtergrond): de plek en het weer van nu. Het weer van nu komt er meteen voor de
+  // plek van daarnet (live); de plek van nu volgt zodra het toestel ze geeft.
   const terug = () => {
     if (document.visibilityState !== 'visible' || Date.now() - laatsteStart < TERUG_MS) return;
+    verversLive();
     ververs();
   };
   document.addEventListener('visibilitychange', terug);
   window.addEventListener('pageshow', terug);
   window.addEventListener('online', () => ververs());
-  // Zolang de app in beeld blijft: het weer bijhouden, en na een mislukte poging elke minuut opnieuw proberen.
+  // Zolang de app in beeld blijft: om de tien minuten de plek en het weer (na een mislukte poging elke minuut opnieuw proberen), en
+  // daartussen elke minuut het weer voor de plek van daarnet (live). Antwoordt de weerdienst dan niet, dan neemt de gewone verversing
+  // het over.
   setInterval(() => {
     if (document.visibilityState !== 'visible') return;
-    if (Date.now() - laatsteStart > (gelukt ? VERS_MS : OPNIEUW_MS.at(-1))) ververs();
+    const nu = Date.now();
+    if (nu - laatsteStart > (gelukt ? PLEK_MS : OPNIEUW_MS.at(-1))) return void ververs();
+    if (gelukt && livePlek && stand.fase === 'klaar' && nu - Math.max(laatsteLive, stand.tijd) >= LIVE_MS) verversLive().then((ok) => ok || ververs());
   }, KIJK_MS);
 }
 

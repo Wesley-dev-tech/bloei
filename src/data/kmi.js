@@ -7,7 +7,7 @@
 import { KMI_EIGEN_PAD, kmiAdres, leesKmi } from '../logica/kmi.js';
 import { waarschuwingsgebieden } from '../logica/kmigebieden.js';
 
-const VERS_MS = 15 * 60 * 1000; // zo lang gebruikt Bloei de waarschuwingen van daarnet, zonder opnieuw te vragen
+const VERS_MS = 5 * 60 * 1000; // zo lang gebruikt Bloei de waarschuwingen van daarnet, zonder opnieuw te vragen (even lang als /api/kmi ze bewaart)
 
 let laatste = null; // { tijd, json }
 let bezig = null;
