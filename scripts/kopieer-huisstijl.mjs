@@ -32,15 +32,18 @@ export const ICONEN = {
     // Later toegevoegd: een eigen icoon per medaille (0.4.5), het weerbericht (0.4.8) en de medailles voor notities en verslagen (0.5.8).
     'align-left', 'book', 'book-bookmark', 'bottle-droplet', 'bowl-rice', 'box-archive', 'bread-slice', 'briefcase', 'bucket', 'burst',
     'cake-candles', 'calendar', 'calendar-check', 'calendar-plus', 'calendar-week', 'carrot', 'certificate', 'champagne-glasses', 'check-double', 'church',
-    'circle-check', 'clipboard', 'clipboard-check', 'clipboard-list', 'cloud', 'cloud-bolt', 'cloud-moon', 'cloud-rain', 'cloud-showers-heavy', 'cloud-sun',
+    'circle-check', 'clipboard', 'clipboard-check', 'clipboard-list', 'cloud', 'cloud-sun',
     'cross', 'crown', 'door-open', 'dove', 'droplet', 'egg', 'envelope', 'face-kiss-wink-heart', 'faucet-drip', 'feather-pointed',
     'file-circle-check', 'fire', 'flag', 'folder-open', 'gauge', 'gear', 'gem', 'ghost', 'gift', 'glass-water-droplet',
     'graduation-cap', 'hand-holding-droplet', 'hand-holding-heart', 'hand-holding-medical', 'hands-clapping', 'handshake-simple', 'heart-circle-plus', 'holly-berry', 'horse', 'hourglass-half',
     'infinity', 'kitchen-set', 'list-check', 'medal', 'message', 'mobile-screen-button', 'mountain', 'mountain-sun', 'note-sticky', 'paper-plane', 'peace',
     'pen-clip', 'pen-fancy', 'pen-nib', 'pen-to-square', 'person-hiking', 'person-running', 'person-walking', 'pills', 'plate-wheat',
     'prescription-bottle', 'prescription-bottle-medical', 'quote-left', 'rainbow', 'ranking-star', 'rocket', 'ruler', 'scale-balanced', 'scroll', 'shoe-prints',
-    'smog', 'snowflake', 'snowman', 'spa', 'square-check', 'stairs', 'star', 'tablets', 'tree', 'trophy',
+    'snowman', 'spa', 'square-check', 'stairs', 'star', 'tablets', 'tree', 'trophy',
     'vial', 'water', 'weight-hanging', 'wind',
+    // De thermometer van de kaart Het weer en het teken van een waarschuwing van het KMI (0.7.0). De weerbeelden zelf zijn sinds 0.7.5
+    // eigen tekeningen (src/iconen/eigen/weer-*.svg); de iconen van het weerbericht uit de set zijn daarom weg.
+    'temperature-half', 'triangle-exclamation',
   ],
   regular: ['heart', 'bell'],
 };

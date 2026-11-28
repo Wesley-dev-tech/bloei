@@ -176,7 +176,7 @@ describe('het bewaarde weerbericht, voor nu', () => {
     expect(nu).toMatchObject({ code: 61, temp: 10, gevoel: 8, vocht: 80, wind: 12, richting: 225, dag: false, min: 0, max: 10, kans: 0, zonOp: '08:10', zonOnder: '16:40' });
     expect(nu.dagen).toHaveLength(8);
     expect(nu.dagen[0].datum).toBe('2026-11-25');
-    expect(weerBeeld(nu)).toEqual({ icoon: 'cloud-rain', naam: 'lichteRegen' });
+    expect(weerBeeld(nu)).toEqual({ icoon: 'eigen/weer-regen-licht', naam: 'lichteRegen' });
   });
 
   test('drie dagen later, overdag: het weer dat toen voor dat uur voorspeld was, en nog altijd een volle week vooruit', () => {
@@ -226,7 +226,8 @@ describe('wind en uv', () => {
 describe('het weerbeeld', () => {
   test('elke weercode van de dienst heeft een icoon dat bestaat en een naam in de teksten', () => {
     for (const naam of WEERNAMEN) expect(typeof TEKSTEN.weer[naam], naam).toBe('string');
-    for (const icoon of WEERICONEN) expect(existsSync(new URL(`../../src/iconen/solid/${icoon}.svg`, import.meta.url)), icoon).toBe(true);
+    // Een naam met een map erin ('eigen/weer-sneeuw') is een eigen tekening; anders is het een icoon van Font Awesome (solid).
+    for (const icoon of WEERICONEN) expect(existsSync(new URL(`../../src/iconen/${icoon.includes('/') ? icoon : 'solid/' + icoon}.svg`, import.meta.url)), icoon).toBe(true);
     for (const code of [0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 97, 99]) {
       const beeld = weerBeeld({ code });
       expect(WEERICONEN, String(code)).toContain(beeld.icoon);
@@ -235,20 +236,20 @@ describe('het weerbeeld', () => {
   });
 
   test("'s nachts een maan in plaats van een zon, en een code die Bloei niet kent is bewolkt", () => {
-    expect(weerBeeld({ code: 0, dag: true })).toEqual({ icoon: 'sun', naam: 'zonnig' });
-    expect(weerBeeld({ code: 0, dag: false })).toEqual({ icoon: 'moon', naam: 'helder' });
-    expect(weerBeeld({ code: 2, dag: false })).toEqual({ icoon: 'cloud-moon', naam: 'halfBewolkt' });
-    expect(weerBeeld({ code: 61, dag: false })).toEqual({ icoon: 'cloud-rain', naam: 'lichteRegen' });
-    expect(weerBeeld({ code: 42 })).toEqual({ icoon: 'cloud', naam: 'bewolkt' });
+    expect(weerBeeld({ code: 0, dag: true })).toEqual({ icoon: 'eigen/weer-zonnig', naam: 'zonnig' });
+    expect(weerBeeld({ code: 0, dag: false })).toEqual({ icoon: 'eigen/weer-helder', naam: 'helder' });
+    expect(weerBeeld({ code: 2, dag: false })).toEqual({ icoon: 'eigen/weer-half-bewolkt-nacht', naam: 'halfBewolkt' });
+    expect(weerBeeld({ code: 61, dag: false })).toEqual({ icoon: 'eigen/weer-regen-licht', naam: 'lichteRegen' });
+    expect(weerBeeld({ code: 42 })).toEqual({ icoon: 'eigen/weer-bewolkt', naam: 'bewolkt' });
     expect(weerBeeld(null)).toBe(null);
     expect(weerBeeld({})).toBe(null);
   });
 
   test('onweer volgt de weercodes van Open-Meteo: 95 onweer, 96 en 99 met hagel, 97 zwaar onweer; de wind verandert de naam niet', () => {
-    expect(weerBeeld({ code: 95 })).toEqual({ icoon: 'cloud-bolt', naam: 'onweer' });
-    expect(weerBeeld({ code: 96 })).toEqual({ icoon: 'cloud-bolt', naam: 'onweerHagel' });
-    expect(weerBeeld({ code: 97 })).toEqual({ icoon: 'cloud-bolt', naam: 'zwaarOnweer' });
-    expect(weerBeeld({ code: 99 })).toEqual({ icoon: 'cloud-bolt', naam: 'onweerZwareHagel' });
+    expect(weerBeeld({ code: 95 })).toEqual({ icoon: 'eigen/weer-onweer', naam: 'onweer' });
+    expect(weerBeeld({ code: 96 })).toEqual({ icoon: 'eigen/weer-onweer-hagel', naam: 'onweerHagel' });
+    expect(weerBeeld({ code: 97 })).toEqual({ icoon: 'eigen/weer-onweer-zwaar', naam: 'zwaarOnweer' });
+    expect(weerBeeld({ code: 99 })).toEqual({ icoon: 'eigen/weer-onweer-hagel-zwaar', naam: 'onweerZwareHagel' });
     expect(TEKSTEN.weer.zwaarOnweer).toBe('Zwaar onweer');
     expect(TEKSTEN.weer.onweerZwareHagel).toBe('Onweer met zware hagel');
     // Waar Open-Meteo zwaar meldt, zegt de naam dat ook.
@@ -256,7 +257,7 @@ describe('het weerbeeld', () => {
     expect(weerBeeld({ code: 86 }).naam).toBe('zwareSneeuwbuien');
     for (const [code, naam] of [[65, 'zwareRegen'], [75, 'zwareSneeuw'], [82, 'zwareBuien'], [86, 'zwareSneeuwbuien'], [97, 'zwaarOnweer'], [99, 'onweerZwareHagel']]) expect(TEKSTEN.weer[weerBeeld({ code }).naam], String(code)).toMatch(/[Zz]wa(ar|re)/);
     // Geen eigen regels: storm (veel wind) geeft geen andere naam, de weercode beslist.
-    expect(weerBeeld({ code: 3, wind: 90 })).toEqual({ icoon: 'cloud', naam: 'bewolkt' });
+    expect(weerBeeld({ code: 3, wind: 90 })).toEqual({ icoon: 'eigen/weer-bewolkt', naam: 'bewolkt' });
   });
 });
 
@@ -418,12 +419,12 @@ describe('weerSoort', () => {
 
 describe('storm en vorst (0.7.3)', () => {
   test('storm vanaf windstoten van 80 km/u en vorst vanaf -5 graden, alleen bij droog weer', () => {
-    expect(weerBeeld({ code: 3, stoot: 79 })).toEqual({ icoon: 'cloud', naam: 'bewolkt' });
-    expect(weerBeeld({ code: 3, stoot: 80 })).toEqual({ icoon: 'wind', naam: 'storm' });
-    expect(weerBeeld({ code: 63, stoot: 110 })).toEqual({ icoon: 'cloud-rain', naam: 'regen' }); // neerslag gaat voor
-    expect(weerBeeld({ code: 0, temp: -4 })).toEqual({ icoon: 'sun', naam: 'zonnig' });
-    expect(weerBeeld({ code: 0, temp: -5 })).toEqual({ icoon: 'temperature-low', naam: 'vorst' });
-    expect(weerBeeld({ code: 45, temp: -8 })).toEqual({ icoon: 'smog', naam: 'mist' }); // mist blijft mist
+    expect(weerBeeld({ code: 3, stoot: 79 })).toEqual({ icoon: 'eigen/weer-bewolkt', naam: 'bewolkt' });
+    expect(weerBeeld({ code: 3, stoot: 80 })).toEqual({ icoon: 'eigen/weer-storm', naam: 'storm' });
+    expect(weerBeeld({ code: 63, stoot: 110 })).toEqual({ icoon: 'eigen/weer-regen', naam: 'regen' }); // neerslag gaat voor
+    expect(weerBeeld({ code: 0, temp: -4 })).toEqual({ icoon: 'eigen/weer-zonnig', naam: 'zonnig' });
+    expect(weerBeeld({ code: 0, temp: -5 })).toEqual({ icoon: 'eigen/weer-vorst', naam: 'vorst' });
+    expect(weerBeeld({ code: 45, temp: -8 })).toEqual({ icoon: 'eigen/weer-mist', naam: 'mist' }); // mist blijft mist
     expect(logica.STORM_KMU).toBe(80);
     expect(logica.VORST_GRADEN).toBe(-5);
   });
@@ -431,6 +432,39 @@ describe('storm en vorst (0.7.3)', () => {
   test('storm en vorst hebben een naam en een icoon', () => {
     expect(TEKSTEN.weer.storm).toBe('Storm');
     expect(TEKSTEN.weer.vorst).toBe('Vorst');
-    for (const icoon of ['wind', 'temperature-low']) expect(existsSync(new URL(`../../src/iconen/solid/${icoon}.svg`, import.meta.url)), icoon).toBe(true);
+    expect(existsSync(new URL('../../src/iconen/eigen/weer-storm.svg', import.meta.url))).toBe(true);
+    expect(existsSync(new URL('../../src/iconen/eigen/weer-vorst.svg', import.meta.url))).toBe(true);
+  });
+});
+
+describe('elk weerbeeld zijn eigen icoon (0.7.5)', () => {
+  const CODES = [0, 1, 2, 3, 45, 48, 51, 53, 55, 56, 57, 61, 63, 65, 66, 67, 71, 73, 75, 77, 80, 81, 82, 85, 86, 95, 96, 97, 99];
+  const beelden = [
+    ...CODES.flatMap((code) => [weerBeeld({ code, dag: true }), weerBeeld({ code, dag: false })]),
+    weerBeeld({ code: 3, stoot: 90 }),
+    weerBeeld({ code: 0, temp: -8 }),
+  ];
+
+  test('geen twee weerbeelden delen een icoon, overdag en ’s nachts samen', () => {
+    const naamBijIcoon = new Map();
+    for (const { icoon, naam } of beelden) {
+      // Half bewolkt heeft overdag de zon en 's nachts de maan achter de wolk, en zo ook de buien: dezelfde naam, twee iconen mag.
+      if (naamBijIcoon.has(icoon)) expect(naamBijIcoon.get(icoon), icoon).toBe(naam);
+      naamBijIcoon.set(icoon, naam);
+    }
+    for (const naam of WEERNAMEN) expect([...naamBijIcoon.values()], naam).toContain(naam);
+  });
+
+  test('de thermometer van de kop en de driehoek van de waarschuwing zijn nooit een weerbeeld', () => {
+    for (const { icoon } of beelden) expect(['temperature-half', 'triangle-exclamation', 'temperature-low']).not.toContain(icoon);
+  });
+
+  test('licht, gewoon en zwaar hebben elk hun icoon, ook bij sneeuw, buien en onweer met hagel', () => {
+    const icoon = (code) => weerBeeld({ code }).icoon;
+    expect(new Set([51, 61, 63, 65].map(icoon)).size).toBe(4); // motregen, lichte regen, regen, zware regen
+    expect(new Set([80, 81, 82].map(icoon)).size).toBe(3);
+    expect(new Set([71, 73, 75].map(icoon)).size).toBe(3);
+    expect(new Set([85, 86].map(icoon)).size).toBe(2);
+    expect(new Set([95, 96, 97, 99].map(icoon)).size).toBe(4);
   });
 });

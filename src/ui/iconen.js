@@ -1,6 +1,6 @@
 // Iconen: Font Awesome Free 6, lokaal in src/iconen/ en inline getoond (HUISSTIJL §5).
 // Alleen de iconen uit de lijst van HUISSTIJL.md §5, en de iconen van de medailles (logica/badgeiconen.js: elke medaille haar eigen icoon,
-// uit Font Awesome Free 7). Eigen tekeningen bestaan niet meer.
+// uit Font Awesome Free 7). Eigen tekeningen (src/iconen/eigen/): de kan water, Face ID en alle weerbeelden (weer-*, in een eigen lijnstijl).
 import { svg } from './dom.js';
 
 // Alle SVG's als tekst, bij het bouwen ingebakken.

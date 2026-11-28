@@ -10,7 +10,7 @@
 // motivator ernaast. data/weer.js zorgt dat er altijd weer is zodra dit toestel één keer een weerbericht kreeg (de plek van het
 // toestel, anders de noodplek, anders het bewaarde weerbericht).
 // weerkaart(stand) → { el, teken(stand) }: teken past de kaart ter plaatse aan bij 'weer:gewijzigd'.
-import { WEEKDAGEN, uvWoord, weerBeeld, windkracht, windrichting } from '../logica/weer.js';
+import { WEEKDAGEN, WEERICOON_ONBEKEND, WEERICOON_WACHT, uvWoord, weerBeeld, windkracht, windrichting } from '../logica/weer.js';
 import { naarDatum, opmaakDatum, plusDagen, vandaag } from '../kern/datum.js';
 import { t } from '../teksten.js';
 import { h } from './dom.js';
@@ -104,7 +104,7 @@ export function weerregel(stand, { naar } = {}) {
     const vakken = [
       // Bij een waarschuwing van het KMI: vooraan een rondje in de kleur van de code, met een waarschuwingsdriehoek.
       wa ? h('span', { class: 'weerregel__letop' }, icoon('triangle-exclamation', { grootte: 14 })) : null,
-      h('span', { class: 'weerregel__vak weerregel__vak--nu' }, icoon(beeld?.icoon ?? 'cloud-sun', { grootte: 18 }), h('span', { class: 'weerregel__getal weerregel__graden' }, w ? graden(w.temp) : LEEG)),
+      h('span', { class: 'weerregel__vak weerregel__vak--nu' }, icoon(beeld?.icoon ?? WEERICOON_WACHT, { grootte: 18 }), h('span', { class: 'weerregel__getal weerregel__graden' }, w ? graden(w.temp) : LEEG)),
       punt(),
       vak(woord(t('weer.min')), getal(w?.min != null ? graden(w.min) : null)),
       punt(),
@@ -198,7 +198,7 @@ export function weerkaart(stand) {
             { class: 'weerweek__dag', role: 'img', 'aria-label': voorLezer },
             h('span', { class: 'label weerweek__naam', 'aria-hidden': 'true' }, dagNaam(d.datum).slice(0, 2)),
             h('span', { class: 'weerweek__datum cijfer', 'aria-hidden': 'true' }, korteDatum(d.datum)),
-            icoontegel(beeld?.icoon ?? 'cloud', beeld ? 'dag' : 'neutraal', { gedimd: !beeld }),
+            icoontegel(beeld?.icoon ?? WEERICOON_ONBEKEND, beeld ? 'dag' : 'neutraal', { gedimd: !beeld }),
             h('span', { class: 'weerweek__max cijfer', 'aria-hidden': 'true' }, graden(d.max)),
             h('span', { class: 'weerweek__min cijfer', 'aria-hidden': 'true' }, graden(d.min)),
             h('span', { class: 'weerweek__kans cijfer', 'aria-hidden': 'true' }, d.kans != null ? t('weer.procent', { aantal: d.kans }) : LEEG),
@@ -211,7 +211,7 @@ export function weerkaart(stand) {
       // Nog geen weer: dezelfde kaart met streepjes, zonder zin. Een schermlezer hoort dat het weer wordt opgehaald.
       binnen.replaceChildren(
         h('p', { class: 'alleen-lezer' }, t('weer.laden')),
-        h('div', { class: 'weerkaart__nu', 'aria-hidden': 'true' }, icoontegel('cloud-sun', 'neutraal'), h('p', { class: 'cijfer-groot weerkaart__graden' }, LEEG), h('div', { class: 'weerkaart__waar' })),
+        h('div', { class: 'weerkaart__nu', 'aria-hidden': 'true' }, icoontegel(WEERICOON_WACHT, 'neutraal'), h('p', { class: 'cijfer-groot weerkaart__graden' }, LEEG), h('div', { class: 'weerkaart__waar' })),
         vakken,
         week,
       );

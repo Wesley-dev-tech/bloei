@@ -166,24 +166,42 @@ export function uvWoord(uv) {
   return uv <= 2 ? 'uvLaag' : uv <= 5 ? 'uvMatig' : uv <= 7 ? 'uvHoog' : uv <= 10 ? 'uvZeerHoog' : 'uvExtreem';
 }
 
-// Het weerbeeld: het icoon (src/iconen/solid) en de naam (TEKSTEN.weer) bij een weercode van de WMO, zoals Open-Meteo ze geeft.
+// Het weerbeeld: het icoon en de naam (TEKSTEN.weer) bij een weercode van de WMO, zoals Open-Meteo ze geeft.
 // Open-Meteo is de maatstaf: waar de dienst zwaar meldt (65, 75, 82, 86, 97, 99), zegt de naam dat ook. Lichte en matige vormen
 // van hetzelfde weer delen soms een korte naam (motregen, ijzel, mist).
 // 's Nachts een maan in plaats van een zon (alleen voor het weer van nu; een dag in de week is altijd overdag).
+//
+// De iconen zijn eigen tekeningen (src/iconen/eigen/weer-*.svg), allemaal in een stijl: wolk, zon en maan in lijnen, en gevuld wat
+// er valt. Elk weerbeeld heeft zijn eigen icoon, geen twee namen delen er een (tests/logica/weer.test.js). Licht, gewoon en zwaar
+// verschillen in wat er valt: een druppel, drie druppels of slagregen; een, drie of vijf vlokken; twee of vier hagelstenen.
+// Bij buien staat de zon of de maan achter de wolk.
 const BEELD = {
-  0: ['sun', 'zonnig'], 1: ['sun', 'vrijZonnig'], 2: ['cloud-sun', 'halfBewolkt'], 3: ['cloud', 'bewolkt'],
-  45: ['smog', 'mist'], 48: ['smog', 'mist'],
-  51: ['cloud-rain', 'motregen'], 53: ['cloud-rain', 'motregen'], 55: ['cloud-rain', 'motregen'],
-  56: ['cloud-rain', 'ijzel'], 57: ['cloud-rain', 'ijzel'], 66: ['cloud-rain', 'ijzel'], 67: ['cloud-rain', 'ijzel'],
-  61: ['cloud-rain', 'lichteRegen'], 63: ['cloud-rain', 'regen'], 65: ['cloud-showers-heavy', 'zwareRegen'],
-  71: ['snowflake', 'lichteSneeuw'], 73: ['snowflake', 'sneeuw'], 75: ['snowflake', 'zwareSneeuw'], 77: ['snowflake', 'sneeuw'],
-  80: ['cloud-rain', 'lichteBuien'], 81: ['cloud-showers-heavy', 'buien'], 82: ['cloud-showers-heavy', 'zwareBuien'],
-  85: ['snowflake', 'sneeuwbuien'], 86: ['snowflake', 'zwareSneeuwbuien'],
+  0: ['eigen/weer-zonnig', 'zonnig'], 1: ['eigen/weer-vrij-zonnig', 'vrijZonnig'], 2: ['eigen/weer-half-bewolkt', 'halfBewolkt'], 3: ['eigen/weer-bewolkt', 'bewolkt'],
+  45: ['eigen/weer-mist', 'mist'], 48: ['eigen/weer-mist', 'mist'],
+  51: ['eigen/weer-motregen', 'motregen'], 53: ['eigen/weer-motregen', 'motregen'], 55: ['eigen/weer-motregen', 'motregen'],
+  56: ['eigen/weer-ijzel', 'ijzel'], 57: ['eigen/weer-ijzel', 'ijzel'], 66: ['eigen/weer-ijzel', 'ijzel'], 67: ['eigen/weer-ijzel', 'ijzel'],
+  61: ['eigen/weer-regen-licht', 'lichteRegen'], 63: ['eigen/weer-regen', 'regen'], 65: ['eigen/weer-regen-zwaar', 'zwareRegen'],
+  71: ['eigen/weer-sneeuw-licht', 'lichteSneeuw'], 73: ['eigen/weer-sneeuw', 'sneeuw'], 75: ['eigen/weer-sneeuw-zwaar', 'zwareSneeuw'], 77: ['eigen/weer-sneeuw', 'sneeuw'],
+  80: ['eigen/weer-buien-licht', 'lichteBuien'], 81: ['eigen/weer-buien', 'buien'], 82: ['eigen/weer-buien-zwaar', 'zwareBuien'],
+  85: ['eigen/weer-sneeuwbuien', 'sneeuwbuien'], 86: ['eigen/weer-sneeuwbuien-zwaar', 'zwareSneeuwbuien'],
   // Onweer: 95 onweer, 97 zwaar onweer. 96 en 99 (onweer met lichte of zware hagel) geven alleen de modellen die hagel voorspellen;
   // alle andere melden 95 en 97 (open-meteo.com/en/docs, de tabel met weercodes).
-  95: ['cloud-bolt', 'onweer'], 96: ['cloud-bolt', 'onweerHagel'], 97: ['cloud-bolt', 'zwaarOnweer'], 99: ['cloud-bolt', 'onweerZwareHagel'],
+  95: ['eigen/weer-onweer', 'onweer'], 96: ['eigen/weer-onweer-hagel', 'onweerHagel'], 97: ['eigen/weer-onweer-zwaar', 'zwaarOnweer'], 99: ['eigen/weer-onweer-hagel-zwaar', 'onweerZwareHagel'],
 };
-const NACHT = { sun: 'moon', 'cloud-sun': 'cloud-moon' };
+// Het icoon voor een weercode die Bloei niet kent, en voor de kaart zolang het weer er nog niet is.
+export const WEERICOON_ONBEKEND = 'eigen/weer-bewolkt';
+export const WEERICOON_WACHT = 'eigen/weer-half-bewolkt';
+// 's Nachts: de maan in plaats van de zon.
+const NACHT = {
+  'eigen/weer-zonnig': 'eigen/weer-helder',
+  'eigen/weer-vrij-zonnig': 'eigen/weer-vrij-helder',
+  'eigen/weer-half-bewolkt': 'eigen/weer-half-bewolkt-nacht',
+  'eigen/weer-buien-licht': 'eigen/weer-buien-licht-nacht',
+  'eigen/weer-buien': 'eigen/weer-buien-nacht',
+  'eigen/weer-buien-zwaar': 'eigen/weer-buien-zwaar-nacht',
+  'eigen/weer-sneeuwbuien': 'eigen/weer-sneeuwbuien-nacht',
+  'eigen/weer-sneeuwbuien-zwaar': 'eigen/weer-sneeuwbuien-zwaar-nacht',
+};
 const NACHTNAAM = { zonnig: 'helder', vrijZonnig: 'vrijHelder' };
 // Storm en vorst hebben geen weercode. Bloei leest ze uit de windstoten en de temperatuur van de dienst, met de grens van het KMI waar
 // er een is: storm vanaf windstoten van 80 km per uur (code geel voor wind), vorst vanaf -5 graden. Alleen bij droog weer: valt er
@@ -191,8 +209,8 @@ const NACHTNAAM = { zonnig: 'helder', vrijZonnig: 'vrijHelder' };
 export const STORM_KMU = 80;
 export const VORST_GRADEN = -5;
 const DROOG = [0, 1, 2, 3, 45, 48];
-const STORM = ['wind', 'storm'];
-const VORST = ['temperature-low', 'vorst'];
+const STORM = ['eigen/weer-storm', 'storm']; // windvlagen; het vak Wind op de kaart houdt zijn eigen icoon
+const VORST = ['eigen/weer-vorst', 'vorst']; // een ijskristal: geen thermometer (die staat in de kop van de kaart)
 export const WEERNAMEN = [...new Set([...Object.values(BEELD).map((b) => b[1]), ...Object.values(NACHTNAAM), STORM[1], VORST[1]])];
 export const WEERICONEN = [...new Set([...Object.values(BEELD).map((b) => b[0]), ...Object.values(NACHT), STORM[0], VORST[0]])];
 
@@ -204,7 +222,7 @@ export function weerBeeld(weer) {
     if (Number.isFinite(weer.stoot) && weer.stoot >= STORM_KMU) return { icoon: STORM[0], naam: STORM[1] };
     if (Number.isFinite(weer.temp) && weer.temp <= VORST_GRADEN && weer.code !== 45 && weer.code !== 48) return { icoon: VORST[0], naam: VORST[1] };
   }
-  const [icoon, naam] = BEELD[weer.code] ?? ['cloud', 'bewolkt'];
+  const [icoon, naam] = BEELD[weer.code] ?? [WEERICOON_ONBEKEND, 'bewolkt'];
   const nacht = weer.dag === false;
   return { icoon: nacht ? (NACHT[icoon] ?? icoon) : icoon, naam: nacht ? (NACHTNAAM[naam] ?? naam) : naam };
 }

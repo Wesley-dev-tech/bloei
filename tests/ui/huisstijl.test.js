@@ -62,19 +62,22 @@ describe('huisstijl', () => {
         'pills', 'plate-wheat', 'prescription-bottle', 'prescription-bottle-medical', 'rainbow', 'ranking-star', 'rocket', 'ruler', 'scale-balanced', 'shoe-prints',
         'snowman', 'spa', 'square-check', 'stairs', 'star', 'tablets', 'tree', 'trophy', 'vial', 'water',
         'weight-hanging', 'wind',
-        // Toegevoegd op vraag van de eigenaar (0.4.8): het weerbericht op Vandaag (zon, maan, wolk, wind en druppel stonden er al).
-        'cloud-bolt', 'cloud-moon', 'cloud-rain', 'cloud-showers-heavy', 'smog', 'snowflake',
+        // De iconen van het weerbericht (0.4.8) zijn weg sinds 0.7.5: het weer heeft eigen tekeningen (eigen/weer-*).
         // Toegevoegd op vraag van de eigenaar (0.5.8): de nieuwe medailles voor notities en verslagen.
         'align-left', 'box-archive', 'clipboard', 'envelope', 'file-circle-check', 'folder-open', 'handshake-simple', 'message', 'pen-clip', 'pen-fancy', 'pen-nib',
         'quote-left', 'scroll',
         // Toegevoegd op vraag van de eigenaar (0.7.0): de thermometer van de kaart Het weer, vorst, en de waarschuwing van het KMI.
-        'temperature-half', 'temperature-low', 'triangle-exclamation'],
+        'temperature-half', 'triangle-exclamation'],
       regular: ['heart', 'bell'],
     };
     // BESLISSING 606: een eigen bestand, op vraag van de eigenaar: het teken voor Face ID; de gratis iconenset heeft er geen.
     // BESLISSING 702: en een kan water, om dezelfde reden: de set heeft geen kan, en "Kan water" en "Glas water" mogen niet hetzelfde icoon dragen.
     expect(readdirSync(join(src, 'iconen')).sort()).toEqual(['eigen', 'regular', 'solid']);
-    expect(readdirSync(join(src, 'iconen', 'eigen')).sort()).toEqual(['face-id.svg', 'kan-water.svg']);
+    // 0.7.5, op vraag van de eigenaar: elk weerbeeld zijn eigen icoon, allemaal eigen tekeningen in een stijl (weer-*).
+    const WEER = ['bewolkt', 'buien', 'buien-licht', 'buien-licht-nacht', 'buien-nacht', 'buien-zwaar', 'buien-zwaar-nacht', 'half-bewolkt', 'half-bewolkt-nacht', 'helder',
+      'ijzel', 'mist', 'motregen', 'onweer', 'onweer-hagel', 'onweer-hagel-zwaar', 'onweer-zwaar', 'regen', 'regen-licht', 'regen-zwaar', 'sneeuw', 'sneeuw-licht',
+      'sneeuw-zwaar', 'sneeuwbuien', 'sneeuwbuien-nacht', 'sneeuwbuien-zwaar', 'sneeuwbuien-zwaar-nacht', 'storm', 'vorst', 'vrij-helder', 'vrij-zonnig', 'zonnig'].map((naam) => `weer-${naam}.svg`);
+    expect(readdirSync(join(src, 'iconen', 'eigen')).sort()).toEqual(['face-id.svg', 'kan-water.svg', ...WEER].sort());
     for (const [stijl, namen] of Object.entries(verwacht)) {
       const aanwezig = readdirSync(join(src, 'iconen', stijl)).map((f) => f.replace(/\.svg$/, '')).sort();
       expect(aanwezig).toEqual([...namen].sort());
